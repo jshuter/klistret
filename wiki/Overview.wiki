@@ -1,0 +1,11 @@
+#labels Phase-Design
+Klistret Overview of services
+
+= Introduction =
+
+Klistret provides in the initial release only core services but subsequent versions will expand to include extensions for: change management, automatic installation, and test management.
+
+
+= Details =
+
+Klistret Core includes the XML Schema representation of basic CI (configuration instances), database tools, transactional web and Ajax services, and a basic Ajax web user-interface.
