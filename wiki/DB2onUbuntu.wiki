@@ -9,3 +9,11 @@ Using DB2 9.5 as the default relational/xml motor enabling xpath/xquery/flowr st
 = Details =
 
 [http://www.ibm.com/developerworks/wikis/display/im/Ubuntu+8.04+-+DB2+9.5 Instructions] detail the major steps for running DB2 9.5 on Ubuntu intrepid.  A repository [http://www.ubuntu.com/partners/ibm/db2 package] exists for Ubuntu feisty (7.10).
+
+== Requirements ==
+Verified with the [http://www.debian.org/doc/manuals/apt-howto apt-get] utility that the following packages exist: ibaio1, ksh and libstdc++5.
+
+Ignored that the referenced page is intended for Ubuntu 8.04.
+
+== Steps ==
+[http://itsrohith.com/db2.aspx | Page] and as well the [http://www.ibm.com/developerworks/forums/thread.jspa?threadID=187514&tstart=0 forum post] outline the installation process.
