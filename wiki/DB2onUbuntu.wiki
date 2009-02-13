@@ -1,0 +1,11 @@
+#labels Phase-Deploy,DB2,Ubuntu
+Installation steps for DB2 9.5 on Ubuntu 8 (8.10 intrepid)
+
+= Introduction =
+
+Using DB2 9.5 as the default relational/xml motor enabling xpath/xquery/flowr statements within SQL thereby providing search capabilities.
+
+
+= Details =
+
+[http://www.ibm.com/developerworks/wikis/display/im/Ubuntu+8.04+-+DB2+9.5 Instructions] detail the major steps for running DB2 9.5 on Ubuntu intrepid.  A repository [http://www.ubuntu.com/partners/ibm/db2 package] exists for Ubuntu feisty (7.10).
