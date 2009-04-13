@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		This file is part of Klistret. Klistret is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+
+		Klistret is distributed in the hope that it will be useful, but
+		WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Klistret. If not,
+		see <http://www.gnu.org/licenses/>
+	-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	     http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- Property Configuration -->
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:JDBC.properties
+				</value>
+			</list>
+		</property>
+	</bean>
+	<!-- JDBC (active in non-container) *edit installation parameter -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>${cmdb.database.driver}</value>
+		</property>
+		<property name="url">
+			<value>${cmdb.database.url}</value>
+		</property>
+		<property name="username">
+			<value>${cmdb.database.user}</value>
+		</property>
+		<property name="password">
+			<value>${cmdb.database.password}</value>
+		</property>
+	</bean>
+	<!-- Datasource (active in J2EE container) *edit installation parameter -->
+	<!--
+		<bean id="dataSource"
+		class="org.springframework.jndi.JndiObjectFactoryBean"> <property
+		name="jndiName"><value>${cmdb.datasource.name}</value></property>
+		</bean>
+	-->
+	<!-- Hibernate SessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation">
+			<value>classpath:Hibernate.cfg.xml
+			</value>
+		</property>
+	</bean>
+	<!-- DAO -->
+	<bean id="relationTypeDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="elementTypeDAO" class="com.klistret.cmdb.dao.ElementTypeDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<bean id="elementDAO" class="com.klistret.cmdb.dao.ElementDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="elementTypeDAO" ref="elementTypeDAO" />
+	</bean>
+	<bean id="relationDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="relationTypeDAO" ref="relationTypeDAO" />
+	</bean>
+</beans>

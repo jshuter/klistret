@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		This file is part of Klistret. Klistret is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+
+		Klistret is distributed in the hope that it will be useful, but
+		WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Klistret. If not,
+		see <http://www.gnu.org/licenses/>
+	-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.directwebremoting.org/schema/spring-dwr
+       http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd">
+
+	<dwr:configuration>
+		<dwr:init>
+			<dwr:converter id="xmlBeans"
+				class="com.klistret.cmdb.utility.dwr.XmlBeansConverter" />
+		</dwr:init>
+		<!-- POJO beans -->
+		<dwr:convert type="bean" class="com.klistret.cmdb.pojo.*" />
+		<dwr:convert type="bean" class="com.klistret.cmdb.remoting.pojo.*" />
+		<!-- Exceptions beans -->
+		<dwr:convert type="exception" class="com.klistret.cmdb.exception.*" />
+		<!-- Specific XML Beans -->
+		<dwr:convert type="xmlBeans"
+			class="com.klistret.cmdb.xmlbeans.element.logical.collection.Environment"
+			javascript="Environment" />
+	</dwr:configuration>
+
+	<bean id="elementExtjs" class="com.klistret.cmdb.remoting.service.ElementExtjsImpl">
+		<dwr:remote javascript="ElementExtjs">
+			<dwr:include method="load" />
+			<dwr:include method="save" />
+			<dwr:include method="remove" />
+			<dwr:include method="pageByCriteria" />
+			<dwr:include method="pageTypes" />
+		</dwr:remote>
+
+		<property name="elementService" ref="elementService" />
+		<property name="elementTypeService" ref="elementTypeService" />
+	</bean>
+</beans>
