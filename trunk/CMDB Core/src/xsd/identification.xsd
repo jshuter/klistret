@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		This file is part of Klistret. Klistret is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+
+		Klistret is distributed in the hope that it will be useful, but
+		WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Klistret. If not,
+		see <http://www.gnu.org/licenses/>
+	-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.klistret.com/cmdb"
+	xmlns:cmdb="http://www.klistret.com/cmdb" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<xs:complexType name="Identification">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Criteria" type="cmdb:Criteria"
+				maxOccurs="unbounded"></xs:element>
+			<xs:element name="Binding" type="cmdb:Binding" maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Criteria">
+		<xs:sequence>
+			<xs:element name="PropertyComposite" type="cmdb:PropertyComposite"
+				minOccurs="1" maxOccurs="1"></xs:element>
+		</xs:sequence>
+		<xs:attribute name="Name" type="xs:string" use="required"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="PropertyComposite">
+		<xs:annotation>
+			<xs:documentation>
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Path" type="cmdb:PropertyPath"
+				minOccurs="1" maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="PropertyPath">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(\w+)|(\w+[.]\w+)*"></xs:pattern>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="XPathComposite">
+		<xs:annotation>
+			<xs:documentation>
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="XPath" type="xs:string" minOccurs="1"
+				maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Binding">
+		<xs:annotation>
+			<xs:documentation>
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Exclusion" type="xs:string" minOccurs="0"
+				maxOccurs="unbounded"></xs:element>
+		</xs:sequence>
+		<xs:attribute name="Class" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="Criteria" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="Priority" type="xs:int"></xs:attribute>
+	</xs:complexType>
+
+	<xs:element name="Identification" type="cmdb:Identification"></xs:element>
+</schema>

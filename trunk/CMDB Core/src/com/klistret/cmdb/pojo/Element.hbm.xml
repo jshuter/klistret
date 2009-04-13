@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		This file is part of Klistret. Klistret is free software: you can
+		redistribute it and/or modify it under the terms of the GNU General
+		Public License as published by the Free Software Foundation, either
+		version 3 of the License, or (at your option) any later version.
+
+		Klistret is distributed in the hope that it will be useful, but
+		WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+		General Public License for more details. You should have received a
+		copy of the GNU General Public License along with Klistret. If not,
+		see <http://www.gnu.org/licenses/>
+	-->
+<!DOCTYPE hibernate-mapping PUBLIC
+		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.klistret.cmdb.pojo">
+
+	<class name="Element" table="ELEMENT">
+
+		<id name="id">
+			<column name="ELEMENTID" sql-type="INTEGER" />
+			<generator class="identity">
+			</generator>
+		</id>
+
+		<many-to-one name="type" class="com.klistret.cmdb.pojo.ElementType"
+			lazy="false" foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
+			<column name="ELEMENTTYPEID" sql-type="INTEGER" not-null="true" />
+		</many-to-one>
+
+		<property name="name" index="ELEMENT_SK">
+			<column name="NAME" length="100" not-null="true" />
+		</property>
+
+		<property name="fromTimeStamp" type="timestamp">
+			<column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
+
+		<property name="toTimeStamp" type="timestamp">
+			<column name="TOTIMESTAMP" />
+		</property>
+
+		<property name="createId">
+			<column name="CREATEID" length="10" />
+		</property>
+
+		<property name="createTimeStamp" type="timestamp">
+			<column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
+
+		<property name="updateTimeStamp" type="timestamp">
+			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
+
+		<property name="configuration" type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
+			<column name="CONFIGURATION" sql-type="XML" />
+		</property>
+
+		<set name="sourceRelations" lazy="true" inverse="true"
+			cascade="save-update" where="TOTIMESTAMP is null">
+			<key column="SOURCEID" on-delete="noaction" not-null="true" />
+			<one-to-many class="com.klistret.cmdb.pojo.Relation" />
+		</set>
+
+		<set name="destinationRelations" lazy="true" inverse="true"
+			cascade="save-update" where="TOTIMESTAMP is null">
+			<key column="DESTINATIONID" on-delete="noaction" not-null="true" />
+			<one-to-many class="com.klistret.cmdb.pojo.Relation" />
+		</set>
+
+	</class>
+
+</hibernate-mapping>
