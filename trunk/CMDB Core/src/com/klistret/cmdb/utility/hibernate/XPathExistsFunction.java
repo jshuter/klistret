@@ -18,10 +18,14 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.dialect.DB2Dialect;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
 
 import com.klistret.cmdb.pojo.PropertyXPathExpression;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
+import com.klistret.cmdb.utility.xmlbeans.XPathOperators;
 
 @SuppressWarnings("serial")
 public class XPathExistsFunction implements Criterion {
@@ -35,21 +39,43 @@ public class XPathExistsFunction implements Criterion {
 	}
 
 	@Override
-	public TypedValue[] getTypedValues(Criteria args, CriteriaQuery factory)
+	public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery)
 			throws HibernateException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		Dialect dialect = criteriaQuery.getFactory().getDialect();
+		String[] columns = criteriaQuery.getColumnsUsingProjection(criteria,
+				propertyName);
 
-	@Override
-	public String toSqlString(Criteria args, CriteriaQuery factory)
-			throws HibernateException {
+		if (columns.length != 1)
+			throw new HibernateException(
+					"xpathExists may only be used with single-column properties");
 
 		PropertyExpression expression = new PropertyExpression(
 				propertyXPathExpression.getQName(), propertyXPathExpression
 						.getPath());
 
+		if (propertyXPathExpression.isFunction()) {
+			if (dialect instanceof DB2Dialect)
+				expression
+						.setDefaultFunctionPrefix("http://www.ibm.com/xmlns/prod/db2/functions");
+
+			if (dialect instanceof Oracle9iDialect)
+				expression.setDefaultFunctionPrefix("");
+		}
+
+		switch (propertyXPathExpression.getComparison()) {
+		case Equal:
+			XPathOperators.equal(expression, "?");
+			break;
+		}
+
 		return null;
 	}
 
+	@Override
+	public TypedValue[] getTypedValues(Criteria criteria,
+			CriteriaQuery criteriaQuery) throws HibernateException {
+		return new TypedValue[] { criteriaQuery.getTypedValue(criteria,
+				propertyName, propertyXPathExpression.getValue().toString()
+						.toLowerCase()) };
+	}
 }
