@@ -47,4 +47,18 @@ public class PropertyXPathExpression {
 	public void setComparison(Comparisons comparison) {
 		this.comparison = comparison;
 	}
+
+	public boolean isFunction() {
+		if (comparison == Comparisons.Matches
+				|| comparison == Comparisons.Contains
+				|| comparison == Comparisons.StartsWith
+				|| comparison == Comparisons.EndsWith) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isOperator() {
+		return !(isFunction());
+	}
 }
