@@ -43,7 +43,9 @@ public class PropertyExpression {
 		com.klistret.cmdb.utility.xmlbeans.PropertyExpression expression = new com.klistret.cmdb.utility.xmlbeans.PropertyExpression(
 				schemaType, "Binding.Class1");
 
-		System.out.println(XPathFunctions.matches(expression, "me"));
+		System.out.println(String.format("%s %s",
+				expression.getDeclareClause(), XPathFunctions.matches(
+						expression, "me")));
 		assertNotNull(expression);
 	}
 
@@ -55,7 +57,9 @@ public class PropertyExpression {
 		com.klistret.cmdb.utility.xmlbeans.PropertyExpression expression = new com.klistret.cmdb.utility.xmlbeans.PropertyExpression(
 				qname, "Binding.Class1");
 
-		System.out.println(XPathFunctions.matches(expression, "me"));
+		System.out.println(String.format("%s %s",
+				expression.getDeclareClause(), XPathFunctions.matches(
+						expression, "me")));
 		assertNotNull(expression);
 	}
 }

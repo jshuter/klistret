@@ -29,7 +29,7 @@ import com.klistret.cmdb.exception.ApplicationException;
 public class PropertyExpression implements Expression {
 	private final static String propertyPathExpression = "(\\w+)|(\\w+[.]\\w+)*";
 
-	private String context = "$this";
+	private String context = "this";
 
 	private String defaultElementPrefix;
 
@@ -114,7 +114,7 @@ public class PropertyExpression implements Expression {
 		return declarations;
 	}
 
-	public String getParentXPath() {
+	public String getDeclareClause() {
 		StringBuilder buffer = new StringBuilder();
 
 		// add default element declaration
@@ -134,10 +134,16 @@ public class PropertyExpression implements Expression {
 			buffer.append(declaration);
 		}
 
+		return buffer.toString();
+	}
+
+	public String getParentXPath() {
+		StringBuilder buffer = new StringBuilder();
+
 		// add context
 		if (context != null)
-			buffer.append(context);
-
+			buffer.append("$").append(context);
+		
 		// add nodes (except for last)
 		for (Node node : nodes.subList(0, nodes.size() - 1)) {
 			if (node.getSchemaProperty().isAttribute())
@@ -158,6 +164,18 @@ public class PropertyExpression implements Expression {
 			buffer.append(getAttribute(node));
 		else
 			buffer.append(getElement(node));
+
+		return buffer.toString();
+	}
+
+	public String toString() {
+		StringBuilder buffer = new StringBuilder();
+
+		// add declare clause
+		buffer.append(getDeclareClause());
+
+		// add xpath
+		buffer.append(getXPath());
 
 		return buffer.toString();
 	}

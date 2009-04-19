@@ -36,6 +36,8 @@ public interface Expression {
 
 	public ArrayList<String> getDeclarations();
 
+	public String getDeclareClause();
+
 	public String getParentXPath();
 
 	public String getXPath();

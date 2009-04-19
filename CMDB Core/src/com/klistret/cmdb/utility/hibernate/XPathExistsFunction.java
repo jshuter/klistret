@@ -20,22 +20,25 @@ import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
 
-import com.klistret.cmdb.pojo.PropertyXPathExpression;
-import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
-import com.klistret.cmdb.utility.xmlbeans.XPathOperators;
+import com.klistret.cmdb.utility.xmlbeans.Expression;
 
 @SuppressWarnings("serial")
 public class XPathExistsFunction implements Criterion {
 	private final String propertyName;
-	private final PropertyXPathExpression propertyXPathExpression;
+	private final Expression expression;
+	private final String xpath;
+	private final Object value;
+	private final boolean functional;
 
-	public XPathExistsFunction(String propertyName,
-			PropertyXPathExpression propertyXPathExpression) {
+	public XPathExistsFunction(String propertyName, Expression expression,
+			String xpath, Object value, boolean functional) {
 		this.propertyName = propertyName;
-		this.propertyXPathExpression = propertyXPathExpression;
+		this.expression = expression;
+		this.xpath = xpath;
+		this.value = value;
+		this.functional = functional;
 	}
 
 	@Override
@@ -49,33 +52,25 @@ public class XPathExistsFunction implements Criterion {
 			throw new HibernateException(
 					"xpathExists may only be used with single-column properties");
 
-		PropertyExpression expression = new PropertyExpression(
-				propertyXPathExpression.getQName(), propertyXPathExpression
-						.getPath());
-
-		if (propertyXPathExpression.isFunction()) {
-			if (dialect instanceof DB2Dialect)
+		if (dialect instanceof DB2Dialect) {
+			if (functional)
 				expression
 						.setDefaultFunctionPrefix("http://www.ibm.com/xmlns/prod/db2/functions");
 
-			if (dialect instanceof Oracle9iDialect)
-				expression.setDefaultFunctionPrefix("");
+			return String.format("XMLEXISTS(\'%s %s\') PASSING %s AS \"%s\"",
+					expression.getDeclareClause(), xpath, columns[0],
+					expression.getContext());
 		}
 
-		switch (propertyXPathExpression.getComparison()) {
-		case Equal:
-			XPathOperators.equal(expression, "?");
-			break;
-		}
-
-		return null;
+		throw new HibernateException(String.format(
+				"dialect [%s] not supported for xpath exists function", dialect
+						.toString()));
 	}
 
 	@Override
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
 		return new TypedValue[] { criteriaQuery.getTypedValue(criteria,
-				propertyName, propertyXPathExpression.getValue().toString()
-						.toLowerCase()) };
+				propertyName, value) };
 	}
 }

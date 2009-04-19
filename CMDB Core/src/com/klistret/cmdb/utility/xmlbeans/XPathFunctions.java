@@ -31,15 +31,15 @@ public class XPathFunctions {
 
 		if (attribute)
 			if (qname.getPrefix().isEmpty())
-				return String.format("%s[%s(@%s,\'%s\')]", expression
+				return String.format("%s[%s(@%s,\"%s\")]", expression
 						.getParentXPath(), operator, qname.getLocalPart(),
 						value);
 			else
-				return String.format("%s[%s(@%s:%s,\'%s\')]", expression
+				return String.format("%s[%s(@%s:%s,\"%s\")]", expression
 						.getParentXPath(), operator, qname.getPrefix(), qname
 						.getLocalPart(), value);
 		else
-			return String.format("%s[%s(%s:%s,\'%s\')]", expression
+			return String.format("%s[%s(%s:%s,\"%s\")]", expression
 					.getParentXPath(), operator, qname.getPrefix(), qname
 					.getLocalPart(), value);
 	}

@@ -57,7 +57,7 @@ public class XPathOperators {
 			// do not wrap integer
 			break;
 		case SchemaProperty.JAVA_STRING:
-			value = "'" + value + "'";
+			value = "\"" + value + "\"";
 			break;
 		default:
 			throw new ApplicationException(
