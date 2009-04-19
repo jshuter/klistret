@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.pojo.ElementType;
-import com.klistret.cmdb.utility.Criteria;
+import com.klistret.cmdb.utility.hibernate.Criteria;
 
 public class ElementTypeServiceImpl implements ElementTypeService {
 

@@ -29,7 +29,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	private final static Logger logger = Logger.getLogger(ElementTypeDAOImpl.class
 			.getName());
 
-	public Integer countByCriteria(com.klistret.cmdb.utility.Criteria criteria) {
+	public Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
 			hcriteria.setProjection(Projections.rowCount());
@@ -42,7 +42,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 
 	@SuppressWarnings("unchecked")
 	public Collection<com.klistret.cmdb.pojo.ElementType> findByCriteria(
-			com.klistret.cmdb.utility.Criteria criteria) {
+			com.klistret.cmdb.utility.hibernate.Criteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
 

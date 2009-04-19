@@ -19,6 +19,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.DB2Dialect;
+import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.TypedValue;
 
@@ -60,6 +61,17 @@ public class XPathExistsFunction implements Criterion {
 			return String.format("XMLEXISTS(\'%s %s\') PASSING %s AS \"%s\"",
 					expression.getDeclareClause(), xpath, columns[0],
 					expression.getContext());
+		}
+
+		if (dialect instanceof Oracle9iDialect) {
+			if (functional)
+				expression
+						.setDefaultFunctionPrefix("http://xmlns.oracle.com/xdb");
+
+			expression.setContext(null);
+
+			return String.format("XMLExists(\'%s %s\') PASSING %s", expression
+					.getDeclareClause(), xpath, columns[0]);
 		}
 
 		throw new HibernateException(String.format(
