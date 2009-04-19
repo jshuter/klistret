@@ -12,16 +12,23 @@
  ** see <http://www.gnu.org/licenses/>
  */
 
-package com.klistret.cmdb.dao;
+package com.klistret.cmdb.utility.hibernate;
 
-import java.util.Collection;
+import org.hibernate.Session;
 
-public interface ElementTypeDAO {
+public interface Criteria {
 
-	com.klistret.cmdb.pojo.ElementType getByCompositeId(String name);
+	public org.hibernate.Criteria getCriteria(Session session);
 
-	Collection<com.klistret.cmdb.pojo.ElementType> findByCriteria(
-			com.klistret.cmdb.utility.hibernate.Criteria criteria);
+	public Integer getMaxResults();
 
-	Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria);
+	public void setMaxResults(Integer maxResults);
+
+	public Integer getFirstResult();
+
+	public void setFirstResult(Integer firstResult);
+
+	public String getOrderBy();
+
+	public void setOrderBy(String orderBy);
 }

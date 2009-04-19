@@ -36,7 +36,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	private final static Logger logger = Logger.getLogger(ElementDAOImpl.class
 			.getName());
 
-	public Integer countByCriteria(com.klistret.cmdb.utility.Criteria criteria) {
+	public Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
 			hcriteria.setProjection(Projections.rowCount());
@@ -49,7 +49,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 	@SuppressWarnings("unchecked")
 	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
-			com.klistret.cmdb.utility.Criteria criteria) {
+			com.klistret.cmdb.utility.hibernate.Criteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
 
