@@ -17,19 +17,19 @@ package com.klistret.cmdb.utility.spring;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringUtil {
+public class ApplicationContextHelper {
 	protected ApplicationContext mContext;
 
-	protected static SpringUtil sInstance;
+	protected static ApplicationContextHelper sInstance;
 
-	protected SpringUtil(String mConfiguration) {
+	protected ApplicationContextHelper(String mConfiguration) {
 		mContext = new ClassPathXmlApplicationContext(
 				new String[] { mConfiguration });
 	}
 
-	public synchronized static SpringUtil getInstance(String mConfiguration) {
+	public synchronized static ApplicationContextHelper getInstance(String mConfiguration) {
 		if (sInstance == null) {
-			sInstance = new SpringUtil(mConfiguration);
+			sInstance = new ApplicationContextHelper(mConfiguration);
 		}
 		return sInstance;
 	}

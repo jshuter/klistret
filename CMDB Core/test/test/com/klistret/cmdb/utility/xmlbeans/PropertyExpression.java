@@ -62,4 +62,8 @@ public class PropertyExpression {
 						expression, "me")));
 		assertNotNull(expression);
 	}
+
+	// @Test
+	public void dummy() {
+	}
 }
