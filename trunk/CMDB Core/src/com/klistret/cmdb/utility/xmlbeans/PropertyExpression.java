@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import com.klistret.cmdb.exception.ApplicationException;
 
@@ -143,7 +144,7 @@ public class PropertyExpression implements Expression {
 		// add context
 		if (context != null)
 			buffer.append("$").append(context);
-		
+
 		// add nodes (except for last)
 		for (Node node : nodes.subList(0, nodes.size() - 1)) {
 			if (node.getSchemaProperty().isAttribute())
@@ -203,9 +204,7 @@ public class PropertyExpression implements Expression {
 		if (qname.getNamespaceURI().isEmpty())
 			return qname;
 
-		// split URI to capture last logical node as prefix
-		String[] nodes = qname.getNamespaceURI().split("/");
-		String prefix = nodes[nodes.length - 1];
+		String prefix = QNameHelper.suggestPrefix(qname.getNamespaceURI());
 
 		QName other = new QName(qname.getNamespaceURI(), qname.getLocalPart(),
 				prefix);
