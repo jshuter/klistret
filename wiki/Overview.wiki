@@ -5,7 +5,9 @@ Klistret Overview of services
 
 Klistret provides in the initial release only core services but subsequent versions will expand to include extensions for: change management, automatic installation, and test management.
 
+The basic idea is to reverse the existing paradigm with CMDB repositories from a discovery warehouse to a configuration generator.  Medium and large organizations often have a landscape composed of several test levels before entering production.  Klistret intends to minimize the negative impact of human error in conjunction with installations or configuration of developed IT applications by generating the runtime environment automatically.
+
 
 = Details =
 
-Klistret Core includes the XML Schema representation of basic CI (configuration instances), database tools, transactional web and Ajax services, and a basic Ajax web user-interface.
+Klistret Core includes the XML Schema representation of basic CI (configuration instances), database tools, transactional web and Ajax services, and a basic Ajax web user-interface.  CMDB warehouses usually consist of a hierarchy of CIs spanning off either as elements (representing just about anything) and relationships between elements.  CIs can represent a plethora of different IT stuff from web application servers to release periods.  Each CI can also have a large number of characteristics not easily baked into a traditional relational database.  However, XML (given that schema types can be extended) is perfect for capturing such dynamic and unstructured information.  Modern databases (only IBM and Oracle at the time of writing) offer a way to blend the freedom of XML with the structure of traditional database designs.  
