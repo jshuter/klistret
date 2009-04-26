@@ -80,8 +80,8 @@ public class SchemaTypeHelper {
 	}
 
 	public SchemaType[] getDescendingSchemaTypes(QName qname) {
-		ArrayList<SchemaType> descendents = new ArrayList<SchemaType>(
-				extendingDepth);
+		// to-do (logical to determine a list size)
+		ArrayList<SchemaType> descendents = new ArrayList<SchemaType>();
 
 		// get direct extending schemaType
 		SchemaType[] extensions = getExtendingSchemaTypes(qname);
@@ -98,9 +98,4 @@ public class SchemaTypeHelper {
 		return (SchemaType[]) descendents.toArray(new SchemaType[0]);
 	}
 
-	public SchemaType[] getDescendingSchemaTypes(QName qname,
-			boolean abstraction) {
-
-		return null;
-	}
 }
