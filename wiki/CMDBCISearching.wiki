@@ -1,3 +1,4 @@
 CI inside Klistret services are simple POJOs so it makes since to base search criteria on Java properties. 
 
 = Flexibility =
+Extending search services outwards to Ajax calls is easier to code against if the criteria object easily translates to JSON.
