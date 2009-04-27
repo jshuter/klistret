@@ -1,0 +1,3 @@
+CI inside Klistret services are simple POJOs so it makes since to base search criteria on Java properties. 
+
+= Flexibility =
