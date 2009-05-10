@@ -22,32 +22,21 @@ import org.apache.xmlbeans.SchemaType;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SchemaTypeHelper {
-
-	private com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper helper;
+public class SchemaTypeInspection {
 
 	@Before
 	public void setUp() throws Exception {
-		helper = new com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper();
-	}
-
-	// @Test
-	public void getExtensions() {
-		SchemaType[] results = helper.getExtendingSchemaTypes(new QName(
-				"http://www.klistret.com/cmdb", "Element"));
-
-		for (SchemaType schemaType : results)
-			System.out.println(schemaType.getFullJavaName());
-		assertNotNull(results);
 	}
 
 	@Test
-	public void getHierarchy() {
-		SchemaType[] results = helper.getDescendingSchemaTypes(new QName(
-				"http://www.klistret.com/cmdb", "Element"));
+	public void getExtensions() {
+		SchemaType[] results = com.klistret.cmdb.utility.xmlbeans.SchemaTypeInspection
+				.getExtendingTypes(new QName("http://www.klistret.com/cmdb",
+						"Element"));
 
 		for (SchemaType schemaType : results)
 			System.out.println(schemaType.getFullJavaName());
 		assertNotNull(results);
 	}
+
 }
