@@ -15,13 +15,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-             http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<!-- 
-	<import resource="DAO.cfg.xml" />
-	<import resource="Manager.cfg.xml" />
-	<import resource="Service.cfg.xml" />
-	<import resource="DWR.cfg.xml" />
-	-->
-	<import resource="Utility.cfg.xml" />
+	     http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<bean id="CIIdentification" class="com.klistret.cmdb.utility.CIIdentification">
+		<constructor-arg type="java.util.URL" value="" />
+	</bean>
 </beans>
