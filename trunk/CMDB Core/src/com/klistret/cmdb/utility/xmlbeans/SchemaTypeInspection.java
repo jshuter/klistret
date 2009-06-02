@@ -2,6 +2,7 @@ package com.klistret.cmdb.utility.xmlbeans;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -13,25 +14,24 @@ import com.klistret.cmdb.exception.ApplicationException;
 
 public class SchemaTypeInspection {
 
-	private static Hashtable<QName, SchemaType[]> schemaTypeTree = new Hashtable<QName, SchemaType[]>();
+	private Hashtable<QName, SchemaType[]> schemaTypeTree = new Hashtable<QName, SchemaType[]>();
 
-	public static QName baseQName = new QName("http://www.klistret.com/cmdb",
-			"Base");
+	public SchemaTypeInspection(QName qname) {
+		SchemaType schemaType = XmlBeans.getContextTypeLoader().findType(qname);
 
-	static {
-		// get base schema type (abstract root complex type)
-		SchemaType baseSchemaType = XmlBeans.getContextTypeLoader().findType(
-				baseQName);
-
-		if (baseSchemaType == null)
+		if (schemaType == null)
 			throw new ApplicationException(String.format(
 					"qname [%s] does not exist in the xmlbeans type loader",
-					baseQName.toString()));
+					qname.toString()));
 
-		cacheExtendingTypes(baseSchemaType);
+		cacheExtendingTypes(schemaType);
 	}
 
-	private static void cacheExtendingTypes(SchemaType schemaType) {
+	public SchemaTypeInspection(String namespaceURI, String localPart) {
+		this(new QName(namespaceURI, localPart));
+	}
+
+	private void cacheExtendingTypes(SchemaType schemaType) {
 		ArrayList<SchemaType> extendingTypes = new ArrayList<SchemaType>();
 
 		// get schema type system
@@ -62,19 +62,37 @@ public class SchemaTypeInspection {
 		schemaTypeTree.put(schemaType.getName(), results);
 	}
 
-	public static SchemaType[] getExtendingTypes(QName qname) {
+	private SchemaType[] purgeAbstract(SchemaType[] schemaTypes,
+			boolean isAbstract) {
+		ArrayList<SchemaType> results = new ArrayList<SchemaType>();
+		for (SchemaType schemaType : schemaTypes) {
+			if (isAbstract == XmlBeans.getContextTypeLoader().findElement(
+					schemaType.getName()).isAbstract()) {
+				results.add(schemaType);
+			}
+		}
+
+		return (SchemaType[]) results.toArray(new SchemaType[0]);
+	}
+
+	public SchemaType[] getTypes() {
+		ArrayList<SchemaType> results = new ArrayList<SchemaType>();
+
+		for (Map.Entry<QName, SchemaType[]> map : schemaTypeTree.entrySet())
+			results.add(XmlBeans.getContextTypeLoader().findType(map.getKey()));
+
+		return (SchemaType[]) results.toArray(new SchemaType[0]);
+	}
+
+	public SchemaType[] getTypes(boolean isAbstract) {
+		return purgeAbstract(getTypes(), isAbstract);
+	}
+
+	public SchemaType[] getExtendingTypes(QName qname) {
 		return schemaTypeTree.get(qname);
 	}
 
-	public static SchemaType[] getBaseExtendingTypes() {
-		return getExtendingTypes(baseQName);
-	}
-
-	public static SchemaType[] getAncestorTypes() {
-		return null;
-	}
-
-	public static SchemaType[] getDecendentTypes() {
-		return null;
+	public SchemaType[] getExtendingTypes(QName qname, boolean isAbstract) {
+		return purgeAbstract(getExtendingTypes(qname), isAbstract);
 	}
 }

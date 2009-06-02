@@ -27,7 +27,7 @@ public class Resolver {
 		// target.setWatermark("FK");
 	}
 
-	@Test
+	//@Test
 	public void useIdentificationBuilder() throws XmlException, IOException {
 		com.klistret.cmdb.xmlbeans.IdentificationDocument document = com.klistret.cmdb.xmlbeans.IdentificationDocument.Factory
 				.parse(new File("/tmp/identifcation.xml"));
@@ -45,7 +45,7 @@ public class Resolver {
 		}
 	}
 
-	// @Test
+	@Test
 	public void createIdentificationDocument() throws IOException {
 		XmlOptions opts = new XmlOptions();
 		opts.setSavePrettyPrint();

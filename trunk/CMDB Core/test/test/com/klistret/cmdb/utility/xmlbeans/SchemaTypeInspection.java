@@ -16,23 +16,28 @@ package test.com.klistret.cmdb.utility.xmlbeans;
 
 import static org.junit.Assert.assertNotNull;
 
-import javax.xml.namespace.QName;
+//import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.SchemaType;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.klistret.cmdb.utility.spring.ApplicationContextHelper;
+
 public class SchemaTypeInspection {
+
+	private com.klistret.cmdb.utility.xmlbeans.SchemaTypeInspection inspection;
 
 	@Before
 	public void setUp() throws Exception {
+		inspection = (com.klistret.cmdb.utility.xmlbeans.SchemaTypeInspection) ApplicationContextHelper
+				.getInstance("Spring.cfg.xml").getContext().getBean(
+						"schemaTypeInspection");
 	}
 
 	@Test
 	public void getExtensions() {
-		SchemaType[] results = com.klistret.cmdb.utility.xmlbeans.SchemaTypeInspection
-				.getExtendingTypes(new QName("http://www.klistret.com/cmdb",
-						"Element"));
+		SchemaType[] results = inspection.getTypes(true);
 
 		for (SchemaType schemaType : results)
 			System.out.println(schemaType.getFullJavaName());
