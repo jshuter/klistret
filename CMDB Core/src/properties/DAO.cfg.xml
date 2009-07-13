@@ -67,10 +67,8 @@
 	</bean>
 	<bean id="elementDAO" class="com.klistret.cmdb.dao.ElementDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="elementTypeDAO" ref="elementTypeDAO" />
 	</bean>
 	<bean id="relationDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
-		<property name="relationTypeDAO" ref="relationTypeDAO" />
 	</bean>
 </beans>

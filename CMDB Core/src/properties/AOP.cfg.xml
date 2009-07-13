@@ -13,16 +13,18 @@
 		see <http://www.gnu.org/licenses/>
 	-->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-             http://www.springframework.org/schema/beans/spring-beans.xsd">
+	     http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<!-- CMDB Element persistence identification -->
+	<bean id="elementPersistenceIdentification"
+		class="com.klistret.cmdb.aspects.PersistenceIdentification"></bean>
+	<aop:config>
+		<aop:aspect ref="elementPersistenceIdentification">
+			<aop:pointcut id="setElementPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.pojo.Element)) and args(element)" />
+			<aop:before pointcut-ref="setElementPointcut" method="doElementPersistenceCheck" />
 
-	<import resource="DAO.cfg.xml" />
-	<import resource="Manager.cfg.xml" />
-	<import resource="Service.cfg.xml" />
-	<import resource="AOP.cfg.xml" />
-	<!--
-	<import resource="DWR.cfg.xml" /> 
-	<import resource="Utility.cfg.xml"/>
-	-->
+		</aop:aspect>
+	</aop:config>
 </beans>
