@@ -20,7 +20,9 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -33,10 +35,11 @@ import com.klistret.cmdb.exception.InfrastructureException;
 
 public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
-	private final static Logger logger = Logger.getLogger(ElementDAOImpl.class
-			.getName());
+	private static final Logger logger = LoggerFactory
+			.getLogger(ElementDAOImpl.class);
 
-	public Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria) {
+	public Integer countByCriteria(
+			com.klistret.cmdb.utility.hibernate.Criteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
 			hcriteria.setProjection(Projections.rowCount());
@@ -113,13 +116,13 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			criteria.add(Restrictions.idEq(id));
 
-			logger.fine("getting element [id:" + id + "] by id");
+			logger.debug("getting element [id: {}] by id ", id);
 			com.klistret.cmdb.pojo.Element element = (com.klistret.cmdb.pojo.Element) criteria
 					.uniqueResult();
 
 			if (element == null) {
-				throw new ApplicationException("element [id: " + id
-						+ "] does not exist");
+				throw new ApplicationException(String.format(
+						"element [id: %s] does not exist", id));
 			}
 
 			return element;
@@ -140,7 +143,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("save/update element [" + element.toString() + "]");
+		logger.info("save/update element [{}]", element.toString());
 
 		return element;
 	}
