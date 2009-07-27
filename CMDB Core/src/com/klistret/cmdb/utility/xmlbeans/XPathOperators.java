@@ -30,7 +30,7 @@ public class XPathOperators {
 		QName qname = expression.getSelectedNode().getQName();
 
 		if (attribute) {
-			if (qname.getPrefix().isEmpty())
+			if (qname.getPrefix() != null && qname.getPrefix().length() == 0)
 				return String.format("%s[@%s %s %s]", expression
 						.getParentXPath(), qname.getLocalPart(), operator,
 						value);
