@@ -186,7 +186,8 @@ public class PropertyExpression implements Expression {
 
 		buffer.append("/@");
 
-		if (!node.getQName().getPrefix().isEmpty())
+		if (!(node.getQName().getPrefix() != null && node.getQName()
+				.getPrefix().length() == 0))
 			buffer.append(node.getQName().getPrefix()).append(":");
 
 		return buffer.append(node.getQName().getLocalPart()).toString();
@@ -201,7 +202,8 @@ public class PropertyExpression implements Expression {
 
 	private QName addNamespace(QName qname) {
 		// control empty namespaces
-		if (qname.getNamespaceURI().isEmpty())
+		if (qname.getNamespaceURI() != null
+				&& qname.getNamespaceURI().length() == 0)
 			return qname;
 
 		String prefix = QNameHelper.suggestPrefix(qname.getNamespaceURI());

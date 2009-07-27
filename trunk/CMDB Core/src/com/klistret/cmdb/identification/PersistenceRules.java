@@ -19,26 +19,27 @@ import java.net.URL;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.hibernate.Criteria;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
-import com.klistret.cmdb.xmlbeans.PersistenceIdentificationRulesDocument;
+import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
 
-public class PersistenceIdentificationRules {
+public class PersistenceRules {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(PersistenceIdentificationRules.class);
+			.getLogger(PersistenceRules.class);
 
-	private PersistenceIdentificationRulesDocument xmlObjectDocument;
+	private PersistenceRulesDocument rulesDocument;
 
-	public PersistenceIdentificationRules(URL url) {
+	public PersistenceRules(URL url) {
 		try {
-			this.xmlObjectDocument = (PersistenceIdentificationRulesDocument) XmlObject.Factory
+			this.rulesDocument = (PersistenceRulesDocument) XmlObject.Factory
 					.parse(url);
-
 		} catch (XmlException e) {
 			logger.error("URL [{}] failed parsing; {}", url, e);
 			throw new InfrastructureException(e.getMessage());
@@ -48,13 +49,24 @@ public class PersistenceIdentificationRules {
 		}
 	}
 
-	public PropertyExpression[] getPrimaryIdentificationPropertyExpressions(
-			XmlObject xmlObject) {
-		return getIdentificationPropertyExpressions(xmlObject, 0);
+	public Criteria getCriteria(Element element) {
+		//PropertyExpression[] expressions = getPropertyExpressions(element);
+
+		// construct criteria based on expression array
+		return null;
 	}
 
-	public PropertyExpression[] getIdentificationPropertyExpressions(
-			XmlObject xmlObject, int priority) {
+	private PropertyExpression[] getPropertyExpressions(Element element) {
+		String baseTypes = "";
+
+		String xquery = String
+				.format(
+						"declare namespace cmdb=\'http://www.klistret.com/cmdb\'; $this/cmdb:PersistenceRules/cmdb:Binding[matches(@Type, '%s\') and not(cmdb:ExclusionType = \'%s\')]",
+						baseTypes, element.getType().getName());
+		logger.debug("xquery (bindings): {}", xquery);
+
+		XmlObject[] bindings = rulesDocument.selectPath(xquery);
+
 		return null;
 	}
 }

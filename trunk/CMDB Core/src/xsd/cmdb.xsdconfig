@@ -15,7 +15,7 @@
 <xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
 	xmlns:cmdb="http://www.klistret.com/cmdb">
     
-    <!-- Commons / Persistence identification rules-->
+    <!-- Commons / Persistence rules-->
 	<xb:namespace uri="http://www.klistret.com/cmdb">
 		<xb:package>com.klistret.cmdb.xmlbeans</xb:package>
 	</xb:namespace>
