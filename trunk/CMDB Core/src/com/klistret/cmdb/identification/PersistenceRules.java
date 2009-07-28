@@ -17,9 +17,9 @@ package com.klistret.cmdb.identification;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.hibernate.Criteria;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
+import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
 
 public class PersistenceRules {
@@ -49,23 +50,46 @@ public class PersistenceRules {
 		}
 	}
 
-	public Criteria getCriteria(Element element) {
-		//PropertyExpression[] expressions = getPropertyExpressions(element);
-
-		// construct criteria based on expression array
-		return null;
-	}
-
 	private PropertyExpression[] getPropertyExpressions(Element element) {
-		String baseTypes = "";
+		String classname = element.getType().getName();
 
-		String xquery = String
-				.format(
-						"declare namespace cmdb=\'http://www.klistret.com/cmdb\'; $this/cmdb:PersistenceRules/cmdb:Binding[matches(@Type, '%s\') and not(cmdb:ExclusionType = \'%s\')]",
-						baseTypes, element.getType().getName());
-		logger.debug("xquery (bindings): {}", xquery);
+		/**
+		 * return ordered list of base types ascending based on the element type
+		 * (fully qualified class-name)
+		 */
+		SchemaType[] baseSchemaTypes = SchemaTypeHelper
+				.getBaseSchemaTypes(classname);
 
-		XmlObject[] bindings = rulesDocument.selectPath(xquery);
+		/**
+		 * construct schema type list for query
+		 */
+		String schemaTypesList = String.format("\'%s\'", classname);
+		for (SchemaType schemaType : baseSchemaTypes)
+			schemaTypesList = schemaTypesList.concat(String.format(",\'%s\'",
+					schemaType.getFullJavaName()));
+
+		String namespaces = "declare namespace cmdb=\'http://www.klistret.com/cmdb\';";
+
+		/**
+		 * Positional variables only allowed for "for" clause and the order
+		 * should be ascending to the base class (type). Necessary to order the
+		 * returned property criterion by class then the order attribute.
+		 */
+		String xquery = "for $types at $typesIndex in ("
+				+ schemaTypesList
+				+ ") "
+				+ "for $binding in $this/cmdb:PersistenceRules/cmdb:Binding[not(cmdb:ExclusionType = \'"
+				+ classname
+				+ "\')] "
+				+ "for $criterion in $this/cmdb:PersistenceRules/cmdb:PropertyCriterion "
+				+ "where $binding/cmdb:Type = $types "
+				+ "and $binding/cmdb:PropertyCriterion = $criterion/@Name "
+				+ "order by $typesIndex, $binding/@Order empty greatest "
+				+ "return $criterion";
+
+		// Ordered array of PropertyCriterion XmlBeans
+		XmlObject[] propertyCriteria = rulesDocument.execQuery(namespaces
+				+ xquery);
 
 		return null;
 	}
