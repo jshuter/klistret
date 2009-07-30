@@ -15,8 +15,7 @@
 package com.klistret.cmdb.utility.xmlbeans;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
@@ -27,158 +26,234 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import com.klistret.cmdb.exception.ApplicationException;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class PropertyExpression implements Expression {
+	/**
+	 * Regular expression for property location paths
+	 */
 	private final static String propertyPathExpression = "(\\w+)|(\\w+[.]\\w+)*";
 
-	private String context = "this";
+	/**
+	 * @see Expression
+	 */
+	private String variableReference = "this";
 
-	private String defaultElementPrefix;
+	/**
+	 * @see Expression
+	 */
+	private String defaultElementNamespace;
 
-	private String defaultFunctionPrefix;
+	/**
+	 * @see Expression
+	 */
+	private String defaultFunctionNamespace;
 
+	/**
+	 * XmlBeans Java Type for XML documents
+	 */
 	private SchemaType schemaType;
 
-	private String path;
+	/**
+	 * Property location path
+	 */
+	private String propertyLocationPath;
 
-	private ArrayList<Node> nodes = new ArrayList<Node>(5);
+	/**
+	 * Ordered sequence of nodes (elements/attributes) mirroring the property
+	 * location path
+	 */
+	private List<Node> nodes = new ArrayList<Node>();
 
-	private Hashtable<String, QName> namespaces = new Hashtable<String, QName>();
-
-	public PropertyExpression(QName qname, String path) {
-		this(XmlBeans.getContextTypeLoader().findType(qname), path);
+	/**
+	 * 
+	 * @param classname
+	 * @param propertyLocationPath
+	 */
+	public PropertyExpression(String classname, String propertyLocationPath) {
+		this(XmlBeans.getContextTypeLoader().typeForClassname(classname),
+				propertyLocationPath);
 	}
 
-	public PropertyExpression(SchemaType schemaType, String path) {
-		if (!path.matches(propertyPathExpression))
+	/**
+	 * 
+	 * @param qname
+	 * @param propertyLocationPath
+	 */
+	public PropertyExpression(QName qname, String propertyLocationPath) {
+		this(XmlBeans.getContextTypeLoader().findType(qname),
+				propertyLocationPath);
+	}
+
+	/**
+	 * 
+	 * @param schemaType
+	 * @param propertyLocationPath
+	 */
+	public PropertyExpression(SchemaType schemaType, String propertyLocationPath) {
+		if (!propertyLocationPath.matches(propertyPathExpression))
 
 			throw new ApplicationException(String.format(
-					"path [%s] does not match expression [%s]", path,
-					propertyPathExpression));
+					"path [%s] does not match expression [%s]",
+					propertyLocationPath, propertyPathExpression));
 
 		this.schemaType = schemaType;
-		this.path = path;
+		this.propertyLocationPath = propertyLocationPath;
 
-		resolve(schemaType, path);
+		transformPropertyLocationPath(schemaType, propertyLocationPath);
 	}
 
-	public String getContext() {
-		return context;
+	public String getVariableReference() {
+		return variableReference;
 	}
 
-	public void setContext(String context) {
-		this.context = context;
+	public void setVariableReference(String variableReference) {
+		this.variableReference = variableReference;
 	}
 
-	public String getDefaultElementPrefix() {
-		return defaultElementPrefix;
+	public String getDefaultElementNamespace() {
+		return defaultElementNamespace;
 	}
 
-	public void setDefaultElementPrefix(String defaultElementPrefix) {
-		this.defaultElementPrefix = defaultElementPrefix;
+	public void setDefaultElementNamespace(String defaultElementNamespace) {
+		this.defaultElementNamespace = defaultElementNamespace;
 	}
 
-	public String getDefaultFunctionPrefix() {
-		return defaultFunctionPrefix;
+	public String getDefaultFunctionNamespace() {
+		return defaultFunctionNamespace;
 	}
 
-	public void setDefaultFunctionPrefix(String defaultFunctionPrefix) {
-		this.defaultFunctionPrefix = defaultFunctionPrefix;
+	public void setDefaultFunctionNamespace(String defaultFunctionNamespace) {
+		this.defaultFunctionNamespace = defaultFunctionNamespace;
 	}
 
-	public String getPath() {
-		return path;
+	public String getPropertyLocationPath() {
+		return propertyLocationPath;
 	}
 
 	public SchemaType getSchemaType() {
 		return schemaType;
 	}
 
-	public Node getSelectedNode() {
-		return nodes.get(nodes.size() - 1);
+	/**
+	 * Reuses an existing qname with prefix from the node list or adds a prefix
+	 * to a new qname
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	private QName getQNameWithPrefix(QName qname) {
+		/**
+		 * empty name-space URIs not handled
+		 */
+		if (qname.getNamespaceURI() != null
+				&& qname.getNamespaceURI().length() == 0)
+			return qname;
+
+		/**
+		 * namespace URI may already exists in node list and the corresponding
+		 * qname be reused otherwise create a new qname with prefix from
+		 * QNameHelper
+		 */
+		for (Node node : nodes)
+			if (node.getQName().getNamespaceURI().equals(
+					qname.getNamespaceURI()))
+				return node.getQName();
+
+		return new QName(qname.getNamespaceURI(), qname.getLocalPart(),
+				QNameHelper.suggestPrefix(qname.getNamespaceURI()));
 	}
 
-	public ArrayList<Node> getNodes() {
-		return nodes;
-	}
+	/**
+	 * Processes a property location one step at a time saving XmlBean
+	 * constructs to the node list with the path's remainder recursively handled
+	 * 
+	 * @param schemaType
+	 * @param propertyLocationPath
+	 */
+	private void transformPropertyLocationPath(SchemaType schemaType,
+			String propertyLocationPath) {
+		/**
+		 * split properties between current and remainder to get at the first
+		 * property
+		 */
+		String[] split = propertyLocationPath.split("[.]", 2);
+		String property = split[0];
 
-	public ArrayList<String> getDeclarations() {
-		ArrayList<String> declarations = new ArrayList<String>(namespaces
-				.size());
-
-		for (Map.Entry<String, QName> map : namespaces.entrySet()) {
-			QName qname = map.getValue();
-
-			declarations.add(String.format("declare namespace %s=\'%s\';",
-					qname.getPrefix(), qname.getNamespaceURI()));
+		/**
+		 * reset propertyLocationPath as remainder if exists otherwise null
+		 */
+		if (split.length == 2) {
+			propertyLocationPath = split[1];
+		} else {
+			propertyLocationPath = null;
 		}
 
-		return declarations;
+		/**
+		 * locate current property from the set of properties in the schemaType
+		 */
+		SchemaProperty schemaProperty = null;
+		for (SchemaProperty other : schemaType.getProperties()) {
+			if (property.equals(other.getJavaPropertyName())) {
+				schemaProperty = other;
+			}
+		}
+
+		/**
+		 * error if current property is null otherwise add to nodes list
+		 */
+		if (schemaProperty == null)
+			throw new ApplicationException(
+					String
+							.format(
+									"property [%s] neither an element nor attribute of class [%s]",
+									property, schemaType.getFullJavaName()));
+		nodes.add(new Node(schemaProperty, getQNameWithPrefix(schemaProperty
+				.getName())));
+
+		/**
+		 * recursive call with the schemaType of the current property and path
+		 * remainder if not null
+		 */
+		if (propertyLocationPath != null)
+			transformPropertyLocationPath(schemaProperty.getType(),
+					propertyLocationPath);
 	}
 
-	public String getDeclareClause() {
-		StringBuilder buffer = new StringBuilder();
+	/**
+	 * Prolog consists of a declaration that defines the processing environment
+	 * for an XPath expression. A declaration in the prolog is followed by a
+	 * semicolon (;). The prolog is an optional part of the XPath expression.
+	 * 
+	 * @return Prolog
+	 */
+	private String getProlog() {
+		StringBuilder prolog = new StringBuilder();
 
-		// add default element declaration
-		if (defaultElementPrefix != null)
-			buffer.append(String.format(
+		// append default element declaration
+		if (defaultElementNamespace != null)
+			prolog.append(String.format(
 					"declare default element namespace \'%s\';",
-					defaultElementPrefix));
+					defaultElementNamespace));
 
-		// add default function declaration
-		if (defaultFunctionPrefix != null)
-			buffer.append(String.format(
+		// append default function declaration
+		if (defaultFunctionNamespace != null)
+			prolog.append(String.format(
 					"declare default function namespace \'%s\';",
-					defaultFunctionPrefix));
+					defaultFunctionNamespace));
 
-		// add declarations (doesn't harm to add the last nodes declare)
-		for (String declaration : getDeclarations()) {
-			buffer.append(declaration);
+		// append declaration derived from the node list without duplicates
+		for (Node node : nodes) {
+			if (prolog.indexOf(node.getQName().getPrefix()) == -1)
+				prolog.append(String.format("declare namespace %s=\'%s\';",
+						node.getQName().getPrefix(), node.getQName()
+								.getNamespaceURI()));
 		}
 
-		return buffer.toString();
-	}
-
-	public String getParentXPath() {
-		StringBuilder buffer = new StringBuilder();
-
-		// add context
-		if (context != null)
-			buffer.append("$").append(context);
-
-		// add nodes (except for last)
-		for (Node node : nodes.subList(0, nodes.size() - 1)) {
-			if (node.getSchemaProperty().isAttribute())
-				buffer.append(getAttribute(node));
-			else
-				buffer.append(getElement(node));
-		}
-
-		return buffer.toString();
-	}
-
-	public String getXPath() {
-		StringBuilder buffer = new StringBuilder(getParentXPath());
-
-		// add selected node
-		Node node = getSelectedNode();
-		if (node.getSchemaProperty().isAttribute())
-			buffer.append(getAttribute(node));
-		else
-			buffer.append(getElement(node));
-
-		return buffer.toString();
-	}
-
-	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-
-		// add declare clause
-		buffer.append(getDeclareClause());
-
-		// add xpath
-		buffer.append(getXPath());
-
-		return buffer.toString();
+		return prolog.toString();
 	}
 
 	private String getAttribute(Node node) {
@@ -200,60 +275,183 @@ public class PropertyExpression implements Expression {
 				":").append(node.getQName().getLocalPart()).toString();
 	}
 
-	private QName addNamespace(QName qname) {
-		// control empty namespaces
-		if (qname.getNamespaceURI() != null
-				&& qname.getNamespaceURI().length() == 0)
-			return qname;
+	private String getExpression(int length) {
+		if (length > nodes.size())
+			throw new ApplicationException(String.format(
+					"node size [%d] when accessing length [%d]", nodes.size(),
+					length));
 
-		String prefix = QNameHelper.suggestPrefix(qname.getNamespaceURI());
+		if (length < 0)
+			throw new ApplicationException(String.format(
+					"accessing with negative length [%d]", length));
 
-		QName other = new QName(qname.getNamespaceURI(), qname.getLocalPart(),
-				prefix);
+		StringBuilder expression = new StringBuilder();
+		expression.append(String.format("$%s", getVariableReference()));
 
-		// add other qname when not in namespaces
-		if (!namespaces.containsKey(qname.getNamespaceURI()))
-			namespaces.put(qname.getNamespaceURI(), other);
+		/**
+		 * iterate through the node list up to passed length
+		 */
+		for (Node node : nodes.subList(0, length)) {
+			if (node.getSchemaProperty().isAttribute())
+				expression.append(getAttribute(node));
+			else
+				expression.append(getElement(node));
+		}
 
-		return other;
+		return expression.toString();
 	}
 
-	private void resolve(SchemaType schemaType, String path) {
-		// next schemaType
-		SchemaProperty nextProperty = null;
+	/**
+	 * Complete xpath representation of property location path
+	 * 
+	 * @return XPath expression
+	 */
+	private String getExpression() {
+		return getExpression(nodes.size());
+	}
 
-		// split properties between first and remainder
-		String[] pathSplit = path.split("[.]", 2);
-		String property = pathSplit[0];
+	/**
+	 * Concatenation of prolog and expression clauses
+	 * 
+	 * @return XPath
+	 */
+	public String toString() {
+		StringBuilder xpath = new StringBuilder();
 
-		// path is remainder otherwise null
-		if (pathSplit.length == 2) {
-			path = pathSplit[1];
-		} else {
-			path = null;
-		}
+		xpath.append(getProlog());
 
-		// search after element/attribute properties by name
-		SchemaProperty[] properties = schemaType.getProperties();
-		for (SchemaProperty schemaProperty : properties) {
-			if (property.equals(schemaProperty.getJavaPropertyName())) {
-				nextProperty = schemaProperty;
-			}
-		}
+		xpath.append(getExpression());
 
-		// error if property not found
-		if (nextProperty == null)
+		return xpath.toString();
+	}
+
+	/**
+	 * Applies function to xpath
+	 * 
+	 * @param operator
+	 * @param value
+	 * @return XPath
+	 */
+	private String compareFn(String operator, String value) {
+		Node node = nodes.get(nodes.size() - 1);
+
+		StringBuilder xpath = new StringBuilder();
+
+		xpath.append(getProlog());
+
+		xpath.append(getExpression(nodes.size() - 1));
+
+		if (node.getSchemaProperty().isAttribute()) {
+			if (node.getQName().getPrefix() != null
+					&& node.getQName().getPrefix().length() == 0)
+				xpath.append(String.format("[%s(@%s,\"%s\")]", operator, node
+						.getQName().getLocalPart(), value));
+			else
+				xpath.append(String.format("[%s(@%s:%s,\"%s\")]", operator,
+						node.getQName().getPrefix(), node.getQName()
+								.getLocalPart(), value));
+		} else
+			xpath.append(String.format("[%s(%s:%s,\"%s\")]", operator, node
+					.getQName().getPrefix(), node.getQName().getLocalPart(),
+					value));
+
+		return xpath.toString();
+	}
+
+	/**
+	 * Applies text function to xpath
+	 * 
+	 * @param operator
+	 * @param value
+	 * @return XPath
+	 */
+	private String compareFnText(String operator, String value) {
+		Node node = nodes.get(nodes.size() - 1);
+
+		if (node.getSchemaProperty().getJavaTypeCode() != SchemaProperty.JAVA_STRING)
 			throw new ApplicationException(
 					String
 							.format(
-									"property [%s] neither a child element or attribute of class [%s]",
-									property, schemaType.getFullJavaName()));
+									"java type code [%s] not valid for function [%s] with qname [%s]",
+									node.getSchemaProperty().getJavaTypeCode(),
+									operator, node.getQName().toString()));
 
-		// add the schema property into the node containers
-		nodes.add(new Node(nextProperty, addNamespace(nextProperty.getName())));
+		return compareFn(operator, value);
+	}
+	
+	private String compareOp(String operator, String value) {
+		return null;
+	}
 
-		// recursive if path is not empty
-		if (path != null)
-			resolve(nextProperty.getType(), path);
+	public String matches(String value) {
+		return compareFnText("matches", value);
+	}
+
+	public String contains(String value) {
+		return compareFnText("contains", value);
+	}
+
+	public String startsWith(String value) {
+		return compareFnText("starts-with", value);
+	}
+
+	public String endsWith(String value) {
+		return compareFnText("ends-with", value);
+	}
+
+	public String equal(String value) {
+		return null;
+	}
+
+	public String notEqual(String value) {
+		return null;
+	}
+
+	public String lessThan(String value) {
+		return null;
+	}
+
+	public String lessThanOrEqual(String value) {
+		return null;
+	}
+
+	public String greaterThan(String value) {
+		return null;
+	}
+
+	public String greaterThanOrEqual(String value) {
+		return null;
+	}
+
+	/**
+	 * 
+	 * @author Matthew Young
+	 * 
+	 */
+	private class Node {
+		private SchemaProperty schemaProperty;
+
+		private QName qname;
+
+		/**
+		 * 
+		 * @param schemaProperty
+		 *            represents a summary of the the elements with a given name
+		 *            or the attribute with a given name
+		 * @param qname
+		 *            with non-duplicate prefix
+		 */
+		public Node(SchemaProperty schemaProperty, QName qname) {
+			this.schemaProperty = schemaProperty;
+			this.qname = qname;
+		}
+
+		public QName getQName() {
+			return this.qname;
+		}
+
+		public SchemaProperty getSchemaProperty() {
+			return this.schemaProperty;
+		}
 	}
 }

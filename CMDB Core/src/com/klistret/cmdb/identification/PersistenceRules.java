@@ -25,21 +25,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
+import com.klistret.cmdb.xmlbeans.PropertyCriterion;
 
 public class PersistenceRules {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(PersistenceRules.class);
 
-	private PersistenceRulesDocument rulesDocument;
+	private PersistenceRulesDocument persistenceRulesDocument;
 
 	public PersistenceRules(URL url) {
 		try {
-			this.rulesDocument = (PersistenceRulesDocument) XmlObject.Factory
+			this.persistenceRulesDocument = (PersistenceRulesDocument) XmlObject.Factory
 					.parse(url);
 		} catch (XmlException e) {
 			logger.error("URL [{}] failed parsing; {}", url, e);
@@ -50,12 +50,12 @@ public class PersistenceRules {
 		}
 	}
 
-	private PropertyExpression[] getPropertyExpressions(Element element) {
-		String classname = element.getType().getName();
+	public PropertyExpression[] getPersitenceRule(XmlObject xmlObject) {
+		String classname = xmlObject.schemaType().getFullJavaName();
 
 		/**
-		 * return ordered list of base types ascending based on the element type
-		 * (fully qualified class-name)
+		 * return ordered list of base types (ascending) based on fully
+		 * qualified class-name
 		 */
 		SchemaType[] baseSchemaTypes = SchemaTypeHelper
 				.getBaseSchemaTypes(classname);
@@ -71,7 +71,7 @@ public class PersistenceRules {
 		String namespaces = "declare namespace cmdb=\'http://www.klistret.com/cmdb\';";
 
 		/**
-		 * Positional variables only allowed for "for" clause and the order
+		 * positional variables only allowed for "for" clause and the order
 		 * should be ascending to the base class (type). Necessary to order the
 		 * returned property criterion by class then the order attribute.
 		 */
@@ -87,9 +87,26 @@ public class PersistenceRules {
 				+ "order by $typesIndex, $binding/@Order empty greatest "
 				+ "return $criterion";
 
-		// Ordered array of PropertyCriterion XmlBeans
-		XmlObject[] propertyCriteria = rulesDocument.execQuery(namespaces
-				+ xquery);
+		/**
+		 * validate (by order) each property criteria against the passed
+		 * xmlObject
+		 */
+		XmlObject[] propertyCriteria = (PropertyCriterion[]) persistenceRulesDocument
+				.execQuery(namespaces + xquery);
+		for (XmlObject xo : propertyCriteria) {
+			try {
+				// cast XmlObject to PropertyCriterion
+				PropertyCriterion propertyCriterion = PropertyCriterion.Factory
+						.parse(xo.xmlText());
+
+				
+			} catch (XmlException e) {
+				logger.error(
+						"Fail parse XmlObject [{}] to PropertyCriterion: {}",
+						xo.xmlText(), e);
+				throw new InfrastructureException(e);
+			}
+		}
 
 		return null;
 	}
