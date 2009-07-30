@@ -99,7 +99,11 @@ public class PersistenceRules {
 				PropertyCriterion propertyCriterion = PropertyCriterion.Factory
 						.parse(xo.xmlText());
 
-				
+				for (String propertyLocationPath : propertyCriterion
+						.getPropertyLocationPathArray()) {
+					PropertyExpression propertyExpression = new PropertyExpression(
+							classname, propertyLocationPath);
+				}
 			} catch (XmlException e) {
 				logger.error(
 						"Fail parse XmlObject [{}] to PropertyCriterion: {}",

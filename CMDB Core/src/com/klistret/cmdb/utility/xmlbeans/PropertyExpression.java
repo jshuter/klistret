@@ -378,9 +378,99 @@ public class PropertyExpression implements Expression {
 
 		return compareFn(operator, value);
 	}
-	
+
+	/**
+	 * Applies operation to xpath
+	 * 
+	 * @param operator
+	 * @param value
+	 * @return XPath
+	 */
 	private String compareOp(String operator, String value) {
-		return null;
+		Node node = nodes.get(nodes.size() - 1);
+
+		StringBuilder xpath = new StringBuilder();
+
+		xpath.append(getProlog());
+
+		xpath.append(getExpression(nodes.size() - 1));
+
+		if (node.getSchemaProperty().isAttribute()) {
+			if (node.getQName().getPrefix() != null
+					&& node.getQName().getPrefix().length() == 0)
+				xpath.append(String.format("[@%s %s %s]", node.getQName()
+						.getLocalPart(), operator, value));
+			else
+				xpath.append(String.format("[@%s:%s %s %s]", node.getQName()
+						.getPrefix(), node.getQName().getLocalPart(), operator,
+						value));
+		} else
+			xpath.append(String.format("/%s:%s[. %s %s]", node.getQName()
+					.getPrefix(), node.getQName().getLocalPart(), operator,
+					value));
+
+		return xpath.toString();
+	}
+
+	/**
+	 * Applies text/numeric operation to xpath
+	 * 
+	 * @param operator
+	 * @param value
+	 * @return XPath
+	 */
+	private String compareOpNumericOrText(String operator, String value) {
+		Node node = nodes.get(nodes.size() - 1);
+
+		switch (node.getSchemaProperty().getJavaTypeCode()) {
+		case SchemaProperty.JAVA_INT:
+			// do not wrap integer
+			break;
+		case SchemaProperty.JAVA_BIG_INTEGER:
+			// do not wrap integer
+			break;
+		case SchemaProperty.JAVA_STRING:
+			value = "\"" + value + "\"";
+			break;
+		default:
+			throw new ApplicationException(
+					String
+							.format(
+									"java type code [%s] not valid for operator [%s] with qname [%s]",
+									node.getSchemaProperty().getJavaTypeCode(),
+									operator, node.getQName().toString()));
+		}
+
+		return compareOp(operator, value);
+	}
+
+	/**
+	 * Applies numeric operation to xpath
+	 * 
+	 * @param operator
+	 * @param value
+	 * @return XPath
+	 */
+	public String compareOpNumeric(String operator, String value) {
+		Node node = nodes.get(nodes.size() - 1);
+
+		switch (node.getSchemaProperty().getJavaTypeCode()) {
+		case SchemaProperty.JAVA_INT:
+			// do not wrap integer
+			break;
+		case SchemaProperty.JAVA_BIG_INTEGER:
+			// do not wrap integer
+			break;
+		default:
+			throw new ApplicationException(
+					String
+							.format(
+									"java type code [%s] not valid for operator [%s] with qname [%s]",
+									node.getSchemaProperty().getJavaTypeCode(),
+									operator, node.getQName().toString()));
+		}
+
+		return compareOp(operator, value);
 	}
 
 	public String matches(String value) {
@@ -400,27 +490,27 @@ public class PropertyExpression implements Expression {
 	}
 
 	public String equal(String value) {
-		return null;
+		return compareOpNumericOrText("=", value);
 	}
 
 	public String notEqual(String value) {
-		return null;
+		return compareOpNumericOrText("!=", value);
 	}
 
 	public String lessThan(String value) {
-		return null;
+		return compareOpNumeric("<", value);
 	}
 
 	public String lessThanOrEqual(String value) {
-		return null;
+		return compareOpNumeric("<=", value);
 	}
 
 	public String greaterThan(String value) {
-		return null;
+		return compareOpNumeric(">", value);
 	}
 
 	public String greaterThanOrEqual(String value) {
-		return null;
+		return compareOpNumeric(">=", value);
 	}
 
 	/**
