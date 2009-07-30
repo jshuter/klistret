@@ -26,7 +26,7 @@ public class PersistenceRules {
 		target.setNamespace("Production");
 	}
 
-	//@Test
+	// @Test
 	public void createIdentificationDocument() throws IOException {
 		XmlOptions opts = new XmlOptions();
 		opts.setSavePrettyPrint();
@@ -62,6 +62,6 @@ public class PersistenceRules {
 				"com.klistret.cmdb.xmlbeans.element.logical.collection.Environment",
 				"Name");
 
-		System.out.println(expression.matches("tm715"));
+		System.out.println(expression.equal("tm715"));
 	}
 }
