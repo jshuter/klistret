@@ -16,15 +16,23 @@ package com.klistret.cmdb.identification;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Property;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
@@ -37,6 +45,10 @@ public class PersistenceRules {
 
 	private PersistenceRulesDocument persistenceRulesDocument;
 
+	/**
+	 * 
+	 * @param url
+	 */
 	public PersistenceRules(URL url) {
 		try {
 			this.persistenceRulesDocument = (PersistenceRulesDocument) XmlObject.Factory
@@ -50,9 +62,109 @@ public class PersistenceRules {
 		}
 	}
 
-	public PropertyExpression[] getPersitenceRule(XmlObject xmlObject) {
+	public DetachedCriteria getCriteria(XmlObject xmlObject) {
+		DetachedCriteria query = DetachedCriteria.forClass(Element.class, "e");
+
+		query.createAlias("type", "et");
+		query.add(Restrictions.eq("et.name", xmlObject.schemaType()
+				.getFullJavaName()));
+
+		query.add(Restrictions.isNull("toTimeStamp"));
+
+		return query;
+	}
+
+	/**
+	 * 
+	 * @param xmlObject
+	 * @return XPath criterion array
+	 */
+	public String[] getXPathCriterion(XmlObject xmlObject) {
+		PropertyExpression[] propertyExpressionCriterion = getPropertyExpressionCriterion(xmlObject);
+
+		List<String> xpathCriterion = new ArrayList<String>(
+				propertyExpressionCriterion.length);
+		for (PropertyExpression propertyExpression : propertyExpressionCriterion) {
+			String value = ((XmlAnySimpleType) xmlObject
+					.selectPath(propertyExpression.toString())[0])
+					.getStringValue();
+			xpathCriterion.add(propertyExpression.equal(value));
+		}
+
+		return xpathCriterion.toArray(new String[0]);
+	}
+
+	/**
+	 * 
+	 * @param propertyExpressionCriterion
+	 * @param xmlObject
+	 * @return true/false
+	 */
+	private boolean validatePropertyExpressionCriterion(
+			PropertyExpression[] propertyExpressionCriterion,
+			XmlObject xmlObject) {
+		for (PropertyExpression propertyExpression : propertyExpressionCriterion) {
+			String xpath = propertyExpression.toString();
+
+			XmlObject[] results = xmlObject.selectPath(xpath);
+			if (results.length == 0)
+				return false;
+
+			if (results.length > 1)
+				throw new ApplicationException(
+						String
+								.format(
+										"identification xpath [%s] is not unique for xmlObject [%s]",
+										xpath, xmlObject.schemaType()
+												.getFullJavaName()));
+
+			if (!results[0].schemaType().isSimpleType())
+				throw new ApplicationException(
+						String
+								.format(
+										"selected node [xpath: %s] is not simple type for xmlObject [xml: %s]",
+										xpath, xmlObject.xmlText()));
+
+		}
+
+		return true;
+	}
+
+	/**
+	 * 
+	 * @param xmlObject
+	 * @return Property Expression array (valid criterion based on order and if
+	 *         the XmlObject includes the selected properties)
+	 */
+	public PropertyExpression[] getPropertyExpressionCriterion(
+			XmlObject xmlObject) {
 		String classname = xmlObject.schemaType().getFullJavaName();
 
+		List<PropertyExpression[]> propertyExpressionCriteria = getPropertyExpressionCriteria(classname);
+		for (int index = 0; index < propertyExpressionCriteria.size(); index++) {
+			if (validatePropertyExpressionCriterion(propertyExpressionCriteria
+					.get(index), xmlObject)) {
+				logger
+						.debug(
+								"valid property expression criterion at index [{}] in criteria list for xmlObject [xml: {}]",
+								index + 1, xmlObject.xmlText());
+				return propertyExpressionCriteria.get(index);
+			}
+		}
+
+		logger.debug(
+				"no property expression criterion for xmlObject [xml: {}]",
+				xmlObject.xmlText());
+		return new PropertyExpression[0];
+	}
+
+	/**
+	 * 
+	 * @param classname
+	 * @return Property Expression array list (criteria in order)
+	 */
+	public List<PropertyExpression[]> getPropertyExpressionCriteria(
+			String classname) {
 		/**
 		 * return ordered list of base types (ascending) based on fully
 		 * qualified class-name
@@ -64,9 +176,9 @@ public class PersistenceRules {
 		 * construct schema type list for query
 		 */
 		String schemaTypesList = String.format("\'%s\'", classname);
-		for (SchemaType schemaType : baseSchemaTypes)
+		for (SchemaType baseSchemaType : baseSchemaTypes)
 			schemaTypesList = schemaTypesList.concat(String.format(",\'%s\'",
-					schemaType.getFullJavaName()));
+					baseSchemaType.getFullJavaName()));
 
 		String namespaces = "declare namespace cmdb=\'http://www.klistret.com/cmdb\';";
 
@@ -89,21 +201,46 @@ public class PersistenceRules {
 
 		/**
 		 * validate (by order) each property criteria against the passed
-		 * xmlObject
+		 * xmlObject (can not cast execQuery results to a specific schema type)
 		 */
-		XmlObject[] propertyCriteria = (PropertyCriterion[]) persistenceRulesDocument
+		XmlObject[] propertyCriteria = persistenceRulesDocument
 				.execQuery(namespaces + xquery);
+		List<PropertyExpression[]> propertyExpressionArrayList = new ArrayList<PropertyExpression[]>(
+				propertyCriteria.length);
+
 		for (XmlObject xo : propertyCriteria) {
 			try {
-				// cast XmlObject to PropertyCriterion
-				PropertyCriterion propertyCriterion = PropertyCriterion.Factory
-						.parse(xo.xmlText());
+				/**
+				 * cast XmlObject to PropertyCriterion through PersistenceRules
+				 * xml-fragment
+				 */
+				PropertyCriterion propertyCriterion = com.klistret.cmdb.xmlbeans.PersistenceRules.Factory
+						.parse(xo.xmlText()).getPropertyCriterionArray(0);
 
+				/**
+				 * construct property expression array
+				 */
+				List<PropertyExpression> propertyExpressions = new ArrayList<PropertyExpression>(
+						propertyCriterion.getPropertyLocationPathArray().length);
 				for (String propertyLocationPath : propertyCriterion
 						.getPropertyLocationPathArray()) {
 					PropertyExpression propertyExpression = new PropertyExpression(
 							classname, propertyLocationPath);
+
+					propertyExpressions.add(propertyExpression);
 				}
+
+				/**
+				 * add property expression array to return list (logging the
+				 * criterion name plus the list index)
+				 */
+				propertyExpressionArrayList.add(propertyExpressions
+						.toArray(new PropertyExpression[0]));
+				logger
+						.debug(
+								"Added property expression [criterion name: {}] array to criteria list at [{}]",
+								propertyCriterion.getName(),
+								propertyExpressionArrayList.size());
 			} catch (XmlException e) {
 				logger.error(
 						"Fail parse XmlObject [{}] to PropertyCriterion: {}",
@@ -112,6 +249,6 @@ public class PersistenceRules {
 			}
 		}
 
-		return null;
+		return propertyExpressionArrayList;
 	}
 }
