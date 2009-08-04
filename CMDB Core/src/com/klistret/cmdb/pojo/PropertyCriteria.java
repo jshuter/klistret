@@ -16,11 +16,16 @@ package com.klistret.cmdb.pojo;
 
 import java.util.List;
 
-public class Criteria {
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+
+public class PropertyCriteria {
 
 	private int maxResults = 100;
 
 	private int firstResult = 0;
+
+	private String className;
 
 	private List<PropertyCriterion> propertyCriteria;
 
@@ -40,6 +45,14 @@ public class Criteria {
 		this.firstResult = firstResult;
 	}
 
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
 	public List<PropertyCriterion> getPropertyCriteria() {
 		return propertyCriteria;
 	}
@@ -48,7 +61,29 @@ public class Criteria {
 		this.propertyCriteria = propertyCriteria;
 	}
 
-	public org.hibernate.Criteria getCriteria(org.hibernate.Session session) {
+	public Criteria getCriteria(Session session) {
+		try {
+			Criteria query = session.createCriteria(Class.forName(className));
+
+			/**
+			 * evaluate each property
+			 */
+			for (PropertyCriterion propertyCriterion : propertyCriteria) {
+
+			}
+
+			/**
+			 * max/first results
+			 */
+			query.setMaxResults(maxResults);
+			query.setFirstResult(firstResult);
+
+			return query;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 }
