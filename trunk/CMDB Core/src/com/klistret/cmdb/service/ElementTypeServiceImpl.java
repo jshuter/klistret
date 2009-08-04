@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.pojo.ElementType;
-import com.klistret.cmdb.pojo.Criteria;
+import com.klistret.cmdb.pojo.PropertyCriteria;
 
 public class ElementTypeServiceImpl implements ElementTypeService {
 
@@ -28,11 +28,11 @@ public class ElementTypeServiceImpl implements ElementTypeService {
 		this.elementTypeDAO = elementTypeDAO;
 	}
 
-	public Integer countByCriteria(Criteria criteria) {
+	public Integer countByCriteria(PropertyCriteria criteria) {
 		return elementTypeDAO.countByCriteria(criteria);
 	}
 
-	public Collection<ElementType> findByCriteria(Criteria criteria) {
+	public Collection<ElementType> findByCriteria(PropertyCriteria criteria) {
 		return elementTypeDAO.findByCriteria(criteria);
 	}
 

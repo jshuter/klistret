@@ -23,7 +23,7 @@ public interface ElementTypeService {
 	ElementType getByCompositeId(String name);
 
 	Collection<ElementType> findByCriteria(
-			com.klistret.cmdb.pojo.Criteria criteria);
+			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
-	Integer countByCriteria(com.klistret.cmdb.pojo.Criteria criteria);
+	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 }

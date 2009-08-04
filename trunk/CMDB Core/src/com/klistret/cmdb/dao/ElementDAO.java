@@ -23,9 +23,9 @@ public interface ElementDAO {
 	com.klistret.cmdb.pojo.Element getById(Long id, boolean fetchAssociations);
 
 	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
-			com.klistret.cmdb.pojo.Criteria criteria);
+			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
-	Integer countByCriteria(com.klistret.cmdb.pojo.Criteria criteria);
+	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
 	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
 }
