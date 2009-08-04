@@ -25,7 +25,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Property;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.Element;
+import com.klistret.cmdb.utility.hibernate.XPathExpression;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
@@ -62,14 +62,33 @@ public class PersistenceRules {
 		}
 	}
 
-	public DetachedCriteria getCriteria(XmlObject xmlObject) {
+	/**
+	 * 
+	 * @param xmlObject
+	 * @return Hibernate detached criteria
+	 */
+	public DetachedCriteria getDetachedCriteria(XmlObject xmlObject) {
 		DetachedCriteria query = DetachedCriteria.forClass(Element.class, "e");
 
-		query.createAlias("type", "et");
-		query.add(Restrictions.eq("et.name", xmlObject.schemaType()
+		/**
+		 * limit by class name through elementType relation
+		 */
+		query.createAlias("type", "etype");
+		query.add(Restrictions.eq("etype.name", xmlObject.schemaType()
 				.getFullJavaName()));
 
-		query.add(Restrictions.isNull("toTimeStamp"));
+		/**
+		 * limit to only active elements
+		 */
+		query.add(Restrictions.isNull("e.toTimeStamp"));
+
+		/**
+		 * limit with property expression criterion
+		 */
+		String[] xpaths = getXPathCriterion(xmlObject);
+		for (String xpath : xpaths) {
+			query.add(new XPathExpression("e.configuration", xpath, "this"));
+		}
 
 		return query;
 	}

@@ -19,30 +19,54 @@ import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.DB2Dialect;
-import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
 
-import com.klistret.cmdb.utility.xmlbeans.Expression;
-
 @SuppressWarnings("serial")
-public class XPathExistsFunction implements Criterion {
+public class XPathExpression implements Criterion {
+	/**
+	 * 
+	 */
 	private final String propertyName;
-	private final Expression expression;
-	private final String xpath;
-	private final Object value;
-	private final boolean functional;
 
-	public XPathExistsFunction(String propertyName, Expression expression,
-			String xpath, Object value, boolean functional) {
+	/**
+	 * 
+	 */
+	private final String xpath;
+
+	/**
+	 * 
+	 */
+	private final String variableReference;
+
+	/**
+	 * 
+	 */
+	private final String DB2DefaultFunctionNamespace = "http://www.ibm.com/xmlns/prod/db2/functions";
+
+	/**
+	 * 
+	 */
+	private final String OracleDefaultFunctionNamespace = "http://xmlns.oracle.com/xdb";
+
+	/**
+	 * 
+	 */
+	private final String reDefaultFunctionNamespace = "declare\\s+default\\s+function\\s+namespace\\s+\\'(http(s?):\\/\\/|(www.))([a-z0-9\\/_;:%#=&?@\\-.]+[a-z0-9\\/_#=&?\\-])\\'";
+
+	/**
+	 * 
+	 */
+	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
+
+	public XPathExpression(String propertyName, String xpath,
+			String variableReference) {
 		this.propertyName = propertyName;
-		this.expression = expression;
 		this.xpath = xpath;
-		this.value = value;
-		this.functional = functional;
+		this.variableReference = variableReference;
 	}
 
-	@Override
 	public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery)
 			throws HibernateException {
 		Dialect dialect = criteriaQuery.getFactory().getDialect();
@@ -54,35 +78,37 @@ public class XPathExistsFunction implements Criterion {
 					"xpathExists may only be used with single-column properties");
 
 		if (dialect instanceof DB2Dialect) {
-			if (functional)
-				expression
-						.setDefaultFunctionPrefix("http://www.ibm.com/xmlns/prod/db2/functions");
+			String db2Xpath = xpath.replaceAll(reDefaultFunctionNamespace,
+					String.format("declare default function namespace \'%s\';",
+							DB2DefaultFunctionNamespace));
 
-			return String.format("XMLEXISTS(\'%s %s\') PASSING %s AS \"%s\"",
-					expression.getDeclareClause(), xpath, columns[0],
-					expression.getContext());
+			return String.format("XMLEXISTS(\'%s\') PASSING %s AS \"%s\"",
+					db2Xpath, columns[0], variableReference);
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
-			if (functional)
-				expression
-						.setDefaultFunctionPrefix("http://xmlns.oracle.com/xdb");
+			String oracleXpath = xpath.replaceAll(reDefaultFunctionNamespace,
+					String.format("declare default function namespace \'%s\';",
+							OracleDefaultFunctionNamespace));
 
-			expression.setContext(null);
-
-			return String.format("XMLExists(\'%s %s\') PASSING %s", expression
-					.getDeclareClause(), xpath, columns[0]);
+			return String.format("XMLExists(\'%s\') PASSING %s AS \"%s\"",
+					oracleXpath, columns[0], variableReference);
 		}
 
 		throw new HibernateException(String.format(
-				"dialect [%s] not supported for xpath exists function", dialect
+				"dialect [%s] not supported for xpath expression", dialect
 						.toString()));
 	}
 
-	@Override
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
-		return new TypedValue[] { criteriaQuery.getTypedValue(criteria,
-				propertyName, value) };
+		return NO_TYPED_VALUES;
+	}
+
+	public String toString() {
+		return String
+				.format(
+						"xpath [%s] against property [%s] with variable reference [%s]",
+						xpath, propertyName, variableReference);
 	}
 }
