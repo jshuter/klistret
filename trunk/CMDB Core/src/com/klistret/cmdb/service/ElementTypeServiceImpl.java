@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.pojo.ElementType;
-import com.klistret.cmdb.utility.hibernate.Criteria;
+import com.klistret.cmdb.pojo.Criteria;
 
 public class ElementTypeServiceImpl implements ElementTypeService {
 
@@ -27,7 +27,7 @@ public class ElementTypeServiceImpl implements ElementTypeService {
 	public void setElementTypeDAO(ElementTypeDAO elementTypeDAO) {
 		this.elementTypeDAO = elementTypeDAO;
 	}
-	
+
 	public Integer countByCriteria(Criteria criteria) {
 		return elementTypeDAO.countByCriteria(criteria);
 	}

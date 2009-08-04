@@ -21,7 +21,7 @@ public interface ElementTypeDAO {
 	com.klistret.cmdb.pojo.ElementType getByCompositeId(String name);
 
 	Collection<com.klistret.cmdb.pojo.ElementType> findByCriteria(
-			com.klistret.cmdb.utility.hibernate.Criteria criteria);
+			com.klistret.cmdb.pojo.Criteria criteria);
 
-	Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria);
+	Integer countByCriteria(com.klistret.cmdb.pojo.Criteria criteria);
 }
