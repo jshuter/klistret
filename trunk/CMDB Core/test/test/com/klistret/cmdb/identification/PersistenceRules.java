@@ -2,23 +2,13 @@ package test.com.klistret.cmdb.identification;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
-import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
-import com.klistret.cmdb.xmlbeans.PropertyCriterion;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.Environment;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument;
 
@@ -76,11 +66,9 @@ public class PersistenceRules {
 		environment.setName("whaever");
 		environment.setNamespace("hello");
 
-		String[] xpathCriterion = persistenceRules
-				.getXPathCriterion(environment);
+		String query = persistenceRules.getDetachedCriteria(environment)
+				.toString();
 
-		for (String xpath : xpathCriterion) {
-			System.out.println(xpath);
-		}
+		System.out.println(query);
 	}
 }
