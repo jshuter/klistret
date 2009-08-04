@@ -21,9 +21,9 @@ public interface ElementService {
 	com.klistret.cmdb.pojo.Element getById(Long id);
 
 	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
-			com.klistret.cmdb.utility.hibernate.Criteria criteria);
+			com.klistret.cmdb.pojo.Criteria criteria);
 
-	Integer countByCriteria(com.klistret.cmdb.utility.hibernate.Criteria criteria);
+	Integer countByCriteria(com.klistret.cmdb.pojo.Criteria criteria);
 
 	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
 }

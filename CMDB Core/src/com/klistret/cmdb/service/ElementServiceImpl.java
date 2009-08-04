@@ -17,7 +17,7 @@ package com.klistret.cmdb.service;
 import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementDAO;
-import com.klistret.cmdb.utility.hibernate.Criteria;
+import com.klistret.cmdb.pojo.Criteria;
 
 public class ElementServiceImpl implements ElementService {
 
