@@ -15,6 +15,6 @@ public class CMDBDatabaseHelper {
 
 	@Test
 	public void generateDatabaseSchema() {
-		helper.generateDatabaseSchema("/tmp/cmdb.ddl", true, false);
+		helper.generateDatabaseSchema("C:\\temp\\cmdb.ddl", true, false);
 	}
 }

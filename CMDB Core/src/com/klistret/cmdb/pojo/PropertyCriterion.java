@@ -14,13 +14,19 @@
 
 package com.klistret.cmdb.pojo;
 
+import com.klistret.cmdb.exception.ApplicationException;
+
 public class PropertyCriterion {
+	/**
+	 * Regular expression for property location paths
+	 */
+	private final static String propertyLocationPathExpression = "(\\w+)|(\\w+[.]\\w+)*";
 
 	private String propertyLocationPath;
 
 	private String value;
 
-	private enum operators {
+	public enum operators {
 		matches, contains, startsWith, endsWith, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual
 	}
 
@@ -31,6 +37,12 @@ public class PropertyCriterion {
 	}
 
 	public void setPropertyLocationPath(String propertyLocationPath) {
+		if (!propertyLocationPath.matches(propertyLocationPathExpression))
+
+			throw new ApplicationException(String.format(
+					"path [%s] does not match expression [%s]",
+					propertyLocationPath, propertyLocationPathExpression));
+
 		this.propertyLocationPath = propertyLocationPath;
 	}
 

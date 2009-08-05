@@ -15,17 +15,26 @@
 package com.klistret.cmdb.pojo;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.klistret.cmdb.exception.ApplicationException;
 
 public class PropertyCriteria {
+	private static final Logger logger = LoggerFactory
+			.getLogger(PropertyCriteria.class);
 
 	private int maxResults = 100;
 
 	private int firstResult = 0;
 
-	private String className;
+	private String entityName;
 
 	private List<PropertyCriterion> propertyCriteria;
 
@@ -45,12 +54,12 @@ public class PropertyCriteria {
 		this.firstResult = firstResult;
 	}
 
-	public String getClassName() {
-		return className;
+	public String getEntityName() {
+		return entityName;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
+	public void setEntityName(String entityName) {
+		this.entityName = entityName;
 	}
 
 	public List<PropertyCriterion> getPropertyCriteria() {
@@ -62,28 +71,75 @@ public class PropertyCriteria {
 	}
 
 	public Criteria getCriteria(Session session) {
-		try {
-			Criteria query = session.createCriteria(Class.forName(className));
+		/**
+		 * empty criteria list control
+		 */
+		if (propertyCriteria == null)
+			return null;
 
-			/**
-			 * evaluate each property
-			 */
-			for (PropertyCriterion propertyCriterion : propertyCriteria) {
+		/**
+		 * create criteria
+		 */
+		Criteria criteria = session.createCriteria(entityName);
+		if (criteria == null)
+			throw new ApplicationException(String.format(
+					"unable to create criteria for entity name [%s]",
+					entityName));
 
-			}
-
-			/**
-			 * max/first results
-			 */
-			query.setMaxResults(maxResults);
-			query.setFirstResult(firstResult);
-
-			return query;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		/**
+		 * evaluate each property
+		 */
+		for (PropertyCriterion propertyCriterion : propertyCriteria) {
+			transformPropertyCriterion(session, criteria, propertyCriterion,
+					propertyCriterion.getPropertyLocationPath());
 		}
 
-		return null;
+		/**
+		 * max/first results
+		 */
+		criteria.setMaxResults(maxResults);
+		criteria.setFirstResult(firstResult);
+
+		return criteria;
+	}
+
+	private void transformPropertyCriterion(Session session, Criteria criteria,
+			PropertyCriterion propertyCriterion, String propertyLocationPath) {
+		/**
+		 * split properties between current and remainder to get at the first
+		 * property
+		 */
+		String[] split = propertyLocationPath.split("[.]", 2);
+		String property = split[0];
+
+		/**
+		 * reset propertyLocationPath as remainder if exists otherwise null
+		 */
+		if (split.length == 2) {
+			propertyLocationPath = split[1];
+		} else {
+			propertyLocationPath = null;
+		}
+
+		/**
+		 * determine Hibernate type information
+		 */
+		Map<?, ?> test = session.getSessionFactory().getAllClassMetadata();
+		logger.debug(test.toString());
+
+		ClassMetadata classMetadata = session.getSessionFactory()
+				.getClassMetadata("com.klistret.cmdb.pojo." + entityName);
+		Type propertyType = classMetadata.getPropertyType(property);
+
+		if (propertyType.isAnyType())
+			logger.debug(String.format("property [%s] is any type", property));
+
+		if (propertyType.isAssociationType())
+			logger.debug(String.format("property [%s] is association type",
+					property));
+
+		if (propertyType.isCollectionType())
+			logger.debug(String.format("property [%s] is collection type",
+					property));
 	}
 }

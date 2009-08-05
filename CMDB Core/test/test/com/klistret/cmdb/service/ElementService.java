@@ -1,32 +1,51 @@
 package test.com.klistret.cmdb.service;
 
-import org.junit.Before;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.klistret.cmdb.utility.spring.ApplicationContextHelper;
+import com.klistret.cmdb.pojo.PropertyCriteria;
+import com.klistret.cmdb.pojo.PropertyCriterion;
 
-public class ElementService {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
+@TransactionConfiguration
+@Transactional
+public class ElementService extends
+		AbstractTransactionalJUnit4SpringContextTests {
 
-	private com.klistret.cmdb.service.ElementService service;
+	@Autowired
+	protected com.klistret.cmdb.service.ElementService elementService;
 
-	@Before
-	public void setUp() throws Exception {
-		service = (com.klistret.cmdb.service.ElementService) ApplicationContextHelper
-				.getInstance("Spring.cfg.xml").getContext().getBean(
-						"elementService");
+	// @Test
+	public void getById() {
+		elementService.getById(new Long(0));
 	}
 
 	@Test
-	public void testGetId() {
-		com.klistret.cmdb.pojo.ElementType type = new com.klistret.cmdb.pojo.ElementType();
-		type.setId(new Long(1));
-		type.setName("qname");
+	public void findByCriteria() {
+		PropertyCriteria propertyCriteria = new PropertyCriteria();
+		propertyCriteria.setEntityName("Element");
 
-		com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
-		element.setId(new Long(1));
-		element.setName("dummy");
-		element.setType(type);
+		List<PropertyCriterion> criteria = new ArrayList<PropertyCriterion>();
 
-		service.set(element);
+		PropertyCriterion toTimeStampCriterion = new PropertyCriterion();
+		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
+		toTimeStampCriterion.setValue("2009-01-01-00.00.00.000000");
+		toTimeStampCriterion
+				.setOperator(PropertyCriterion.operators.greaterThan);
+		criteria.add(toTimeStampCriterion);
+
+		propertyCriteria.setPropertyCriteria(criteria);
+
+		elementService.findByCriteria(propertyCriteria);
 	}
 }
