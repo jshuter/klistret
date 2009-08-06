@@ -55,17 +55,18 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
+			String alias = hcriteria.getAlias();
 
 			hcriteria.setProjection(Projections.projectionList().add(
-					Projections.property("element.id")).add(
-					Projections.property("element.type")).add(
-					Projections.property("element.name")).add(
-					Projections.property("element.fromTimeStamp")).add(
-					Projections.property("element.toTimeStamp")).add(
-					Projections.property("element.createId")).add(
-					Projections.property("element.createTimeStamp")).add(
-					Projections.property("element.updateTimeStamp")).add(
-					Projections.property("element.configuration")));
+					Projections.property(alias + ".id")).add(
+					Projections.property(alias + ".type")).add(
+					Projections.property(alias + ".name")).add(
+					Projections.property(alias + ".fromTimeStamp")).add(
+					Projections.property(alias + ".toTimeStamp")).add(
+					Projections.property(alias + ".createId")).add(
+					Projections.property(alias + ".createTimeStamp")).add(
+					Projections.property(alias + ".updateTimeStamp")).add(
+					Projections.property(alias + ".configuration")));
 
 			hcriteria.setMaxResults(criteria.getMaxResults());
 			hcriteria.setFirstResult(criteria.getFirstResult());

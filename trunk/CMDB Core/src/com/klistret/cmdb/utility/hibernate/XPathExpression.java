@@ -53,7 +53,7 @@ public class XPathExpression implements Criterion {
 	/**
 	 * 
 	 */
-	private final String reDefaultFunctionNamespace = "declare\\s+default\\s+function\\s+namespace\\s+\\'(http(s?):\\/\\/|(www.))([a-z0-9\\/_;:%#=&?@\\-.]+[a-z0-9\\/_#=&?\\-])\\'";
+	private final String reDefaultFunctionNamespace = "declare\\s+default\\s+function\\s+namespace\\s+\"(http(s?):\\/\\/|(www.))([a-z0-9\\/_;:%#=&?@\\-.]+[a-z0-9\\/_#=&?\\-])\"";
 
 	/**
 	 * 
@@ -78,20 +78,23 @@ public class XPathExpression implements Criterion {
 					"xpathExists may only be used with single-column properties");
 
 		if (dialect instanceof DB2Dialect) {
-			String db2Xpath = xpath.replaceAll(reDefaultFunctionNamespace,
-					String.format("declare default function namespace \'%s\';",
-							DB2DefaultFunctionNamespace));
+			String db2Xpath = xpath.replaceAll(reDefaultFunctionNamespace, "");
+			db2Xpath = String.format(
+					"declare default function namespace \"%s\";",
+					DB2DefaultFunctionNamespace).concat(xpath);
 
-			return String.format("XMLEXISTS(\'%s\') PASSING %s AS \"%s\"",
+			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",
 					db2Xpath, columns[0], variableReference);
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
 			String oracleXpath = xpath.replaceAll(reDefaultFunctionNamespace,
-					String.format("declare default function namespace \'%s\';",
-							OracleDefaultFunctionNamespace));
+					"");
+			oracleXpath = String.format(
+					"declare default function namespace \"%s\";",
+					OracleDefaultFunctionNamespace).concat(xpath);
 
-			return String.format("XMLExists(\'%s\') PASSING %s AS \"%s\"",
+			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
 					oracleXpath, columns[0], variableReference);
 		}
 

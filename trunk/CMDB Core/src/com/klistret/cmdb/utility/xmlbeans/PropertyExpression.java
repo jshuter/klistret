@@ -236,19 +236,19 @@ public class PropertyExpression implements Expression {
 		// append default element declaration
 		if (defaultElementNamespace != null)
 			prolog.append(String.format(
-					"declare default element namespace \'%s\';",
+					"declare default element namespace \"%s\";",
 					defaultElementNamespace));
 
 		// append default function declaration
 		if (defaultFunctionNamespace != null)
 			prolog.append(String.format(
-					"declare default function namespace \'%s\';",
+					"declare default function namespace \"%s\";",
 					defaultFunctionNamespace));
 
 		// append declaration derived from the node list without duplicates
 		for (Node node : nodes) {
 			if (prolog.indexOf(node.getQName().getPrefix()) == -1)
-				prolog.append(String.format("declare namespace %s=\'%s\';",
+				prolog.append(String.format("declare namespace %s=\"%s\";",
 						node.getQName().getPrefix(), node.getQName()
 								.getNamespaceURI()));
 		}
@@ -474,19 +474,19 @@ public class PropertyExpression implements Expression {
 	}
 
 	public String matches(String value) {
-		return compareFnText("matches", value);
+		return compareFnText("fn:matches", value);
 	}
 
 	public String contains(String value) {
-		return compareFnText("contains", value);
+		return compareFnText("fn:contains", value);
 	}
 
 	public String startsWith(String value) {
-		return compareFnText("starts-with", value);
+		return compareFnText("fn:starts-with", value);
 	}
 
 	public String endsWith(String value) {
-		return compareFnText("ends-with", value);
+		return compareFnText("fn:ends-with", value);
 	}
 
 	public String equal(String value) {
