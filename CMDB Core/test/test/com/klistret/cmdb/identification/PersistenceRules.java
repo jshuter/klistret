@@ -26,7 +26,7 @@ public class PersistenceRules {
 		target.setNamespace("Production");
 	}
 
-	// @Test
+	//@Test
 	public void createIdentificationDocument() throws IOException {
 		XmlOptions opts = new XmlOptions();
 		opts.setSavePrettyPrint();
