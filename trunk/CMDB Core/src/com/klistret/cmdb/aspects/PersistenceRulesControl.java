@@ -14,17 +14,34 @@
 
 package com.klistret.cmdb.aspects;
 
+import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PersistenceIdentification {
+import com.klistret.cmdb.identification.PersistenceRules;
+
+public class PersistenceRulesControl {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(PersistenceIdentification.class);
+			.getLogger(PersistenceRulesControl.class);
 
-	public void doElementPersistenceCheck(com.klistret.cmdb.pojo.Element element) {
-		logger.debug("running check prior to persistance [element:{}]", element
+	private PersistenceRules persistenceRules;
+
+	public PersistenceRules getPersistenceRules() {
+		return persistenceRules;
+	}
+
+	public void setPersistenceRules(PersistenceRules persistenceRules) {
+		this.persistenceRules = persistenceRules;
+	}
+
+	public void applyElementPersistenceRules(
+			com.klistret.cmdb.pojo.Element element) {
+		logger.debug("apply persistence rules to element [{}]", element
 				.toString());
+
+		DetachedCriteria detachedCriteria = persistenceRules
+				.getDetachedCriteria(element.getConfiguration());
 	}
 
 }

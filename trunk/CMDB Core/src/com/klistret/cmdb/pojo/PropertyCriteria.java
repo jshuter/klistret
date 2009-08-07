@@ -15,20 +15,20 @@
 package com.klistret.cmdb.pojo;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.CollectionType;
+import org.hibernate.type.NullableType;
 import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.utility.hibernate.XPathExpression;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 
 public class PropertyCriteria {
@@ -85,13 +85,20 @@ public class PropertyCriteria {
 		this.propertyCriteria = propertyCriteria;
 	}
 
+	/**
+	 * 
+	 * @param session
+	 * @return Hibernate criteria
+	 */
 	public Criteria getCriteria(Session session) {
 		/**
 		 * empty criteria list control
 		 */
 		if (propertyCriteria == null) {
-			logger.debug("empty property criterion list - return null");
-			return null;
+			logger
+					.error("empty property criterion list within property criteria object");
+			throw new ApplicationException(
+					"empty property criterion list within property criteria object");
 		}
 
 		/**
@@ -113,7 +120,7 @@ public class PropertyCriteria {
 		 */
 		for (PropertyCriterion propertyCriterion : propertyCriteria) {
 			transformPropertyCriterion(session, criteria, propertyCriterion,
-					propertyCriterion.getPropertyLocationPath());
+					propertyCriterion.getPropertyLocationPath(), className);
 		}
 
 		/**
@@ -125,7 +132,15 @@ public class PropertyCriteria {
 		return criteria;
 	}
 
-	private Type resolvePropertyType(Session session, String property) {
+	/**
+	 * 
+	 * @param session
+	 * @param property
+	 * @param currentClassName
+	 * @return Hibernate Type
+	 */
+	private Type resolvePropertyType(Session session, String property,
+			String currentClassName) {
 		/**
 		 * determine Hibernate type information (works only with className, not
 		 * sure if a bug but the entityName method returns null)
@@ -133,7 +148,7 @@ public class PropertyCriteria {
 		ClassMetadata classMetadata;
 		try {
 			classMetadata = session.getSessionFactory().getClassMetadata(
-					className);
+					currentClassName);
 		} catch (HibernateException e) {
 			throw new ApplicationException(String.format(
 					"unable to get class metadata for class name [%s]",
@@ -148,15 +163,26 @@ public class PropertyCriteria {
 		}
 	}
 
+	/**
+	 * 
+	 * @param session
+	 * @param criteria
+	 * @param propertyCriterion
+	 * @param propertyLocationPath
+	 * @param currentClassName
+	 */
 	private void transformPropertyCriterion(Session session, Criteria criteria,
-			PropertyCriterion propertyCriterion, String propertyLocationPath) {
+			PropertyCriterion propertyCriterion, String propertyLocationPath,
+			String currentClassName) {
 		/**
 		 * split properties between current and remainder to get at the first
 		 * property plus convert first letter in property to lower case (since
 		 * XML properties need to handle lower/upper case names)
 		 */
 		String[] split = propertyLocationPath.split("[.]", 2);
-		String property = split[0].substring(0).toLowerCase();
+		String property = split[0];
+		property = property.substring(0, 1).toLowerCase().concat(
+				property.substring(1));
 
 		/**
 		 * reset propertyLocationPath as remainder if exists otherwise null
@@ -171,102 +197,83 @@ public class PropertyCriteria {
 		 * determine Hibernate type information (works only with className, not
 		 * sure if a bug but the entityName method returns null)
 		 */
-		Type propertyType = resolvePropertyType(session, property);
-
+		Type propertyType = resolvePropertyType(session, property,
+				currentClassName);
 		logger.debug(String.format(
 				"processing property [%s], type return class [%s]", property,
-				propertyType.getReturnedClass().toString()));
+				propertyType.getReturnedClass().getName()));
 
-		// handle associated collections
+		/**
+		 * handling associated collections
+		 */
 		if (propertyType.isAssociationType() && propertyType.isCollectionType()) {
-			logger.debug(String.format("handle associated collection"));
-		}
+			String aen = ((CollectionType) propertyType)
+					.getAssociatedEntityName(((SessionFactoryImplementor) session
+							.getSessionFactory()));
+			logger.debug(String.format(
+					"traversing into associated collection [%s]", aen));
 
-		// handle associated entities
-		if (propertyType.isAssociationType() && propertyType.isEntityType()) {
-			logger.debug(String.format("handle associated entity"));
 			transformPropertyCriterion(session, criteria
 					.createCriteria(property), propertyCriterion,
-					propertyLocationPath);
+					propertyLocationPath, aen);
 		}
 
-		// handle XmlObject (requires remainder path to transform to a xpath)
-		if (propertyType.getReturnedClass().equals(XmlObject.class)
-				&& propertyLocationPath != null) {
-			logger.debug(String.format("handle XmlObject"));
-			PropertyExpression pe = new PropertyExpression(xmlClassName,
-					propertyLocationPath);
+		/**
+		 * handling associated entities
+		 */
+		if (propertyType.isAssociationType() && propertyType.isEntityType()) {
+			logger.debug(String.format("traversing into associated entity"));
+			transformPropertyCriterion(session, criteria
+					.createCriteria(property), propertyCriterion,
+					propertyLocationPath, propertyType.getReturnedClass()
+							.getName());
+		}
 
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.equal))
-				criteria.add(new XPathExpression(property, pe
-						.equal(propertyCriterion.getValue()), pe
-						.getVariableReference()));
+		/**
+		 * handle XmlObject properties
+		 */
+		if (propertyType.getReturnedClass().equals(XmlObject.class)) {
+			if (propertyLocationPath == null)
+				throw new ApplicationException(
+						"property expression for XmlObject empty");
 
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.notEqual))
-				criteria.add(new XPathExpression(property, pe
-						.notEqual(propertyCriterion.getValue()), pe
-						.getVariableReference()));
+			if (xmlClassName == null)
+				throw new ApplicationException(
+						"xmlObject class name not specified");
 
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.startsWith))
-				criteria.add(new XPathExpression(property, pe
-						.startsWith(propertyCriterion.getValue()), pe
-						.getVariableReference()));
+			logger.debug(String.format("adding criteria for XmlObject"));
 
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.endsWith))
-				criteria.add(new XPathExpression(property, pe
-						.endsWith(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.matches))
-				criteria.add(new XPathExpression(property, pe
-						.matches(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.contains))
-				criteria.add(new XPathExpression(property, pe
-						.contains(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.lessThan))
-				criteria.add(new XPathExpression(property, pe
-						.lessThan(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.lessThanOrEqual))
-				criteria.add(new XPathExpression(property, pe
-						.lessThanOrEqual(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.greaterThan))
-				criteria.add(new XPathExpression(property, pe
-						.greaterThan(propertyCriterion.getValue()), pe
-						.getVariableReference()));
-
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.greaterThanOrEqual))
-				criteria.add(new XPathExpression(property, pe
-						.greaterThanOrEqual(propertyCriterion.getValue()), pe
-						.getVariableReference()));
+			PropertyExpression propertyExpression = new PropertyExpression(
+					xmlClassName, propertyLocationPath);
+			criteria
+					.add(propertyCriterion.getOperation().xpathRestriction(
+							propertyExpression, property,
+							propertyCriterion.getValue()));
 
 		}
 
-		// hand simple property
+		/**
+		 * handle simple property
+		 */
 		if (propertyLocationPath == null) {
-			logger.debug(String.format("handle simple property"));
+			logger.debug(String.format("adding criteria for simple property"));
 
-			if (propertyCriterion.getOperator().equals(
-					PropertyCriterion.operators.equal))
-				criteria.add(Restrictions.eq(property, propertyCriterion
-						.getValue()));
+			Object value = null;
+			if (propertyCriterion.getValue() != null) {
+				try {
+					value = ((NullableType) propertyType)
+							.fromStringValue(propertyCriterion.getValue());
+				} catch (HibernateException e) {
+					throw new ApplicationException(String.format(
+							"error converting string [%s] to object: %s",
+							propertyCriterion.getValue(), e.getMessage()));
+				}
+			}
+
+			criteria.add(propertyCriterion.getOperation().restriction(property,
+					value));
 		}
+
 	}
+
 }

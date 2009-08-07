@@ -17,13 +17,15 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	     http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 	<!-- CMDB Element persistence identification -->
-	<bean id="elementPersistenceIdentification"
-		class="com.klistret.cmdb.aspects.PersistenceIdentification"></bean>
+	<bean id="elementPersistenceControl"
+		class="com.klistret.cmdb.aspects.PersistenceRulesControl">
+		<property name="persistenceRules" ref="persistenceRules" />
+	</bean>
 	<aop:config>
-		<aop:aspect ref="elementPersistenceIdentification">
+		<aop:aspect ref="elementPersistenceControl">
 			<aop:pointcut id="setElementPointcut"
 				expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.pojo.Element)) and args(element)" />
-			<aop:before pointcut-ref="setElementPointcut" method="doElementPersistenceCheck" />
+			<aop:before pointcut-ref="setElementPointcut" method="applyElementPersistenceRules" />
 
 		</aop:aspect>
 	</aop:config>
