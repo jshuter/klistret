@@ -16,13 +16,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	     http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<bean id="identification" class="com.klistret.cmdb.utility.Identification">
-		<constructor-arg value="file:/tmp/identification.xml" />
-		<property name="schemaTypeInspection" ref="schemaTypeInspection" />
-	</bean>
-
-	<bean id="schemaTypeInspection" class="com.klistret.cmdb.utility.xmlbeans.SchemaTypeInspection">
-		<constructor-arg value="http://www.klistret.com/cmdb" />
-		<constructor-arg value="Base" />
+	<bean id="persistenceRules" class="com.klistret.cmdb.identification.PersistenceRules">
+		<constructor-arg value="C:\\temp\\persistenceRules.xml" />
 	</bean>
 </beans>
