@@ -20,6 +20,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.CollectionType;
@@ -29,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.utility.hibernate.XPathExpression;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 
 public class PropertyCriteria {
@@ -245,11 +248,63 @@ public class PropertyCriteria {
 
 			PropertyExpression propertyExpression = new PropertyExpression(
 					xmlClassName, propertyLocationPath);
-			criteria
-					.add(propertyCriterion.getOperation().xpathRestriction(
-							propertyExpression, property,
-							propertyCriterion.getValue()));
 
+			switch (propertyCriterion.getOperation()) {
+			case matches:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.matches(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case contains:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.contains(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case startsWith:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.startsWith(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case endsWith:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.endsWith(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case equal:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.equal(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case notEqual:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.notEqual(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case lessThan:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.lessThan(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case lessThanOrEqual:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.lessThanOrEqual(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case greaterThan:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.greaterThan(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			case greaterThanOrEqual:
+				criteria.add(new XPathExpression(property, propertyExpression
+						.greaterThanOrEqual(propertyCriterion.getValue()),
+						propertyExpression.getVariableReference()));
+				break;
+			default:
+				throw new ApplicationException(String.format(
+						"operation [%s] not valid for xpath", propertyCriterion
+								.getOperation().toString()));
+			}
 		}
 
 		/**
@@ -270,8 +325,48 @@ public class PropertyCriteria {
 				}
 			}
 
-			criteria.add(propertyCriterion.getOperation().restriction(property,
-					value));
+			switch (propertyCriterion.getOperation()) {
+			case matches:
+				criteria.add(Restrictions.ilike(property, value));
+				break;
+			case contains:
+				criteria.add(Restrictions.ilike(property, value.toString(),
+						MatchMode.ANYWHERE));
+				break;
+			case startsWith:
+				criteria.add(Restrictions.ilike(property, value.toString(),
+						MatchMode.START));
+				break;
+			case endsWith:
+				criteria.add(Restrictions.ilike(property, value.toString(),
+						MatchMode.END));
+				break;
+			case equal:
+				criteria.add(Restrictions.eq(property, value));
+				break;
+			case notEqual:
+				criteria.add(Restrictions.ne(property, value));
+				break;
+			case lessThan:
+				criteria.add(Restrictions.lt(property, value));
+				break;
+			case lessThanOrEqual:
+				criteria.add(Restrictions.le(property, value));
+				break;
+			case greaterThan:
+				criteria.add(Restrictions.gt(property, value));
+				break;
+			case greaterThanOrEqual:
+				criteria.add(Restrictions.ge(property, value));
+				break;
+			case isNull:
+				criteria.add(Restrictions.isNull(property));
+				break;
+			case isNotNull:
+				criteria.add(Restrictions.isNotNull(property));
+				break;
+			}
+
 		}
 
 	}
