@@ -15,10 +15,12 @@
 package com.klistret.cmdb.utility.xmlbeans;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
@@ -34,7 +36,7 @@ public class SchemaTypeHelper {
 	 * @param classname
 	 * @return
 	 */
-	public static SchemaType[] getBaseSchemaTypes(String classname) {
+	private static SchemaType getSchemaType(String classname) {
 		SchemaType schemaType = XmlBeans.getContextTypeLoader()
 				.typeForClassname(classname);
 
@@ -43,10 +45,37 @@ public class SchemaTypeHelper {
 					.debug(
 							"SchemaType by classname [{}] not found using ContextTypeLoader",
 							classname);
-			return null;
 		}
 
-		return getBaseSchemaTypes(schemaType);
+		return schemaType;
+	}
+
+	/**
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	private static SchemaType getSchemaType(QName qname) {
+		SchemaType schemaType = XmlBeans.getContextTypeLoader().findType(qname);
+
+		if (schemaType == null) {
+			logger
+					.debug(
+							"SchemaType by QName [{}] not found using ContextTypeLoader",
+							qname.toString());
+		}
+
+		return schemaType;
+	}
+
+	/**
+	 * 
+	 * @param classname
+	 * @return
+	 */
+	public static SchemaType[] getBaseSchemaTypes(String classname) {
+
+		return getBaseSchemaTypes(getSchemaType(classname));
 	}
 
 	/**
@@ -55,18 +84,7 @@ public class SchemaTypeHelper {
 	 * @return
 	 */
 	public static SchemaType[] getBaseSchemaTypes(QName qname) {
-		// return SchemaType from the context type loader
-		SchemaType schemaType = XmlBeans.getContextTypeLoader().findType(qname);
-
-		if (schemaType == null) {
-			logger
-					.debug(
-							"SchemaType by QName [{}] not found using ContextTypeLoader",
-							qname.toString());
-			return null;
-		}
-
-		return getBaseSchemaTypes(schemaType);
+		return getBaseSchemaTypes(getSchemaType(qname));
 	}
 
 	/**
@@ -88,7 +106,53 @@ public class SchemaTypeHelper {
 		return (SchemaType[]) baseSchemaTypes.toArray(new SchemaType[0]);
 	}
 
-	public static SchemaType[] getExtendSchemaTypes(SchemaType schemaType,
+	/**
+	 * 
+	 * @param classname
+	 * @param filterAbstracts
+	 * @return
+	 */
+	public static SchemaType[] getExtendSchemaTypes(String classname,
+			boolean filterAbstracts) {
+		return getExtendSchemaTypes(getSchemaType(classname), filterAbstracts);
+	}
+
+	/**
+	 * 
+	 * @param classname
+	 * @return
+	 */
+	public static SchemaType[] getExtendSchemaTypes(String classname) {
+		return getExtendSchemaTypes(getSchemaType(classname), false);
+	}
+
+	/**
+	 * 
+	 * @param qname
+	 * @param filterAbstracts
+	 * @return
+	 */
+	public static SchemaType[] getExtendSchemaTypes(QName qname,
+			boolean filterAbstracts) {
+		return getExtendSchemaTypes(getSchemaType(qname), filterAbstracts);
+	}
+
+	/**
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	public static SchemaType[] getExtendSchemaTypes(QName qname) {
+		return getExtendSchemaTypes(getSchemaType(qname), false);
+	}
+
+	/**
+	 * 
+	 * @param schemaType
+	 * @param filterAbstracts
+	 * @return
+	 */
+	private static SchemaType[] getExtendSchemaTypes(SchemaType schemaType,
 			boolean filterAbstracts) {
 		List<SchemaType> extendingSchemaTypes = new ArrayList<SchemaType>();
 
@@ -115,19 +179,43 @@ public class SchemaTypeHelper {
 			 */
 			if (schemaType.getName().equals(
 					elementSchemaType.getBaseType().getName())) {
-				if (!filterAbstracts && !elementSchemaType.isAbstract()) {
+				SchemaGlobalElement sge = XmlBeans.getContextTypeLoader()
+						.findElement(elementSchemaType.getName());
+
+				if (!(filterAbstracts && sge.isAbstract())) {
 					extendingSchemaTypes.add(elementSchemaType);
 				}
-				extendingSchemaTypes
-						.addAll(getExtendSchemaTypes(elementSchemaType));
+
+				extendingSchemaTypes.addAll(Arrays.asList(getExtendSchemaTypes(
+						elementSchemaType, filterAbstracts)));
 			}
 
 		}
 
-		return null;
+		return extendingSchemaTypes.toArray(new SchemaType[0]);
 	}
 
-	public static SchemaType[] getExtendSchemaTypes(SchemaType schemaType) {
+	public static SchemaType getRoot(String classname) {
+		return getRoot(getSchemaType(classname));
+	}
+
+	public static SchemaType getRoot(QName qname) {
+		return getRoot(getSchemaType(qname));
+	}
+
+	private static SchemaType getRoot(SchemaType schemaType) {
+		SchemaType[] baseSchemaTypes = getBaseSchemaTypes(schemaType);
+
+		for (int index = baseSchemaTypes.length - 1; index >= 0; index--) {
+			SchemaGlobalElement sge = XmlBeans.getContextTypeLoader()
+					.findElement(baseSchemaTypes[index].getName());
+			if (sge != null)
+				return baseSchemaTypes[index];
+		}
+
+		if (XmlBeans.getContextTypeLoader().findElement(schemaType.getName()) != null)
+			return schemaType;
+
 		return null;
 	}
 }

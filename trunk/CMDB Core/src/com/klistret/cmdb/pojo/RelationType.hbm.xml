@@ -18,7 +18,7 @@
 
 <hibernate-mapping package="com.klistret.cmdb.pojo">
 
-	<class name="RelationType" table="RELATIONTYPE">
+	<class name="RelationType" table="RELATIONTYPE" entity-name="RelationType">
 
 		<id name="id">
 			<column name="RELATIONTYPEID" sql-type="INTEGER" />
