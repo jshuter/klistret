@@ -33,29 +33,21 @@ public class ElementService extends
 	@Test
 	public void findByCriteria() {
 		PropertyCriteria propertyCriteria = new PropertyCriteria();
-		propertyCriteria.setClassName("com.klistret.cmdb.pojo.Element");
 		propertyCriteria
-				.setXmlClassName("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
+				.setClassName("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
 
 		List<PropertyCriterion> criteria = new ArrayList<PropertyCriterion>();
 
-		PropertyCriterion typeCriterion = new PropertyCriterion();
-		typeCriterion.setPropertyLocationPath("type.name");
-		typeCriterion
-				.setValue("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
-		typeCriterion.setOperation(PropertyCriterion.Operation.equal);
-		criteria.add(typeCriterion);
-
 		PropertyCriterion configurationCriterion = new PropertyCriterion();
 		configurationCriterion.setPropertyLocationPath("configuration.Name");
-		configurationCriterion.setValue("whatever");
+		String[] names = { "whatever" };
+		configurationCriterion.setValues(names);
 		configurationCriterion
 				.setOperation(PropertyCriterion.Operation.matches);
 		criteria.add(configurationCriterion);
 
 		PropertyCriterion toTimeStampCriterion = new PropertyCriterion();
 		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
-		// toTimeStampCriterion.setValue("2009-01-01 00:00:00");
 		toTimeStampCriterion.setOperation(PropertyCriterion.Operation.isNull);
 		criteria.add(toTimeStampCriterion);
 

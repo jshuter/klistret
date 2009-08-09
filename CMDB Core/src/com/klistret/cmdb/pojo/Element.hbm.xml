@@ -18,7 +18,7 @@
 
 <hibernate-mapping package="com.klistret.cmdb.pojo">
 
-	<class name="Element" table="ELEMENT">
+	<class name="Element" table="ELEMENT" entity-name="Element">
 
 		<id name="id">
 			<column name="ELEMENTID" sql-type="INTEGER" />
@@ -26,8 +26,8 @@
 			</generator>
 		</id>
 
-		<many-to-one name="type" class="com.klistret.cmdb.pojo.ElementType"
-			lazy="false" foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
+		<many-to-one name="type" entity-name="ElementType" lazy="false"
+			foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
 			<column name="ELEMENTTYPEID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
 
@@ -55,20 +55,21 @@
 			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
 		</property>
 
-		<property name="configuration" type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
+		<property name="configuration"
+			type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
 			<column name="CONFIGURATION" sql-type="XML" />
 		</property>
 
-		<set name="sourceRelations" lazy="true" inverse="true"
-			cascade="save-update" where="TOTIMESTAMP is null">
+		<set name="sourceRelations" lazy="true" inverse="true" cascade="save-update"
+			where="TOTIMESTAMP is null">
 			<key column="SOURCEID" on-delete="noaction" not-null="true" />
-			<one-to-many class="com.klistret.cmdb.pojo.Relation" />
+			<one-to-many entity-name="Relation" />
 		</set>
 
 		<set name="destinationRelations" lazy="true" inverse="true"
 			cascade="save-update" where="TOTIMESTAMP is null">
 			<key column="DESTINATIONID" on-delete="noaction" not-null="true" />
-			<one-to-many class="com.klistret.cmdb.pojo.Relation" />
+			<one-to-many entity-name="Relation" />
 		</set>
 
 	</class>

@@ -19,14 +19,14 @@ import com.klistret.cmdb.exception.ApplicationException;
 public class PropertyCriterion {
 
 	public enum Operation {
-		matches, contains, startsWith, endsWith, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual, isNull, isNotNull
+		matches, contains, startsWith, endsWith, equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual, isNull, isNotNull, in
 	};
 
 	private final static String propertyLocationPathExpression = "(\\w+)|(\\w+[.]\\w+)*";
 
 	private String propertyLocationPath;
 
-	private String value;
+	private String[] values;
 
 	private Operation operation;
 
@@ -44,12 +44,12 @@ public class PropertyCriterion {
 		this.propertyLocationPath = propertyLocationPath;
 	}
 
-	public String getValue() {
-		return value;
+	public String[] getValues() {
+		return values;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setValues(String[] values) {
+		this.values = values;
 	};
 
 	public Operation getOperation() {

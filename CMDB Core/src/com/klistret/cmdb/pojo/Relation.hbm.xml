@@ -19,7 +19,7 @@
 
 <hibernate-mapping package="com.klistret.cmdb.pojo">
 
-	<class name="Relation" table="RELATION">
+	<class name="Relation" table="RELATION" entity-name="Relation">
 
 		<id name="id">
 			<column name="RELATIONID" sql-type="INTEGER" />
@@ -27,20 +27,19 @@
 			</generator>
 		</id>
 
-		<many-to-one name="type" class="com.klistret.cmdb.pojo.RelationType"
+		<many-to-one name="type" entity-name="RelationType"
 			lazy="false" foreign-key="FK_TYPE_REL" index="RELATION_FK RELATION_SK">
 			<column name="RELATIONTYPEID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
 
-		<many-to-one lazy="false" name="source"
-			class="com.klistret.cmdb.pojo.Element" foreign-key="FK_REL_SOURCE"
-			index="SOURCE_REL_FK" insert="false" update="false">
+		<many-to-one lazy="false" name="source" entity-name="Element"
+			foreign-key="FK_REL_SOURCE" index="SOURCE_REL_FK" insert="false"
+			update="false">
 			<column name="SOURCEID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
 
-		<many-to-one lazy="false" name="destination"
-			class="com.klistret.cmdb.pojo.Element" foreign-key="FK_REL_DEST" index="DEST_REL_FK"
-			insert="false" update="false">
+		<many-to-one lazy="false" name="destination" entity-name="Element"
+			foreign-key="FK_REL_DEST" index="DEST_REL_FK" insert="false" update="false">
 			<column name="DESTINATIONID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
 
@@ -64,7 +63,8 @@
 			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
 		</property>
 
-		<property name="configuration" type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
+		<property name="configuration"
+			type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
 			<column name="CONFIGURATION" sql-type="XML" />
 		</property>
 
