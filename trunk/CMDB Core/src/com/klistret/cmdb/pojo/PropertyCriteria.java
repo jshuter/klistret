@@ -104,7 +104,7 @@ public class PropertyCriteria {
 		 * get entity name from passed className based on the XmlObject root
 		 * element name
 		 */
-		SchemaType root = SchemaTypeHelper.getRoot(className);
+		SchemaType root = SchemaTypeHelper.getRootElementType(className);
 		if (root == null)
 			throw new ApplicationException(
 					String
@@ -241,7 +241,7 @@ public class PropertyCriteria {
 			logger.debug(String.format("adding criteria for XmlObject"));
 
 			PropertyExpression propertyExpression = new PropertyExpression(
-					className, propertyLocationPath);
+					className, propertyLocationPath, true);
 
 			switch (propertyCriterion.getOperation()) {
 			case matches:

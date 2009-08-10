@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import com.klistret.cmdb.exception.ApplicationException;
@@ -70,12 +71,23 @@ public class PropertyExpression implements Expression {
 
 	/**
 	 * 
+	 */
+	private boolean documentContext = false;
+
+	/**
+	 * 
 	 * @param classname
 	 * @param propertyLocationPath
 	 */
 	public PropertyExpression(String classname, String propertyLocationPath) {
 		this(XmlBeans.getContextTypeLoader().typeForClassname(classname),
-				propertyLocationPath);
+				propertyLocationPath, false);
+	}
+
+	public PropertyExpression(String classname, String propertyLocationPath,
+			boolean documentContext) {
+		this(XmlBeans.getContextTypeLoader().typeForClassname(classname),
+				propertyLocationPath, documentContext);
 	}
 
 	/**
@@ -85,15 +97,17 @@ public class PropertyExpression implements Expression {
 	 */
 	public PropertyExpression(QName qname, String propertyLocationPath) {
 		this(XmlBeans.getContextTypeLoader().findType(qname),
-				propertyLocationPath);
+				propertyLocationPath, false);
 	}
 
-	/**
-	 * 
-	 * @param schemaType
-	 * @param propertyLocationPath
-	 */
-	public PropertyExpression(SchemaType schemaType, String propertyLocationPath) {
+	public PropertyExpression(QName qname, String propertyLocationPath,
+			boolean documentContext) {
+		this(XmlBeans.getContextTypeLoader().findType(qname),
+				propertyLocationPath, documentContext);
+	}
+
+	private PropertyExpression(SchemaType schemaType,
+			String propertyLocationPath, boolean documentContext) {
 		if (!propertyLocationPath.matches(propertyPathExpression))
 
 			throw new ApplicationException(String.format(
@@ -102,6 +116,15 @@ public class PropertyExpression implements Expression {
 
 		this.schemaType = schemaType;
 		this.propertyLocationPath = propertyLocationPath;
+		this.documentContext = documentContext;
+
+		XmlObject document = SchemaTypeHelper.getDocument(schemaType.getName());
+		if (documentContext && document != null) {
+			SchemaProperty schemaProperty = document.schemaType()
+					.getElementProperty(schemaType.getName());
+			nodes.add(new Node(schemaProperty,
+					getQNameWithPrefix(schemaProperty.getName())));
+		}
 
 		transformPropertyLocationPath(schemaType, propertyLocationPath);
 	}
@@ -136,6 +159,10 @@ public class PropertyExpression implements Expression {
 
 	public SchemaType getSchemaType() {
 		return schemaType;
+	}
+
+	public boolean isDocumentContext() {
+		return documentContext;
 	}
 
 	/**
@@ -247,7 +274,9 @@ public class PropertyExpression implements Expression {
 
 		// append declaration derived from the node list without duplicates
 		for (Node node : nodes) {
-			if (prolog.indexOf(node.getQName().getPrefix()) == -1)
+			if (prolog.indexOf(String.format("declare namespace %s=\"%s\";",
+					node.getQName().getPrefix(), node.getQName()
+							.getNamespaceURI())) == -1)
 				prolog.append(String.format("declare namespace %s=\"%s\";",
 						node.getQName().getPrefix(), node.getQName()
 								.getNamespaceURI()));
