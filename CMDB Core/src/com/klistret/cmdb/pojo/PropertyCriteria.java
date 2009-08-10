@@ -14,6 +14,7 @@
 
 package com.klistret.cmdb.pojo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.xmlbeans.SchemaType;
@@ -79,6 +80,13 @@ public class PropertyCriteria {
 
 	public void setPropertyCriteria(List<PropertyCriterion> propertyCriteria) {
 		this.propertyCriteria = propertyCriteria;
+	}
+
+	public boolean addPropertyCriterion(PropertyCriterion propertyCriterion) {
+		if (this.propertyCriteria == null)
+			this.propertyCriteria = new ArrayList<PropertyCriterion>();
+
+		return this.propertyCriteria.add(propertyCriterion);
 	}
 
 	public Criteria getCriteria(Session session) {

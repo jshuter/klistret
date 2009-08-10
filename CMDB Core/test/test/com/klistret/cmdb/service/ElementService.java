@@ -1,5 +1,7 @@
 package test.com.klistret.cmdb.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,28 +33,18 @@ public class ElementService extends
 	}
 
 	@Test
-	public void findByCriteria() {
-		PropertyCriteria propertyCriteria = new PropertyCriteria();
-		propertyCriteria
-				.setClassName("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
+	public void findByCriteria() throws MalformedURLException {
+		com.klistret.cmdb.identification.PersistenceRules rules = new com.klistret.cmdb.identification.PersistenceRules(
+				new URL("file:C:\\temp\\persistenceRules.xml"));
 
-		List<PropertyCriterion> criteria = new ArrayList<PropertyCriterion>();
+		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = com.klistret.cmdb.xmlbeans.element.logical.collection.Environment.Factory
+				.newInstance();
+		environment.setName("whatever");
+		environment.setNamespace("hello");
 
-		PropertyCriterion configurationCriterion = new PropertyCriterion();
-		configurationCriterion.setPropertyLocationPath("configuration.Name");
-		String[] names = { "whatever" };
-		configurationCriterion.setValues(names);
-		configurationCriterion
-				.setOperation(PropertyCriterion.Operation.matches);
-		criteria.add(configurationCriterion);
+		PropertyCriteria critera = rules.getPropertyCriteria(environment);
 
-		PropertyCriterion toTimeStampCriterion = new PropertyCriterion();
-		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
-		toTimeStampCriterion.setOperation(PropertyCriterion.Operation.isNull);
-		criteria.add(toTimeStampCriterion);
-
-		propertyCriteria.setPropertyCriteria(criteria);
-
-		elementService.findByCriteria(propertyCriteria);
+		elementService.findByCriteria(critera);
 	}
+
 }

@@ -14,7 +14,6 @@
 
 package com.klistret.cmdb.aspects;
 
-import org.hibernate.criterion.DetachedCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +38,6 @@ public class PersistenceRulesControl {
 			com.klistret.cmdb.pojo.Element element) {
 		logger.debug("apply persistence rules to element [{}]", element
 				.toString());
-
-		DetachedCriteria detachedCriteria = persistenceRules
-				.getDetachedCriteria(element.getConfiguration());
 	}
 
 }

@@ -23,16 +23,12 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.Element;
-import com.klistret.cmdb.utility.hibernate.XPathExpression;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
@@ -67,50 +63,61 @@ public class PersistenceRules {
 	 * @param xmlObject
 	 * @return Hibernate detached criteria
 	 */
-	public DetachedCriteria getDetachedCriteria(XmlObject xmlObject) {
-		DetachedCriteria query = DetachedCriteria.forClass(Element.class, "e");
+	public com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
+			XmlObject xmlObject) {
+		/**
+		 * valid expression array?
+		 */
+		PropertyExpression[] propertyExpressions = getPropertyExpressionCriterion(xmlObject);
+		if (propertyExpressions.length == 0)
+			return null;
+
+		/**
+		 * construct property criteria
+		 */
+		com.klistret.cmdb.pojo.PropertyCriteria criteria = new com.klistret.cmdb.pojo.PropertyCriteria();
+		criteria.setClassName(xmlObject.schemaType().getFullJavaName());
 
 		/**
 		 * limit by class name through elementType relation
 		 */
-		query.createAlias("type", "etype");
-		query.add(Restrictions.eq("etype.name", xmlObject.schemaType()
-				.getFullJavaName()));
+		com.klistret.cmdb.pojo.PropertyCriterion typeCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
+		typeCriterion.setPropertyLocationPath("type.name");
+		typeCriterion
+				.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.equal);
+		String[] types = { xmlObject.schemaType().getFullJavaName() };
+		typeCriterion.setValues(types);
+		criteria.addPropertyCriterion(typeCriterion);
 
 		/**
 		 * limit to only active elements
 		 */
-		query.add(Restrictions.isNull("e.toTimeStamp"));
+		com.klistret.cmdb.pojo.PropertyCriterion toTimeStampCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
+		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
+		toTimeStampCriterion
+				.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.isNull);
+		criteria.addPropertyCriterion(toTimeStampCriterion);
 
 		/**
 		 * limit with property expression criterion
 		 */
-		String[] xpaths = getXPathCriterion(xmlObject);
-		for (String xpath : xpaths) {
-			query.add(new XPathExpression("e.configuration", xpath, "this"));
-		}
-
-		return query;
-	}
-
-	/**
-	 * 
-	 * @param xmlObject
-	 * @return XPath criterion array
-	 */
-	public String[] getXPathCriterion(XmlObject xmlObject) {
-		PropertyExpression[] propertyExpressionCriterion = getPropertyExpressionCriterion(xmlObject);
-
-		List<String> xpathCriterion = new ArrayList<String>(
-				propertyExpressionCriterion.length);
-		for (PropertyExpression propertyExpression : propertyExpressionCriterion) {
-			String value = ((XmlAnySimpleType) xmlObject
+		for (PropertyExpression propertyExpression : propertyExpressions) {
+			String[] values = new String[1];
+			values[0] = ((XmlAnySimpleType) xmlObject
 					.selectPath(propertyExpression.toString())[0])
 					.getStringValue();
-			xpathCriterion.add(propertyExpression.equal(value));
+
+			com.klistret.cmdb.pojo.PropertyCriterion xpathCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
+			xpathCriterion.setPropertyLocationPath("configuration."
+					+ propertyExpression.getPropertyLocationPath());
+			xpathCriterion
+					.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.equal);
+			xpathCriterion.setValues(values);
+
+			criteria.addPropertyCriterion(xpathCriterion);
 		}
 
-		return xpathCriterion.toArray(new String[0]);
+		return criteria;
 	}
 
 	/**
