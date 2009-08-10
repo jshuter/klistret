@@ -17,6 +17,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	     http://www.springframework.org/schema/beans/spring-beans.xsd">
 	<bean id="persistenceRules" class="com.klistret.cmdb.identification.PersistenceRules">
-		<constructor-arg value="C:\\temp\\persistenceRules.xml" />
+		<constructor-arg value="file:C:\\temp\\persistenceRules.xml" />
 	</bean>
 </beans>

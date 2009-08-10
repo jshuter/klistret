@@ -2,6 +2,7 @@ package test.com.klistret.cmdb.identification;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.xmlbeans.XmlException;
@@ -9,6 +10,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.Environment;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument;
 
@@ -26,7 +28,7 @@ public class PersistenceRules {
 		target.setNamespace("Production");
 	}
 
-	//@Test
+	// @Test
 	public void createIdentificationDocument() throws IOException {
 		XmlOptions opts = new XmlOptions();
 		opts.setSavePrettyPrint();
@@ -57,18 +59,16 @@ public class PersistenceRules {
 	}
 
 	@Test
-	public void dummy() throws XmlException, IOException {
-		com.klistret.cmdb.identification.PersistenceRules persistenceRules = new com.klistret.cmdb.identification.PersistenceRules(
+	public void dummy() throws MalformedURLException {
+		com.klistret.cmdb.identification.PersistenceRules rules = new com.klistret.cmdb.identification.PersistenceRules(
 				new URL("file:C:\\temp\\persistenceRules.xml"));
 
 		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = com.klistret.cmdb.xmlbeans.element.logical.collection.Environment.Factory
 				.newInstance();
-		environment.setName("whaever");
+		environment.setName("whatever");
 		environment.setNamespace("hello");
 
-		String query = persistenceRules.getDetachedCriteria(environment)
-				.toString();
-
-		System.out.println(query);
+		PropertyCriteria critera = rules.getPropertyCriteria(environment);
+		
 	}
 }
