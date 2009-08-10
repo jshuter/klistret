@@ -24,6 +24,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,15 +196,30 @@ public class SchemaTypeHelper {
 		return extendingSchemaTypes.toArray(new SchemaType[0]);
 	}
 
-	public static SchemaType getRoot(String classname) {
-		return getRoot(getSchemaType(classname));
+	/**
+	 * 
+	 * @param classname
+	 * @return
+	 */
+	public static SchemaType getRootElementType(String classname) {
+		return getRootElementType(getSchemaType(classname));
 	}
 
-	public static SchemaType getRoot(QName qname) {
-		return getRoot(getSchemaType(qname));
+	/**
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	public static SchemaType getRootElementType(QName qname) {
+		return getRootElementType(getSchemaType(qname));
 	}
 
-	private static SchemaType getRoot(SchemaType schemaType) {
+	/**
+	 * 
+	 * @param schemaType
+	 * @return
+	 */
+	private static SchemaType getRootElementType(SchemaType schemaType) {
 		SchemaType[] baseSchemaTypes = getBaseSchemaTypes(schemaType);
 
 		for (int index = baseSchemaTypes.length - 1; index >= 0; index--) {
@@ -215,6 +231,27 @@ public class SchemaTypeHelper {
 
 		if (XmlBeans.getContextTypeLoader().findElement(schemaType.getName()) != null)
 			return schemaType;
+
+		return null;
+	}
+
+	public static XmlObject getDocument(String classname) {
+		return getDocument(getSchemaType(classname));
+	}
+
+	public static XmlObject getDocument(QName qname) {
+		return getDocument(getSchemaType(qname));
+	}
+
+	private static XmlObject getDocument(SchemaType schemaType) {
+		SchemaType[] documentTypes = schemaType.getTypeSystem().documentTypes();
+		for (SchemaType documentType : documentTypes) {
+			XmlObject xmlObject = XmlBeans.getContextTypeLoader().newInstance(
+					documentType, null);
+			if (schemaType.getName().equals(
+					xmlObject.schemaType().getDocumentElementName()))
+				return xmlObject;
+		}
 
 		return null;
 	}

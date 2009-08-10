@@ -83,11 +83,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setId((Long) row[0]);
 				element.setType((com.klistret.cmdb.pojo.ElementType) row[1]);
 				element.setName((String) row[2]);
-				element.setFromTimeStamp((Date) row[3]);
-				element.setToTimeStamp((Date) row[4]);
+				element.setFromTimeStamp((Timestamp) row[3]);
+				element.setToTimeStamp((Timestamp) row[4]);
 				element.setCreateId((String) row[5]);
-				element.setCreateTimeStamp((Date) row[6]);
-				element.setUpdateTimeStamp((Date) row[7]);
+				element.setCreateTimeStamp((Timestamp) row[6]);
+				element.setUpdateTimeStamp((Timestamp) row[7]);
 				element
 						.setConfiguration((com.klistret.cmdb.xmlbeans.Element) row[8]);
 
@@ -139,7 +139,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		element.setUpdateTimeStamp(currentTimeStamp);
 
 		try {
-			getSession().saveOrUpdate(element);
+			getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}

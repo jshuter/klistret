@@ -20,7 +20,9 @@
 	<bean id="elementPersistenceControl"
 		class="com.klistret.cmdb.aspects.PersistenceRulesControl">
 		<property name="persistenceRules" ref="persistenceRules" />
+		<property name="elementService" ref="elementService" />
 	</bean>
+	<!-- React to set method execution with ElementService with PersistenceControl -->
 	<aop:config>
 		<aop:aspect ref="elementPersistenceControl">
 			<aop:pointcut id="setElementPointcut"
