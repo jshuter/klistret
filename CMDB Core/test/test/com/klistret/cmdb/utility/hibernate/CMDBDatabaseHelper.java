@@ -33,11 +33,11 @@ public class CMDBDatabaseHelper {
 				.typeForClassname(
 						"com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
 
-		XmlObject document = SchemaTypeHelper
+		SchemaType documentSchemaType = SchemaTypeHelper
 				.getDocument("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
 
-		SchemaProperty property = document.schemaType().getElementProperty(
-				environment.getName());
+		SchemaProperty property = documentSchemaType
+				.getElementProperty(environment.getName());
 		System.out.println(property.getName());
 	}
 }

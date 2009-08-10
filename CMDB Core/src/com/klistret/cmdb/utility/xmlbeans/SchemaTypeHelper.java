@@ -28,14 +28,26 @@ import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
+
+/**
+ * XmlBeans offers a ton of ways to get at schema information but information
+ * about base types, extending types, the root document type, and the document
+ * wrapper for global schema elements was lacking.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class SchemaTypeHelper {
 	private static final Logger logger = LoggerFactory
 			.getLogger(SchemaTypeHelper.class);
 
 	/**
+	 * Transform full java class path to XmlObject Schema Type
 	 * 
 	 * @param classname
-	 * @return
+	 *            Full Java class path
+	 * @return SchemaType
 	 */
 	private static SchemaType getSchemaType(String classname) {
 		SchemaType schemaType = XmlBeans.getContextTypeLoader()
@@ -43,36 +55,49 @@ public class SchemaTypeHelper {
 
 		if (schemaType == null) {
 			logger
-					.debug(
+					.error(
 							"SchemaType by classname [{}] not found using ContextTypeLoader",
 							classname);
+			throw new ApplicationException(
+					String
+							.format(
+									"SchemaType by classname [%s] not found using ContextTypeLoader",
+									classname));
 		}
 
 		return schemaType;
 	}
 
 	/**
+	 * Transform qname to XmlObject Schema Type
 	 * 
 	 * @param qname
-	 * @return
+	 * @return SchemaType
 	 */
 	private static SchemaType getSchemaType(QName qname) {
 		SchemaType schemaType = XmlBeans.getContextTypeLoader().findType(qname);
 
 		if (schemaType == null) {
 			logger
-					.debug(
+					.error(
 							"SchemaType by QName [{}] not found using ContextTypeLoader",
 							qname.toString());
+			throw new ApplicationException(
+					String
+							.format(
+									"SchemaType by QName [%s] not found using ContextTypeLoader",
+									qname.toString()));
 		}
 
 		return schemaType;
 	}
 
 	/**
+	 * Get base types (ancestor types extended by the passed java class
+	 * representing a XmlObject schema type) in order of extension
 	 * 
 	 * @param classname
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getBaseSchemaTypes(String classname) {
 
@@ -80,20 +105,32 @@ public class SchemaTypeHelper {
 	}
 
 	/**
+	 * Get base types (ancestor types extended by the passed QName representing
+	 * a XmlObject schema type) in order of extension
 	 * 
 	 * @param qname
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getBaseSchemaTypes(QName qname) {
 		return getBaseSchemaTypes(getSchemaType(qname));
 	}
 
 	/**
+	 * Loops through the base type defined in the SchemaType until the super
+	 * type is null (excluding all built in types to XmlBeans along the way)
+	 * adding each to an array list.
 	 * 
 	 * @param schemaType
-	 * @return
+	 *            Document types only
+	 * @return SchemaType[]
 	 */
 	private static SchemaType[] getBaseSchemaTypes(SchemaType schemaType) {
+		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null)
+			throw new ApplicationException(String.format(
+					"SchemaType [%s] is not a document type", schemaType
+							.getName() == null ? schemaType.getFullJavaName()
+							: schemaType.getName()));
+
 		// base type cache
 		ArrayList<SchemaType> baseSchemaTypes = new ArrayList<SchemaType>();
 
@@ -108,10 +145,13 @@ public class SchemaTypeHelper {
 	}
 
 	/**
+	 * Get extending types (by the passed java class representing a XmlObject
+	 * schema type) in order of extension with the option of filtering out
+	 * abstractions
 	 * 
 	 * @param classname
 	 * @param filterAbstracts
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getExtendSchemaTypes(String classname,
 			boolean filterAbstracts) {
@@ -119,19 +159,23 @@ public class SchemaTypeHelper {
 	}
 
 	/**
+	 * Get extending types (by the passed java class representing a XmlObject
+	 * schema type) in order of extension
 	 * 
 	 * @param classname
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getExtendSchemaTypes(String classname) {
 		return getExtendSchemaTypes(getSchemaType(classname), false);
 	}
 
 	/**
+	 * Get extending types (by the passed QName representing a XmlObject schema
+	 * type) in order of extension with the option of filtering out abstractions
 	 * 
 	 * @param qname
 	 * @param filterAbstracts
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getExtendSchemaTypes(QName qname,
 			boolean filterAbstracts) {
@@ -139,30 +183,41 @@ public class SchemaTypeHelper {
 	}
 
 	/**
+	 * Get extending types (by the passed QName representing a XmlObject schema
+	 * type) in order of extension
 	 * 
 	 * @param qname
-	 * @return
+	 * @return SchemaType[]
 	 */
 	public static SchemaType[] getExtendSchemaTypes(QName qname) {
 		return getExtendSchemaTypes(getSchemaType(qname), false);
 	}
 
 	/**
+	 * Loops through all of the document types registered to the XmlBeans type
+	 * system looking to see if the current schema type is a subclass (positive
+	 * hits cause the method to act recursively)
 	 * 
 	 * @param schemaType
+	 *            Document types only
 	 * @param filterAbstracts
 	 * @return
 	 */
 	private static SchemaType[] getExtendSchemaTypes(SchemaType schemaType,
 			boolean filterAbstracts) {
-		List<SchemaType> extendingSchemaTypes = new ArrayList<SchemaType>();
+		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null)
+			throw new ApplicationException(String.format(
+					"SchemaType [%s] is not a document type", schemaType
+							.getName() == null ? schemaType.getFullJavaName()
+							: schemaType.getName()));
 
-		SchemaTypeSystem schemaTypeSystem = schemaType.getTypeSystem();
+		List<SchemaType> extendingSchemaTypes = new ArrayList<SchemaType>();
 
 		/**
 		 * loop through all registered document types with the current type
 		 * system
 		 */
+		SchemaTypeSystem schemaTypeSystem = schemaType.getTypeSystem();
 		for (SchemaType documentType : schemaTypeSystem.documentTypes()) {
 			/**
 			 * collect only documents with root elements
@@ -197,29 +252,36 @@ public class SchemaTypeHelper {
 	}
 
 	/**
+	 * Get root document type (by the passed java class representing a XmlObject
+	 * schema type) which global elements like Elements or Relations.
 	 * 
 	 * @param classname
-	 * @return
+	 * @return SchemaType
 	 */
-	public static SchemaType getRootElementType(String classname) {
-		return getRootElementType(getSchemaType(classname));
+	public static SchemaType getRootDocumentType(String classname) {
+		return getRootDocumentType(getSchemaType(classname));
 	}
 
 	/**
+	 * Get root document type (by the passed QName representing a XmlObject
+	 * schema type) which global elements like Elements or Relations.
 	 * 
 	 * @param qname
-	 * @return
+	 * @return SchemaType
 	 */
-	public static SchemaType getRootElementType(QName qname) {
-		return getRootElementType(getSchemaType(qname));
+	public static SchemaType getRootDocumentType(QName qname) {
+		return getRootDocumentType(getSchemaType(qname));
 	}
 
 	/**
+	 * Loops through the base schema types in reverse looking for a global
+	 * element with the same QName (exception is if the passed schema type is a
+	 * root document type)
 	 * 
 	 * @param schemaType
-	 * @return
+	 * @return SchemaType
 	 */
-	private static SchemaType getRootElementType(SchemaType schemaType) {
+	private static SchemaType getRootDocumentType(SchemaType schemaType) {
 		SchemaType[] baseSchemaTypes = getBaseSchemaTypes(schemaType);
 
 		for (int index = baseSchemaTypes.length - 1; index >= 0; index--) {
@@ -235,22 +297,46 @@ public class SchemaTypeHelper {
 		return null;
 	}
 
-	public static XmlObject getDocument(String classname) {
+	/**
+	 * Get document class (contains no QName and can not be loaded through the
+	 * XmlBeans type system)
+	 * 
+	 * @param classname
+	 * @return SchemaType
+	 */
+	public static SchemaType getDocument(String classname) {
 		return getDocument(getSchemaType(classname));
 	}
 
-	public static XmlObject getDocument(QName qname) {
+	/**
+	 * Get document class (contains no QName and can not be loaded through the
+	 * XmlBeans type system)
+	 * 
+	 * @param qname
+	 * @return SchemaType
+	 */
+	public static SchemaType getDocument(QName qname) {
 		return getDocument(getSchemaType(qname));
 	}
 
-	private static XmlObject getDocument(SchemaType schemaType) {
+	/**
+	 * Document classes can not be loaded from the XmlBeans type system nor
+	 * found via the SchemaType class but the type system does contain a list of
+	 * document types (not to be confused with global schema elements) which has
+	 * references to their document elements that can be matched to the passed
+	 * schema type.
+	 * 
+	 * @param schemaType
+	 * @return SchemaType
+	 */
+	private static SchemaType getDocument(SchemaType schemaType) {
 		SchemaType[] documentTypes = schemaType.getTypeSystem().documentTypes();
 		for (SchemaType documentType : documentTypes) {
 			XmlObject xmlObject = XmlBeans.getContextTypeLoader().newInstance(
 					documentType, null);
 			if (schemaType.getName().equals(
 					xmlObject.schemaType().getDocumentElementName()))
-				return xmlObject;
+				return xmlObject.schemaType();
 		}
 
 		return null;

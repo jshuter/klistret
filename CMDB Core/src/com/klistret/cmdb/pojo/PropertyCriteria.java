@@ -104,7 +104,7 @@ public class PropertyCriteria {
 		 * get entity name from passed className based on the XmlObject root
 		 * element name
 		 */
-		SchemaType root = SchemaTypeHelper.getRootElementType(className);
+		SchemaType root = SchemaTypeHelper.getRootDocumentType(className);
 		if (root == null)
 			throw new ApplicationException(
 					String

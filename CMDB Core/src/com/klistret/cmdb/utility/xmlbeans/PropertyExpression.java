@@ -22,7 +22,6 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import com.klistret.cmdb.exception.ApplicationException;
@@ -118,9 +117,10 @@ public class PropertyExpression implements Expression {
 		this.propertyLocationPath = propertyLocationPath;
 		this.documentContext = documentContext;
 
-		XmlObject document = SchemaTypeHelper.getDocument(schemaType.getName());
-		if (documentContext && document != null) {
-			SchemaProperty schemaProperty = document.schemaType()
+		SchemaType documentSchemaType = SchemaTypeHelper.getDocument(schemaType
+				.getName());
+		if (documentContext && documentSchemaType != null) {
+			SchemaProperty schemaProperty = documentSchemaType
 					.getElementProperty(schemaType.getName());
 			nodes.add(new Node(schemaProperty,
 					getQNameWithPrefix(schemaProperty.getName())));
