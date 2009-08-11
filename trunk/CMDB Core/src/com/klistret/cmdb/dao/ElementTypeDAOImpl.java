@@ -15,45 +15,82 @@
 package com.klistret.cmdb.dao;
 
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 
-	private final static Logger logger = Logger.getLogger(ElementTypeDAOImpl.class
-			.getName());
+	private static final Logger logger = LoggerFactory
+			.getLogger(ElementTypeDAOImpl.class);
 
-	public Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria) {
+	/**
+	 * Uses ILike expression to match by name
+	 * 
+	 * @param name
+	 * @return Integer
+	 */
+	public Integer countByName(String name) {
 		try {
-			Criteria hcriteria = criteria.getCriteria(getSession());
-			hcriteria.setProjection(Projections.rowCount());
+			Criteria query = getSession().createCriteria("ElementType");
 
-			return (Integer) hcriteria.list().iterator().next();
+			query.add(Restrictions.ilike("name", name));
+			query.add(Restrictions.isNull("toTimeStamp"));
+
+			query.setProjection(Projections.rowCount());
+
+			return (Integer) query.list().iterator().next();
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running count query by name [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * Uses ILike expression to match by name
+	 * 
+	 * @param name
+	 * @return Collection
+	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.pojo.ElementType> findByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
+	public Collection<com.klistret.cmdb.pojo.ElementType> findByName(String name) {
 		try {
-			Criteria hcriteria = criteria.getCriteria(getSession());
+			Criteria query = getSession().createCriteria("ElementType");
 
-			return hcriteria.list();
+			query.add(Restrictions.ilike("name", name));
+			query.add(Restrictions.isNull("toTimeStamp"));
+
+			return query.list();
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running criteria [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @return ElementType
+	 */
 	public com.klistret.cmdb.pojo.ElementType getByCompositeId(String name) {
-		logger.fine("getting element type by composite id [" + name + "]");
+		logger.debug("getting element type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
 				com.klistret.cmdb.pojo.ElementType.class);
@@ -66,12 +103,15 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 					.uniqueResult();
 
 			if (elementType != null) {
-				logger.fine("found element type [" + elementType.toString()
-						+ "]");
+				logger.debug("found element type [{}]", elementType.toString());
 			}
 
 			return elementType;
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException getting by id [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}

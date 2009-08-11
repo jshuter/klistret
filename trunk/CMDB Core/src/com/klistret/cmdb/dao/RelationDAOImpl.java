@@ -14,38 +14,51 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.logging.Logger;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
-	private final static Logger logger = Logger.getLogger(RelationDAOImpl.class
-			.getName());
+	private static final Logger logger = LoggerFactory
+			.getLogger(RelationDAOImpl.class);
 
+	/**
+	 * 
+	 * @param id
+	 * @return Relation
+	 */
 	public com.klistret.cmdb.pojo.Relation getById(Long id) {
 		try {
-			Criteria criteria = getSession().createCriteria(
-					com.klistret.cmdb.pojo.Relation.class);
+			Criteria criteria = getSession().createCriteria("Relation");
 
 			criteria.add(Restrictions.idEq(id));
 
-			logger.fine("getting relation [id:" + id + "] by id");
+			logger.debug("getting relation [id: {}] by id", id);
 			com.klistret.cmdb.pojo.Relation relation = (com.klistret.cmdb.pojo.Relation) criteria
 					.uniqueResult();
 
 			if (relation == null) {
-				throw new ApplicationException("relation [id: " + id
-						+ "] does not exist");
+				throw new ApplicationException(String.format(
+						"relation [id: %s] does not exist", id));
 			}
 
 			return relation;
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running get by ID [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}

@@ -16,16 +16,57 @@ package com.klistret.cmdb.dao;
 
 import java.util.Collection;
 
+/**
+ * Dealing with Elements is limited to CRUD methods while the business logic is
+ * applied through AOP (like persistence rules for uniqueness)
+ * 
+ * @author Matthew Young
+ * 
+ */
 public interface ElementDAO {
 
+	/**
+	 * CRUD get by unique identifier (associations are fetched automatically)
+	 * 
+	 * @param id
+	 * @return Element
+	 */
 	com.klistret.cmdb.pojo.Element getById(Long id);
 
+	/**
+	 * CRUD get by unique identifier with option to toggle inclusion of
+	 * associations
+	 * 
+	 * @param id
+	 * @param fetchAssociations
+	 * @return Element
+	 */
 	com.klistret.cmdb.pojo.Element getById(Long id, boolean fetchAssociations);
 
+	/**
+	 * CRUD find by criteria where the criteria is a list of property
+	 * expressions, operators, and values to be applied into the passed
+	 * operation.
+	 * 
+	 * @param criteria
+	 * @return Collection
+	 */
 	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
+	/**
+	 * CRUD count by criteria (under the hood the findByCriteria method)
+	 * 
+	 * @param criteria
+	 * @return Integer
+	 */
 	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
+	/**
+	 * CRUD save/update
+	 * 
+	 * @param element
+	 * @return Element
+	 */
 	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
 }

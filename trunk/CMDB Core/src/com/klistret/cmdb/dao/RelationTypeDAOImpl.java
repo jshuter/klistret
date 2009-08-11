@@ -14,11 +14,11 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.logging.Logger;
-
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
 
@@ -29,8 +29,8 @@ import com.klistret.cmdb.exception.InfrastructureException;
  */
 public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 
-	private final static Logger logger = Logger
-			.getLogger(RelationTypeDAOImpl.class.getName());
+	private static final Logger logger = LoggerFactory
+			.getLogger(RelationTypeDAOImpl.class);
 
 	/**
 	 * Get relation type by composite ID (name)
@@ -42,7 +42,7 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 	 *             when Hibernate criteria does not return a unique result
 	 */
 	public com.klistret.cmdb.pojo.RelationType getByCompositeId(String name) {
-		logger.fine("getting relation type by composite id [" + name + "]");
+		logger.debug("getting relation type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
 				com.klistret.cmdb.pojo.RelationType.class);
@@ -55,12 +55,16 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 					.uniqueResult();
 
 			if (relationType != null) {
-				logger.fine("found relation type [" + relationType.toString()
-						+ "]");
+				logger.debug("found relation type [{}]", relationType
+						.toString());
 			}
 
 			return relationType;
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running get by composite ID [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}

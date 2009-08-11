@@ -14,6 +14,18 @@
 
 package com.klistret.cmdb.dao;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public interface RelationTypeDAO {
+
+	/**
+	 * CRUD get by composite unique ID
+	 * 
+	 * @param name
+	 * @return RelationType
+	 */
 	com.klistret.cmdb.pojo.RelationType getByCompositeId(String name);
 }

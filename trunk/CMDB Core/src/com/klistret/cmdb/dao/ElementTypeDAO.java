@@ -16,12 +16,34 @@ package com.klistret.cmdb.dao;
 
 import java.util.Collection;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public interface ElementTypeDAO {
 
+	/**
+	 * CRUD get by composite unique id
+	 * 
+	 * @param name
+	 * @return ElementType
+	 */
 	com.klistret.cmdb.pojo.ElementType getByCompositeId(String name);
 
-	Collection<com.klistret.cmdb.pojo.ElementType> findByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria);
+	/**
+	 * CRUD find by name used in an ILike expression
+	 * 
+	 * @param name
+	 * @return Collection
+	 */
+	Collection<com.klistret.cmdb.pojo.ElementType> findByName(String name);
 
-	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
+	/**
+	 * CRUD find count by name used in an ILike expression
+	 * 
+	 * @param name
+	 * @return Integer
+	 */
+	Integer countByName(String name);
 }

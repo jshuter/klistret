@@ -34,14 +34,29 @@ import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
 import com.klistret.cmdb.xmlbeans.PropertyCriterion;
 
+/**
+ * Persistence Rules are located in an external XML document. They allow unique
+ * identification of global elements like Element/Relation prior to save/update
+ * calls so that organizations can specify for themselves what uniquely earmarks
+ * CIs. Rules may be ordered and those applied to abstract super classes get
+ * inherited (unless excluded). Rules are composed of property criteria and a
+ * binding to XmlObjects. Nothing more. Simple.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class PersistenceRules {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(PersistenceRules.class);
 
+	/**
+	 * XmlObject persistence rules document
+	 */
 	private PersistenceRulesDocument persistenceRulesDocument;
 
 	/**
+	 * Constructor parses the URL into a XmlObject document
 	 * 
 	 * @param url
 	 */
@@ -59,9 +74,14 @@ public class PersistenceRules {
 	}
 
 	/**
+	 * Based on the XmlObject the element type is derived automatically from the
+	 * SchemaType java class name, only active (toTimeStamp null) objects are
+	 * selected, and each property criterion is evaluated. All property
+	 * expressions returned by the rules document are evaluated in order,
+	 * returning the first positive hit.
 	 * 
 	 * @param xmlObject
-	 * @return Hibernate detached criteria
+	 * @return PropertyCriteria
 	 */
 	public com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
 			XmlObject xmlObject) {
@@ -69,8 +89,11 @@ public class PersistenceRules {
 		 * valid expression array?
 		 */
 		PropertyExpression[] propertyExpressions = getPropertyExpressionCriterion(xmlObject);
-		if (propertyExpressions.length == 0)
+		if (propertyExpressions.length == 0) {
+			logger.debug("persistence rules not defined for XmlObject [{}]",
+					xmlObject.schemaType().getFullJavaName());
 			return null;
+		}
 
 		/**
 		 * construct property criteria
@@ -104,7 +127,8 @@ public class PersistenceRules {
 		for (PropertyExpression propertyExpression : propertyExpressions) {
 			String[] values = new String[1];
 			values[0] = ((XmlAnySimpleType) xmlObject
-					.selectPath(propertyExpression.toString(false))[0]).getStringValue();
+					.selectPath(propertyExpression.toString(false))[0])
+					.getStringValue();
 
 			com.klistret.cmdb.pojo.PropertyCriterion xpathCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
 			xpathCriterion.setPropertyLocationPath("configuration."
@@ -120,6 +144,9 @@ public class PersistenceRules {
 	}
 
 	/**
+	 * Determines if a property expression is valid for the passed XmlObject by
+	 * performing a select for each XPath with the expectation a non-empty,
+	 * simple-type result set.
 	 * 
 	 * @param propertyExpressionCriterion
 	 * @param xmlObject
@@ -156,6 +183,7 @@ public class PersistenceRules {
 	}
 
 	/**
+	 * Return first valid property expression for the passed XmlObject
 	 * 
 	 * @param xmlObject
 	 * @return Property Expression array (valid criterion based on order and if
@@ -184,6 +212,8 @@ public class PersistenceRules {
 	}
 
 	/**
+	 * List all property expressions for the passed java class representing a
+	 * SchemaType
 	 * 
 	 * @param classname
 	 * @return Property Expression array list (criteria in order)

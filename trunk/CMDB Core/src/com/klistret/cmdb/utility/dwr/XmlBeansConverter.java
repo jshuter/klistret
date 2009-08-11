@@ -40,6 +40,19 @@ import org.directwebremoting.extend.TypeHintContext;
 import org.directwebremoting.util.LocalUtil;
 import org.directwebremoting.util.Messages;
 
+/**
+ * Extract Bean converter for XmlObject to publish them as JSON. Requires that
+ * only the interfaces (not the actual implementations) are transformed
+ * otherwise extract XmlBeans structures are processed rather than Bean methods
+ * (get/set).
+ * 
+ * Note: Wrote this class when first started working with XmlBeans. Likely, the
+ * majority could be cleaned up and rely more on XmlBeans than reflection to
+ * access properties or create instances.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class XmlBeansConverter extends BeanConverter {
 	private final static Logger logger = Logger
 			.getLogger(XmlBeansConverter.class.getName());
