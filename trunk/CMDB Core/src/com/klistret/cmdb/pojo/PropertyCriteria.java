@@ -241,7 +241,7 @@ public class PropertyCriteria {
 			logger.debug(String.format("adding criteria for XmlObject"));
 
 			PropertyExpression propertyExpression = new PropertyExpression(
-					className, propertyLocationPath, true);
+					className, propertyLocationPath);
 
 			switch (propertyCriterion.getOperation()) {
 			case matches:

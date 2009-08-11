@@ -23,6 +23,12 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
 
+/**
+ * 
+ * 
+ * @author Matthew Young
+ *
+ */
 @SuppressWarnings("serial")
 public class XPathExpression implements Criterion {
 	/**

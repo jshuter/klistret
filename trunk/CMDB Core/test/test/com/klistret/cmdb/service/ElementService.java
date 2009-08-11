@@ -29,8 +29,8 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void getById() {
 		com.klistret.cmdb.pojo.Element element = elementService
 				.getById(new Long(46));
@@ -55,8 +55,8 @@ public class ElementService extends
 		elementService.findByCriteria(critera);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void set() {
 		com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument document = com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument.Factory
 				.newInstance();

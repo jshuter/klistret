@@ -1,15 +1,7 @@
 package test.com.klistret.cmdb.utility.hibernate;
 
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 
 public class CMDBDatabaseHelper {
 
@@ -21,23 +13,8 @@ public class CMDBDatabaseHelper {
 				.getInstance("Hibernate.cfg.xml");
 	}
 
-	// @Test
+	@Test
 	public void generateDatabaseSchema() {
 		helper.generateDatabaseSchema("C:\\temp\\cmdb.ddl", true, false);
-	}
-
-	@Test
-	public void dummy() {
-		SchemaType environment = XmlBeans
-				.getContextTypeLoader()
-				.typeForClassname(
-						"com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
-
-		SchemaType documentSchemaType = SchemaTypeHelper
-				.getDocument("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
-
-		SchemaProperty property = documentSchemaType
-				.getElementProperty(environment.getName());
-		System.out.println(property.getName());
 	}
 }

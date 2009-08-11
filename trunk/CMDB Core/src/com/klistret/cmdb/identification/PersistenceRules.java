@@ -104,8 +104,7 @@ public class PersistenceRules {
 		for (PropertyExpression propertyExpression : propertyExpressions) {
 			String[] values = new String[1];
 			values[0] = ((XmlAnySimpleType) xmlObject
-					.selectPath(propertyExpression.toString())[0])
-					.getStringValue();
+					.selectPath(propertyExpression.toString(false))[0]).getStringValue();
 
 			com.klistret.cmdb.pojo.PropertyCriterion xpathCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
 			xpathCriterion.setPropertyLocationPath("configuration."
@@ -130,7 +129,7 @@ public class PersistenceRules {
 			PropertyExpression[] propertyExpressionCriterion,
 			XmlObject xmlObject) {
 		for (PropertyExpression propertyExpression : propertyExpressionCriterion) {
-			String xpath = propertyExpression.toString();
+			String xpath = propertyExpression.toString(false);
 
 			XmlObject[] results = xmlObject.selectPath(xpath);
 			if (results.length == 0)
