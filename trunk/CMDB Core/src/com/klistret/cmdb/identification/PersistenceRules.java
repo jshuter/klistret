@@ -215,6 +215,8 @@ public class PersistenceRules {
 	 * List all property expressions for the passed java class representing a
 	 * SchemaType
 	 * 
+	 * Candidate for method caching instead of running FLOWR query every time
+	 * 
 	 * @param classname
 	 * @return Property Expression array list (criteria in order)
 	 */
