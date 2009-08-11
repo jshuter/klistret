@@ -21,6 +21,13 @@ import java.util.logging.Logger;
 
 import org.directwebremoting.extend.MarshallException;
 
+/**
+ * Pretty sure wrote this class for debugging purposes. Messy code with DWR that
+ * probably won't live on with the integration of EasyRest.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class PropertyDescriptorProperty extends
 		org.directwebremoting.impl.PropertyDescriptorProperty {
 
@@ -35,7 +42,7 @@ public class PropertyDescriptorProperty extends
 	 * (non-Javadoc)
 	 * 
 	 * @see org.directwebremoting.extend.Property#setValue(java.lang.Object,
-	 * java.lang.Object)
+	 *      java.lang.Object)
 	 */
 	public void setValue(Object bean, Object value) throws MarshallException {
 		try {
@@ -53,7 +60,9 @@ public class PropertyDescriptorProperty extends
 
 			Class<?>[] parameterTypes = writeMethod.getParameterTypes();
 			for (Class<?> type : parameterTypes) {
-				logger.finest("write method parameter [" + type.getName() + "]");
+				logger
+						.finest("write method parameter [" + type.getName()
+								+ "]");
 				logger.finest("is array? " + type.isArray());
 
 				if (type.isArray() && value == null) {

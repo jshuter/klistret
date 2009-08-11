@@ -28,6 +28,11 @@ import org.directwebremoting.extend.OutboundVariable;
 import org.directwebremoting.util.LocalUtil;
 import org.directwebremoting.dwrp.SimpleOutboundVariable;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class StringEnumAbstractBaseConverter extends BaseV20Converter implements
 		Converter {
 

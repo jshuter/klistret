@@ -14,7 +14,6 @@
 
 package com.klistret.cmdb.dao;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
 import java.util.Collection;
@@ -33,11 +32,20 @@ import org.hibernate.criterion.Restrictions;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ElementDAOImpl.class);
 
+	/**
+	 * @see com.klistret.cmdb.dao.ElementDAO.countByCriteria
+	 * @return Integer
+	 */
 	public Integer countByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
 		try {
@@ -46,10 +54,22 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			return (Integer) hcriteria.list().iterator().next();
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running count criteria [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * Necessary to use the Projections to limit the selected columns to only
+	 * those defined to the Element tables (otherwise the returned columns
+	 * contains all columns for all associations).
+	 * 
+	 * @see com.klistret.cmdb.dao.ElementDAO.findByCriteria
+	 * @return Collection
+	 */
 	@SuppressWarnings("unchecked")
 	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
@@ -96,14 +116,31 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			return elements;
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException running criteria [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * 
+	 * @see com.klistret.cmdb.dao.ElementDAO.getById(Long id)
+	 * @param id
+	 * @return Element
+	 */
 	public com.klistret.cmdb.pojo.Element getById(Long id) {
 		return getById(id, true);
 	}
 
+	/**
+	 * @see com.klistret.cmdb.dao.ElementDAO.getById(Long id, boolean
+	 *      fetchAssociations)
+	 * @param id
+	 * @param fetchAssociations
+	 * @return Element
+	 */
 	public com.klistret.cmdb.pojo.Element getById(Long id,
 			boolean fetchAssociations) {
 		try {
@@ -122,25 +159,62 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.uniqueResult();
 
 			if (element == null) {
+				logger.error("element [id: {}] does not exist", id);
 				throw new ApplicationException(String.format(
 						"element [id: %s] does not exist", id));
 			}
 
 			return element;
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException getting Element [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * @param Element
+	 * @return Element
+	 */
 	public com.klistret.cmdb.pojo.Element set(
 			com.klistret.cmdb.pojo.Element element) {
+		/**
+		 * record current time when updating
+		 */
 		Timestamp currentTimeStamp = new Timestamp(new java.util.Date()
 				.getTime());
 		element.setUpdateTimeStamp(currentTimeStamp);
 
+		/**
+		 * verify that the SchemaType java class name matches the element type
+		 * name
+		 */
+		if (!element.getType().getName().equals(
+				element.getConfiguration().schemaType().getFullJavaName())) {
+			logger
+					.error(
+							"XmlObject java class [{}] not consistent with element type name [{}]",
+							element.getConfiguration().schemaType()
+									.getFullJavaName(), element.getType()
+									.getName());
+			throw new ApplicationException(
+					String
+							.format(
+									"XmlObject java class [%s] not consistent with element type name [%s]",
+									element.getConfiguration().schemaType()
+											.getFullJavaName(), element
+											.getType().getName()));
+		}
+
 		try {
 			getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
+			logger
+					.error(
+							"HibernateException setting Element [message: {}, cause: {}]",
+							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
@@ -148,5 +222,4 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		return element;
 	}
-
 }

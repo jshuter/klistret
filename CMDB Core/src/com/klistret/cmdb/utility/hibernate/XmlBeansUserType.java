@@ -23,27 +23,42 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlValidationError;
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
+/**
+ * Implements Hibernate UserType for handling special SQL types (is declared in
+ * the mapping documents). Needed a class to parse the XML document into a
+ * XmlObject and in reverse serialize XmlObjects with their global document
+ * type.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class XmlBeansUserType implements UserType {
 
-	private final static Logger logger = Logger
-			.getLogger(XmlBeansUserType.class.getName());
+	private static final Logger logger = LoggerFactory
+			.getLogger(XmlBeansUserType.class);
 
 	private static final int[] SQL_TYPES = { Types.VARCHAR };
 
 	public int[] sqlTypes() {
 		return SQL_TYPES;
 	}
-	
+
 	public Class<XmlObject> returnedClass() {
 		return XmlObject.class;
 	}
@@ -63,15 +78,15 @@ public class XmlBeansUserType implements UserType {
 		String configuration = resultSet.getString(names[0]);
 
 		if (configuration == null) {
-			logger.fine("configuration column is null");
+			logger.debug("configuration column is null");
 			return null;
 		} else {
-			logger.fine("parsing XML to XMLBean");
+			logger.debug("parsing XML to XMLBean");
 			try {
 				XmlObject document = XmlObject.Factory.parse(configuration);
 				SchemaType documentSchemaType = document.schemaType();
 
-				logger.fine("XML string of type ["
+				logger.debug("XML string of type ["
 						+ documentSchemaType.getJavaClass().toString()
 						+ "], isDocument ["
 						+ documentSchemaType.isDocumentType()
@@ -89,7 +104,7 @@ public class XmlBeansUserType implements UserType {
 				}
 
 				XmlObject xmlObject = xmlObjectArray[0];
-				logger.fine("returning XmlObject [" + xmlObject.xmlText()
+				logger.debug("returning XmlObject [" + xmlObject.xmlText()
 						+ "]");
 				return xmlObject;
 
@@ -105,7 +120,7 @@ public class XmlBeansUserType implements UserType {
 	public void nullSafeSet(PreparedStatement statement, Object value, int index)
 			throws HibernateException, SQLException {
 		if (value == null) {
-			logger.fine("saving null to XML management");
+			logger.debug("saving null to XML management");
 			statement.setString(index, null);
 		} else {
 			StringWriter writer = new StringWriter();
@@ -140,9 +155,28 @@ public class XmlBeansUserType implements UserType {
 							+ " is not registered as a Document");
 				}
 
-				logger.fine("saving XMLBean ["
+				/**
+				 * validate XmlObject prior to converting
+				 */
+				ArrayList validationErrors = new ArrayList();
+				XmlOptions validationOptions = new XmlOptions();
+				validationOptions.setErrorListener(validationErrors);
+				if (!document.validate(validationOptions)) {
+					logger.error("%d validation errors", validationErrors
+							.size());
+
+					for (XmlValidationError validationError : (ArrayList<XmlValidationError>) validationErrors) {
+						logger.error("XmlBeans validation error: {}",
+								validationError.getMessage());
+					}
+
+					throw new ApplicationException(
+							"Underlying XML to XmlObject did not validate");
+				}
+
+				logger.debug("saving XMLBean ["
 						+ documentSchemaType.getFullJavaName() + "] to XML");
-				logger.fine("contents [" + document.xmlText() + "]");
+				logger.debug("contents [" + document.xmlText() + "]");
 				document.save(writer);
 			} catch (ClassNotFoundException e) {
 				throw new InfrastructureException(e);

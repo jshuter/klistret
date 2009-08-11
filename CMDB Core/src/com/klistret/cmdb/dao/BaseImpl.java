@@ -16,8 +16,19 @@ package com.klistret.cmdb.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Every DAO needs a SessionFactory making this class perfect as a super class
+ * for the rest of the classes in this package.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class BaseImpl {
+	private static final Logger logger = LoggerFactory
+			.getLogger(BaseImpl.class);
 
 	private SessionFactory sessionFactory;
 
@@ -27,9 +38,12 @@ public class BaseImpl {
 	 * @return org.hibernate.Session
 	 */
 	protected Session getSession() {
-		if (this.sessionFactory == null)
+		if (this.sessionFactory == null) {
+			logger
+					.error("Session Factory has not been set on DAO before usage");
 			throw new IllegalStateException(
 					"Session Factory has not been set on DAO before usage");
+		}
 		return this.sessionFactory.getCurrentSession();
 	}
 

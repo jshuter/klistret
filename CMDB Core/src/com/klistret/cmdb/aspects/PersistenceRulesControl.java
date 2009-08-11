@@ -24,33 +24,68 @@ import com.klistret.cmdb.identification.PersistenceRules;
 import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.service.ElementService;
 
+/**
+ * AOP class
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class PersistenceRulesControl {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(PersistenceRulesControl.class);
 
+	/**
+	 * Persistence Rules
+	 */
 	private PersistenceRules persistenceRules;
 
+	/**
+	 * Element service (transaction ready)
+	 */
 	private ElementService elementService;
 
+	/**
+	 * 
+	 * @return PersistenceRules
+	 */
 	public PersistenceRules getPersistenceRules() {
 		return persistenceRules;
 	}
 
+	/**
+	 * 
+	 * @param persistenceRules
+	 */
 	public void setPersistenceRules(PersistenceRules persistenceRules) {
 		this.persistenceRules = persistenceRules;
 	}
 
+	/**
+	 * 
+	 * @return ElementService
+	 */
 	public ElementService getElementService() {
 		return elementService;
 	}
 
+	/**
+	 * 
+	 * @param elementService
+	 */
 	public void setElementService(ElementService elementService) {
 		this.elementService = elementService;
 	}
 
+	/**
+	 * Persistent rules (for uniqueness) are applied to the passed Element
+	 * generating a PropertyCriteria that determines if other elements in the
+	 * database are similar. Hits generate an exception.
+	 * 
+	 * @param element
+	 */
 	public void applyElementPersistenceRules(
-			com.klistret.cmdb.pojo.Element element) {
+			com.klistret.cmdb.pojo.Element element) throws ApplicationException {
 		logger.debug("apply persistence rules to element [{}]", element
 				.toString());
 
@@ -60,6 +95,10 @@ public class PersistenceRulesControl {
 		if (criteria != null) {
 			Collection<com.klistret.cmdb.pojo.Element> results = elementService
 					.findByCriteria(criteria);
+
+			for (com.klistret.cmdb.pojo.Element other : results)
+				logger.debug("criteria selected other element [{}]", other
+						.toString());
 
 			if (element.getId() == null && !results.isEmpty())
 				throw new ApplicationException(

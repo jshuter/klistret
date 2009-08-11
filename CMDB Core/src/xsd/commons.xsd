@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		This file is part of Klistret. Klistret is free software: you can
-		redistribute it and/or modify it under the terms of the GNU General
-		Public License as published by the Free Software Foundation, either
-		version 3 of the License, or (at your option) any later version.
-
-		Klistret is distributed in the hope that it will be useful, but
-		WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		General Public License for more details. You should have received a
-		copy of the GNU General Public License along with Klistret. If not,
-		see <http://www.gnu.org/licenses/>
-	-->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.klistret.com/cmdb"
-	xmlns:cmdb="http://www.klistret.com/cmdb" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.klistret.com/cmdb"
+	xmlns:cmdb="http://www.klistret.com/cmdb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:simpleType name="Name">
 		<xs:annotation>
-			<xs:documentation>Name given to the base instance (usually human
-				readable)
+			<xs:documentation>
+				Name given to the base instance (usually human readable)
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -27,9 +29,10 @@
 
 	<xs:simpleType name="Namespace">
 		<xs:annotation>
-			<xs:documentation>Namespace associated with the base
-				instance allowing for segregation of data into collections
-				(instances may not be unique across namespaces)
+			<xs:documentation>
+				Namespace associated with the base instance allowing for
+				segregation of data into collections (instances may not
+				be unique across namespaces)
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -37,9 +40,10 @@
 
 	<xs:simpleType name="Tag">
 		<xs:annotation>
-			<xs:documentation>A non-hierarchical keyword or term assigned to a
-				base instance. Tags enrich search criteria and may be dynamically
-				applied by users.
+			<xs:documentation>
+				A non-hierarchical keyword or term assigned to a base
+				instance. Tags enrich search criteria and may be
+				dynamically applied by users.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -47,16 +51,18 @@
 
 	<xs:simpleType name="Version">
 		<annotation>
-			<documentation>Keeps track of incrementally different versions
-				of base instances</documentation>
+			<documentation>
+				Keeps track of incrementally different versions of base
+				instances
+			</documentation>
 		</annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
 	<xs:simpleType name="Description">
 		<annotation>
-			<documentation>Description of the base instance (human
-				readable)
+			<documentation>
+				Description of the base instance (human readable)
 			</documentation>
 		</annotation>
 		<xs:restriction base="xs:string" />
@@ -64,8 +70,9 @@
 
 	<xs:simpleType name="Annotation">
 		<annotation>
-			<documentation>Notes or shorter comments placed on the base
-				instance</documentation>
+			<documentation>
+				Notes or shorter comments placed on the base instance
+			</documentation>
 		</annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
@@ -74,8 +81,10 @@
 		<xs:choice>
 			<xs:element name="Name" type="xs:string">
 				<annotation>
-					<documentation>Ownership is responsibility over the base
-						instance</documentation>
+					<documentation>
+						Ownership is responsibility over the base
+						instance
+					</documentation>
 				</annotation>
 			</xs:element>
 		</xs:choice>
@@ -85,8 +94,11 @@
 		<xs:sequence>
 			<xs:element name="Name" type="cmdb:Name" maxOccurs="1"></xs:element>
 			<xs:element name="Namespace" type="cmdb:Namespace"
-				maxOccurs="1"></xs:element>
-			<xs:element name="Tag" type="cmdb:Tag" maxOccurs="unbounded"></xs:element>
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="Tag" type="cmdb:Tag" minOccurs="0"
+				maxOccurs="unbounded">
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
 	</xs:complexType>

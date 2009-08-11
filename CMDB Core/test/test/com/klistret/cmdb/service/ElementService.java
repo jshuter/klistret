@@ -29,8 +29,7 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	@Test
 	public void getById() {
 		com.klistret.cmdb.pojo.Element element = elementService
 				.getById(new Long(46));
@@ -39,7 +38,7 @@ public class ElementService extends
 		elementService.set(element);
 	}
 
-	// @Test
+	@Test
 	public void findByCriteria() throws MalformedURLException {
 		com.klistret.cmdb.identification.PersistenceRules rules = new com.klistret.cmdb.identification.PersistenceRules(
 				new URL("file:C:\\temp\\persistenceRules.xml"));
@@ -47,7 +46,6 @@ public class ElementService extends
 		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = com.klistret.cmdb.xmlbeans.element.logical.collection.Environment.Factory
 				.newInstance();
 		environment.setName("whatever");
-		// environment.setNamespace("hello");
 		environment.setNamespace("dev");
 
 		PropertyCriteria critera = rules.getPropertyCriteria(environment);
@@ -63,8 +61,7 @@ public class ElementService extends
 		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = document
 				.addNewEnvironment();
 		environment.setName("whatever");
-		// environment.setNamespace("hello");
-		environment.setNamespace("dev");
+		environment.setNamespace("production");
 
 		com.klistret.cmdb.pojo.ElementType type = elementTypeService
 				.getByCompositeId(environment.schemaType().getFullJavaName());

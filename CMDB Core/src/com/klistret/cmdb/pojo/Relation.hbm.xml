@@ -65,7 +65,7 @@
 
 		<property name="configuration"
 			type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">
-			<column name="CONFIGURATION" sql-type="XML" />
+			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
 		</property>
 
 	</class>
