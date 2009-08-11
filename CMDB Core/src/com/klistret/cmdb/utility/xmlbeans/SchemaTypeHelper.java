@@ -49,7 +49,7 @@ public class SchemaTypeHelper {
 	 *            Full Java class path
 	 * @return SchemaType
 	 */
-	private static SchemaType getSchemaType(String classname) {
+	public static SchemaType getSchemaType(String classname) {
 		SchemaType schemaType = XmlBeans.getContextTypeLoader()
 				.typeForClassname(classname);
 
@@ -74,7 +74,7 @@ public class SchemaTypeHelper {
 	 * @param qname
 	 * @return SchemaType
 	 */
-	private static SchemaType getSchemaType(QName qname) {
+	public static SchemaType getSchemaType(QName qname) {
 		SchemaType schemaType = XmlBeans.getContextTypeLoader().findType(qname);
 
 		if (schemaType == null) {
@@ -125,11 +125,14 @@ public class SchemaTypeHelper {
 	 * @return SchemaType[]
 	 */
 	private static SchemaType[] getBaseSchemaTypes(SchemaType schemaType) {
-		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null)
+		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null) {
+			String name = schemaType.getName() == null ? schemaType
+					.getFullJavaName() : schemaType.getName().toString();
+
+			logger.error("SchemaType [{}] is not a document type", name);
 			throw new ApplicationException(String.format(
-					"SchemaType [%s] is not a document type", schemaType
-							.getName() == null ? schemaType.getFullJavaName()
-							: schemaType.getName()));
+					"SchemaType [%s] is not a document type", name));
+		}
 
 		// base type cache
 		ArrayList<SchemaType> baseSchemaTypes = new ArrayList<SchemaType>();
@@ -205,11 +208,14 @@ public class SchemaTypeHelper {
 	 */
 	private static SchemaType[] getExtendSchemaTypes(SchemaType schemaType,
 			boolean filterAbstracts) {
-		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null)
+		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null) {
+			String name = schemaType.getName() == null ? schemaType
+					.getFullJavaName() : schemaType.getName().toString();
+
+			logger.error("SchemaType [{}] is not a document type", name);
 			throw new ApplicationException(String.format(
-					"SchemaType [%s] is not a document type", schemaType
-							.getName() == null ? schemaType.getFullJavaName()
-							: schemaType.getName()));
+					"SchemaType [%s] is not a document type", name));
+		}
 
 		List<SchemaType> extendingSchemaTypes = new ArrayList<SchemaType>();
 
@@ -330,6 +336,15 @@ public class SchemaTypeHelper {
 	 * @return SchemaType
 	 */
 	private static SchemaType getDocument(SchemaType schemaType) {
+		if (schemaType.getTypeSystem().findDocumentType(schemaType.getName()) == null) {
+			String name = schemaType.getName() == null ? schemaType
+					.getFullJavaName() : schemaType.getName().toString();
+
+			logger.error("SchemaType [{}] is not a document type", name);
+			throw new ApplicationException(String.format(
+					"SchemaType [%s] is not a document type", name));
+		}
+
 		SchemaType[] documentTypes = schemaType.getTypeSystem().documentTypes();
 		for (SchemaType documentType : documentTypes) {
 			XmlObject xmlObject = XmlBeans.getContextTypeLoader().newInstance(

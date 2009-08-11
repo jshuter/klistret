@@ -21,21 +21,32 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 
 /**
+ * XmlBeans gives a great interface for selection/querying based on XPath/XQuery
+ * statements but no way to pull data with property path expression. Odd since
+ * the representation of XML is thrown around as POJOs. Maybe a good addition in
+ * the future to the XmlBeans project. Basically, this class creates XPath
+ * selections or comparative functions on nested properties within a particular
+ * SchemaType object. Property based criteria can be translated into XPath
+ * querying against XmlObjects or against a XML database (i.e. inside SQL).
  * 
  * @author Matthew Young
  * 
  */
 public class PropertyExpression implements Expression {
+	private static final Logger logger = LoggerFactory
+			.getLogger(PropertyExpression.class);
+
 	/**
 	 * Regular expression for property location paths
 	 */
-	private final static String propertyPathExpression = "(\\w+)|(\\w+[.]\\w+)*";
+	private final static String propertyPathRegularExpression = "(\\w+)|(\\w+[.]\\w+)*";
 
 	/**
 	 * @see Expression
@@ -69,105 +80,145 @@ public class PropertyExpression implements Expression {
 	private List<Node> nodes = new ArrayList<Node>();
 
 	/**
-	 * 
-	 */
-	private boolean documentContext = false;
-
-	/**
+	 * Constructs a property expression (returning a XPath selection and basic
+	 * function calls) based on the passed XmlObject java class name and
+	 * property path
 	 * 
 	 * @param classname
+	 *            XmlObject (document type only) java class name
 	 * @param propertyLocationPath
 	 */
 	public PropertyExpression(String classname, String propertyLocationPath) {
-		this(XmlBeans.getContextTypeLoader().typeForClassname(classname),
-				propertyLocationPath, false);
-	}
-
-	public PropertyExpression(String classname, String propertyLocationPath,
-			boolean documentContext) {
-		this(XmlBeans.getContextTypeLoader().typeForClassname(classname),
-				propertyLocationPath, documentContext);
+		this(SchemaTypeHelper.getSchemaType(classname), propertyLocationPath);
 	}
 
 	/**
+	 * Constructs a property expression (returning a XPath selection and basic
+	 * function calls) based on the passed QName and property path
 	 * 
 	 * @param qname
+	 *            (document type only)
 	 * @param propertyLocationPath
 	 */
 	public PropertyExpression(QName qname, String propertyLocationPath) {
-		this(XmlBeans.getContextTypeLoader().findType(qname),
-				propertyLocationPath, false);
+		this(SchemaTypeHelper.getSchemaType(qname), propertyLocationPath);
 	}
 
-	public PropertyExpression(QName qname, String propertyLocationPath,
-			boolean documentContext) {
-		this(XmlBeans.getContextTypeLoader().findType(qname),
-				propertyLocationPath, documentContext);
-	}
-
+	/**
+	 * Constructor first adds the document type's schema property to the node
+	 * list then translates each property in the path, in order, into nodes. The
+	 * addition of the document type is important since the XML saved into the
+	 * database is a complete document not a global element therefore the
+	 * generated XPath must start from the root (also more efficient SQL
+	 * queries).
+	 * 
+	 * @param schemaType
+	 * @param propertyLocationPath
+	 */
 	private PropertyExpression(SchemaType schemaType,
-			String propertyLocationPath, boolean documentContext) {
-		if (!propertyLocationPath.matches(propertyPathExpression))
-
-			throw new ApplicationException(String.format(
-					"path [%s] does not match expression [%s]",
-					propertyLocationPath, propertyPathExpression));
-
+			String propertyLocationPath) {
 		this.schemaType = schemaType;
 		this.propertyLocationPath = propertyLocationPath;
-		this.documentContext = documentContext;
 
+		/**
+		 * property path must match regular expression
+		 */
+		if (!propertyLocationPath.matches(propertyPathRegularExpression)) {
+			logger.error("path [{}] does not match expression [{}]",
+					propertyLocationPath, propertyPathRegularExpression);
+			throw new ApplicationException(String.format(
+					"path [%s] does not match expression [%s]",
+					propertyLocationPath, propertyPathRegularExpression));
+		}
+
+		/**
+		 * adds the document type's schema property to the nodes
+		 */
 		SchemaType documentSchemaType = SchemaTypeHelper.getDocument(schemaType
 				.getName());
-		if (documentContext && documentSchemaType != null) {
+		if (documentSchemaType != null) {
 			SchemaProperty schemaProperty = documentSchemaType
 					.getElementProperty(schemaType.getName());
 			nodes.add(new Node(schemaProperty,
 					getQNameWithPrefix(schemaProperty.getName())));
 		}
 
+		/**
+		 * translate the property path into nodes (schema property, qname pairs)
+		 */
 		transformPropertyLocationPath(schemaType, propertyLocationPath);
 	}
 
+	/**
+	 * Singular variable reference to the context
+	 * 
+	 * @return String
+	 */
 	public String getVariableReference() {
 		return variableReference;
 	}
 
+	/**
+	 * Set variable reference
+	 */
 	public void setVariableReference(String variableReference) {
 		this.variableReference = variableReference;
 	}
 
+	/**
+	 * Default element name-space
+	 * 
+	 * @return String
+	 */
 	public String getDefaultElementNamespace() {
 		return defaultElementNamespace;
 	}
 
+	/**
+	 * Set default element name-space
+	 */
 	public void setDefaultElementNamespace(String defaultElementNamespace) {
 		this.defaultElementNamespace = defaultElementNamespace;
 	}
 
+	/**
+	 * Default function name-space (used for database queries whereby the
+	 * database manager usually has a specific name-space for XPath functions)
+	 * 
+	 * @return String
+	 */
 	public String getDefaultFunctionNamespace() {
 		return defaultFunctionNamespace;
 	}
 
+	/**
+	 * Set default function name-space
+	 */
 	public void setDefaultFunctionNamespace(String defaultFunctionNamespace) {
 		this.defaultFunctionNamespace = defaultFunctionNamespace;
 	}
 
+	/**
+	 * Original property location path upon construction
+	 * 
+	 * @return String
+	 */
 	public String getPropertyLocationPath() {
 		return propertyLocationPath;
 	}
 
+	/**
+	 * Derived schema type upon construction
+	 * 
+	 * @return SchemaType
+	 */
 	public SchemaType getSchemaType() {
 		return schemaType;
 	}
 
-	public boolean isDocumentContext() {
-		return documentContext;
-	}
-
 	/**
-	 * Reuses an existing qname with prefix from the node list or adds a prefix
-	 * to a new qname
+	 * Reuses an existing QName with prefix from the node list or adds a prefix
+	 * to a new QName
 	 * 
 	 * @param qname
 	 * @return
@@ -181,8 +232,8 @@ public class PropertyExpression implements Expression {
 			return qname;
 
 		/**
-		 * namespace URI may already exists in node list and the corresponding
-		 * qname be reused otherwise create a new qname with prefix from
+		 * name-space URI may already exists in node list and the corresponding
+		 * QName be reused otherwise create a new QName with prefix from
 		 * QNameHelper
 		 */
 		for (Node node : nodes)
@@ -232,12 +283,17 @@ public class PropertyExpression implements Expression {
 		/**
 		 * error if current property is null otherwise add to nodes list
 		 */
-		if (schemaProperty == null)
+		if (schemaProperty == null) {
+			logger
+					.error(
+							"property [{}] neither an element nor attribute of class [{}]",
+							property, schemaType.getFullJavaName());
 			throw new ApplicationException(
 					String
 							.format(
 									"property [%s] neither an element nor attribute of class [%s]",
 									property, schemaType.getFullJavaName()));
+		}
 		nodes.add(new Node(schemaProperty, getQNameWithPrefix(schemaProperty
 				.getName())));
 
@@ -285,6 +341,12 @@ public class PropertyExpression implements Expression {
 		return prolog.toString();
 	}
 
+	/**
+	 * Construct attribute (string) based on passed Node
+	 * 
+	 * @param node
+	 * @return String
+	 */
 	private String getAttribute(Node node) {
 		StringBuilder buffer = new StringBuilder();
 
@@ -297,6 +359,12 @@ public class PropertyExpression implements Expression {
 		return buffer.append(node.getQName().getLocalPart()).toString();
 	}
 
+	/**
+	 * Construction element (string) passed on passed Node
+	 * 
+	 * @param node
+	 * @return String
+	 */
 	private String getElement(Node node) {
 		StringBuilder buffer = new StringBuilder();
 
@@ -304,15 +372,20 @@ public class PropertyExpression implements Expression {
 				":").append(node.getQName().getLocalPart()).toString();
 	}
 
-	private String getExpression(int length) {
-		if (length > nodes.size())
-			throw new ApplicationException(String.format(
-					"node size [%d] when accessing length [%d]", nodes.size(),
-					length));
+	private String getExpression(int start, int end) {
+		if (end > nodes.size()) {
+			logger.error("node size [{}] when accessing end [{}]",
+					nodes.size(), end);
+			throw new ApplicationException(String
+					.format("node size [%d] when accessing end [%d]", nodes
+							.size(), end));
+		}
 
-		if (length < 0)
+		if (end < 0) {
+			logger.error("accessing with negative end [{}]", end);
 			throw new ApplicationException(String.format(
-					"accessing with negative length [%d]", length));
+					"accessing with negative end [%d]", end));
+		}
 
 		StringBuilder expression = new StringBuilder();
 		expression.append(String.format("$%s", getVariableReference()));
@@ -320,7 +393,7 @@ public class PropertyExpression implements Expression {
 		/**
 		 * iterate through the node list up to passed length
 		 */
-		for (Node node : nodes.subList(0, length)) {
+		for (Node node : nodes.subList(start, end)) {
 			if (node.getSchemaProperty().isAttribute())
 				expression.append(getAttribute(node));
 			else
@@ -331,31 +404,34 @@ public class PropertyExpression implements Expression {
 	}
 
 	/**
-	 * Complete xpath representation of property location path
-	 * 
-	 * @return XPath expression
-	 */
-	private String getExpression() {
-		return getExpression(nodes.size());
-	}
-
-	/**
 	 * Concatenation of prolog and expression clauses
 	 * 
+	 * @param documentContext
+	 *            toggle inclusion of the document global element in the XPath
 	 * @return XPath
 	 */
-	public String toString() {
+	public String toString(boolean documentContext) {
 		StringBuilder xpath = new StringBuilder();
 
 		xpath.append(getProlog());
 
-		xpath.append(getExpression());
+		xpath.append(documentContext ? getExpression(0, nodes.size())
+				: getExpression(1, nodes.size()));
 
 		return xpath.toString();
 	}
 
 	/**
-	 * Applies function to xpath
+	 * Concatenation of prolog and expression clauses
+	 * 
+	 * @return String
+	 */
+	public String toString() {
+		return toString(true);
+	}
+
+	/**
+	 * Applies comparative function to XPath
 	 * 
 	 * @param operator
 	 * @param value
@@ -368,7 +444,7 @@ public class PropertyExpression implements Expression {
 
 		xpath.append(getProlog());
 
-		xpath.append(getExpression(nodes.size() - 1));
+		xpath.append(getExpression(0, nodes.size() - 1));
 
 		if (node.getSchemaProperty().isAttribute()) {
 			if (node.getQName().getPrefix() != null
@@ -388,7 +464,7 @@ public class PropertyExpression implements Expression {
 	}
 
 	/**
-	 * Applies text function to xpath
+	 * Applies comparative text function to XPath
 	 * 
 	 * @param operator
 	 * @param value
@@ -397,13 +473,20 @@ public class PropertyExpression implements Expression {
 	private String compareFnText(String operator, String value) {
 		Node node = nodes.get(nodes.size() - 1);
 
-		if (node.getSchemaProperty().getJavaTypeCode() != SchemaProperty.JAVA_STRING)
+		if (node.getSchemaProperty().getJavaTypeCode() != SchemaProperty.JAVA_STRING) {
+			Object[] argArray = { node.getSchemaProperty().getJavaTypeCode(),
+					operator, node.getQName().toString() };
+			logger
+					.error(
+							"java type code [{}] not valid for function [{}] with qname [{}]",
+							argArray);
 			throw new ApplicationException(
 					String
 							.format(
 									"java type code [%s] not valid for function [%s] with qname [%s]",
 									node.getSchemaProperty().getJavaTypeCode(),
 									operator, node.getQName().toString()));
+		}
 
 		return compareFn(operator, value);
 	}
@@ -422,7 +505,7 @@ public class PropertyExpression implements Expression {
 
 		xpath.append(getProlog());
 
-		xpath.append(getExpression(nodes.size() - 1));
+		xpath.append(getExpression(0, nodes.size() - 1));
 
 		if (node.getSchemaProperty().isAttribute()) {
 			if (node.getQName().getPrefix() != null
@@ -442,7 +525,7 @@ public class PropertyExpression implements Expression {
 	}
 
 	/**
-	 * Applies text/numeric operation to xpath
+	 * Applies comparative text/numeric operation to XPath
 	 * 
 	 * @param operator
 	 * @param value
@@ -462,6 +545,12 @@ public class PropertyExpression implements Expression {
 			value = "\"" + value + "\"";
 			break;
 		default:
+			Object[] argArray = { node.getSchemaProperty().getJavaTypeCode(),
+					operator, node.getQName().toString() };
+			logger
+					.error(
+							"java type code [{}] not valid for operator [{}] with qname [{}]",
+							argArray);
 			throw new ApplicationException(
 					String
 							.format(
@@ -474,7 +563,7 @@ public class PropertyExpression implements Expression {
 	}
 
 	/**
-	 * Applies numeric operation to xpath
+	 * Applies comparative numeric operation to XPath
 	 * 
 	 * @param operator
 	 * @param value
@@ -491,6 +580,12 @@ public class PropertyExpression implements Expression {
 			// do not wrap integer
 			break;
 		default:
+			Object[] argArray = { node.getSchemaProperty().getJavaTypeCode(),
+					operator, node.getQName().toString() };
+			logger
+					.error(
+							"java type code [{}] not valid for operator [{}] with qname [{}]",
+							argArray);
 			throw new ApplicationException(
 					String
 							.format(

@@ -28,7 +28,7 @@ public class PersistenceRules {
 		target.setNamespace("Production");
 	}
 
-	// @Test
+	@Test
 	public void createIdentificationDocument() throws IOException {
 		XmlOptions opts = new XmlOptions();
 		opts.setSavePrettyPrint();
@@ -58,7 +58,7 @@ public class PersistenceRules {
 		document.save(new File("C:\\temp\\persistenceRules.xml"), opts);
 	}
 
-	@Test
+	//@Test
 	public void dummy() throws MalformedURLException {
 		com.klistret.cmdb.identification.PersistenceRules rules = new com.klistret.cmdb.identification.PersistenceRules(
 				new URL("file:C:\\temp\\persistenceRules.xml"));
