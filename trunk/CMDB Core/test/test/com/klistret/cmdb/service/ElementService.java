@@ -57,7 +57,7 @@ public class ElementService extends
 		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = document
 				.addNewEnvironment();
 		environment.setName("whatever");
-		environment.setNamespace("production");
+		environment.setNamespace("development");
 
 		com.klistret.cmdb.pojo.ElementType type = elementTypeService
 				.getByCompositeId(environment.schemaType().getFullJavaName());

@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.utility.Timer;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
@@ -220,6 +221,7 @@ public class Persistence {
 	 * @param classname
 	 * @return Property Expression array list (criteria in order)
 	 */
+	@Timer
 	public List<PropertyExpression[]> getPropertyExpressionCriteria(
 			String classname) {
 		/**

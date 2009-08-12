@@ -1,34 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		This file is part of Klistret. Klistret is free software: you can
-		redistribute it and/or modify it under the terms of the GNU General
-		Public License as published by the Free Software Foundation, either
-		version 3 of the License, or (at your option) any later version.
+<!--
+This file is part of Klistret. Klistret is free software: you can
+redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation, either
+version 3 of the License, or (at your option) any later version.
 
-		Klistret is distributed in the hope that it will be useful, but
-		WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		General Public License for more details. You should have received a
-		copy of the GNU General Public License along with Klistret. If not,
-		see <http://www.gnu.org/licenses/>
-	-->
+Klistret is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details. You should have received a
+copy of the GNU General Public License along with Klistret. If not,
+see <http://www.gnu.org/licenses/>
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	     http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
-	<!-- CMDB Element persistence identification -->
-	<bean id="elementPersistenceControl"
-		class="com.klistret.cmdb.aspects.PersistenceAOP">
-		<property name="persistenceRules" ref="persistenceRules" />
-		<property name="elementService" ref="elementService" />
-	</bean>
-	<!-- React to set method execution with ElementService with PersistenceControl -->
-	<aop:config>
-		<aop:aspect ref="elementPersistenceControl">
-			<aop:pointcut id="setElementPointcut"
-				expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.pojo.Element)) and args(element)" />
-			<aop:before pointcut-ref="setElementPointcut" method="applyElementPersistenceRules" />
-
-		</aop:aspect>
-	</aop:config>
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd ">
+<!-- CMDB Element persistence identification -->
+<bean id="persistenceAOP"
+ class="com.klistret.cmdb.aspects.PersistenceAOP">
+    <property name="persistenceRules" ref="persistenceRules"/>
+    <property name="elementService" ref="elementService"/>
+</bean>
+<!-- React to set method execution with ElementService with PersistenceControl -->
+<aop:config>
+    <aop:aspect ref="persistenceAOP">
+        <aop:pointcut id="setElementPointcut"
+         expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.pojo.Element)) and args(element)"/>
+        <aop:before pointcut-ref="setElementPointcut" method="applyElementPersistenceRules"/>
+        
+    </aop:aspect>
+</aop:config>
+<!-- Timer bean -->
+<bean id="timerAOP" class="com.klistret.cmdb.aspects.TimerAOP"/>
+<!-- Method timer -->
+<aop:config>
+    <aop:aspect ref="timerAOP">
+        <aop:pointcut id="timeMethod" expression="@annotation(com.klistret.cmdb.utility.Timer)"/>
+        <aop:around pointcut-ref="timeMethod" method="timeMethod"/>
+    </aop:aspect>
+</aop:config>
 </beans>
