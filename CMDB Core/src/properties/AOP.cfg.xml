@@ -18,7 +18,7 @@
 	     http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 	<!-- CMDB Element persistence identification -->
 	<bean id="elementPersistenceControl"
-		class="com.klistret.cmdb.aspects.PersistenceRulesControl">
+		class="com.klistret.cmdb.aspects.PersistenceAOP">
 		<property name="persistenceRules" ref="persistenceRules" />
 		<property name="elementService" ref="elementService" />
 	</bean>

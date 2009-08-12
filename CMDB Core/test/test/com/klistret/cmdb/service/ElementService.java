@@ -1,7 +1,19 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package test.com.klistret.cmdb.service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Timestamp;
 
 import org.junit.Test;
@@ -14,7 +26,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.klistret.cmdb.pojo.PropertyCriteria;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -36,21 +47,6 @@ public class ElementService extends
 
 		element.getConfiguration().setNamespace("test");
 		elementService.set(element);
-	}
-
-	@Test
-	public void findByCriteria() throws MalformedURLException {
-		com.klistret.cmdb.identification.PersistenceRules rules = new com.klistret.cmdb.identification.PersistenceRules(
-				new URL("file:C:\\temp\\persistenceRules.xml"));
-
-		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = com.klistret.cmdb.xmlbeans.element.logical.collection.Environment.Factory
-				.newInstance();
-		environment.setName("whatever");
-		environment.setNamespace("dev");
-
-		PropertyCriteria critera = rules.getPropertyCriteria(environment);
-
-		elementService.findByCriteria(critera);
 	}
 
 	@Test
