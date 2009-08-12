@@ -25,7 +25,7 @@ import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.service.ElementService;
 
 /**
- * AOP class
+ * AOP class applies persistence rules against services
  * 
  * @author Matthew Young
  * 
