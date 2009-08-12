@@ -18,7 +18,7 @@ import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.pojo.PropertyCriteria;
-import com.klistret.cmdb.utility.Timer;
+import com.klistret.cmdb.utility.annotations.Timer;
 
 public class ElementServiceImpl implements ElementService {
 
@@ -41,7 +41,7 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.getById(id);
 	}
 
-	//@Timer
+	@Timer
 	public com.klistret.cmdb.pojo.Element set(
 			com.klistret.cmdb.pojo.Element element) {
 		return elementDAO.set(element);

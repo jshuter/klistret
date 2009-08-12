@@ -36,7 +36,7 @@ see <http://www.gnu.org/licenses/>
 <!-- Method timer -->
 <aop:config>
     <aop:aspect ref="timerAOP">
-        <aop:pointcut id="timeMethod" expression="@annotation(com.klistret.cmdb.utility.Timer)"/>
+        <aop:pointcut id="timeMethod" expression="@annotation(com.klistret.cmdb.utility.annotations.Timer)"/>
         <aop:around pointcut-ref="timeMethod" method="timeMethod"/>
     </aop:aspect>
 </aop:config>

@@ -16,14 +16,11 @@ package test.com.klistret.cmdb.rules;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.apache.xmlbeans.XmlOptions;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.Environment;
 import com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument;
 
@@ -71,17 +68,4 @@ public class Persistence {
 		document.save(new File("C:\\temp\\persistenceRules.xml"), opts);
 	}
 
-	// @Test
-	public void dummy() throws MalformedURLException {
-		com.klistret.cmdb.rules.Persistence rules = new com.klistret.cmdb.rules.Persistence(
-				new URL("file:C:\\temp\\persistenceRules.xml"));
-
-		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = com.klistret.cmdb.xmlbeans.element.logical.collection.Environment.Factory
-				.newInstance();
-		environment.setName("whatever");
-		environment.setNamespace("hello");
-
-		PropertyCriteria critera = rules.getPropertyCriteria(environment);
-
-	}
 }
