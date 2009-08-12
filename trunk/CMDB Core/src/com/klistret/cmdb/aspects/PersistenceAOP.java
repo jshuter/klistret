@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.identification.PersistenceRules;
+import com.klistret.cmdb.rules.Persistence;
 import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.service.ElementService;
 
@@ -30,15 +30,15 @@ import com.klistret.cmdb.service.ElementService;
  * @author Matthew Young
  * 
  */
-public class PersistenceRulesControl {
+public class PersistenceAOP {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(PersistenceRulesControl.class);
+			.getLogger(PersistenceAOP.class);
 
 	/**
 	 * Persistence Rules
 	 */
-	private PersistenceRules persistenceRules;
+	private Persistence persistenceRules;
 
 	/**
 	 * Element service (transaction ready)
@@ -49,7 +49,7 @@ public class PersistenceRulesControl {
 	 * 
 	 * @return PersistenceRules
 	 */
-	public PersistenceRules getPersistenceRules() {
+	public Persistence getPersistenceRules() {
 		return persistenceRules;
 	}
 
@@ -57,7 +57,7 @@ public class PersistenceRulesControl {
 	 * 
 	 * @param persistenceRules
 	 */
-	public void setPersistenceRules(PersistenceRules persistenceRules) {
+	public void setPersistenceRules(Persistence persistenceRules) {
 		this.persistenceRules = persistenceRules;
 	}
 
