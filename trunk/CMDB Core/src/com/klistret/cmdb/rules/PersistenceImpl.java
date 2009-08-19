@@ -14,18 +14,26 @@
 
 package com.klistret.cmdb.rules;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.rules.cache.PersistenceCache;
+import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.annotations.Timer;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
+import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
+import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
+import com.klistret.cmdb.xmlbeans.PropertyCriterion;
 
 /**
  * Persistence Rules are located in an external XML document. They allow unique
@@ -43,14 +51,121 @@ public class PersistenceImpl implements Persistence {
 	private static final Logger logger = LoggerFactory
 			.getLogger(PersistenceImpl.class);
 
-	private PersistenceCache persistenceCache;
+	/**
+	 * XmlObject persistence rules document
+	 */
+	private PersistenceRulesDocument persistenceRulesDocument;
 
-	public PersistenceCache getPersistenceCache() {
-		return persistenceCache;
+	public PersistenceImpl(URL url) {
+		try {
+			this.persistenceRulesDocument = (PersistenceRulesDocument) XmlObject.Factory
+					.parse(url);
+		} catch (XmlException e) {
+			logger.error("URL [{}] failed parsing; {}", url, e);
+			throw new InfrastructureException(e.getMessage());
+		} catch (IOException e) {
+			logger.error("URL [{}] failed parsing: {}", url, e);
+			throw new InfrastructureException(e.getMessage());
+		}
 	}
 
-	public void setPersistenceCache(PersistenceCache persistenceCache) {
-		this.persistenceCache = persistenceCache;
+	/**
+	 * List all property expressions for the passed java class representing a
+	 * SchemaType
+	 * 
+	 * Candidate for method caching instead of running FLOWR query every time
+	 * 
+	 * @param classname
+	 * @return Property Expression array list (criteria in order)
+	 */
+	@Timer
+	public List<PropertyExpression[]> getPropertyExpressionCriteria(
+			String classname) {
+		/**
+		 * return ordered list of base types (ascending) based on fully
+		 * qualified class-name
+		 */
+		SchemaType[] baseSchemaTypes = SchemaTypeHelper
+				.getBaseSchemaTypes(classname);
+
+		/**
+		 * construct schema type list for query
+		 */
+		String schemaTypesList = String.format("\'%s\'", classname);
+		for (SchemaType baseSchemaType : baseSchemaTypes)
+			schemaTypesList = schemaTypesList.concat(String.format(",\'%s\'",
+					baseSchemaType.getFullJavaName()));
+
+		String namespaces = "declare namespace cmdb=\'http://www.klistret.com/cmdb\';";
+
+		/**
+		 * positional variables only allowed for "for" clause and the order
+		 * should be ascending to the base class (type). Necessary to order the
+		 * returned property criterion by class then the order attribute.
+		 */
+		String xquery = "for $types at $typesIndex in ("
+				+ schemaTypesList
+				+ ") "
+				+ "for $binding in $this/cmdb:PersistenceRules/cmdb:Binding[not(cmdb:ExclusionType = \'"
+				+ classname
+				+ "\')] "
+				+ "for $criterion in $this/cmdb:PersistenceRules/cmdb:PropertyCriterion "
+				+ "where $binding/cmdb:Type = $types "
+				+ "and $binding/cmdb:PropertyCriterion = $criterion/@Name "
+				+ "order by $typesIndex, $binding/@Order empty greatest "
+				+ "return $criterion";
+
+		/**
+		 * validate (by order) each property criteria against the passed
+		 * xmlObject (can not cast execQuery results to a specific schema type)
+		 */
+		XmlObject[] propertyCriteria = persistenceRulesDocument
+				.execQuery(namespaces + xquery);
+		List<PropertyExpression[]> propertyExpressionArrayList = new ArrayList<PropertyExpression[]>(
+				propertyCriteria.length);
+
+		for (XmlObject xo : propertyCriteria) {
+			try {
+				/**
+				 * cast XmlObject to PropertyCriterion through PersistenceRules
+				 * xml-fragment
+				 */
+				PropertyCriterion propertyCriterion = com.klistret.cmdb.xmlbeans.PersistenceRules.Factory
+						.parse(xo.xmlText()).getPropertyCriterionArray(0);
+
+				/**
+				 * construct property expression array
+				 */
+				List<PropertyExpression> propertyExpressions = new ArrayList<PropertyExpression>(
+						propertyCriterion.getPropertyLocationPathArray().length);
+				for (String propertyLocationPath : propertyCriterion
+						.getPropertyLocationPathArray()) {
+					PropertyExpression propertyExpression = new PropertyExpression(
+							classname, propertyLocationPath);
+
+					propertyExpressions.add(propertyExpression);
+				}
+
+				/**
+				 * add property expression array to return list (logging the
+				 * criterion name plus the list index)
+				 */
+				propertyExpressionArrayList.add(propertyExpressions
+						.toArray(new PropertyExpression[0]));
+				logger
+						.debug(
+								"Added property expression [criterion name: {}] array to criteria list at [{}]",
+								propertyCriterion.getName(),
+								propertyExpressionArrayList.size());
+			} catch (XmlException e) {
+				logger.error(
+						"Fail parse XmlObject [{}] to PropertyCriterion: {}",
+						xo.xmlText(), e);
+				throw new InfrastructureException(e);
+			}
+		}
+
+		return propertyExpressionArrayList;
 	}
 
 	/**
@@ -65,11 +180,13 @@ public class PersistenceImpl implements Persistence {
 	 */
 	@Timer
 	public com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
-			XmlObject xmlObject) {
+			XmlObject xmlObject,
+			List<PropertyExpression[]> propertyExpressionCriteria) {
 		/**
 		 * valid expression array?
 		 */
-		PropertyExpression[] propertyExpressions = getPropertyExpressionCriterion(xmlObject);
+		PropertyExpression[] propertyExpressions = getPropertyExpressionCriterion(
+				xmlObject, propertyExpressionCriteria);
 		if (propertyExpressions.length == 0) {
 			logger.debug("persistence rules not defined for XmlObject [{}]",
 					xmlObject.schemaType().getFullJavaName());
@@ -171,11 +288,9 @@ public class PersistenceImpl implements Persistence {
 	 *         the XmlObject includes the selected properties)
 	 */
 	public PropertyExpression[] getPropertyExpressionCriterion(
-			XmlObject xmlObject) {
-		String classname = xmlObject.schemaType().getFullJavaName();
+			XmlObject xmlObject,
+			List<PropertyExpression[]> propertyExpressionCriteria) {
 
-		List<PropertyExpression[]> propertyExpressionCriteria = persistenceCache
-				.getPropertyExpressionCriteria(classname);
 		for (int index = 0; index < propertyExpressionCriteria.size(); index++) {
 			if (validatePropertyExpressionCriterion(propertyExpressionCriteria
 					.get(index), xmlObject)) {
