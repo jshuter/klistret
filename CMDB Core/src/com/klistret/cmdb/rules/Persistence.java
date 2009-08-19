@@ -1,5 +1,7 @@
 package com.klistret.cmdb.rules;
 
+import java.util.List;
+
 import org.apache.xmlbeans.XmlObject;
 
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
@@ -19,8 +21,12 @@ import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
  * 
  */
 public interface Persistence {
-	com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
-			XmlObject xmlObject);
+	List<PropertyExpression[]> getPropertyExpressionCriteria(String classname);
 
-	PropertyExpression[] getPropertyExpressionCriterion(XmlObject xmlObject);
+	com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
+			XmlObject xmlObject,
+			List<PropertyExpression[]> propertyExpressionCriteria);
+
+	PropertyExpression[] getPropertyExpressionCriterion(XmlObject xmlObject,
+			List<PropertyExpression[]> propertyExpressionCriteria);
 }

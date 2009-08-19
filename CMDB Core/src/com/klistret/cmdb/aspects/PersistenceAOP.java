@@ -15,6 +15,7 @@
 package com.klistret.cmdb.aspects;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.rules.Persistence;
 import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.service.ElementService;
+import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 
 /**
  * AOP class applies persistence rules against services
@@ -89,8 +91,14 @@ public class PersistenceAOP {
 		logger.debug("apply persistence rules to element [{}]", element
 				.toString());
 
-		PropertyCriteria criteria = persistenceRules
-				.getPropertyCriteria(element.getConfiguration());
+		String classname = element.getConfiguration().schemaType()
+				.getFullJavaName();
+
+		List<PropertyExpression[]> propertyExpressionCriteria = persistenceRules
+				.getPropertyExpressionCriteria(classname);
+
+		PropertyCriteria criteria = persistenceRules.getPropertyCriteria(
+				element.getConfiguration(), propertyExpressionCriteria);
 
 		if (criteria != null) {
 			Collection<com.klistret.cmdb.pojo.Element> results = elementService
