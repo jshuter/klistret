@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -76,11 +75,10 @@ public class PersistenceImpl implements Persistence {
 	 * Candidate for method caching instead of running FLOWR query every time
 	 * 
 	 * @param classname
-	 * @return Property Expression array list (criteria in order)
+	 * @return Criteria
 	 */
 	@Timer
-	public List<PropertyExpression[]> getPropertyExpressionCriteria(
-			String classname) {
+	public List<PropertyExpression[]> getCriteriaByType(String classname) {
 		/**
 		 * return ordered list of base types (ascending) based on fully
 		 * qualified class-name
@@ -169,76 +167,29 @@ public class PersistenceImpl implements Persistence {
 	}
 
 	/**
-	 * Based on the XmlObject the element type is derived automatically from the
-	 * SchemaType java class name, only active (toTimeStamp null) objects are
-	 * selected, and each property criterion is evaluated. All property
-	 * expressions returned by the rules document are evaluated in order,
-	 * returning the first positive hit.
+	 * Return first valid criterion for the passed XmlObject
 	 * 
 	 * @param xmlObject
-	 * @return PropertyCriteria
+	 * @return Criterion
 	 */
 	@Timer
-	public com.klistret.cmdb.pojo.PropertyCriteria getPropertyCriteria(
-			XmlObject xmlObject,
-			List<PropertyExpression[]> propertyExpressionCriteria) {
-		/**
-		 * valid expression array?
-		 */
-		PropertyExpression[] propertyExpressions = getPropertyExpressionCriterion(
-				xmlObject, propertyExpressionCriteria);
-		if (propertyExpressions.length == 0) {
-			logger.debug("persistence rules not defined for XmlObject [{}]",
-					xmlObject.schemaType().getFullJavaName());
-			return null;
+	public PropertyExpression[] getCriterionByXmlObject(XmlObject xmlObject,
+			List<PropertyExpression[]> criteria) {
+
+		for (int index = 0; index < criteria.size(); index++) {
+			if (validateCriterion(criteria.get(index), xmlObject)) {
+				logger
+						.debug(
+								"valid property expression criterion at index [{}] in criteria list for xmlObject [xml: {}]",
+								index + 1, xmlObject.xmlText());
+				return criteria.get(index);
+			}
 		}
 
-		/**
-		 * construct property criteria
-		 */
-		com.klistret.cmdb.pojo.PropertyCriteria criteria = new com.klistret.cmdb.pojo.PropertyCriteria();
-		criteria.setClassName(xmlObject.schemaType().getFullJavaName());
-
-		/**
-		 * limit by class name through elementType relation
-		 */
-		com.klistret.cmdb.pojo.PropertyCriterion typeCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
-		typeCriterion.setPropertyLocationPath("type.name");
-		typeCriterion
-				.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.equal);
-		String[] types = { xmlObject.schemaType().getFullJavaName() };
-		typeCriterion.setValues(types);
-		criteria.addPropertyCriterion(typeCriterion);
-
-		/**
-		 * limit to only active elements
-		 */
-		com.klistret.cmdb.pojo.PropertyCriterion toTimeStampCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
-		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
-		toTimeStampCriterion
-				.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.isNull);
-		criteria.addPropertyCriterion(toTimeStampCriterion);
-
-		/**
-		 * limit with property expression criterion
-		 */
-		for (PropertyExpression propertyExpression : propertyExpressions) {
-			String[] values = new String[1];
-			values[0] = ((XmlAnySimpleType) xmlObject
-					.selectPath(propertyExpression.toString(false))[0])
-					.getStringValue();
-
-			com.klistret.cmdb.pojo.PropertyCriterion xpathCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
-			xpathCriterion.setPropertyLocationPath("configuration."
-					+ propertyExpression.getPropertyLocationPath());
-			xpathCriterion
-					.setOperation(com.klistret.cmdb.pojo.PropertyCriterion.Operation.equal);
-			xpathCriterion.setValues(values);
-
-			criteria.addPropertyCriterion(xpathCriterion);
-		}
-
-		return criteria;
+		logger.debug(
+				"no property expression criterion for xmlObject [xml: {}]",
+				xmlObject.xmlText());
+		return new PropertyExpression[0];
 	}
 
 	/**
@@ -250,10 +201,9 @@ public class PersistenceImpl implements Persistence {
 	 * @param xmlObject
 	 * @return true/false
 	 */
-	private boolean validatePropertyExpressionCriterion(
-			PropertyExpression[] propertyExpressionCriterion,
+	private boolean validateCriterion(PropertyExpression[] criterion,
 			XmlObject xmlObject) {
-		for (PropertyExpression propertyExpression : propertyExpressionCriterion) {
+		for (PropertyExpression propertyExpression : criterion) {
 			String xpath = propertyExpression.toString(false);
 
 			XmlObject[] results = xmlObject.selectPath(xpath);
@@ -278,33 +228,5 @@ public class PersistenceImpl implements Persistence {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Return first valid property expression for the passed XmlObject
-	 * 
-	 * @param xmlObject
-	 * @return Property Expression array (valid criterion based on order and if
-	 *         the XmlObject includes the selected properties)
-	 */
-	public PropertyExpression[] getPropertyExpressionCriterion(
-			XmlObject xmlObject,
-			List<PropertyExpression[]> propertyExpressionCriteria) {
-
-		for (int index = 0; index < propertyExpressionCriteria.size(); index++) {
-			if (validatePropertyExpressionCriterion(propertyExpressionCriteria
-					.get(index), xmlObject)) {
-				logger
-						.debug(
-								"valid property expression criterion at index [{}] in criteria list for xmlObject [xml: {}]",
-								index + 1, xmlObject.xmlText());
-				return propertyExpressionCriteria.get(index);
-			}
-		}
-
-		logger.debug(
-				"no property expression criterion for xmlObject [xml: {}]",
-				xmlObject.xmlText());
-		return new PropertyExpression[0];
 	}
 }
