@@ -17,12 +17,15 @@ package com.klistret.cmdb.aspects;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.rules.Persistence;
 import com.klistret.cmdb.pojo.PropertyCriteria;
+import com.klistret.cmdb.pojo.PropertyCriterion;
 import com.klistret.cmdb.service.ElementService;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 
@@ -94,15 +97,27 @@ public class PersistenceAOP {
 		String classname = element.getConfiguration().schemaType()
 				.getFullJavaName();
 
-		List<PropertyExpression[]> propertyExpressionCriteria = persistenceRules
-				.getPropertyExpressionCriteria(classname);
+		List<PropertyExpression[]> criteria = persistenceRules
+				.getCriteriaByType(classname);
+		if (criteria == null) {
+			logger.debug("persistence criteria not defined for type [{}]",
+					classname);
+			return;
+		}
 
-		PropertyCriteria criteria = persistenceRules.getPropertyCriteria(
-				element.getConfiguration(), propertyExpressionCriteria);
+		PropertyExpression[] criterion = persistenceRules
+				.getCriterionByXmlObject(element.getConfiguration(), criteria);
+		if (criterion == null) {
+			logger.debug("persistence criterion not defined for element [{}]",
+					element.toString());
+			return;
+		}
 
-		if (criteria != null) {
+		PropertyCriteria pCriteria = getElementPropertyCriteria(element
+				.getConfiguration(), criterion);
+		if (pCriteria != null) {
 			Collection<com.klistret.cmdb.pojo.Element> results = elementService
-					.findByCriteria(criteria);
+					.findByCriteria(pCriteria);
 
 			for (com.klistret.cmdb.pojo.Element other : results)
 				logger.debug("criteria selected other element [{}]", other
@@ -127,5 +142,51 @@ public class PersistenceAOP {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * @param xmlObject
+	 * @param criterion
+	 * @return
+	 */
+	private PropertyCriteria getElementPropertyCriteria(XmlObject xmlObject,
+			PropertyExpression[] criterion) {
+		// criteria construction
+		PropertyCriteria criteria = new PropertyCriteria();
+		criteria.setClassName(xmlObject.schemaType().getFullJavaName());
+
+		// match element type
+		PropertyCriterion typeCriterion = new PropertyCriterion();
+		typeCriterion.setPropertyLocationPath("type.name");
+		typeCriterion.setOperation(PropertyCriterion.Operation.equal);
+		String[] types = { xmlObject.schemaType().getFullJavaName() };
+		typeCriterion.setValues(types);
+		criteria.addPropertyCriterion(typeCriterion);
+
+		// active elements only
+		PropertyCriterion toTimeStampCriterion = new PropertyCriterion();
+		toTimeStampCriterion.setPropertyLocationPath("toTimeStamp");
+		toTimeStampCriterion.setOperation(PropertyCriterion.Operation.isNull);
+		criteria.addPropertyCriterion(toTimeStampCriterion);
+
+		// add each property expression as XPath
+		for (PropertyExpression propertyExpression : criterion) {
+			String[] values = new String[1];
+			values[0] = ((XmlAnySimpleType) xmlObject
+					.selectPath(propertyExpression.toString(false))[0])
+					.getStringValue();
+
+			com.klistret.cmdb.pojo.PropertyCriterion xpathCriterion = new com.klistret.cmdb.pojo.PropertyCriterion();
+			xpathCriterion.setPropertyLocationPath(String.format(
+					"configuration.%s", propertyExpression
+							.getPropertyLocationPath()));
+			xpathCriterion.setOperation(PropertyCriterion.Operation.equal);
+			xpathCriterion.setValues(values);
+
+			criteria.addPropertyCriterion(xpathCriterion);
+		}
+
+		return criteria;
 	}
 }

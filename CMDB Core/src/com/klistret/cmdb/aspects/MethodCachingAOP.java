@@ -22,6 +22,13 @@ import org.slf4j.LoggerFactory;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
 
+/**
+ * Borrowed code from a Java Boutique article on method caching with EhCache:
+ * http://javaboutique.internet.com/tutorials/ehcache/index-2.html
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class MethodCachingAOP implements MethodInterceptor {
 
 	private static final Logger logger = LoggerFactory
@@ -38,11 +45,14 @@ public class MethodCachingAOP implements MethodInterceptor {
 	}
 
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		final String targetMethodName = methodInvocation.getMethod().getName();
+		final String cacheName = String.format("%s.%s", methodInvocation
+				.getMethod().getName(), methodInvocation.getMethod()
+				.getDeclaringClass().toString());
 
-		Cache cache = cacheManager.getCache(targetMethodName);
+		Cache cache = cacheManager.getCache(cacheName);
 
 		if (cache == null) {
+			logger.debug("cache manager has no cache named {}", cacheName);
 
 		}
 
