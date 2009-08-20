@@ -14,10 +14,13 @@
 
 package com.klistret.cmdb.pojo;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+@XmlRootElement
 public class Element {
 	private Long id;
 
@@ -141,7 +144,8 @@ public class Element {
 		return this.configuration;
 	}
 
-	public void setConfiguration(com.klistret.cmdb.xmlbeans.Element configuration) {
+	public void setConfiguration(
+			com.klistret.cmdb.xmlbeans.Element configuration) {
 		this.configuration = configuration;
 	}
 

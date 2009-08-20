@@ -27,7 +27,7 @@ public class ElementServiceImpl implements ElementService {
 	public void setElementDAO(ElementDAO elementDAO) {
 		this.elementDAO = elementDAO;
 	}
-	
+
 	public Integer countByCriteria(PropertyCriteria criteria) {
 		return elementDAO.countByCriteria(criteria);
 	}
@@ -46,5 +46,4 @@ public class ElementServiceImpl implements ElementService {
 			com.klistret.cmdb.pojo.Element element) {
 		return elementDAO.set(element);
 	}
-
 }

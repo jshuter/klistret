@@ -16,9 +16,20 @@ package com.klistret.cmdb.service;
 
 import java.util.Collection;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+@Path("/resteasy")
 public interface ElementService {
 
-	com.klistret.cmdb.pojo.Element getById(Long id);
+	@GET
+	@Path("/Element/getById/{id}")
+	@Produces( { MediaType.APPLICATION_XML })
+	com.klistret.cmdb.pojo.Element getById(@PathParam("id")
+	Long id);
 
 	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
