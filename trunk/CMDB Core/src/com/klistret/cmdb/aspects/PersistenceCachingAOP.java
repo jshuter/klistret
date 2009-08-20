@@ -19,8 +19,10 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
+import java.io.Serializable;
 
 /**
  * Borrowed code from a Java Boutique article on method caching with EhCache:
@@ -29,35 +31,39 @@ import net.sf.ehcache.Cache;
  * @author Matthew Young
  * 
  */
-public class MethodCachingAOP implements MethodInterceptor {
+public class PersistenceCachingAOP implements MethodInterceptor {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(MethodCachingAOP.class);
+			.getLogger(PersistenceCachingAOP.class);
 
-	private CacheManager cacheManager;
+	private Cache cache;
 
-	public CacheManager getCacheManager() {
-		return cacheManager;
+	public Cache getCache() {
+		return cache;
 	}
 
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
+	public void setCache(Cache cache) {
+		this.cache = cache;
 	}
 
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		final String cacheName = String.format("%s.%s", methodInvocation
-				.getMethod().getName(), methodInvocation.getMethod()
-				.getDeclaringClass().toString());
+		Object[] arguments = methodInvocation.getArguments();
+		String cacheKey = (String) arguments[0];
 
-		Cache cache = cacheManager.getCache(cacheName);
+		Element element = cache.get(cacheKey);
+		if (element == null) {
+			Object value = methodInvocation.proceed();
 
-		if (cache == null) {
-			logger.debug("cache manager has no cache named {}", cacheName);
-
+			element = new Element(cacheKey, (Serializable) value);
+			cache.put(element);
+			logger
+					.debug(
+							"cached element for getCriteriaByType method with classname [{}]",
+							cacheKey);
 		}
 
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("using AOP cache for persistence rules");
+		return element.getValue();
 	}
 
 }

@@ -73,5 +73,8 @@ public class ElementService extends
 		element.setConfiguration(environment);
 
 		elementService.set(element);
+		
+		environment.setName("production");
+		elementService.set(element);
 	}
 }
