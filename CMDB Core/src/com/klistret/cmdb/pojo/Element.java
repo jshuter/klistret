@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-@XmlRootElement
 public class Element {
 	private Long id;
 

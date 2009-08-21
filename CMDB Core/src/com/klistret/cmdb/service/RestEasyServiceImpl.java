@@ -7,4 +7,11 @@ public class RestEasyServiceImpl implements RestEasyService {
 		return "hello";
 	}
 
+	public Bubble getBubble() {
+		Bubble bubble = new Bubble();
+		bubble.setWater("wet");
+		bubble.setPlastic("acme");
+
+		return bubble;
+	}
 }
