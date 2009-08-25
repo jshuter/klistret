@@ -18,12 +18,13 @@ import java.util.Collection;
 
 public interface ElementService {
 
-	com.klistret.cmdb.pojo.Element getById(Long id);
+	com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id);
 
-	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
+	Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
 	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
-	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
+	com.klistret.cmdb.xmlbeans.pojo.Element set(
+			com.klistret.cmdb.xmlbeans.pojo.Element element);
 }

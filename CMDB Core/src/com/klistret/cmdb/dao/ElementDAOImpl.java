@@ -14,8 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
-import java.sql.Timestamp;
-
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -31,6 +30,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.utility.hibernate.HibernateUTC;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
+	public Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
@@ -93,21 +93,23 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			Set<com.klistret.cmdb.pojo.Element> elements = new LinkedHashSet(
+			Set<com.klistret.cmdb.xmlbeans.pojo.Element> elements = new LinkedHashSet(
 					results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
 
-				com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
+				com.klistret.cmdb.xmlbeans.pojo.Element element = com.klistret.cmdb.xmlbeans.pojo.Element.Factory
+						.newInstance();
 				element.setId((Long) row[0]);
-				element.setType((com.klistret.cmdb.pojo.ElementType) row[1]);
+				element
+						.setType((com.klistret.cmdb.xmlbeans.pojo.ElementType) row[1]);
 				element.setName((String) row[2]);
-				element.setFromTimeStamp((Timestamp) row[3]);
-				element.setToTimeStamp((Timestamp) row[4]);
+				element.setFromTimeStamp((Calendar) row[3]);
+				element.setToTimeStamp((Calendar) row[4]);
 				element.setCreateId((String) row[5]);
-				element.setCreateTimeStamp((Timestamp) row[6]);
-				element.setUpdateTimeStamp((Timestamp) row[7]);
+				element.setCreateTimeStamp((Calendar) row[6]);
+				element.setUpdateTimeStamp((Calendar) row[7]);
 				element
 						.setConfiguration((com.klistret.cmdb.xmlbeans.Element) row[8]);
 
@@ -130,8 +132,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	public com.klistret.cmdb.pojo.Element getById(Long id) {
-		return getById(id, true);
+	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id) {
+		return getById(id, false);
 	}
 
 	/**
@@ -141,11 +143,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param fetchAssociations
 	 * @return Element
 	 */
-	public com.klistret.cmdb.pojo.Element getById(Long id,
+	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id,
 			boolean fetchAssociations) {
 		try {
 			Criteria criteria = getSession().createCriteria(
-					com.klistret.cmdb.pojo.Element.class);
+					com.klistret.cmdb.xmlbeans.pojo.Element.class);
 
 			if (fetchAssociations) {
 				criteria.setFetchMode("sourceRelations", FetchMode.JOIN);
@@ -155,7 +157,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			criteria.add(Restrictions.idEq(id));
 
 			logger.debug("getting element [id: {}] by id ", id);
-			com.klistret.cmdb.pojo.Element element = (com.klistret.cmdb.pojo.Element) criteria
+			com.klistret.cmdb.xmlbeans.pojo.Element element = (com.klistret.cmdb.xmlbeans.pojo.Element) criteria
 					.uniqueResult();
 
 			if (element == null) {
@@ -178,14 +180,12 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param Element
 	 * @return Element
 	 */
-	public com.klistret.cmdb.pojo.Element set(
-			com.klistret.cmdb.pojo.Element element) {
+	public com.klistret.cmdb.xmlbeans.pojo.Element set(
+			com.klistret.cmdb.xmlbeans.pojo.Element element) {
 		/**
 		 * record current time when updating
 		 */
-		Timestamp currentTimeStamp = new Timestamp(new java.util.Date()
-				.getTime());
-		element.setUpdateTimeStamp(currentTimeStamp);
+		element.setUpdateTimeStamp(HibernateUTC.getCurrentCalendar());
 
 		/**
 		 * verify that the SchemaType java class name matches the element type

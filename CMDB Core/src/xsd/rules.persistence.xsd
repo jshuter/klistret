@@ -18,27 +18,27 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
-	<xs:annotation>
-		<xs:documentation>
-			Similar to XPath location path term
-		</xs:documentation>
-	</xs:annotation>
 	<xs:simpleType name="PropertyLocationPath">
+		<xs:annotation>
+			<xs:documentation>
+				Similar to XPath location path term
+			</xs:documentation>
+		</xs:annotation>
 		<xs:restriction base="xs:string">
 			<xs:pattern value="(\w+)|(\w+[.]\w+)*"></xs:pattern>
 		</xs:restriction>
 	</xs:simpleType>
 
-	<xs:annotation>
-		<xs:documentation>
-			Persistence identification rules based on properties
-			(inheritance allowed)
-		</xs:documentation>
-	</xs:annotation>
 	<xs:complexType name="PersistenceRules">
+		<xs:annotation>
+			<xs:documentation>
+				Persistence identification rules based on properties
+				(inheritance allowed)
+			</xs:documentation>
+		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="PropertyCriterion" type="cmdb:PropertyCriterion"
-				maxOccurs="unbounded">
+			<xs:element name="PropertyCriterion"
+				type="cmdb:PropertyCriterion" maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Binding" type="cmdb:Binding"
 				maxOccurs="unbounded">
@@ -46,10 +46,10 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:annotation>
-		<xs:documentation>Identification Criteria</xs:documentation>
-	</xs:annotation>
 	<xs:complexType name="PropertyCriterion">
+		<xs:annotation>
+			<xs:documentation>Identification Criteria</xs:documentation>
+		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="PropertyLocationPath"
 				type="cmdb:PropertyLocationPath" minOccurs="1"
@@ -65,8 +65,8 @@
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ExclusionType" type="xs:string" minOccurs="0"
-				maxOccurs="unbounded">
+			<xs:element name="ExclusionType" type="xs:string"
+				minOccurs="0" maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Type" type="xs:string" minOccurs="1"
 				maxOccurs="1">
@@ -78,7 +78,6 @@
 		<xs:attribute name="Order" type="xs:int" use="optional"></xs:attribute>
 	</xs:complexType>
 
-	<xs:element name="PersistenceRules"
-		type="cmdb:PersistenceRules">
+	<xs:element name="PersistenceRules" type="cmdb:PersistenceRules">
 	</xs:element>
 </schema>

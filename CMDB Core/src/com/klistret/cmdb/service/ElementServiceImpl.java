@@ -32,18 +32,18 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.countByCriteria(criteria);
 	}
 
-	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
+	public Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
 			PropertyCriteria criteria) {
 		return elementDAO.findByCriteria(criteria);
 	}
 
-	public com.klistret.cmdb.pojo.Element getById(Long id) {
+	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id) {
 		return elementDAO.getById(id);
 	}
 
 	@Timer
-	public com.klistret.cmdb.pojo.Element set(
-			com.klistret.cmdb.pojo.Element element) {
+	public com.klistret.cmdb.xmlbeans.pojo.Element set(
+			com.klistret.cmdb.xmlbeans.pojo.Element element) {
 		return elementDAO.set(element);
 	}
 }

@@ -17,7 +17,7 @@
 		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 
-<hibernate-mapping package="com.klistret.cmdb.pojo">
+<hibernate-mapping package="com.klistret.cmdb.xmlbeans.pojo">
 
 	<class name="Relation" table="RELATION" entity-name="Relation">
 
@@ -43,25 +43,25 @@
 			<column name="DESTINATIONID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
 
-		<property name="fromTimeStamp" type="timestamp">
-			<column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
-		</property>
-
-		<property name="toTimeStamp" type="timestamp">
-			<column name="TOTIMESTAMP" />
-		</property>
-
-		<property name="createId">
-			<column name="CREATEID" length="10" />
-		</property>
-
-		<property name="createTimeStamp" type="timestamp">
-			<column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
-		</property>
-
-		<property name="updateTimeStamp" type="timestamp">
-			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
-		</property>
+		<property name="fromTimeStamp" type="com.klistret.cmdb.utility.hibernate.HibernateUTC$CalendarType">
+            <column name="FROMTIMESTAMP" not-null="true" sql-type="timestamp" default="current timestamp"/>
+        </property>
+        
+        <property name="toTimeStamp" type="com.klistret.cmdb.utility.hibernate.HibernateUTC$CalendarType">
+            <column name="TOTIMESTAMP" sql-type="timestamp"/>
+        </property>
+        
+        <property name="createId">
+            <column name="CREATEID" length="10"/>
+        </property>
+        
+        <property name="createTimeStamp" type="com.klistret.cmdb.utility.hibernate.HibernateUTC$CalendarType">
+            <column name="CREATETIMESTAMP" not-null="true" sql-type="timestamp" default="current timestamp"/>
+        </property>
+        
+        <property name="updateTimeStamp" type="com.klistret.cmdb.utility.hibernate.HibernateUTC$CalendarType">
+            <column name="UPDATETIMESTAMP" not-null="true" sql-type="timestamp" default="current timestamp"/>
+        </property>
 
 		<property name="configuration"
 			type="com.klistret.cmdb.utility.hibernate.XmlBeansUserType">

@@ -116,10 +116,10 @@ public class PersistenceAOP {
 		PropertyCriteria pCriteria = getElementPropertyCriteria(element
 				.getConfiguration(), criterion);
 		if (pCriteria != null) {
-			Collection<com.klistret.cmdb.pojo.Element> results = elementService
+			Collection<com.klistret.cmdb.xmlbeans.pojo.Element> results = elementService
 					.findByCriteria(pCriteria);
 
-			for (com.klistret.cmdb.pojo.Element other : results)
+			for (com.klistret.cmdb.xmlbeans.pojo.Element other : results)
 				logger.debug("criteria selected other element [{}]", other
 						.toString());
 
@@ -131,7 +131,7 @@ public class PersistenceAOP {
 										results.size()));
 
 			if (element.getId() != null && !results.isEmpty()) {
-				for (com.klistret.cmdb.pojo.Element other : results) {
+				for (com.klistret.cmdb.xmlbeans.pojo.Element other : results) {
 					if (!element.equals(other))
 						throw new ApplicationException(
 								String

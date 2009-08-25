@@ -17,7 +17,7 @@
 	xmlns:cmdb="http://www.klistret.com/cmdb" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 	<xs:import namespace="http://www.klistret.com/cmdb"
-		schemaLocation="../../element.xsd" />
+		schemaLocation="../../commons.xsd" />
 
 	<xs:complexType name="Collection">
 		<annotation>
