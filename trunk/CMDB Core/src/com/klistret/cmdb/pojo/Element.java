@@ -14,8 +14,6 @@
 
 package com.klistret.cmdb.pojo;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;

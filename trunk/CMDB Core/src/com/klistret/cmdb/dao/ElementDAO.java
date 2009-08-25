@@ -31,7 +31,7 @@ public interface ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	com.klistret.cmdb.pojo.Element getById(Long id);
+	com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id);
 
 	/**
 	 * CRUD get by unique identifier with option to toggle inclusion of
@@ -41,7 +41,7 @@ public interface ElementDAO {
 	 * @param fetchAssociations
 	 * @return Element
 	 */
-	com.klistret.cmdb.pojo.Element getById(Long id, boolean fetchAssociations);
+	com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id, boolean fetchAssociations);
 
 	/**
 	 * CRUD find by criteria where the criteria is a list of property
@@ -51,7 +51,7 @@ public interface ElementDAO {
 	 * @param criteria
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
+	Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
 	/**
@@ -68,5 +68,5 @@ public interface ElementDAO {
 	 * @param element
 	 * @return Element
 	 */
-	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
+	com.klistret.cmdb.xmlbeans.pojo.Element set(com.klistret.cmdb.xmlbeans.pojo.Element element);
 }

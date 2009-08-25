@@ -57,6 +57,9 @@
 			<value>classpath:Hibernate.cfg.xml
 			</value>
 		</property>
+		<property name="entityInterceptor">
+			<bean class="com.klistret.cmdb.utility.hibernate.XmlBeansProxyInterceptor"/>
+		</property>
 	</bean>
 	<!-- DAO -->
 	<bean id="relationTypeDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">

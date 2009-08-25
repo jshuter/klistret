@@ -25,7 +25,7 @@ see <http://www.gnu.org/licenses/>
 <aop:config>
     <aop:aspect ref="persistenceAOP">
         <aop:pointcut id="setElementPointcut"
-         expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.pojo.Element)) and args(element)"/>
+         expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.xmlbeans.pojo.Element)) and args(element)"/>
         <aop:before pointcut-ref="setElementPointcut" method="applyElementPersistenceRules"/>     
     </aop:aspect>
 </aop:config>

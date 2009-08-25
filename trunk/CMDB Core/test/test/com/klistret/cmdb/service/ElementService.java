@@ -14,8 +14,6 @@
 
 package test.com.klistret.cmdb.service;
 
-import java.sql.Timestamp;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.klistret.cmdb.utility.hibernate.HibernateUTC;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -41,16 +40,17 @@ public class ElementService extends
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
 	@Test
+	@Rollback(value = false)
 	public void getById() {
-		com.klistret.cmdb.pojo.Element element = elementService
-				.getById(new Long(46));
+		com.klistret.cmdb.xmlbeans.pojo.Element element = elementService
+				.getById(new Long(44));
 
 		element.getConfiguration().setNamespace("test");
 		elementService.set(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void set() {
 		com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument document = com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument.Factory
 				.newInstance();
@@ -59,21 +59,19 @@ public class ElementService extends
 		environment.setName("whatever");
 		environment.setNamespace("development");
 
-		com.klistret.cmdb.pojo.ElementType type = elementTypeService
+		com.klistret.cmdb.xmlbeans.pojo.ElementType type = elementTypeService
 				.getByCompositeId(environment.schemaType().getFullJavaName());
 
-		Timestamp currentTimeStamp = new Timestamp(new java.util.Date()
-				.getTime());
-
-		com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
+		com.klistret.cmdb.xmlbeans.pojo.Element element = com.klistret.cmdb.xmlbeans.pojo.Element.Factory
+				.newInstance();
 		element.setName("whatever");
 		element.setType(type);
-		element.setFromTimeStamp(currentTimeStamp);
-		element.setCreateTimeStamp(currentTimeStamp);
+		element.setFromTimeStamp(HibernateUTC.getCurrentCalendar());
+		element.setCreateTimeStamp(HibernateUTC.getCurrentCalendar());
 		element.setConfiguration(environment);
 
 		elementService.set(element);
-		
+
 		environment.setName("production");
 		elementService.set(element);
 	}

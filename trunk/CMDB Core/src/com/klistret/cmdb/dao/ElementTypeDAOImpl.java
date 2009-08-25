@@ -67,7 +67,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.pojo.ElementType> findByName(String name) {
+	public Collection<com.klistret.cmdb.xmlbeans.pojo.ElementType> findByName(
+			String name) {
 		try {
 			Criteria query = getSession().createCriteria("ElementType");
 
@@ -89,17 +90,18 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 * @param name
 	 * @return ElementType
 	 */
-	public com.klistret.cmdb.pojo.ElementType getByCompositeId(String name) {
+	public com.klistret.cmdb.xmlbeans.pojo.ElementType getByCompositeId(
+			String name) {
 		logger.debug("getting element type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
-				com.klistret.cmdb.pojo.ElementType.class);
+				com.klistret.cmdb.xmlbeans.pojo.ElementType.class);
 
 		criteria.add(Restrictions.isNull("toTimeStamp"));
 		criteria.add(Restrictions.eq("name", name));
 
 		try {
-			com.klistret.cmdb.pojo.ElementType elementType = (com.klistret.cmdb.pojo.ElementType) criteria
+			com.klistret.cmdb.xmlbeans.pojo.ElementType elementType = (com.klistret.cmdb.xmlbeans.pojo.ElementType) criteria
 					.uniqueResult();
 
 			if (elementType != null) {

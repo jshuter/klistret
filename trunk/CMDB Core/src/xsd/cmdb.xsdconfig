@@ -15,9 +15,14 @@
 <xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
 	xmlns:cmdb="http://www.klistret.com/cmdb">
     
-    <!-- Commons / Persistence rules-->
+    <!-- Commons / Persistence rules -->
 	<xb:namespace uri="http://www.klistret.com/cmdb">
 		<xb:package>com.klistret.cmdb.xmlbeans</xb:package>
+	</xb:namespace>
+	
+	<!-- RestEasy -->
+	<xb:namespace uri="http://www.klistret.com/cmdb/pojo">
+		<xb:package>com.klistret.cmdb.xmlbeans.pojo</xb:package>
 	</xb:namespace>
 
 	<!-- Elements-->

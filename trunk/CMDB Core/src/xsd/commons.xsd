@@ -69,23 +69,23 @@
 	</xs:simpleType>
 
 	<xs:simpleType name="Annotation">
-		<annotation>
-			<documentation>
+		<xs:annotation>
+			<xs:documentation>
 				Notes or shorter comments placed on the base instance
-			</documentation>
-		</annotation>
+			</xs:documentation>
+		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
 	<xs:complexType name="Ownership">
 		<xs:choice>
 			<xs:element name="Name" type="xs:string">
-				<annotation>
-					<documentation>
+				<xs:annotation>
+					<xs:documentation>
 						Ownership is responsibility over the base
 						instance
-					</documentation>
-				</annotation>
+					</xs:documentation>
+				</xs:annotation>
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
@@ -102,4 +102,30 @@
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
 	</xs:complexType>
+
+	<xs:complexType name="Element">
+		<xs:annotation>
+			<xs:documentation>
+				Root CI (abstract) defining common CI characteristics
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="cmdb:Base" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Element" type="cmdb:Element" abstract="true"></xs:element>
+
+	<xs:complexType name="Relation">
+		<xs:annotation>
+			<xs:documentation>
+				Root association (abstract) between only two CIs
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="cmdb:Base" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Relation" type="cmdb:Relation" abstract="true"></xs:element>
 </schema>
