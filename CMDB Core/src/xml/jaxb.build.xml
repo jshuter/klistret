@@ -1,0 +1,104 @@
+<project default="jaxb:compile">
+	<property name="schema-basedir" location="C:/workshop/klistret/CMDB Core/src/xsd" />
+	<property name="jaxb-destdir" location="C:/temp" />
+
+	<path id="jaxb.class.path">
+		<fileset dir="C:/workshop/downloads/jaxb-ri-20090410/lib">
+			<include name="jaxb1-impl.jar" />
+			<include name="jaxb-api.jar" />
+			<include name="jaxb-impl.jar" />
+			<include name="jaxb-xjc.jar" />
+		</fileset>
+	</path>
+
+	<path id="jaxb-commons.class.path">
+		<fileset dir="C:/workshop/downloads/jaxb-ri-20090410/lib">
+			<include name="collection-setter-injector.jar" />
+		</fileset>
+	</path>
+
+	<path id="resteasy.class.path">
+		<fileset dir="C:/workshop/downloads/resteasy-jaxrs-1.1.GA/lib">
+			<include name="resteasy-jaxb-provider-1.1.GA.jar" />
+		</fileset>
+	</path>
+
+	<path id="xmlRootElement-plugin.class.path">
+		<fileset dir="C:/workshop/downloads/klistret">
+			<include name="klistret.xjc.jar" />
+		</fileset>
+	</path>
+
+	<path id="ant-contrib.class.path">
+		<fileset dir="C:/workshop/downloads/ant-contrib">
+			<include name="ant-contrib-1.0b3.jar" />
+		</fileset>
+	</path>
+
+	<target name="jaxb:gen:src" description="Generate Java source files from XSD.">
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+			<classpath>
+				<path refid="jaxb.class.path" />
+				<path refid="jaxb-commons.class.path" />
+				<path refid="xmlRootElement-plugin.class.path" />
+				<path refid="resteasy.class.path" />
+			</classpath>
+		</taskdef>
+
+		<taskdef name="for" classname="net.sf.antcontrib.logic.ForTask">
+			<classpath>
+				<path refid="ant-contrib.class.path" />
+			</classpath>
+		</taskdef>
+
+		<!-- Interface POJO (travel through Hibernate/Spring/Rest -->
+		<xjc destdir="${jaxb-destdir}" extension="true">
+			<arg value="-Xcollection-setter-injector" />
+			<arg value="-Xxmlroot" />
+			<schema dir="${schema-basedir}" includes="pojo.xsd" />
+			<binding file="jaxb.binding.xml" />
+		</xjc>
+
+		<!-- Rules -->
+		<xjc destdir="${jaxb-destdir}" extension="true">
+			<schema dir="${schema-basedir}" includes="rules.persistence.xsd" />
+		</xjc>
+
+		<!-- CMDB CI -->
+		<for param="file">
+			<path>
+				<fileset dir="${schema-basedir}">
+					<include name="**/*.xsd" />
+					<exclude name="**/pojo.xsd" />
+					<exclude name="**/rules.persistence.xsd" />
+				</fileset>
+			</path>
+			<sequential>
+				<xjc destdir="${jaxb-destdir}" extension="true">
+					<arg value="-Xxmlroot" />
+					<schema file="@{file}" />
+				</xjc>
+			</sequential>
+		</for>
+
+	</target>
+
+	<target name="jaxb:compile">
+		<javac srcdir="${jaxb-destdir}" destdir="${jaxb-destdir}" debug="on">
+			<include name="com/klistret/cmdb/**" />
+			<include name="org/w3/_2001/xmlschema/**" />
+			<classpath>
+				<path refid="jaxb.class.path" />
+				<path refid="jaxb-commons.class.path" />
+				<path refid="xmlRootElement-plugin.class.path" />
+				<path refid="resteasy.class.path" />
+			</classpath>
+		</javac>
+
+		<jar destfile="${jaxb-destdir}/klistret.jaxb.jar" basedir="${jaxb-destdir}">
+			<include name="com/klistret/cmdb/**/*.class" />
+			<include name="org/w3/_2001/xmlschema/**/*.class" />
+		</jar>
+	</target>
+</project>

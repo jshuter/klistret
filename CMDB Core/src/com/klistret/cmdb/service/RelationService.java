@@ -15,5 +15,5 @@
 package com.klistret.cmdb.service;
 
 public interface RelationService {
-	com.klistret.cmdb.xmlbeans.pojo.Relation getById(Long id);
+	com.klistret.cmdb.pojo.Relation getById(Long id);
 }

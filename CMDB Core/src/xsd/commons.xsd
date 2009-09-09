@@ -114,7 +114,8 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Element" type="cmdb:Element" abstract="true"></xs:element>
+	<xs:element name="Element" type="cmdb:Element" abstract="true">
+	</xs:element>
 
 	<xs:complexType name="Relation">
 		<xs:annotation>

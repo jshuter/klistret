@@ -26,5 +26,5 @@ public interface RelationDAO {
 	 * @param id
 	 * @return Relation
 	 */
-	com.klistret.cmdb.xmlbeans.pojo.Relation getById(Long id);
+	com.klistret.cmdb.pojo.Relation getById(Long id);
 }

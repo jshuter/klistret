@@ -14,7 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,7 +30,6 @@ import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.utility.hibernate.HibernateUTC;
 
 /**
  * 
@@ -71,7 +70,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
+	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
@@ -93,25 +92,22 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			Set<com.klistret.cmdb.xmlbeans.pojo.Element> elements = new LinkedHashSet(
+			Set<com.klistret.cmdb.pojo.Element> elements = new LinkedHashSet(
 					results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
 
-				com.klistret.cmdb.xmlbeans.pojo.Element element = com.klistret.cmdb.xmlbeans.pojo.Element.Factory
-						.newInstance();
+				com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
 				element.setId((Long) row[0]);
-				element
-						.setType((com.klistret.cmdb.xmlbeans.pojo.ElementType) row[1]);
+				element.setType((com.klistret.cmdb.pojo.ElementType) row[1]);
 				element.setName((String) row[2]);
-				element.setFromTimeStamp((Calendar) row[3]);
-				element.setToTimeStamp((Calendar) row[4]);
+				element.setFromTimeStamp((Date) row[3]);
+				element.setToTimeStamp((Date) row[4]);
 				element.setCreateId((String) row[5]);
-				element.setCreateTimeStamp((Calendar) row[6]);
-				element.setUpdateTimeStamp((Calendar) row[7]);
-				element
-						.setConfiguration((com.klistret.cmdb.xmlbeans.Element) row[8]);
+				element.setCreateTimeStamp((Date) row[6]);
+				element.setUpdateTimeStamp((Date) row[7]);
+				element.setConfiguration(row[8]);
 
 				elements.add(element);
 			}
@@ -132,7 +128,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id) {
+	public com.klistret.cmdb.pojo.Element getById(Long id) {
 		return getById(id, false);
 	}
 
@@ -143,11 +139,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param fetchAssociations
 	 * @return Element
 	 */
-	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id,
+	public com.klistret.cmdb.pojo.Element getById(Long id,
 			boolean fetchAssociations) {
 		try {
 			Criteria criteria = getSession().createCriteria(
-					com.klistret.cmdb.xmlbeans.pojo.Element.class);
+					com.klistret.cmdb.pojo.Element.class);
 
 			if (fetchAssociations) {
 				criteria.setFetchMode("sourceRelations", FetchMode.JOIN);
@@ -157,8 +153,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			criteria.add(Restrictions.idEq(id));
 
 			logger.debug("getting element [id: {}] by id ", id);
-			com.klistret.cmdb.xmlbeans.pojo.Element element = (com.klistret.cmdb.xmlbeans.pojo.Element) criteria
+			com.klistret.cmdb.pojo.Element element = (com.klistret.cmdb.pojo.Element) criteria
 					.uniqueResult();
+			logger.debug("found element [id: {}] by id ", id);
 
 			if (element == null) {
 				logger.error("element [id: {}] does not exist", id);
@@ -180,33 +177,12 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param Element
 	 * @return Element
 	 */
-	public com.klistret.cmdb.xmlbeans.pojo.Element set(
-			com.klistret.cmdb.xmlbeans.pojo.Element element) {
+	public com.klistret.cmdb.pojo.Element set(
+			com.klistret.cmdb.pojo.Element element) {
 		/**
 		 * record current time when updating
 		 */
-		element.setUpdateTimeStamp(HibernateUTC.getCurrentCalendar());
-
-		/**
-		 * verify that the SchemaType java class name matches the element type
-		 * name
-		 */
-		if (!element.getType().getName().equals(
-				element.getConfiguration().schemaType().getFullJavaName())) {
-			logger
-					.error(
-							"XmlObject java class [{}] not consistent with element type name [{}]",
-							element.getConfiguration().schemaType()
-									.getFullJavaName(), element.getType()
-									.getName());
-			throw new ApplicationException(
-					String
-							.format(
-									"XmlObject java class [%s] not consistent with element type name [%s]",
-									element.getConfiguration().schemaType()
-											.getFullJavaName(), element
-											.getType().getName()));
-		}
+		element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
 			getSession().saveOrUpdate("Element", element);

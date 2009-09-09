@@ -27,5 +27,5 @@ public interface RelationTypeDAO {
 	 * @param name
 	 * @return RelationType
 	 */
-	com.klistret.cmdb.xmlbeans.pojo.RelationType getByCompositeId(String name);
+	com.klistret.cmdb.pojo.RelationType getByCompositeId(String name);
 }
