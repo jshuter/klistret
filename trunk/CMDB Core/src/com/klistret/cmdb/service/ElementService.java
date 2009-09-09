@@ -16,15 +16,30 @@ package com.klistret.cmdb.service;
 
 import java.util.Collection;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
+
+import com.klistret.cmdb.pojo.Element;
+
+@Path("/resteasy")
 public interface ElementService {
 
-	com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id);
+	@GET
+	@Path("/element/getById/{id}")
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@BadgerFish 
+	Element getById(@PathParam("id")
+	Long id);
 
-	Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
+	Collection<Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
 	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 
-	com.klistret.cmdb.xmlbeans.pojo.Element set(
-			com.klistret.cmdb.xmlbeans.pojo.Element element);
+	Element set(Element element);
 }

@@ -86,15 +86,14 @@
 			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createTimeStamp"
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="configuration" type="cmdb:Element"
-				maxOccurs="1" minOccurs="1" />
+			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
 			<xs:element name="sourceRelations" type="pojo:Relation"
 				maxOccurs="unbounded" minOccurs="0" />
 			<xs:element name="destinationRelations" type="pojo:Relation"
@@ -119,9 +118,9 @@
 			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createTimeStamp"
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
@@ -139,9 +138,9 @@
 			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createTimeStamp"
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
@@ -157,9 +156,9 @@
 			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="1" />
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createTimeStamp"
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"

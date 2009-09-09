@@ -16,6 +16,7 @@ package com.klistret.cmdb.service;
 
 import java.util.Collection;
 
+import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.utility.annotations.Timer;
@@ -32,18 +33,27 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.countByCriteria(criteria);
 	}
 
-	public Collection<com.klistret.cmdb.xmlbeans.pojo.Element> findByCriteria(
-			PropertyCriteria criteria) {
+	public Collection<Element> findByCriteria(PropertyCriteria criteria) {
 		return elementDAO.findByCriteria(criteria);
 	}
 
-	public com.klistret.cmdb.xmlbeans.pojo.Element getById(Long id) {
-		return elementDAO.getById(id);
+	public Element getById(Long id) {
+		Element elementProxy = elementDAO.getById(id);
+
+		Element element = new Element();
+		element.setId(elementProxy.getId());
+		element.setFromTimeStamp(elementProxy.getFromTimeStamp());
+		element.setToTimeStamp(elementProxy.getToTimeStamp());
+		element.setCreateId(elementProxy.getCreateId());
+		element.setCreateTimeStamp(elementProxy.getCreateTimeStamp());
+		element.setUpdateTimeStamp(elementProxy.getUpdateTimeStamp());
+		element.setConfiguration(elementProxy.getConfiguration());
+
+		return element;
 	}
 
 	@Timer
-	public com.klistret.cmdb.xmlbeans.pojo.Element set(
-			com.klistret.cmdb.xmlbeans.pojo.Element element) {
+	public Element set(Element element) {
 		return elementDAO.set(element);
 	}
 }

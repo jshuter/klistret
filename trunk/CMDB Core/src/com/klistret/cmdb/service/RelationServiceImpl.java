@@ -15,7 +15,7 @@
 package com.klistret.cmdb.service;
 
 import com.klistret.cmdb.dao.RelationDAO;
-import com.klistret.cmdb.xmlbeans.pojo.Relation;
+import com.klistret.cmdb.pojo.Relation;
 
 public class RelationServiceImpl implements RelationService {
 

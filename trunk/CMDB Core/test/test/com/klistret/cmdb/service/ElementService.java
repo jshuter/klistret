@@ -24,7 +24,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.klistret.cmdb.utility.hibernate.HibernateUTC;
+import com.klistret.cmdb.element.logical.collection.Environment;
+import com.klistret.cmdb.pojo.Element;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -38,41 +39,15 @@ public class ElementService extends
 
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
-
+	
 	@Test
 	@Rollback(value = false)
 	public void getById() {
-		com.klistret.cmdb.xmlbeans.pojo.Element element = elementService
-				.getById(new Long(44));
+		Element element = elementService.getById(new Long(44));
 
-		element.getConfiguration().setNamespace("test");
-		elementService.set(element);
-	}
+		Environment environment = (Environment) element.getConfiguration();
+		environment.setName("billy");
 
-	//@Test
-	//@Rollback(value = false)
-	public void set() {
-		com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument document = com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument.Factory
-				.newInstance();
-		com.klistret.cmdb.xmlbeans.element.logical.collection.Environment environment = document
-				.addNewEnvironment();
-		environment.setName("whatever");
-		environment.setNamespace("development");
-
-		com.klistret.cmdb.xmlbeans.pojo.ElementType type = elementTypeService
-				.getByCompositeId(environment.schemaType().getFullJavaName());
-
-		com.klistret.cmdb.xmlbeans.pojo.Element element = com.klistret.cmdb.xmlbeans.pojo.Element.Factory
-				.newInstance();
-		element.setName("whatever");
-		element.setType(type);
-		element.setFromTimeStamp(HibernateUTC.getCurrentCalendar());
-		element.setCreateTimeStamp(HibernateUTC.getCurrentCalendar());
-		element.setConfiguration(environment);
-
-		elementService.set(element);
-
-		environment.setName("production");
 		elementService.set(element);
 	}
 }

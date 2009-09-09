@@ -17,7 +17,7 @@ package com.klistret.cmdb.service;
 import java.util.Collection;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
-import com.klistret.cmdb.xmlbeans.pojo.ElementType;
+import com.klistret.cmdb.pojo.ElementType;
 
 public class ElementTypeServiceImpl implements ElementTypeService {
 
