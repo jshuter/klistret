@@ -18,49 +18,41 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.xml.sax.ErrorHandler;
 
-import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
 
-import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
-import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
-
-public class XmlRootPlugin extends Plugin {
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
+public class XmlRootElementPlugin extends Plugin {
 
 	@Override
 	public String getOptionName() {
-		return "Xxmlroot";
+		return "XxmlRootElement";
 	}
 
 	@Override
 	public String getUsage() {
-		return "  -Xxmlroot      :  inject XmlRootElement annonation for all classes in the Outline model ";
+		return "  -XxmlRootElement :  inject XmlRootElement (name = class name) annonation for all classes in the Outline model ";
 	}
 
 	@Override
 	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
 		for (ClassOutline co : model.getClasses()) {
 
-			// inject the specified code fragment into the implementation class.
+			/**
+			 * XmlRootElement has to have the name set to the class name
+			 * otherwise the unmarshalling of Objects is given a lower case
+			 * element name for the root element
+			 */
 			JAnnotationUse xmlRootElementAnnotation = co.implClass
 					.annotate(XmlRootElement.class);
 			xmlRootElementAnnotation.param("name", co.implClass.name());
-
-			JAnnotationUse mappedAnnotation = co.implClass
-					.annotate(Mapped.class);
-
-			JAnnotationArrayMember namespaceMap = mappedAnnotation
-					.paramArray("namespaceMap");
-			JAnnotationUse xmlNsMapAnnotation = namespaceMap
-					.annotate(XmlNsMap.class);
-
-			xmlNsMapAnnotation.param("namespace", co.target.getTypeName()
-					.getNamespaceURI());
-			xmlNsMapAnnotation.param("jsonName", co.implClass.getPackage()
-					.name());
 		}
 
 		return true;

@@ -22,8 +22,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
-
 import com.klistret.cmdb.pojo.Element;
 
 @Path("/resteasy")
@@ -32,7 +30,6 @@ public interface ElementService {
 	@GET
 	@Path("/element/getById/{id}")
 	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@BadgerFish 
 	Element getById(@PathParam("id")
 	Long id);
 
