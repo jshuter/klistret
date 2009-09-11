@@ -55,7 +55,7 @@
 		<!-- Interface POJO (travel through Hibernate/Spring/Rest -->
 		<xjc destdir="${jaxb-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
-			<arg value="-Xxmlroot" />
+			<arg value="-XxmlRootElement" />
 			<schema dir="${schema-basedir}" includes="pojo.xsd" />
 			<binding file="jaxb.binding.xml" />
 		</xjc>
@@ -76,7 +76,7 @@
 			</path>
 			<sequential>
 				<xjc destdir="${jaxb-destdir}" extension="true">
-					<arg value="-Xxmlroot" />
+					<arg value="-XxmlRootElement" />
 					<schema file="@{file}" />
 				</xjc>
 			</sequential>
