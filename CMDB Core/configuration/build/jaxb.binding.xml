@@ -20,7 +20,7 @@
 			printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printDateTime"/>  
 	</jxb:globalBindings>
 	
-	<jxb:bindings schemaLocation="../xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Element']/xs:sequence/xs:any">
+	<jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Element']/xs:sequence/xs:any">
 		<jxb:property name="configuration" />
 	</jxb:bindings>
 </jxb:bindings>
