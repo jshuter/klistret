@@ -39,7 +39,7 @@ public class ElementService extends
 
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
-	
+
 	@Test
 	@Rollback(value = false)
 	public void getById() {
@@ -47,6 +47,23 @@ public class ElementService extends
 
 		Environment environment = (Environment) element.getConfiguration();
 		environment.setName("billy");
+
+		elementService.set(element);
+	}
+
+	@Test
+	@Rollback(value = false)
+	public void setElement() {
+		Element element = new Element();
+		element.setFromTimeStamp(new java.util.Date());
+		element.setCreateTimeStamp(new java.util.Date());
+		element.setUpdateTimeStamp(new java.util.Date());
+
+		Environment environment = new Environment();
+		environment.setName("hello");
+		environment.setWatermark("production");
+
+		element.setConfiguration(environment);
 
 		elementService.set(element);
 	}
