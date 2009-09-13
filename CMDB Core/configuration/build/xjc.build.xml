@@ -1,0 +1,42 @@
+<project default="xjc:compile">
+	<!-- Windows -->
+	<!--
+	<property name="tmp-destdir" location="C:/temp" />
+	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
+	<property name="dist-basedir" location="C:/workshop/downloads/klistret" />
+	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
+	-->
+
+	<!-- Linux -->
+	<property name="tmp-destdir" location="/tmp" />
+	<property name="thirdparty-basedir" location="/home/matthew/Documents/software" />
+	<property name="dist-basedir" location="/home/matthew/Documents/workspace/klistret/distribution/lib" />
+	<property name="project-basedir" location="/home/matthew/Documents/workspace/klistret/CMDB Core" />
+
+	<path id="jaxb.class.path">
+		<fileset dir="${thirdparty-basedir}/jaxb-ri-20090410/lib">
+			<include name="jaxb1-impl.jar" />
+			<include name="jaxb-api.jar" />
+			<include name="jaxb-impl.jar" />
+			<include name="jaxb-xjc.jar" />
+		</fileset>
+	</path>
+
+	<target name="xjc:compile" description="Generate XJC extensions">
+		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
+			<include name="com/klistret/cmdb/utility/jaxb/**.java" />
+			<classpath>
+				<path refid="jaxb.class.path" />
+			</classpath>
+		</javac>
+
+		<copy todir="${tmp-destdir}/META-INF">
+			<fileset dir="${project-basedir}/configuration/build/META-INF" />
+		</copy>
+
+		<jar destfile="${dist-basedir}/klistret.xjc.jar">
+			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/jaxb/*.class" />
+			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
+		</jar>
+	</target>
+</project>
