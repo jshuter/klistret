@@ -22,6 +22,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
+import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
+
 import com.klistret.cmdb.pojo.Element;
 
 @Path("/resteasy")
@@ -30,8 +33,11 @@ public interface ElementService {
 	@GET
 	@Path("/element/getById/{id}")
 	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Element getById(@PathParam("id")
-	Long id);
+	@Mapped(namespaceMap = {
+			@XmlNsMap(namespace = "http://www.klistret.com/cmdb", jsonName = "com.klistret.cmdb"),
+			@XmlNsMap(namespace = "http://www.klistret.com/cmdb/pojo", jsonName = "com.klistret.cmdb.pojo"),
+			@XmlNsMap(namespace = "http://www.klistret.com/cmdb/element/logical/collection", jsonName = "com.klistret.cmdb.element.logical.collection") })
+	Element getById(@PathParam("id") Long id);
 
 	Collection<Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria);
