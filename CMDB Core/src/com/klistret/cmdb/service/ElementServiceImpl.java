@@ -42,6 +42,8 @@ public class ElementServiceImpl implements ElementService {
 
 		Element element = new Element();
 		element.setId(elementProxy.getId());
+		element.setName(elementProxy.getName());
+		element.setType(elementProxy.getType());
 		element.setFromTimeStamp(elementProxy.getFromTimeStamp());
 		element.setToTimeStamp(elementProxy.getToTimeStamp());
 		element.setCreateId(elementProxy.getCreateId());
