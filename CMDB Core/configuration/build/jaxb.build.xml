@@ -1,10 +1,10 @@
-<project default="jaxb:compile">
+<project default="jaxb:ci:src">
 	<!-- Windows -->
-	<property name="schema-basedir" location="C:/workshop/klistret/CMDB Core/src/xsd" />
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
 	<property name="dist-basedir" location="C:/workshop/downloads/klistret" />
-	
+	<property name="schema-basedir" location="C:/workshop/klistret/CMDB Core/src/xsd" />
+
 	<!-- Linux -->
 	<!--
 	<property name="schema-basedir" location="/home/matthew/Documents/workspace/klistret/CMDB Core/src/xsd" />
@@ -22,9 +22,16 @@
 		</fileset>
 	</path>
 
-	<path id="jaxb-commons.class.path">
+	<path id="jaxb2-commons.class.path">
 		<fileset dir="${thirdparty-basedir}/jaxb2-commons">
 			<include name="collection-setter-injector.jar" />
+		</fileset>
+	</path>
+
+	<path id="jaxb2-basics.class.path">
+		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.1/dist">
+			<include name="jaxb2-basics-ant-0.5.1.jar" />
+			<include name="jaxb2-basics-tools-0.5.1.jar" />
 		</fileset>
 	</path>
 
@@ -34,50 +41,39 @@
 		</fileset>
 	</path>
 
-	<path id="xmlRootElement-plugin.class.path">
+	<path id="spring.class.path">
+		<fileset dir="${thirdparty-basedir}/spring-framework-2.5.6.SEC01/dist">
+			<include name="spring.jar" />
+		</fileset>
+	</path>
+
+	<path id="jakarta-commons.class.path">
+		<fileset dir="${thirdparty-basedir}/spring-framework-2.5.6.SEC01/lib/jakarta-commons">
+			<include name="commons-beanutils.jar" />
+			<include name="commons-lang.jar" />
+			<include name="commons-logging.jar" />
+		</fileset>
+	</path>
+
+	<path id="klistret.plugin.class.path">
 		<fileset dir="${dist-basedir}">
 			<include name="klistret.xjc.jar" />
 		</fileset>
 	</path>
 
-	<path id="ant-contrib.class.path">
-		<fileset dir="${thirdparty-basedir}/ant-contrib">
-			<include name="ant-contrib-1.0b3.jar" />
-		</fileset>
-	</path>
-	
-	<!-- Usage with Java 6 (http://forums.java.net/jive/thread.jspa?threadID=38288&tstart=0) -->
-	<path id="jaxb2-basics.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.1/dist">
-			<include name="jaxb2-basics-ant-0.5.1.jar" />
-		</fileset>
-	</path>
-	
-	<target name="jaxb:gen:src" description="Generate Java source files from XSD.">
-
-		<!-- Java 5 -->
-		<!--
-		<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
-		-->
-		
-		<!-- Java 6 -->
+	<target name="jaxb:ci:src">
 		<taskdef name="xjc" classname="org.jvnet.jaxb2_commons.xjc.XJC2Task">
 			<classpath>
 				<path refid="jaxb.class.path" />
-				<path refid="jaxb-commons.class.path" />
-				<path refid="xmlRootElement-plugin.class.path" />
-				<path refid="resteasy.class.path" />
+				<path refid="jaxb2-commons.class.path" />
 				<path refid="jaxb2-basics.class.path" />
+				<path refid="resteasy.class.path" />
+				<path refid="spring.class.path" />
+				<path refid="jakarta-commons.class.path" />
+				<path refid="klistret.plugin.class.path" />
 			</classpath>
 		</taskdef>
 
-		<taskdef name="for" classname="net.sf.antcontrib.logic.ForTask">
-			<classpath>
-				<path refid="ant-contrib.class.path" />
-			</classpath>
-		</taskdef>
-
-		<!-- Interface POJO (travel through Hibernate/Spring/Rest -->
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-XxmlRootElement" />
@@ -85,45 +81,5 @@
 			<binding file="jaxb.binding.xml" />
 		</xjc>
 
-		<!-- Rules -->
-		<xjc destdir="${tmp-destdir}" extension="true">
-			<schema dir="${schema-basedir}" includes="rules.persistence.xsd" />
-		</xjc>
-
-		<!-- CMDB CI -->
-		<for param="file">
-			<path>
-				<fileset dir="${schema-basedir}">
-					<include name="**/*.xsd" />
-					<exclude name="**/pojo.xsd" />
-					<exclude name="**/rules.persistence.xsd" />
-				</fileset>
-			</path>
-			<sequential>
-				<xjc destdir="${tmp-destdir}" extension="true">
-					<arg value="-XxmlRootElement" />
-					<schema file="@{file}" />
-				</xjc>
-			</sequential>
-		</for>
-
-	</target>
-
-	<target name="jaxb:compile" depends="jaxb:gen:src">
-		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
-			<include name="com/klistret/cmdb/**" />
-			<include name="org/w3/_2001/xmlschema/**" />
-			<classpath>
-				<path refid="jaxb.class.path" />
-				<path refid="jaxb-commons.class.path" />
-				<path refid="xmlRootElement-plugin.class.path" />
-				<path refid="resteasy.class.path" />
-			</classpath>
-		</javac>
-
-		<jar destfile="${dist-basedir}/klistret.jaxb.jar" basedir="${tmp-destdir}">
-			<include name="com/klistret/cmdb/**/*.class" />
-			<include name="org/w3/_2001/xmlschema/**/*.class" />
-		</jar>
 	</target>
 </project>
