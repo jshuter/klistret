@@ -61,22 +61,24 @@
 		</fileset>
 	</path>
 
+	<taskdef name="xjc" classname="org.jvnet.jaxb2_commons.xjc.XJC2Task">
+		<classpath>
+			<path refid="jaxb.class.path" />
+			<path refid="jaxb2-commons.class.path" />
+			<path refid="jaxb2-basics.class.path" />
+			<path refid="resteasy.class.path" />
+			<path refid="spring.class.path" />
+			<path refid="jakarta-commons.class.path" />
+			<path refid="klistret.plugin.class.path" />
+		</classpath>
+	</taskdef>
+
 	<target name="jaxb:ci:src">
-		<taskdef name="xjc" classname="org.jvnet.jaxb2_commons.xjc.XJC2Task">
-			<classpath>
-				<path refid="jaxb.class.path" />
-				<path refid="jaxb2-commons.class.path" />
-				<path refid="jaxb2-basics.class.path" />
-				<path refid="resteasy.class.path" />
-				<path refid="spring.class.path" />
-				<path refid="jakarta-commons.class.path" />
-				<path refid="klistret.plugin.class.path" />
-			</classpath>
-		</taskdef>
 
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-XxmlRootElement" />
+			<arg value="-XxmlNSMap" />
 			<schema dir="${schema-basedir}" includes="pojo.xsd" />
 			<binding file="jaxb.binding.xml" />
 		</xjc>
