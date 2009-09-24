@@ -22,6 +22,10 @@ import com.sun.tools.xjc.outline.Outline;
  */
 public class XmlNSMapPlugin extends Plugin {
 
+	final static String elementClassName = "com.klistret.cmdb.Element";
+
+	final static String relationClassName = "com.klistret.cmdb.Relation";
+
 	@Override
 	public String getOptionName() {
 		return "XxmlNSMap";
@@ -34,31 +38,31 @@ public class XmlNSMapPlugin extends Plugin {
 	}
 
 	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
-				false);
-
-		provider.addIncludeFilter(new AssignableTypeFilter(
-				com.klistret.cmdb.Element.class));
-
 		try {
+			ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+					false);
+
+			Class<?> elementClass = Class.forName(elementClassName);
+			Class<?> relationClass = Class.forName(relationClassName);
+
+			provider.addIncludeFilter(new AssignableTypeFilter(elementClass));
+
 			Set<BeanDefinition> elementBeans = provider
-					.findCandidateComponents(com.klistret.cmdb.Element.class
-							.getPackage().getName());
+					.findCandidateComponents(elementClass.getPackage()
+							.getName());
 
-			int size = elementBeans.size();
-		} catch (Exception e) {
-			String message = e.getMessage();
-		}
+			provider.resetFilters(true);
 
-		provider.resetFilters(true);
+			provider.addIncludeFilter(new AssignableTypeFilter(relationClass));
+			Set<BeanDefinition> relationBeans = provider
+					.findCandidateComponents(relationClass.getPackage()
+							.getName());
 
-		provider.addIncludeFilter(new AssignableTypeFilter(
-				com.klistret.cmdb.Relation.class));
-		Set<BeanDefinition> relationBeans = provider
-				.findCandidateComponents("com/klistret/cmdb");
+			for (ClassOutline co : model.getClasses()) {
 
-		for (ClassOutline co : model.getClasses()) {
-
+			}
+		} catch (ClassNotFoundException e) {
+			return false;
 		}
 
 		return true;
