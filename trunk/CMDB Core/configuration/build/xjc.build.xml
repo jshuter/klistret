@@ -1,17 +1,18 @@
 <project default="xjc:compile">
     <!-- Windows -->
+	<!--
     <property name="tmp-destdir" location="C:/temp"/>
     <property name="thirdparty-basedir" location="C:/workshop/downloads"/>
     <property name="dist-basedir" location="C:/workshop/downloads/klistret"/>
     <property name="project-basedir" location="C:/workshop/klistret/CMDB Core"/>
+    -->
     
     <!-- Linux -->
-    <!--
     <property name="tmp-destdir" location="/tmp" />
     <property name="thirdparty-basedir" location="/home/matthew/Documents/software" />
     <property name="dist-basedir" location="/home/matthew/Documents/workspace/klistret/distribution/lib" />
     <property name="project-basedir" location="/home/matthew/Documents/workspace/klistret/CMDB Core" />
-    -->
+
     
     <path id="jaxb.class.path">
         <fileset dir="${thirdparty-basedir}/jaxb-ri-20090410/lib">
