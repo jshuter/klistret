@@ -14,10 +14,15 @@ public class XJC {
 
 	@Test
 	public void execute() throws Throwable {
-		String[] args = { "-extension", "-d", "C:/temp", "-b",
-				"C:/workshop/klistret/CMDB Core/src/xml/jaxb.binding.xml",
+		String[] args = {
+				"-extension",
+				"-d",
+				"C:/temp",
+				"-b",
+				"C:/workshop/klistret/CMDB Core/configuration/build/jaxb.binding.xml",
 				"C:/workshop/klistret/CMDB Core/src/xsd/pojo.xsd",
-				"-Xcollection-setter-injector", "-Xxmlroot" };
+				"-Xcollection-setter-injector", "-XxmlRootElement",
+				"-XxmlNSMap"};
 
 		XJCFacade.main(args);
 	}
