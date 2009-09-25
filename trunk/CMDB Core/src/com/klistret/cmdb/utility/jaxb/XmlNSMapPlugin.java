@@ -2,6 +2,7 @@ package com.klistret.cmdb.utility.jaxb;
 
 import java.util.Set;
 
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -11,6 +12,15 @@ import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
+import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JAnnotationArrayMember;
+import com.sun.codemodel.JDefinedClass;
+
+import java.lang.annotation.Annotation;
+import javax.xml.bind.annotation.XmlSchema;
+
+import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
+import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
 
 /**
  * Page
@@ -21,8 +31,6 @@ import com.sun.tools.xjc.outline.Outline;
  * 
  */
 public class XmlNSMapPlugin extends Plugin {
-
-	final static String elementClassName = "com.klistret.cmdb.Element";
 
 	final static String relationClassName = "com.klistret.cmdb.Relation";
 
@@ -37,32 +45,50 @@ public class XmlNSMapPlugin extends Plugin {
 				+ "-XxmlNSMap:  adds resteasy XmlNsMap annotations for element/relation pojo ";
 	}
 
-	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
+	private void setXmlNSMap(String className, JDefinedClass implClass) {
+		JAnnotationUse mappedJAnnotation = implClass.annotate(Mapped.class);
+		JAnnotationArrayMember namespaceMapParam = mappedJAnnotation
+				.paramArray("namespaceMap");
+
 		try {
 			ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
 					false);
 
-			Class<?> elementClass = Class.forName(elementClassName);
-			Class<?> relationClass = Class.forName(relationClassName);
+			Class<?> baseClass = Class.forName(className);
 
-			provider.addIncludeFilter(new AssignableTypeFilter(elementClass));
+			provider.addIncludeFilter(new AssignableTypeFilter(baseClass));
 
-			Set<BeanDefinition> elementBeans = provider
-					.findCandidateComponents(elementClass.getPackage()
-							.getName());
+			Set<BeanDefinition> beans = provider
+					.findCandidateComponents(baseClass.getPackage().getName());
 
-			provider.resetFilters(true);
+			for (BeanDefinition bean : beans) {
+				Class<?> beanClass = Class.forName(bean.getBeanClassName());
 
-			provider.addIncludeFilter(new AssignableTypeFilter(relationClass));
-			Set<BeanDefinition> relationBeans = provider
-					.findCandidateComponents(relationClass.getPackage()
-							.getName());
-
-			for (ClassOutline co : model.getClasses()) {
-
+				for (Annotation packageAnnotation : beanClass.getPackage()
+						.getAnnotations()) {
+					if (packageAnnotation instanceof XmlSchema) {
+						JAnnotationUse xmlNsMapJAnnotation = namespaceMapParam
+								.annotate(XmlNsMap.class);
+						xmlNsMapJAnnotation.param("namespace",
+								((XmlSchema) packageAnnotation).namespace());
+						xmlNsMapJAnnotation.param("jsonName", beanClass
+								.getPackage().getName());
+					}
+				}
 			}
 		} catch (ClassNotFoundException e) {
-			return false;
+		} catch (BeanDefinitionStoreException e) {
+		}
+	}
+
+	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
+
+		for (ClassOutline co : model.getClasses()) {
+			if (co.implClass.name().equals("Element"))
+				setXmlNSMap("com.klistret.cmdb.Element", co.implClass);
+
+			if (co.implClass.name().equals("Relation"))
+				setXmlNSMap("com.klistret.cmdb.Relation", co.implClass);
 		}
 
 		return true;
