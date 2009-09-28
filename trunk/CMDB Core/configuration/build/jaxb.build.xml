@@ -1,4 +1,4 @@
-<project default="jaxb:ci:src">
+<project default="ci">
 	<!-- Windows -->
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
@@ -15,7 +15,6 @@
 
 	<path id="jaxb.class.path">
 		<fileset dir="${thirdparty-basedir}/jaxb-ri-20090410/lib">
-			<include name="jaxb1-impl.jar" />
 			<include name="jaxb-api.jar" />
 			<include name="jaxb-impl.jar" />
 			<include name="jaxb-xjc.jar" />
@@ -55,15 +54,26 @@
 		</fileset>
 	</path>
 
-	<path id="klistret.plugin.class.path">
-		<fileset dir="${dist-basedir}">
-			<include name="klistret.xjc.jar" />
+	<path id="logging.class.path">
+		<fileset dir="${thirdparty-basedir}/slf4j-1.5.6">
+			<include name="slf4j-api-1.5.6.jar" />
+			<include name="slf4j-log4j12-1.5.6.jar" />
 		</fileset>
+		<fileset dir="${thirdparty-basedir}/apache-log4j-1.2.15">
+			<include name="log4j-1.2.15.jar" />
+		</fileset>
+		<pathelement location="C:/workshop/klistret/CMDB Core/configuration/runtime" />
 	</path>
 
 	<path id="ant-contrib.class.path">
 		<fileset dir="${thirdparty-basedir}/ant-contrib">
 			<include name="ant-contrib-1.0b3.jar" />
+		</fileset>
+	</path>
+
+	<path id="klistret.plugin.class.path">
+		<fileset dir="${dist-basedir}">
+			<include name="klistret.xjc.jar" />
 		</fileset>
 	</path>
 
@@ -75,6 +85,7 @@
 			<path refid="resteasy.class.path" />
 			<path refid="spring.class.path" />
 			<path refid="jakarta-commons.class.path" />
+			<path refid="logging.class.path" />
 			<path refid="klistret.plugin.class.path" />
 		</classpath>
 	</taskdef>
@@ -86,7 +97,7 @@
 	</taskdef>
 
 
-	<target name="jaxb:ci:src">
+	<target name="ci">
 
 		<for param="file">
 			<path>
@@ -112,9 +123,15 @@
 			</classpath>
 		</javac>
 
+		<jar destfile="${dist-basedir}/klistret.ci.jar" basedir="${tmp-destdir}">
+			<include name="com/klistret/cmdb/*.class" />
+			<include name="com/klistret/cmdb/element/**/*.class" />
+			<include name="com/klistret/cmdb/relation/**/*.class" />
+		</jar>
+
 	</target>
 
-	<target name="jaxb:pojo:src">
+	<target name="pojo">
 
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
@@ -122,13 +139,6 @@
 			<arg value="-XxmlNSMap" />
 			<schema dir="${schema-basedir}" includes="pojo.xsd" />
 			<binding file="jaxb.binding.xml" />
-			<classpath>
-				<dirset dir="${tmp-destdir}">
-					<include name="com/klistret/cmdb/*.class" />
-					<include name="com/klistret/cmdb/element/**/*.class" />
-					<include name="com/klistret/cmdb/relation/**/*.class" />
-				</dirset>
-			</classpath>
 		</xjc>
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
