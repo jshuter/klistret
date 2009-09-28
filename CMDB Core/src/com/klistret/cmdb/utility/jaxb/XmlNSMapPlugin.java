@@ -2,6 +2,8 @@ package com.klistret.cmdb.utility.jaxb;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -32,7 +34,8 @@ import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
  */
 public class XmlNSMapPlugin extends Plugin {
 
-	final static String relationClassName = "com.klistret.cmdb.Relation";
+	private static final Logger logger = LoggerFactory
+			.getLogger(XmlNSMapPlugin.class);
 
 	@Override
 	public String getOptionName() {
@@ -51,6 +54,7 @@ public class XmlNSMapPlugin extends Plugin {
 				.paramArray("namespaceMap");
 
 		try {
+			logger.debug("defining namespace map for classname: {}", className);
 			ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
 					false);
 
@@ -58,11 +62,19 @@ public class XmlNSMapPlugin extends Plugin {
 
 			provider.addIncludeFilter(new AssignableTypeFilter(baseClass));
 
+			logger.debug("Scanning off of package name: {}", baseClass
+					.getPackage().getName());
 			Set<BeanDefinition> beans = provider
 					.findCandidateComponents(baseClass.getPackage().getName());
+			logger.debug("Spring scanner found {} candidate components", beans
+					.size());
 
 			for (BeanDefinition bean : beans) {
 				Class<?> beanClass = Class.forName(bean.getBeanClassName());
+
+				logger.debug(
+						"adding namespace json mapping for bean [name: {}]",
+						bean.getBeanClassName());
 
 				for (Annotation packageAnnotation : beanClass.getPackage()
 						.getAnnotations()) {
@@ -77,17 +89,26 @@ public class XmlNSMapPlugin extends Plugin {
 				}
 			}
 		} catch (ClassNotFoundException e) {
+			logger.error("ClassNotFoundException: {}", e.getMessage());
 		} catch (BeanDefinitionStoreException e) {
+			logger.error("BeanDefinitionStoreException: {}", e.getMessage());
 		}
 	}
 
 	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
 
 		for (ClassOutline co : model.getClasses()) {
-			if (co.implClass.name().equals("Element"))
+			logger.debug("processing ClassOutline [name: {}, package: {}]",
+					co.implClass.name(), co.implClass.getPackage().name());
+
+			if (co.implClass.name().equals("Element")
+					&& co.implClass.getPackage().name().equals(
+							"com.klistret.cmdb.pojo"))
 				setXmlNSMap("com.klistret.cmdb.Element", co.implClass);
 
-			if (co.implClass.name().equals("Relation"))
+			if (co.implClass.name().equals("Relation")
+					&& co.implClass.getPackage().name().equals(
+							"com.klistret.cmdb.pojo"))
 				setXmlNSMap("com.klistret.cmdb.Relation", co.implClass);
 		}
 

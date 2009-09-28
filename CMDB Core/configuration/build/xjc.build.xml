@@ -40,6 +40,16 @@
 			<include name="resteasy-jaxb-provider-1.1.GA.jar" />
 		</fileset>
 	</path>
+	
+	<path id="logging.class.path">
+		<fileset dir="${thirdparty-basedir}/slf4j-1.5.6">
+			<include name="slf4j-api-1.5.6.jar" />
+			<include name="slf4j-log4j12-1.5.6.jar" />
+		</fileset>
+		<fileset dir="${thirdparty-basedir}/apache-log4j-1.2.15">
+			<include name="log4j-1.2.15.jar" />
+		</fileset>
+	</path>
     
     <target name="xjc:compile" description="Generate XJC extensions">
         <javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
@@ -49,6 +59,7 @@
 				<path refid="jaxb2-basics.class.path"/>
 				<path refid="spring.class.path"/>
 				<path refid="resteasy.class.path"/>
+				<path refid="logging.class.path"/>
             </classpath>
         </javac>
         
