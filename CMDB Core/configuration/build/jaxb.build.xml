@@ -123,7 +123,7 @@
 			</classpath>
 		</javac>
 
-		<jar destfile="${dist-basedir}/klistret.ci.jar" basedir="${tmp-destdir}">
+		<jar destfile="${dist-basedir}/klistret.jaxb.jar" basedir="${tmp-destdir}">
 			<include name="com/klistret/cmdb/*.class" />
 			<include name="com/klistret/cmdb/element/**/*.class" />
 			<include name="com/klistret/cmdb/relation/**/*.class" />
