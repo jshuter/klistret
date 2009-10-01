@@ -18,7 +18,10 @@ import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JDefinedClass;
 
+import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 import javax.xml.bind.annotation.XmlSchema;
 
 import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
@@ -37,6 +40,9 @@ public class XmlNSMapPlugin extends Plugin {
 	private static final Logger logger = LoggerFactory
 			.getLogger(XmlNSMapPlugin.class);
 
+	private static ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+			false);
+
 	@Override
 	public String getOptionName() {
 		return "XxmlNSMap";
@@ -48,16 +54,38 @@ public class XmlNSMapPlugin extends Plugin {
 				+ "-XxmlNSMap:  adds resteasy XmlNsMap annotations for element/relation pojo ";
 	}
 
-	private void setXmlNSMap(String className, JDefinedClass implClass) {
+	private void setXmlNSMap(String className, JDefinedClass implClass,
+			String implNamespace) {
 		JAnnotationUse mappedJAnnotation = implClass.annotate(Mapped.class);
 		JAnnotationArrayMember namespaceMapParam = mappedJAnnotation
 				.paramArray("namespaceMap");
 
+		ClassLoader providerCL = provider.getResourceLoader().getClassLoader();
+		ClassLoader currentCL = this.getClass().getClassLoader();
 		try {
-			logger.debug("defining namespace map for classname: {}", className);
-			ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
-					false);
+			Method m = currentCL.getClass().getDeclaredMethod("addPathFile",
+					new Class[] { File.class });
 
+			m.setAccessible(true);
+
+			m.invoke(currentCL, new Object[] { new File(
+					"C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar") });
+			m.invoke(providerCL, new Object[] { new File(
+					"C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar") });
+
+		} catch (Exception e) {
+			logger.error("Exception adding jar to classpath: {}", e
+					.getMessage());
+		}
+
+		try {
+			JAnnotationUse xmlNsMapJAnnotation = namespaceMapParam
+					.annotate(XmlNsMap.class);
+			xmlNsMapJAnnotation.param("namespace", implNamespace);
+			xmlNsMapJAnnotation
+					.param("jsonName", implClass.getPackage().name());
+
+			logger.debug("defining namespace map for classname: {}", className);
 			Class<?> baseClass = Class.forName(className);
 
 			provider.addIncludeFilter(new AssignableTypeFilter(baseClass));
@@ -69,17 +97,22 @@ public class XmlNSMapPlugin extends Plugin {
 			logger.debug("Spring scanner found {} candidate components", beans
 					.size());
 
+			/**
+			 * Add JSON Namespace mapping for subclasses of className pulling
+			 * information from the JAXB generated XmlSchema annotation.
+			 */
 			for (BeanDefinition bean : beans) {
 				Class<?> beanClass = Class.forName(bean.getBeanClassName());
-
-				logger.debug(
-						"adding namespace json mapping for bean [name: {}]",
-						bean.getBeanClassName());
 
 				for (Annotation packageAnnotation : beanClass.getPackage()
 						.getAnnotations()) {
 					if (packageAnnotation instanceof XmlSchema) {
-						JAnnotationUse xmlNsMapJAnnotation = namespaceMapParam
+						logger
+								.debug(
+										"adding namespace json mapping for bean [name: {}]",
+										bean.getBeanClassName());
+
+						xmlNsMapJAnnotation = namespaceMapParam
 								.annotate(XmlNsMap.class);
 						xmlNsMapJAnnotation.param("namespace",
 								((XmlSchema) packageAnnotation).namespace());
@@ -101,15 +134,15 @@ public class XmlNSMapPlugin extends Plugin {
 			logger.debug("processing ClassOutline [name: {}, package: {}]",
 					co.implClass.name(), co.implClass.getPackage().name());
 
-			if (co.implClass.name().equals("Element")
-					&& co.implClass.getPackage().name().equals(
-							"com.klistret.cmdb.pojo"))
-				setXmlNSMap("com.klistret.cmdb.Element", co.implClass);
+			if (co.implClass.fullName()
+					.equals("com.klistret.cmdb.pojo.Element"))
+				setXmlNSMap("com.klistret.cmdb.Element", co.implClass, co
+						._package().getMostUsedNamespaceURI());
 
-			if (co.implClass.name().equals("Relation")
-					&& co.implClass.getPackage().name().equals(
-							"com.klistret.cmdb.pojo"))
-				setXmlNSMap("com.klistret.cmdb.Relation", co.implClass);
+			if (co.implClass.fullName().equals(
+					"com.klistret.cmdb.pojo.Relation"))
+				setXmlNSMap("com.klistret.cmdb.Relation", co.implClass, co
+						._package().getMostUsedNamespaceURI());
 		}
 
 		return true;
