@@ -143,6 +143,7 @@
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/pojo/*.java" />
+			<include name="org/w3/_2001/xmlschema/*.java" />
 			<classpath>
 				<path refid="jaxb.class.path" />
 				<path refid="klistret.plugin.class.path" />
@@ -155,6 +156,7 @@
 			<include name="com/klistret/cmdb/*.class" />
 			<include name="com/klistret/cmdb/element/**/*.class" />
 			<include name="com/klistret/cmdb/relation/**/*.class" />
+			<include name="org/w3/_2001/xmlschema/*.class" />
 		</jar>
 
 	</target>

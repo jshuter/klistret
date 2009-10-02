@@ -56,15 +56,6 @@ public class RestEasyService {
 
 		String responseBodyAsString = response.getContentAsString();
 		System.out.println(responseBodyAsString);
-
-		responseBodyAsString = responseBodyAsString.replaceAll(
-				"\"com.klistret.cmdb.pojo.id\":44,", "");
-
-		request = MockHttpRequest.post("/resteasy/element/set");
-		request.contentType(MediaType.APPLICATION_JSON);
-		request.content(responseBodyAsString.getBytes("UTF-8"));
-
-		dispatcher.invoke(request, response);
 	}
 
 	// @Test
