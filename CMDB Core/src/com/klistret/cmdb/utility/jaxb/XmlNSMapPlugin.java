@@ -10,7 +10,6 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.xml.sax.ErrorHandler;
 
-import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
@@ -26,6 +25,7 @@ import javax.xml.bind.annotation.XmlSchema;
 
 import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
 import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
+import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 
 /**
  * Page
@@ -35,13 +35,15 @@ import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
  * @author Matthew Young
  * 
  */
-public class XmlNSMapPlugin extends Plugin {
+public class XmlNSMapPlugin extends AbstractParameterizablePlugin {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(XmlNSMapPlugin.class);
 
 	private static ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
 			false);
+
+	private File archive;
 
 	@Override
 	public String getOptionName() {
@@ -51,7 +53,37 @@ public class XmlNSMapPlugin extends Plugin {
 	@Override
 	public String getUsage() {
 		return ""
-				+ "-XxmlNSMap:  adds resteasy XmlNsMap annotations for element/relation pojo ";
+				+ "-XxmlNSMap:  adds resteasy XmlNsMap annotations for element/relation pojo "
+				+ "-XxmlNSMap-archive: archive containing CI hierarchy";
+	}
+
+	public void setArchive(File archive) {
+		ClassLoader providerCL = provider.getResourceLoader().getClassLoader();
+		ClassLoader currentCL = this.getClass().getClassLoader();
+		try {
+			Method m = currentCL.getClass().getDeclaredMethod("addPathFile",
+					new Class[] { File.class });
+
+			logger
+					.debug(
+							"Executing inside Ant, adding {} to classpath for plugin and the Spring resource loader",
+							archive.getAbsolutePath());
+
+			m.setAccessible(true);
+
+			m.invoke(currentCL, new Object[] { archive });
+			m.invoke(providerCL, new Object[] { archive });
+
+		} catch (Exception e) {
+			logger.error("Exception adding jar to classpath: {}", e
+					.getMessage());
+		}
+
+		this.archive = archive;
+	}
+
+	public File getArchive() {
+		return this.archive;
 	}
 
 	private void setXmlNSMap(String className, JDefinedClass implClass,
@@ -59,24 +91,6 @@ public class XmlNSMapPlugin extends Plugin {
 		JAnnotationUse mappedJAnnotation = implClass.annotate(Mapped.class);
 		JAnnotationArrayMember namespaceMapParam = mappedJAnnotation
 				.paramArray("namespaceMap");
-
-		ClassLoader providerCL = provider.getResourceLoader().getClassLoader();
-		ClassLoader currentCL = this.getClass().getClassLoader();
-		try {
-			Method m = currentCL.getClass().getDeclaredMethod("addPathFile",
-					new Class[] { File.class });
-
-			m.setAccessible(true);
-
-			m.invoke(currentCL, new Object[] { new File(
-					"C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar") });
-			m.invoke(providerCL, new Object[] { new File(
-					"C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar") });
-
-		} catch (Exception e) {
-			logger.error("Exception adding jar to classpath: {}", e
-					.getMessage());
-		}
 
 		try {
 			JAnnotationUse xmlNsMapJAnnotation = namespaceMapParam
