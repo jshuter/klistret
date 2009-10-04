@@ -45,6 +45,8 @@ import com.klistret.cmdb.Base;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 public class JAXBUserType implements UserType {
+	private final static String basePackage = "com/klistret/cmdb";
+
 	private Marshaller marshaller;
 
 	private Unmarshaller unmarshaller;
@@ -138,7 +140,7 @@ public class JAXBUserType implements UserType {
 
 				provider.addIncludeFilter(new AssignableTypeFilter(Base.class));
 				Set<BeanDefinition> beans = provider
-						.findCandidateComponents("com/klistret/cmdb");
+						.findCandidateComponents(basePackage);
 
 				if (beans.isEmpty())
 					throw new InfrastructureException(
@@ -211,7 +213,7 @@ public class JAXBUserType implements UserType {
 			stringWriter.close();
 			logger.debug("marshalled Object class [{}] to xml [{}]", value
 					.getClass().getName(), result);
-			
+
 			return result;
 		} catch (Exception e) {
 			throw new InfrastructureException(String.format(

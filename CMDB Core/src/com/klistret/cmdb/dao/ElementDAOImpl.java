@@ -30,6 +30,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.Element;
 
 /**
  * 
@@ -124,44 +125,42 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 	/**
 	 * 
-	 * @see com.klistret.cmdb.dao.ElementDAO.getById(Long id)
 	 * @param id
 	 * @return Element
 	 */
 	public com.klistret.cmdb.pojo.Element getById(Long id) {
-		return getById(id, false);
-	}
-
-	/**
-	 * @see com.klistret.cmdb.dao.ElementDAO.getById(Long id, boolean
-	 *      fetchAssociations)
-	 * @param id
-	 * @param fetchAssociations
-	 * @return Element
-	 */
-	public com.klistret.cmdb.pojo.Element getById(Long id,
-			boolean fetchAssociations) {
 		try {
 			Criteria criteria = getSession().createCriteria(
 					com.klistret.cmdb.pojo.Element.class);
 
-			if (fetchAssociations) {
-				criteria.setFetchMode("sourceRelations", FetchMode.JOIN);
-				criteria.setFetchMode("destinationRelations", FetchMode.JOIN);
-			}
-
 			criteria.add(Restrictions.idEq(id));
 
 			logger.debug("getting element [id: {}] by id ", id);
-			com.klistret.cmdb.pojo.Element element = (com.klistret.cmdb.pojo.Element) criteria
+			com.klistret.cmdb.pojo.Element proxy = (com.klistret.cmdb.pojo.Element) criteria
 					.uniqueResult();
 			logger.debug("found element [id: {}] by id ", id);
 
-			if (element == null) {
+			if (proxy == null) {
 				logger.error("element [id: {}] does not exist", id);
 				throw new ApplicationException(String.format(
 						"element [id: %s] does not exist", id));
 			}
+
+			/**
+			 * eliminate lazy loading exceptions
+			 */
+			Element element = new Element();
+			element.setId(proxy.getId());
+			element.setType(proxy.getType());
+			element.setName(proxy.getName());
+			element.setFromTimeStamp(proxy.getFromTimeStamp());
+			element.setToTimeStamp(proxy.getToTimeStamp());
+			element.setCreateId(proxy.getCreateId());
+			element.setCreateTimeStamp(proxy.getCreateTimeStamp());
+			element.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
+			element.setConfiguration(proxy.getConfiguration());
+
+			proxy = null;
 
 			return element;
 		} catch (HibernateException he) {

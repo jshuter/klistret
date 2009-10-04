@@ -38,20 +38,7 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	public Element getById(Long id) {
-		Element elementProxy = elementDAO.getById(id);
-
-		Element element = new Element();
-		element.setId(elementProxy.getId());
-		element.setName(elementProxy.getName());
-		element.setType(elementProxy.getType());
-		element.setFromTimeStamp(elementProxy.getFromTimeStamp());
-		element.setToTimeStamp(elementProxy.getToTimeStamp());
-		element.setCreateId(elementProxy.getCreateId());
-		element.setCreateTimeStamp(elementProxy.getCreateTimeStamp());
-		element.setUpdateTimeStamp(elementProxy.getUpdateTimeStamp());
-		element.setConfiguration(elementProxy.getConfiguration());
-
-		return element;
+		return elementDAO.getById(id);
 	}
 
 	@Timer

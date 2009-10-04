@@ -1,2 +1,3 @@
 com.klistret.cmdb.utility.jaxb.XmlRootElementPlugin
 com.klistret.cmdb.utility.jaxb.XmlNSMapPlugin
+com.klistret.cmdb.utility.jaxb.EqualsPlugin
