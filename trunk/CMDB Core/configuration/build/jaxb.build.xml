@@ -29,8 +29,8 @@
 
 	<path id="jaxb2-basics.class.path">
 		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.1/dist">
-			<include name="jaxb2-basics-ant-0.5.1.jar" />
-			<include name="jaxb2-basics-tools-0.5.1.jar" />
+			<include name="jaxb2-basics-ant-*.jar" />
+			<include name="jaxb2-basics-tools-*.jar" />
 		</fileset>
 	</path>
 

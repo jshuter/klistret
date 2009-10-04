@@ -1,26 +1,38 @@
 <jxb:bindings version="1.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
-	<jxb:globalBindings>
-		<jxb:javaType 
-			name="java.util.Date" 
-			xmlType="xs:date"  
-			parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseDate"  
-			printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printDate"/>
-
-		<jxb:javaType 
-			name="java.util.Date" 
-			xmlType="xs:time"  
-			parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseTime"  
-			printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printTime"/>
-
-		<jxb:javaType 
-			name="java.util.Date" 
-			xmlType="xs:dateTime"  
-			parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseDateTime"  
-			printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printDateTime"/>  
-	</jxb:globalBindings>
-	
-	<jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Element']/xs:sequence/xs:any">
-		<jxb:property name="configuration" />
-	</jxb:bindings>
+    
+    <jxb:globalBindings>
+        <!--
+        <jxb:javaType
+        name="java.lang.Long"
+        xmlType="xs:long"
+        parseMethod="javax.xml.bind.DatatypeConverter.parseLong"
+        printMethod="javax.xml.bind.DatatypeConverter.printLong"/>
+        -->
+        
+        <jxb:javaType
+         name="java.util.Date"
+         xmlType="xs:date"
+         parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseDate"
+         printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printDate"/>
+        
+        <jxb:javaType
+         name="java.util.Date"
+         xmlType="xs:time"
+         parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseTime"
+         printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printTime"/>
+        
+        <jxb:javaType
+         name="java.util.Date"
+         xmlType="xs:dateTime"
+         parseMethod="com.klistret.cmdb.utility.jaxb.DateConverter.parseDateTime"
+         printMethod="com.klistret.cmdb.utility.jaxb.DateConverter.printDateTime"/>
+    </jxb:globalBindings>
+    
+    <jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Element']/xs:sequence/xs:any">
+        <jxb:property name="configuration"/>
+    </jxb:bindings>
+    
+    <jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Relation']/xs:sequence/xs:any">
+        <jxb:property name="configuration"/>
+    </jxb:bindings>
 </jxb:bindings>

@@ -26,22 +26,16 @@ import java.util.Collection;
 public interface ElementDAO {
 
 	/**
-	 * CRUD get by unique identifier (associations are fetched automatically)
+	 * CRUD get by unique identifier (associations are never fetched
+	 * automatically, instead all properties from the Hibernate proxy are moved
+	 * into a new Element object and the proxy destroyed to avoid lazy loading
+	 * exceptions plus the find method doesn't rely relations either and the
+	 * number could potentially be quite high)
 	 * 
 	 * @param id
 	 * @return Element
 	 */
 	com.klistret.cmdb.pojo.Element getById(Long id);
-
-	/**
-	 * CRUD get by unique identifier with option to toggle inclusion of
-	 * associations
-	 * 
-	 * @param id
-	 * @param fetchAssociations
-	 * @return Element
-	 */
-	com.klistret.cmdb.pojo.Element getById(Long id, boolean fetchAssociations);
 
 	/**
 	 * CRUD find by criteria where the criteria is a list of property
