@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -31,6 +30,7 @@ import org.hibernate.criterion.Restrictions;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.Element;
+import com.klistret.cmdb.pojo.ElementType;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
+	public Collection<Element> findByCriteria(
 			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
 		try {
 			Criteria hcriteria = criteria.getCriteria(getSession());
@@ -93,7 +93,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			Set<com.klistret.cmdb.pojo.Element> elements = new LinkedHashSet(
+			Set<Element> elements = new LinkedHashSet(
 					results.length);
 
 			for (int index = 0; index < results.length; index++) {
@@ -101,7 +101,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 				com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
 				element.setId((Long) row[0]);
-				element.setType((com.klistret.cmdb.pojo.ElementType) row[1]);
+				element.setType((ElementType) row[1]);
 				element.setName((String) row[2]);
 				element.setFromTimeStamp((Date) row[3]);
 				element.setToTimeStamp((Date) row[4]);
@@ -128,16 +128,14 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	public com.klistret.cmdb.pojo.Element getById(Long id) {
+	public Element getById(Long id) {
 		try {
-			Criteria criteria = getSession().createCriteria(
-					com.klistret.cmdb.pojo.Element.class);
+			Criteria criteria = getSession().createCriteria(Element.class);
 
 			criteria.add(Restrictions.idEq(id));
 
 			logger.debug("getting element [id: {}] by id ", id);
-			com.klistret.cmdb.pojo.Element proxy = (com.klistret.cmdb.pojo.Element) criteria
-					.uniqueResult();
+			Element proxy = (Element) criteria.uniqueResult();
 			logger.debug("found element [id: {}] by id ", id);
 
 			if (proxy == null) {
@@ -146,9 +144,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						"element [id: %s] does not exist", id));
 			}
 
-			/**
-			 * eliminate lazy loading exceptions
-			 */
 			Element element = new Element();
 			element.setId(proxy.getId());
 			element.setType(proxy.getType());
@@ -160,9 +155,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			element.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
 			element.setConfiguration(proxy.getConfiguration());
 
-			proxy = null;
-
 			return element;
+
 		} catch (HibernateException he) {
 			logger
 					.error(
@@ -176,8 +170,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param Element
 	 * @return Element
 	 */
-	public com.klistret.cmdb.pojo.Element set(
-			com.klistret.cmdb.pojo.Element element) {
+	public Element set(Element element) {
 		/**
 		 * record current time when updating
 		 */
