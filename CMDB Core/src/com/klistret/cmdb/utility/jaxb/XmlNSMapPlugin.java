@@ -116,6 +116,7 @@ public class XmlNSMapPlugin extends AbstractParameterizablePlugin {
 			logger.debug("defining namespace map for classname: {}", className);
 			Class<?> baseClass = Class.forName(className);
 
+			provider.resetFilters(true);
 			provider.addIncludeFilter(new AssignableTypeFilter(baseClass));
 
 			logger.debug("Scanning off of package name: {}", baseClass

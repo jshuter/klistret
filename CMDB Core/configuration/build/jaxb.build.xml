@@ -35,8 +35,8 @@
 	</path>
 
 	<path id="resteasy.class.path">
-		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.1.GA/lib">
-			<include name="resteasy-jaxb-provider-1.1.GA.jar" />
+		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.RC1/lib">
+			<include name="resteasy-jettison-provider-1.2.RC1.jar" />
 		</fileset>
 	</path>
 
@@ -132,7 +132,6 @@
 	</target>
 
 	<target name="pojo">
-
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-XxmlRootElement" />
@@ -141,7 +140,7 @@
 			<schema dir="${schema-basedir}" includes="pojo.xsd" />
 			<binding file="jaxb.binding.xml" />
 		</xjc>
-
+		
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/pojo/*.java" />
 			<include name="org/w3/_2001/xmlschema/*.java" />
@@ -159,6 +158,5 @@
 			<include name="com/klistret/cmdb/relation/**/*.class" />
 			<include name="org/w3/_2001/xmlschema/*.class" />
 		</jar>
-
 	</target>
 </project>

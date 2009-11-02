@@ -67,7 +67,6 @@
 			type="com.klistret.cmdb.utility.hibernate.JAXBUserType">
 			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
 		</property>
-
 	</class>
 
 </hibernate-mapping>

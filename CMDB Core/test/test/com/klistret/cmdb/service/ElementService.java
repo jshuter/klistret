@@ -44,15 +44,11 @@ public class ElementService extends
 	@Rollback(value = false)
 	public void getById() {
 		Element element = elementService.getById(new Long(44));
-
-		Environment environment = (Environment) element.getConfiguration();
-		environment.setName("billy");
-
-		elementService.set(element);
+		System.out.println("element name: " + ((Environment)element.getConfiguration()).getName());
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void setElement() {
 		Element element = new Element();
 		element.setFromTimeStamp(new java.util.Date());
