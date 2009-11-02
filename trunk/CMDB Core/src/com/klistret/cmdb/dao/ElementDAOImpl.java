@@ -93,8 +93,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			Set<Element> elements = new LinkedHashSet(
-					results.length);
+			Set<Element> elements = new LinkedHashSet(results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
@@ -112,6 +111,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 				elements.add(element);
 			}
+			
+			results = null;
 
 			return elements;
 		} catch (HibernateException he) {
@@ -154,6 +155,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			element.setCreateTimeStamp(proxy.getCreateTimeStamp());
 			element.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
 			element.setConfiguration(proxy.getConfiguration());
+
+			proxy = null;
 
 			return element;
 

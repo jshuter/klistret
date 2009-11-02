@@ -31,9 +31,7 @@
         <jxb:property name="configuration"/>
     </jxb:bindings>
     
-	<!--
     <jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='Relation']/xs:sequence/xs:any">
         <jxb:property name="configuration"/>
     </jxb:bindings>
-	-->
 </jxb:bindings>
