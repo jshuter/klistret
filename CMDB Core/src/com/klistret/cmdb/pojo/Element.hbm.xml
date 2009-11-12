@@ -73,7 +73,6 @@ see <http://www.gnu.org/licenses/>
 			<index column="RELATIONID"/>
             <one-to-many entity-name="Relation"/>
         </list>
-        
     </class>
     
 </hibernate-mapping>
