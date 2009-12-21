@@ -14,6 +14,10 @@
 
 package test.com.klistret.cmdb.service;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.util.JAXBSource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +46,16 @@ public class ElementService extends
 
 	@Test
 	@Rollback(value = false)
-	public void getById() {
+	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(44));
-		System.out.println("element name: " + ((Environment)element.getConfiguration()).getName());
+
+		JAXBContext c = JAXBContext.newInstance("");
+		JAXBSource source = new JAXBSource(c, element);
+
+		// Execute XPath through source on the Elements
+		/**
+		 * Saxon9 new XPathEvaluator() and then create an xpath expression
+		 */
 	}
 
 	// @Test
