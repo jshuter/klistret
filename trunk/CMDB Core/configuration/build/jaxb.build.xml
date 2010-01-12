@@ -14,7 +14,7 @@
 	-->
 
 	<path id="jaxb.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb-ri-20090410/lib">
+		<fileset dir="${thirdparty-basedir}/jaxb-ri-20091104/lib">
 			<include name="jaxb-api.jar" />
 			<include name="jaxb-impl.jar" />
 			<include name="jaxb-xjc.jar" />
@@ -28,15 +28,15 @@
 	</path>
 
 	<path id="jaxb2-basics.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.1/dist">
+		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.2/dist">
 			<include name="jaxb2-basics-ant-*.jar" />
 			<include name="jaxb2-basics-tools-*.jar" />
 		</fileset>
 	</path>
 
 	<path id="resteasy.class.path">
-		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.GA/lib">
-			<include name="resteasy-jettison-provider-1.2.GA.jar" />
+		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.1.GA/lib">
+			<include name="resteasy-jettison-provider-1.2.1.GA.jar" />
 		</fileset>
 	</path>
 
@@ -55,9 +55,9 @@
 	</path>
 
 	<path id="logging.class.path">
-		<fileset dir="${thirdparty-basedir}/slf4j-1.5.6">
-			<include name="slf4j-api-1.5.6.jar" />
-			<include name="slf4j-log4j12-1.5.6.jar" />
+		<fileset dir="${thirdparty-basedir}/slf4j-1.5.10">
+			<include name="slf4j-api-1.5.10.jar" />
+			<include name="slf4j-log4j12-1.5.10.jar" />
 		</fileset>
 		<fileset dir="${thirdparty-basedir}/apache-log4j-1.2.15">
 			<include name="log4j-1.2.15.jar" />
