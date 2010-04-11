@@ -56,7 +56,7 @@ public class SaxonExamples {
 		XPathVariable evariable = context.declareVariable("", "e");
 		evariable.setRequiredType(SequenceType.SINGLE_ELEMENT_NODE);
 
-		String xpath = "//google:d[. = @face]/(google:b|google:f)/@c";
+		String xpath = "/google:d[. = @face]/(google:b|google:f)/@c";
 		try {
 			Expression expr = ExpressionTool.make(xpath, context, 0, -1, 1,
 					true);

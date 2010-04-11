@@ -1,7 +1,9 @@
 package com.klistret.cmdb.utility.saxon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.Expression;
@@ -12,77 +14,84 @@ import net.sf.saxon.expr.StaticContext;
 
 public class ExprBuilder {
 
+	private interface SaxonTranslator {
+		void explain(StaticContext staticContext, Expression expression,
+				List<Expr> relativePath);
+	}
+
+	private enum Translator implements SaxonTranslator {
+		Slash(SlashExpression.class.getName()) {
+			public void explain(StaticContext staticContext,
+					Expression expression, List<Expr> relativePath) {
+				Expression controlling = ((SlashExpression) expression)
+						.getControllingExpression();
+				Expression controlled = ((SlashExpression) expression)
+						.getControlledExpression();
+
+				getTranslatorByClassName(controlling.getClass().getName())
+						.explain(staticContext, controlling, relativePath);
+
+				getTranslatorByClassName(controlled.getClass().getName())
+						.explain(staticContext, controlled, relativePath);
+			}
+		},
+		Root(RootExpression.class.getName()) {
+			public void explain(StaticContext staticContext,
+					Expression expression, List<Expr> relativePath) {
+				relativePath.add(new RootExpr<Expr>(
+						(RootExpression) expression, staticContext
+								.getConfiguration()));
+			}
+		},
+		Axis(AxisExpression.class.getName()) {
+			public void explain(StaticContext staticContext,
+					Expression expression, List<Expr> relativePath) {
+				relativePath.add(new PathExpr<Expr>(
+						(AxisExpression) expression, staticContext
+								.getConfiguration()));
+			}
+		},
+		Filter(FilterExpression.class.getName()) {
+			public void explain(StaticContext staticContext,
+					Expression expression, List<Expr> relativePath) {
+				relativePath.add(new PathExpr<Expr>(
+						(FilterExpression) expression, staticContext
+								.getConfiguration()));
+			}
+		};
+
+		private static Map<String, Translator> requestLookup;
+
+		static {
+
+			requestLookup = new HashMap<String, Translator>();
+			requestLookup.put(Slash.getClassName(), Slash);
+			requestLookup.put(Root.getClassName(), Root);
+			requestLookup.put(Axis.getClassName(), Axis);
+			requestLookup.put(Filter.getClassName(), Filter);
+		}
+
+		private final String className;
+
+		private Translator(String className) {
+			this.className = className;
+		}
+
+		public String getClassName() {
+			return className;
+		}
+
+		public static Translator getTranslatorByClassName(String className) {
+			return requestLookup.get(className);
+		}
+	}
+
 	public static List<Expr> makeRelativePath(StaticContext staticContext,
 			Expression expression) {
 		List<Expr> relativePath = new ArrayList<Expr>();
-		explain(staticContext, expression, relativePath);
+		Translator.getTranslatorByClassName(expression.getClass().getName())
+				.explain(staticContext, expression, relativePath);
 
 		return relativePath;
-	}
-
-	private static void explain(StaticContext staticContext,
-			Expression expression, List<Expr> relativePath) {
-		/** Slash expressions are basically relative paths in Saxon terms */
-		if (expression.getClass().getName().equals(
-				SlashExpression.class.getName())) {
-			explain(staticContext, ((SlashExpression) expression)
-					.getControllingExpression(), relativePath);
-			explain(staticContext, ((SlashExpression) expression)
-					.getControlledExpression(), relativePath);
-
-			return;
-		}
-
-		/** Root expression */
-		if (expression.getClass().getName().equals(
-				RootExpression.class.getName())) {
-			relativePath.add(new RootExpr<Expr>((RootExpression) expression));
-
-			return;
-		}
-
-		/**
-		 * Axis expressions are valid axis steps but usually within Saxon do not
-		 * contain predicates (handled by filter expressions)
-		 */
-		if (expression.getClass().getName().equals(
-				AxisExpression.class.getName())) {
-			PathExpr<Expr> path = new PathExpr<Expr>(
-					(AxisExpression) expression, staticContext
-							.getConfiguration());
-
-			// only forward, absolute paths
-			if (path.isAbsolute() && path.isForward()) {
-				relativePath.add(path);
-
-				return;
-			}
-		}
-
-		/**
-		 * Filter expressions are usually a typical axis with predicates
-		 */
-		if (expression.getClass().getName().equals(
-				net.sf.saxon.expr.FilterExpression.class.getName())) {
-
-			Expression controlling = ((FilterExpression) expression)
-					.getControllingExpression();
-			// Expression filter = ((FilterExpression) expression).getFilter();
-
-			// Continue if controlling expression is an axis expression
-			if (controlling.getClass().getName().equals(
-					AxisExpression.class.getName())) {
-				PathExpr<Expr> path = new PathExpr<Expr>(
-						(AxisExpression) controlling, staticContext
-								.getConfiguration());
-
-				// add predicates with acceptable expression types
-				relativePath.add(path);
-
-				return;
-			}
-		}
-
-		relativePath.add(new IrresoluteExpr<Expr>(expression));
 	}
 }
