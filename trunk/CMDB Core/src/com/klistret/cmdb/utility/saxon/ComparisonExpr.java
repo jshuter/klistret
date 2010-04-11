@@ -1,5 +1,6 @@
 package com.klistret.cmdb.utility.saxon;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
 public class ComparisonExpr extends LogicalExpr<Expr> {
@@ -10,8 +11,8 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 
 	private Operator operator;
 
-	protected ComparisonExpr(Expression expression) {
-		super(expression);
+	protected ComparisonExpr(Expression expression, Configuration configuration) {
+		super(expression, configuration);
 	}
 
 	@Override

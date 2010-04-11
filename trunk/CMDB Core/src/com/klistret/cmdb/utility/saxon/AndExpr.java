@@ -1,11 +1,12 @@
 package com.klistret.cmdb.utility.saxon;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
 public class AndExpr extends LogicalExpr<Expr> {
 
-	protected AndExpr(Expression expression) {
-		super(expression);
+	protected AndExpr(Expression expression, Configuration configuration) {
+		super(expression, configuration);
 	}
 
 	@Override

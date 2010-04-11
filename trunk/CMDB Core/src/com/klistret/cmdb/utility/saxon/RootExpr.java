@@ -1,11 +1,12 @@
 package com.klistret.cmdb.utility.saxon;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.RootExpression;
 
 public class RootExpr<T extends Expr> extends Expr {
 
-	protected RootExpr(RootExpression expression) {
-		super(expression);
+	protected RootExpr(RootExpression expression, Configuration configuration) {
+		super(expression, configuration);
 	}
 
 	@Override

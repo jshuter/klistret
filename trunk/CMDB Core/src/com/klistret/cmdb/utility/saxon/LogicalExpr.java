@@ -2,14 +2,15 @@ package com.klistret.cmdb.utility.saxon;
 
 import java.util.List;
 
+import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
 public abstract class LogicalExpr<T extends Expr> extends Expr {
 
 	protected List<T> operands;
 
-	public LogicalExpr(Expression expression) {
-		super(expression);
+	public LogicalExpr(Expression expression, Configuration configuration) {
+		super(expression, configuration);
 	}
 
 	@SuppressWarnings("unchecked")

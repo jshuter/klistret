@@ -6,22 +6,64 @@ import javax.xml.namespace.QName;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
+import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.FilterExpression;
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.NamePool;
 
 public class PathExpr<T extends Expr> extends Expr {
 
-	private Configuration configuration;
-
 	private List<Expr> predicates;
+
+	private AxisExpression axisExpression;
 
 	public enum PrimaryNodeKind {
 		Element, Attribute
 	}
 
 	protected PathExpr(AxisExpression expression, Configuration configuration) {
-		super(expression);
-		this.configuration = configuration;
+		super(expression, configuration);
+		setAxisExpression(expression);
+	}
+
+	protected PathExpr(FilterExpression expression, Configuration configuration) {
+		super(expression, configuration);
+
+		/**
+		 * Manageable filter expressions are limited to a controlling step being
+		 * an axis expression.
+		 */
+		Expression controlling = expression.getControllingExpression();
+		if (!controlling.getClass().getName().equals(
+				AxisExpression.class.getName()))
+			throw new IrresoluteException(
+					String
+							.format(
+									"Controlling step [%s] in filter expression is not an axis expression",
+									controlling));
+
+		setAxisExpression((AxisExpression) controlling);
+
+		/**
+		 * Establish predicates
+		 */
+	}
+
+	private void setAxisExpression(AxisExpression expression) {
+		this.axisExpression = expression;
+
+		/**
+		 * Manageable axis expressions are limited to primary (element or
+		 * attribute) nodes only otherwise an irresolute expression is cast.
+		 * Notable that Saxon does not formulate expressions into an axis with
+		 * predicates.
+		 */
+		if (getPrimaryNodeKind() == null || !isAbsolute())
+			throw new IrresoluteException(
+					String
+							.format(
+									"Axis expression [%s] is either neither not a primary node or is not an absolute step",
+									expression));
 	}
 
 	@Override
@@ -37,11 +79,10 @@ public class PathExpr<T extends Expr> extends Expr {
 
 	public QName getQName() {
 		// Wild cards generate empty node tests
-		if (((AxisExpression) expression).getNodeTest() == null)
+		if (axisExpression.getNodeTest() == null)
 			return null;
 
-		int fingerprint = ((AxisExpression) expression).getNodeTest()
-				.getFingerprint();
+		int fingerprint = axisExpression.getNodeTest().getFingerprint();
 
 		// Finger print = -1 if the node test matches nodes of more than one
 		// name
@@ -72,7 +113,7 @@ public class PathExpr<T extends Expr> extends Expr {
 	}
 
 	public PrimaryNodeKind getPrimaryNodeKind() {
-		switch (((AxisExpression) expression).getAxis()) {
+		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
 			return PrimaryNodeKind.Element;
 		case Axis.ATTRIBUTE:
@@ -83,7 +124,7 @@ public class PathExpr<T extends Expr> extends Expr {
 	}
 
 	public boolean isForward() {
-		switch (((AxisExpression) expression).getAxis()) {
+		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
 			return true;
 		case Axis.DESCENDANT:
@@ -106,7 +147,7 @@ public class PathExpr<T extends Expr> extends Expr {
 	}
 
 	public boolean isReverse() {
-		switch (((AxisExpression) expression).getAxis()) {
+		switch (axisExpression.getAxis()) {
 		case Axis.ANCESTOR:
 			return true;
 		case Axis.ANCESTOR_OR_SELF:
@@ -123,7 +164,7 @@ public class PathExpr<T extends Expr> extends Expr {
 	}
 
 	public boolean isAbsolute() {
-		switch (((AxisExpression) expression).getAxis()) {
+		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
 			return true;
 		case Axis.ATTRIBUTE:
