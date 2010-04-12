@@ -29,6 +29,7 @@ import org.junit.Test;
 
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.ExprBuilder;
+import com.klistret.cmdb.utility.saxon.PathExpr;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
@@ -46,7 +47,7 @@ public class SaxonExamples {
 
 	}
 
-	@Test
+	// @Test
 	public void evenDummer() {
 		Configuration config = new Configuration();
 		IndependentContext context = new IndependentContext(config);
@@ -93,7 +94,7 @@ public class SaxonExamples {
 		}
 	}
 
-	//@Test
+	// @Test
 	public void somebody() {
 		NameFactory namefactory = NameFactoryImpl.getInstance();
 
@@ -146,4 +147,15 @@ public class SaxonExamples {
 		}
 	}
 
+	@Test
+	public void veryDummy() {
+		PathExpr path = new PathExpr(
+				"declare namespace google='http://www.google.com'; /(google:a | google:d)[@name='hello' and @type='whatever' and @big='small']/google:b/google:c");
+
+		System.out.println(String.format("default element namespace [%s]", path
+				.getDefaultElementNamespace()));
+
+		System.out.println(String.format("default function namespace [%s]",
+				path.getDefaultFunctionNamespace()));
+	}
 }
