@@ -1,16 +1,32 @@
 package com.klistret.cmdb.utility.saxon;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.klistret.cmdb.exception.ApplicationException;
+
 import net.sf.saxon.Configuration;
+import net.sf.saxon.expr.AxisExpression;
+import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.ExpressionTool;
+import net.sf.saxon.expr.FilterExpression;
+import net.sf.saxon.expr.RootExpression;
+import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.sxpath.IndependentContext;
+import net.sf.saxon.trans.XPathException;
 
 public class PathExpr {
 
 	private IndependentContext staticContext;
 
 	private String xpath;
+
+	private Expression expression;
+
+	private List<Expr> relativePath;
 
 	/**
 	 * Statics expressions are formed after the semantics defined at the
@@ -25,37 +41,108 @@ public class PathExpr {
 			.compile("\\s?declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(.+)(\'|\")\\s?;");
 
 	static final Pattern namespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(.+)\\s?;");
+			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(\'|\")(.+)(\'|\")\\s?;");
 
 	public PathExpr(String xpath) {
 		this.xpath = xpath;
+		this.staticContext = new IndependentContext(new Configuration());
 
-		staticContext = new IndependentContext(new Configuration());
+		if (xpath == null)
+			throw new ApplicationException(
+					"Unable to resolve null value for xpath");
 
-		prolog(xpath);
-	}
+		int start = 0;
 
-	private void prolog(String xpath) {
 		/**
 		 * Handle default element name space declarations
 		 */
 		Matcher demd = defaultElementNamespaceDeclaration.matcher(xpath);
-		while (demd.find())
+		while (demd.find()) {
+			if (demd.end() > start)
+				start = demd.end();
 			staticContext.setDefaultElementNamespace(demd.group(2));
+		}
 
 		/**
 		 * Handle default function name space declarations
 		 */
 		Matcher dfmd = defaultFunctionNamespaceDeclaration.matcher(xpath);
-		while (dfmd.find())
+		while (dfmd.find()) {
+			if (dfmd.end() > start)
+				start = dfmd.end();
 			staticContext.setDefaultFunctionNamespace(dfmd.group(2));
+		}
 
 		/**
 		 * Handle name space declarations
 		 */
 		Matcher nd = namespaceDeclaration.matcher(xpath);
-		while (nd.find())
-			staticContext.declareNamespace(nd.group(1), nd.group(2));
+		while (nd.find()) {
+			if (nd.end() > start)
+				start = nd.end();
+			staticContext.declareNamespace(nd.group(1), nd.group(3));
+		}
+
+		/**
+		 * Make Saxon expression
+		 */
+		try {
+			expression = ExpressionTool.make(xpath, staticContext, start, -1,
+					1, true);
+
+			relativePath = new ArrayList<Expr>();
+
+			explain(expression);
+		} catch (XPathException e) {
+			throw new ApplicationException(
+					String
+							.format(
+									"Unable to make Saxon expression from xpath [%s], start character [%d]",
+									xpath, start));
+		}
+	}
+
+	private void explain(Expression expression) {
+		if (expression.getClass().getName().equals(
+				SlashExpression.class.getName())) {
+			explain(((SlashExpression) expression).getControllingExpression());
+			explain(((SlashExpression) expression).getControlledExpression());
+		}
+
+		else if (expression.getClass().getName().equals(
+				RootExpression.class.getName())) {
+			relativePath.add(new RootExpr<Expr>((RootExpression) expression,
+					staticContext.getConfiguration()));
+		}
+
+		else if (expression.getClass().getName().equals(
+				AxisExpression.class.getName())) {
+			try {
+				relativePath.add(new StepExpr<Expr>(
+						(AxisExpression) expression, staticContext
+								.getConfiguration()));
+			} catch (IrresoluteException e) {
+				relativePath.add(new IrresoluteExpr<Expr>(expression,
+						staticContext.getConfiguration()));
+			}
+		}
+
+		else if (expression.getClass().getName().equals(
+				FilterExpression.class.getName())) {
+			try {
+				relativePath.add(new StepExpr<Expr>(
+						(FilterExpression) expression, staticContext
+								.getConfiguration()));
+			} catch (IrresoluteException e) {
+				relativePath.add(new IrresoluteExpr<Expr>(expression,
+						staticContext.getConfiguration()));
+			}
+		}
+
+		else {
+			relativePath.add(new IrresoluteExpr<Expr>(expression, staticContext
+					.getConfiguration()));
+		}
 	}
 
 	public String getXPath() {
@@ -68,5 +155,18 @@ public class PathExpr {
 
 	public String getDefaultFunctionNamespace() {
 		return staticContext.getDefaultFunctionNamespace();
+	}
+
+	public Iterator<String> getPrefixes() {
+		return staticContext.getNamespaceResolver().iteratePrefixes();
+	}
+
+	public String getNamespace(String prefix) {
+		return staticContext.getNamespaceResolver().getURIForPrefix(prefix,
+				false);
+	}
+
+	public List<Expr> getRelativePath() {
+		return relativePath;
 	}
 }
