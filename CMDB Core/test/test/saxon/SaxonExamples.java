@@ -4,13 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.jcr.query.InvalidQueryException;
-import javax.xml.xquery.XQConnection;
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQPreparedExpression;
-import javax.xml.xquery.XQStaticContext;
 
 import org.apache.jackrabbit.core.query.lucene.FileBasedNamespaceMappings;
 import org.apache.jackrabbit.core.query.lucene.NamePathResolverImpl;
@@ -28,70 +23,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.klistret.cmdb.utility.saxon.Expr;
-import com.klistret.cmdb.utility.saxon.ExprBuilder;
 import com.klistret.cmdb.utility.saxon.PathExpr;
-
-import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.Expression;
-import net.sf.saxon.expr.ExpressionTool;
-import net.sf.saxon.sxpath.IndependentContext;
-import net.sf.saxon.sxpath.XPathVariable;
-import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.value.SequenceType;
-import net.sf.saxon.xqj.SaxonXQDataSource;
 
 public class SaxonExamples {
 
 	@Before
 	public void setUp() throws Exception {
 
-	}
-
-	// @Test
-	public void evenDummer() {
-		Configuration config = new Configuration();
-		IndependentContext context = new IndependentContext(config);
-		context.declareNamespace("google", "http://www.google.com");
-		context
-				.setDefaultFunctionNamespace("http://www.w3.org/2005/xpath-functions");
-		XPathVariable evariable = context.declareVariable("", "e");
-		evariable.setRequiredType(SequenceType.SINGLE_ELEMENT_NODE);
-
-		String xpath = "/google:d[. = @face]/(google:b|google:f)/@c";
-		try {
-			Expression expr = ExpressionTool.make(xpath, context, 0, -1, 1,
-					true);
-
-			List<Expr> relativePath = ExprBuilder.makeRelativePath(context,
-					expr);
-
-			for (Expr step : relativePath) {
-				System.out.println(String.format("step [%s]", step));
-			}
-		} catch (XPathException e) {
-			e.printStackTrace();
-		}
-	}
-
-	// @Test
-	public void xqj() {
-		String expr = "declare namespace google='http://www.google.com'; /(google:a | google:d)[@name='hello' and @type='whatever' and @big='small']/google:b/google:c";
-
-		SaxonXQDataSource xqds = new SaxonXQDataSource();
-		try {
-			XQConnection xqc = xqds.getConnection();
-
-			XQPreparedExpression e = xqc.prepareExpression(expr);
-			XQStaticContext xqsc = e.getStaticContext();
-
-			String[] np = xqsc.getNamespacePrefixes();
-			for (String prefix : np) {
-				System.out.println(prefix);
-			}
-		} catch (XQException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	// @Test
@@ -148,14 +86,11 @@ public class SaxonExamples {
 	}
 
 	@Test
-	public void veryDummy() {
+	public void dummy() {
 		PathExpr path = new PathExpr(
-				"declare namespace google='http://www.google.com'; /(google:a | google:d)[@name='hello' and @type='whatever' and @big='small']/google:b/google:c");
+				"declare namespace google='http://www.google.com'; /(google:a|google:g)[@name='hello' and @type='whatever' and @big='small']/google:b/google:c");
 
-		System.out.println(String.format("default element namespace [%s]", path
-				.getDefaultElementNamespace()));
-
-		System.out.println(String.format("default function namespace [%s]",
-				path.getDefaultFunctionNamespace()));
+		for (Expr expr : path.getRelativePath())
+			System.out.println(expr.toString());
 	}
 }
