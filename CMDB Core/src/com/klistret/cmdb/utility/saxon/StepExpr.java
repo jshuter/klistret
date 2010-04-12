@@ -11,7 +11,7 @@ import net.sf.saxon.expr.FilterExpression;
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.NamePool;
 
-public class RelativePathExpr<T extends Expr> extends Expr {
+public class StepExpr<T extends Expr> extends Expr {
 
 	private List<Expr> predicates;
 
@@ -21,12 +21,12 @@ public class RelativePathExpr<T extends Expr> extends Expr {
 		Element, Attribute
 	}
 
-	protected RelativePathExpr(AxisExpression expression, Configuration configuration) {
+	protected StepExpr(AxisExpression expression, Configuration configuration) {
 		super(expression, configuration);
 		setAxisExpression(expression);
 	}
 
-	protected RelativePathExpr(FilterExpression expression, Configuration configuration) {
+	protected StepExpr(FilterExpression expression, Configuration configuration) {
 		super(expression, configuration);
 
 		/**
