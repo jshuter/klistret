@@ -46,7 +46,7 @@ public class ExprBuilder {
 		Axis(AxisExpression.class.getName()) {
 			public void explain(StaticContext staticContext,
 					Expression expression, List<Expr> relativePath) {
-				relativePath.add(new RelativePathExpr<Expr>(
+				relativePath.add(new StepExpr<Expr>(
 						(AxisExpression) expression, staticContext
 								.getConfiguration()));
 			}
@@ -54,7 +54,7 @@ public class ExprBuilder {
 		Filter(FilterExpression.class.getName()) {
 			public void explain(StaticContext staticContext,
 					Expression expression, List<Expr> relativePath) {
-				relativePath.add(new RelativePathExpr<Expr>(
+				relativePath.add(new StepExpr<Expr>(
 						(FilterExpression) expression, staticContext
 								.getConfiguration()));
 			}
