@@ -1,11 +1,11 @@
 package com.klistret.cmdb.utility.saxon;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.Expression;
+import net.sf.saxon.expr.BooleanExpression;
 
 public class OrExpr extends LogicalExpr<Expr> {
 
-	protected OrExpr(Expression expression, Configuration configuration) {
+	protected OrExpr(BooleanExpression expression, Configuration configuration) {
 		super(expression, configuration);
 	}
 
