@@ -1,19 +1,21 @@
 package com.klistret.cmdb.utility.saxon;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
+import net.sf.saxon.expr.BooleanExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FilterExpression;
+import net.sf.saxon.expr.GeneralComparison;
+import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.NamePool;
+import net.sf.saxon.expr.Token;
 
 public class StepExpr<T extends Expr> extends Expr {
 
-	private List<Expr> predicates;
+	private Expr predicate;
 
 	private AxisExpression axisExpression;
 
@@ -31,7 +33,10 @@ public class StepExpr<T extends Expr> extends Expr {
 
 		/**
 		 * Manageable filter expressions are limited to a controlling step being
-		 * an axis expression.
+		 * an axis expression which means the predicate may not be a predicate
+		 * list since Saxon builds the controlling step as a filter. Again, the
+		 * goal here is to allow for simple relative paths with a single, binary
+		 * predicate.
 		 */
 		Expression controlling = expression.getControllingExpression();
 		if (!controlling.getClass().getName().equals(
@@ -45,8 +50,47 @@ public class StepExpr<T extends Expr> extends Expr {
 		setAxisExpression((AxisExpression) controlling);
 
 		/**
-		 * Establish predicates
+		 * Establish predicates looking for Saxon boolean, general, and value
+		 * expressions
 		 */
+		Expression filter = expression.getFilter();
+		if (filter.getClass().getName().equals(
+				BooleanExpression.class.getName())) {
+			switch (((BooleanExpression) filter).getOperator()) {
+			case Token.AND:
+				predicate = new AndExpr((BooleanExpression) filter,
+						configuration);
+				break;
+			case Token.OR:
+				predicate = new OrExpr((BooleanExpression) filter,
+						configuration);
+				break;
+			default:
+				throw new IrresoluteException(
+						String
+								.format(
+										"Boolean expression [%s] must either be an AND or OR operation",
+										filter));
+			}
+		}
+
+		else if (filter.getClass().getName().equals(
+				GeneralComparison.class.getName())) {
+			predicate = new ComparisonExpr(filter, configuration);
+		}
+
+		else if (filter.getClass().getName().equals(
+				ValueComparison.class.getName())) {
+			predicate = new ComparisonExpr(filter, configuration);
+		}
+
+		else {
+			throw new IrresoluteException(
+					String
+							.format(
+									"Filter expression [%s] is not a boolean, general or value logical expression",
+									filter));
+		}
 	}
 
 	private void setAxisExpression(AxisExpression expression) {
@@ -104,12 +148,12 @@ public class StepExpr<T extends Expr> extends Expr {
 		return qname;
 	}
 
-	public List<Expr> getPredicates() {
-		return predicates;
+	public Expr getPredicate() {
+		return predicate;
 	}
 
-	public void setPredicates(List<Expr> predicates) {
-		this.predicates = predicates;
+	public void setPredicate(Expr predicate) {
+		this.predicate = predicate;
 	}
 
 	public PrimaryNodeKind getPrimaryNodeKind() {
@@ -179,8 +223,8 @@ public class StepExpr<T extends Expr> extends Expr {
 	public String toString() {
 		return String
 				.format(
-						"step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b]",
+						"step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
 						expression.toString(), getPrimaryNodeKind(),
-						getQName(), isForward(), isAbsolute());
+						getQName(), isForward(), isAbsolute(), predicate);
 	}
 }

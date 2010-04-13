@@ -49,7 +49,7 @@ public class SaxonExamples {
 
 			QueryRootNode rootnode = builder
 					.createQueryTree(
-							"/google:a[@google:name = 'hello' and @google:face = 'yes']/google:b/google:c",
+							"/google:a['hello' = 'hello' and @google:face = 'yes']/google:b/google:c",
 							nameresolver, nodefactory);
 			LocationStepQueryNode[] steps = rootnode.getLocationNode()
 					.getPathSteps();
@@ -88,7 +88,7 @@ public class SaxonExamples {
 	@Test
 	public void dummy() {
 		PathExpr path = new PathExpr(
-				"declare namespace google='http://www.google.com'; /(google:a|google:g)[@name='hello' and @type='whatever' and @big='small']/google:b/google:c");
+				"declare namespace google='http://www.google.com'; /google:a[@name eq 'hello' or @type = 'hello' and @yes = 'no']/google:b/google:c");
 
 		for (Expr expr : path.getRelativePath())
 			System.out.println(expr.toString());
