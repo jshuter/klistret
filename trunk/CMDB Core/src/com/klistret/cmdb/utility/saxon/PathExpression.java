@@ -18,7 +18,7 @@ import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.trans.XPathException;
 
-public class PathExpr {
+public class PathExpression {
 
 	private IndependentContext staticContext;
 
@@ -43,7 +43,15 @@ public class PathExpr {
 	static final Pattern namespaceDeclaration = Pattern
 			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(\'|\")(.+)(\'|\")\\s?;");
 
-	public PathExpr(String xpath) {
+	/**
+	 * Constructor finds through regular expressions the default
+	 * element/function namespaces as well all declared namespaces then creates
+	 * a Saxon expression with the ExpressionTool and evaluates the expression
+	 * will explain calls.
+	 * 
+	 * @param xpath
+	 */
+	public PathExpression(String xpath) {
 		this.xpath = xpath;
 		this.staticContext = new IndependentContext(new Configuration());
 
@@ -102,19 +110,37 @@ public class PathExpr {
 		}
 	}
 
+	/**
+	 * Nearly identical logic defined in the explain methods of the individual
+	 * Saxon expression class extensions
+	 * 
+	 * @param expression
+	 */
 	private void explain(Expression expression) {
+		/**
+		 * Slash expressions always consist of a controlling and controlled
+		 * expression that can be further explained.
+		 */
 		if (expression.getClass().getName().equals(
 				SlashExpression.class.getName())) {
 			explain(((SlashExpression) expression).getControllingExpression());
 			explain(((SlashExpression) expression).getControlledExpression());
 		}
 
+		/**
+		 * Root expression ("/") automatically end up as the first step
+		 */
 		else if (expression.getClass().getName().equals(
 				RootExpression.class.getName())) {
 			relativePath.add(new RootExpr<Expr>((RootExpression) expression,
 					staticContext.getConfiguration()));
 		}
 
+		/**
+		 * Axis expressions in Saxon have no predicates oddly enough and those
+		 * that can't be processed into a simple step are translated into
+		 * irresolute expressions
+		 */
 		else if (expression.getClass().getName().equals(
 				AxisExpression.class.getName())) {
 			try {
@@ -127,6 +153,9 @@ public class PathExpr {
 			}
 		}
 
+		/**
+		 * Same as axis expressions but Saxon filters also for predicates
+		 */
 		else if (expression.getClass().getName().equals(
 				FilterExpression.class.getName())) {
 			try {
@@ -139,6 +168,9 @@ public class PathExpr {
 			}
 		}
 
+		/**
+		 * Default is to capture unresolved expressions as irresolute
+		 */
 		else {
 			relativePath.add(new IrresoluteExpr<Expr>(expression, staticContext
 					.getConfiguration()));

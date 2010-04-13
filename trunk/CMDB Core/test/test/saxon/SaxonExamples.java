@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.klistret.cmdb.utility.saxon.Expr;
-import com.klistret.cmdb.utility.saxon.PathExpr;
+import com.klistret.cmdb.utility.saxon.PathExpression;
 
 public class SaxonExamples {
 
@@ -87,7 +87,7 @@ public class SaxonExamples {
 
 	@Test
 	public void dummy() {
-		PathExpr path = new PathExpr(
+		PathExpression path = new PathExpression(
 				"declare namespace google='http://www.google.com'; /google:a[@name eq 'hello' or @type = 'hello' and @yes = 'no']/google:b/google:c");
 
 		for (Expr expr : path.getRelativePath())

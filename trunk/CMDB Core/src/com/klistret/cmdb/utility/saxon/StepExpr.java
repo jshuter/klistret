@@ -152,10 +152,6 @@ public class StepExpr<T extends Expr> extends Expr {
 		return predicate;
 	}
 
-	public void setPredicate(Expr predicate) {
-		this.predicate = predicate;
-	}
-
 	public PrimaryNodeKind getPrimaryNodeKind() {
 		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
