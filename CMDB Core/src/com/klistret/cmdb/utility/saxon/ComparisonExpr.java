@@ -9,11 +9,14 @@ import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.Token;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.expr.ContextItemExpression;
+import net.sf.saxon.instruct.TraceExpression;
+import net.sf.saxon.trace.InstructionInfo;
+import net.sf.saxon.functions.Existence;
 
 public class ComparisonExpr extends LogicalExpr<Expr> {
 
 	public enum Operator {
-		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, GeneralNotEquals, GeneralLessThan, GeneralLessThanOrEquals, GeneralGreaterThan, GeneralGreaterThanOrEquals
+		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, GeneralNotEquals, GeneralLessThan, GeneralLessThanOrEquals, GeneralGreaterThan, GeneralGreaterThanOrEquals, Empty, Exists, Matches
 	};
 
 	private Operator operator;
@@ -94,6 +97,23 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		}
 
 		setOperands(expression.getOperands());
+	}
+
+	protected ComparisonExpr(TraceExpression expression,
+			Configuration configuration) {
+		super(expression, configuration);
+
+		InstructionInfo info = expression.getInstructionInfo();
+
+		if (info.getClass().equals(Existence.class.getName())) {
+
+		}
+
+		else {
+			throw new IrresoluteException(String.format(
+					"Trance expression [%s] using unsupported function [%s]",
+					expression, info));
+		}
 	}
 
 	private void setOperands(Expression[] operands) {
