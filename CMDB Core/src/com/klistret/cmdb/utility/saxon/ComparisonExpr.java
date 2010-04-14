@@ -99,18 +99,18 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		for (Expression operand : operands) {
 			if (operand.getClass().getName().equals(
 					AxisExpression.class.getName())) {
-				addOperand(new StepExpr<Expr>((AxisExpression) operand,
-						configuration));
+				addOperand(new StepExpr((AxisExpression) operand, configuration));
 			}
 
 			else if (operand.getClass().getName().equals(
 					Literal.class.getName())) {
-
+				addOperand(new LiteralExpr((Literal) operand, configuration));
 			}
-			
+
 			else if (operand.getClass().getName().equals(
 					StringLiteral.class.getName())) {
-
+				addOperand(new LiteralExpr((StringLiteral) operand,
+						configuration));
 			}
 
 			else {
