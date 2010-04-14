@@ -10,7 +10,7 @@ public abstract class Expr {
 	protected final Configuration configuration;
 
 	public enum Type {
-		Root, Path, Or, And, Comparison, Irresolute
+		Root, Path, Or, And, Comparison, Literal, Irresolute
 	};
 
 	public Expr(Expression expression, Configuration configuration) {

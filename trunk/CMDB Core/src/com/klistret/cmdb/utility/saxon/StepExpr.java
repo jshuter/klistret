@@ -11,9 +11,11 @@ import net.sf.saxon.expr.GeneralComparison;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.NamePool;
+import net.sf.saxon.trace.InstructionInfo;
 import net.sf.saxon.expr.Token;
+import net.sf.saxon.instruct.TraceExpression;
 
-public class StepExpr<T extends Expr> extends Expr {
+public class StepExpr extends Expr {
 
 	private Expr predicate;
 
@@ -127,6 +129,14 @@ public class StepExpr<T extends Expr> extends Expr {
 				ValueComparison.class.getName())) {
 			return new ComparisonExpr((ValueComparison) expression,
 					configuration);
+		}
+
+		else if (expression.getClass().getName().equals(
+				TraceExpression.class.getName())) {
+			InstructionInfo info = ((TraceExpression) expression)
+					.getInstructionInfo();
+
+			return null;
 		}
 
 		else {

@@ -132,7 +132,7 @@ public class PathExpression {
 		 */
 		else if (expression.getClass().getName().equals(
 				RootExpression.class.getName())) {
-			relativePath.add(new RootExpr<Expr>((RootExpression) expression,
+			relativePath.add(new RootExpr((RootExpression) expression,
 					staticContext.getConfiguration()));
 		}
 
@@ -144,7 +144,7 @@ public class PathExpression {
 		else if (expression.getClass().getName().equals(
 				AxisExpression.class.getName())) {
 			try {
-				relativePath.add(new StepExpr<Expr>(
+				relativePath.add(new StepExpr(
 						(AxisExpression) expression, staticContext
 								.getConfiguration()));
 			} catch (IrresoluteException e) {
@@ -159,7 +159,7 @@ public class PathExpression {
 		else if (expression.getClass().getName().equals(
 				FilterExpression.class.getName())) {
 			try {
-				relativePath.add(new StepExpr<Expr>(
+				relativePath.add(new StepExpr(
 						(FilterExpression) expression, staticContext
 								.getConfiguration()));
 			} catch (IrresoluteException e) {
