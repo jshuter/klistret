@@ -88,7 +88,7 @@ public class SaxonExamples {
 	@Test
 	public void dummy() {
 		PathExpression path = new PathExpression(
-				"declare namespace google='http://www.google.com'; /google:a[@name eq 'hello' or @type = 'hello' and @yes = 'no']/google:b/google:c");
+				"declare namespace google='http://www.google.com'; /google:a[@name eq 'hello' or @type = 'hello']/google:b/google:c");
 
 		for (Expr expr : path.getRelativePath())
 			System.out.println(expr.toString());

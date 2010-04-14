@@ -27,7 +27,7 @@ public abstract class Expr {
 	public abstract boolean equals(Object obj);
 
 	public String toString() {
-		return String.format("Saxon expression [%s], type [%s]", expression
-				.toString(), getType());
+		return String.format("type [%s], saxon expression [%s]", getType(),
+				expression);
 	}
 }

@@ -53,44 +53,7 @@ public class StepExpr<T extends Expr> extends Expr {
 		 * Establish predicates looking for Saxon boolean, general, and value
 		 * expressions
 		 */
-		Expression filter = expression.getFilter();
-		if (filter.getClass().getName().equals(
-				BooleanExpression.class.getName())) {
-			switch (((BooleanExpression) filter).getOperator()) {
-			case Token.AND:
-				predicate = new AndExpr((BooleanExpression) filter,
-						configuration);
-				break;
-			case Token.OR:
-				predicate = new OrExpr((BooleanExpression) filter,
-						configuration);
-				break;
-			default:
-				throw new IrresoluteException(
-						String
-								.format(
-										"Boolean expression [%s] must either be an AND or OR operation",
-										filter));
-			}
-		}
-
-		else if (filter.getClass().getName().equals(
-				GeneralComparison.class.getName())) {
-			predicate = new ComparisonExpr(filter, configuration);
-		}
-
-		else if (filter.getClass().getName().equals(
-				ValueComparison.class.getName())) {
-			predicate = new ComparisonExpr(filter, configuration);
-		}
-
-		else {
-			throw new IrresoluteException(
-					String
-							.format(
-									"Filter expression [%s] is not a boolean, general or value logical expression",
-									filter));
-		}
+		predicate = predicate(expression.getFilter());
 	}
 
 	private void setAxisExpression(AxisExpression expression) {
@@ -108,6 +71,71 @@ public class StepExpr<T extends Expr> extends Expr {
 							.format(
 									"Axis expression [%s] is either neither not a primary node or is not an absolute step or the qname is null (likely a wildcard)",
 									expression));
+	}
+
+	/**
+	 * Recursive logic just like the explain Saxon method to build up a tree of
+	 * logical expressions (or, and plus comparisons) otherwise the entire
+	 * controlling expression is deemed irresolute.
+	 * 
+	 * @param expression
+	 * @return
+	 */
+	private Expr predicate(Expression expression) {
+		if (expression.getClass().getName().equals(
+				BooleanExpression.class.getName())) {
+			switch (((BooleanExpression) expression).getOperator()) {
+
+			case Token.AND:
+				AndExpr andExpr = new AndExpr((BooleanExpression) expression,
+						configuration);
+
+				for (Expression operand : ((BooleanExpression) expression)
+						.getOperands()) {
+					andExpr.addOperand(predicate(operand));
+				}
+
+				return andExpr;
+
+			case Token.OR:
+				OrExpr orExpr = new OrExpr((BooleanExpression) expression,
+						configuration);
+
+				for (Expression operand : ((BooleanExpression) expression)
+						.getOperands()) {
+					orExpr.addOperand(predicate(operand));
+				}
+
+				return orExpr;
+
+			default:
+				throw new IrresoluteException(
+						String
+								.format(
+										"Boolean expression [%s] must either be an AND or OR operation",
+										expression));
+			}
+		}
+
+		else if (expression.getClass().getName().equals(
+				GeneralComparison.class.getName())) {
+			return new ComparisonExpr((GeneralComparison) expression,
+					configuration);
+		}
+
+		else if (expression.getClass().getName().equals(
+				ValueComparison.class.getName())) {
+			return new ComparisonExpr((ValueComparison) expression,
+					configuration);
+		}
+
+		else {
+			throw new IrresoluteException(
+					String
+							.format(
+									"Operand [%s] not a boolean, general or value logical expression",
+									expression));
+		}
 	}
 
 	@Override
@@ -219,8 +247,8 @@ public class StepExpr<T extends Expr> extends Expr {
 	public String toString() {
 		return String
 				.format(
-						"step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
-						expression.toString(), getPrimaryNodeKind(),
+						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
+						getType(), expression, getPrimaryNodeKind(),
 						getQName(), isForward(), isAbsolute(), predicate);
 	}
 }
