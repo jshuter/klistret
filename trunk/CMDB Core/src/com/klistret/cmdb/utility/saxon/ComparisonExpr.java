@@ -8,6 +8,7 @@ import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.Token;
 import net.sf.saxon.expr.Literal;
+import net.sf.saxon.expr.ContextItemExpression;
 
 public class ComparisonExpr extends LogicalExpr<Expr> {
 
@@ -110,6 +111,12 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			else if (operand.getClass().getName().equals(
 					StringLiteral.class.getName())) {
 				addOperand(new LiteralExpr((StringLiteral) operand,
+						configuration));
+			}
+
+			else if (operand.getClass().getName().equals(
+					ContextItemExpression.class.getName())) {
+				addOperand(new ContextItemExpr((ContextItemExpression) operand,
 						configuration));
 			}
 
