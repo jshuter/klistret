@@ -1,3 +1,17 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package com.klistret.cmdb.utility.saxon;
 
 import java.util.ArrayList;
@@ -5,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 
@@ -20,12 +37,35 @@ import net.sf.saxon.trans.XPathException;
 
 public class PathExpression {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(PathExpression.class);
+
+	/**
+	 * Static context contains information prior to evaluation, usually name
+	 * definitions
+	 */
 	private IndependentContext staticContext;
 
+	/**
+	 * Original XPath statement
+	 */
 	private String xpath;
 
+	/**
+	 * Offset within the XPath statement where the actual XPath clause starts
+	 * without preceding declare clauses
+	 */
+	private int prologOffset = 0;
+
+	/**
+	 * Saxon representation of the XPath statement
+	 */
 	private Expression expression;
 
+	/**
+	 * Project specific representation of relative paths [StepExpr (("/" | "//")
+	 * StepExpr)*]
+	 */
 	private List<Expr> relativePath;
 
 	/**
@@ -44,6 +84,12 @@ public class PathExpression {
 			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(\'|\")(.+)(\'|\")\\s?;");
 
 	/**
+	 * Regular expression for delimiting path (slash) expressions (currently
+	 * only works with single quotes)
+	 */
+	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))";
+
+	/**
 	 * Constructor finds through regular expressions the default
 	 * element/function namespaces as well all declared namespaces then creates
 	 * a Saxon expression with the ExpressionTool and evaluates the expression
@@ -52,22 +98,25 @@ public class PathExpression {
 	 * @param xpath
 	 */
 	public PathExpression(String xpath) {
+		logger.debug("Path expression constructed from XPath [{}]", xpath);
+
 		this.xpath = xpath;
 		this.staticContext = new IndependentContext(new Configuration());
 
 		if (xpath == null)
-			throw new ApplicationException(
-					"Unable to resolve null value for xpath");
-
-		int start = 0;
+			throw new ApplicationException("Unable to resolve xpath as null");
 
 		/**
 		 * Handle default element name space declarations
 		 */
 		Matcher demd = defaultElementNamespaceDeclaration.matcher(xpath);
 		while (demd.find()) {
-			if (demd.end() > start)
-				start = demd.end();
+			logger.debug(
+					"Identified default element namespace declaration [{}]",
+					demd.group(2));
+
+			if (demd.end() > prologOffset)
+				prologOffset = demd.end();
 			staticContext.setDefaultElementNamespace(demd.group(2));
 		}
 
@@ -76,8 +125,12 @@ public class PathExpression {
 		 */
 		Matcher dfmd = defaultFunctionNamespaceDeclaration.matcher(xpath);
 		while (dfmd.find()) {
-			if (dfmd.end() > start)
-				start = dfmd.end();
+			logger.debug(
+					"Identified default function namespace declaration [{}]",
+					dfmd.group(2));
+
+			if (dfmd.end() > prologOffset)
+				prologOffset = dfmd.end();
 			staticContext.setDefaultFunctionNamespace(dfmd.group(2));
 		}
 
@@ -86,17 +139,22 @@ public class PathExpression {
 		 */
 		Matcher nd = namespaceDeclaration.matcher(xpath);
 		while (nd.find()) {
-			if (nd.end() > start)
-				start = nd.end();
+			logger.debug(
+					"Identified namespace declaration [prefix: {}, uri: {}]",
+					nd.group(1), nd.group(3));
+
+			if (nd.end() > prologOffset)
+				prologOffset = nd.end();
 			staticContext.declareNamespace(nd.group(1), nd.group(3));
 		}
 
 		/**
-		 * Make Saxon expression
+		 * Make Saxon representation using the start index to begin translation
+		 * after the last declaration.
 		 */
 		try {
-			expression = ExpressionTool.make(xpath, staticContext, start, -1,
-					1, true);
+			expression = ExpressionTool.make(xpath, staticContext,
+					prologOffset, -1, 1, true);
 
 			relativePath = new ArrayList<Expr>();
 
@@ -106,13 +164,13 @@ public class PathExpression {
 					String
 							.format(
 									"Unable to make Saxon expression from xpath [%s], start character [%d]",
-									xpath, start), e);
+									xpath, prologOffset), e);
 		} catch (ClassCastException e) {
 			throw new ApplicationException(
 					String
 							.format(
 									"Unable to make Saxon expression from xpath [%s], start character [%d]",
-									xpath, start), e);
+									xpath, prologOffset), e);
 		}
 	}
 
@@ -183,6 +241,14 @@ public class PathExpression {
 
 	public String getXPath() {
 		return this.xpath;
+	}
+
+	public String getXPathWithoutProlog() {
+		return this.xpath.substring(prologOffset);
+	}
+
+	public String[] getSteps() {
+		return getXPathWithoutProlog().split(slashDelimitor);
 	}
 
 	public String getDefaultElementNamespace() {
