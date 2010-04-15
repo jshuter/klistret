@@ -1,6 +1,23 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package com.klistret.cmdb.utility.saxon;
 
 import javax.xml.namespace.QName;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
@@ -16,10 +33,25 @@ import net.sf.saxon.instruct.TraceExpression;
 
 public class StepExpr extends Expr {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(StepExpr.class);
+
+	/**
+	 * Steps should declare a predicate list rather than a single predicate
+	 * however the implementation would be treated as an AND operator thereby
+	 * making it easier to ask end-users to distill multiple predicates into a
+	 * single.
+	 */
 	private Expr predicate;
 
+	/**
+	 * Underlying Axis expression
+	 */
 	private AxisExpression axisExpression;
 
+	/**
+	 * XPath 2.0 allows for only elements or attributes as primary nodes
+	 */
 	public enum PrimaryNodeKind {
 		Element, Attribute
 	}
@@ -54,7 +86,7 @@ public class StepExpr extends Expr {
 		 * Establish predicates looking for Saxon boolean, general, and value
 		 * expressions
 		 */
-		predicate = predicate(expression.getFilter());
+		predicate = explainPredicate(expression.getFilter());
 	}
 
 	private void setAxisExpression(AxisExpression expression) {
@@ -82,7 +114,9 @@ public class StepExpr extends Expr {
 	 * @param expression
 	 * @return
 	 */
-	private Expr predicate(Expression expression) {
+	private Expr explainPredicate(Expression expression) {
+		logger.debug("Explaining predicate on expression [{}]", expression);
+
 		if (expression.getClass().getName().equals(
 				BooleanExpression.class.getName())) {
 			switch (((BooleanExpression) expression).getOperator()) {
@@ -93,8 +127,10 @@ public class StepExpr extends Expr {
 
 				for (Expression operand : ((BooleanExpression) expression)
 						.getOperands()) {
-					andExpr.addOperand(predicate(operand));
+					andExpr.addOperand(explainPredicate(operand));
 				}
+
+				logger.debug("Return AndExpr predicate [{}]", andExpr);
 
 				return andExpr;
 
@@ -104,8 +140,10 @@ public class StepExpr extends Expr {
 
 				for (Expression operand : ((BooleanExpression) expression)
 						.getOperands()) {
-					orExpr.addOperand(predicate(operand));
+					orExpr.addOperand(explainPredicate(operand));
 				}
+
+				logger.debug("Return OrExpr predicate [{}]", orExpr);
 
 				return orExpr;
 
@@ -156,6 +194,12 @@ public class StepExpr extends Expr {
 		return Type.Path;
 	}
 
+	/**
+	 * QName identifies the node in a general manner based on a name test but
+	 * not allowing for wildcard.
+	 * 
+	 * @return
+	 */
 	public QName getQName() {
 		// Wild cards generate empty node tests
 		if (axisExpression.getNodeTest() == null)
@@ -183,10 +227,32 @@ public class StepExpr extends Expr {
 		return qname;
 	}
 
+	/**
+	 * Returns predicate which may be null
+	 * 
+	 * @return Expr
+	 */
 	public Expr getPredicate() {
 		return predicate;
 	}
 
+	/**
+	 * Is predicate
+	 * 
+	 * @return boolean
+	 */
+	public boolean hasPredicate() {
+		if (predicate == null)
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Valid underlying axis nodes are either an element or attribute
+	 * 
+	 * @return PrimaryNodeKind
+	 */
 	public PrimaryNodeKind getPrimaryNodeKind() {
 		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
@@ -198,6 +264,12 @@ public class StepExpr extends Expr {
 		}
 	}
 
+	/**
+	 * An axis that only ever contains the context node or nodes that are after
+	 * the context node in document order is a forward axis.
+	 * 
+	 * @return boolean
+	 */
 	public boolean isForward() {
 		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
@@ -221,6 +293,12 @@ public class StepExpr extends Expr {
 		}
 	}
 
+	/**
+	 * An axis that only ever contains the context node or nodes that are before
+	 * the context node in document order is a reverse axis.
+	 * 
+	 * @return boolean
+	 */
 	public boolean isReverse() {
 		switch (axisExpression.getAxis()) {
 		case Axis.ANCESTOR:
@@ -238,6 +316,11 @@ public class StepExpr extends Expr {
 		}
 	}
 
+	/**
+	 * Axis direction is a single step rather than relative
+	 * 
+	 * @return boolean
+	 */
 	public boolean isAbsolute() {
 		switch (axisExpression.getAxis()) {
 		case Axis.CHILD:
