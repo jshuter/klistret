@@ -106,7 +106,13 @@ public class PathExpression {
 					String
 							.format(
 									"Unable to make Saxon expression from xpath [%s], start character [%d]",
-									xpath, start));
+									xpath, start), e);
+		} catch (ClassCastException e) {
+			throw new ApplicationException(
+					String
+							.format(
+									"Unable to make Saxon expression from xpath [%s], start character [%d]",
+									xpath, start), e);
 		}
 	}
 
@@ -144,9 +150,8 @@ public class PathExpression {
 		else if (expression.getClass().getName().equals(
 				AxisExpression.class.getName())) {
 			try {
-				relativePath.add(new StepExpr(
-						(AxisExpression) expression, staticContext
-								.getConfiguration()));
+				relativePath.add(new StepExpr((AxisExpression) expression,
+						staticContext.getConfiguration()));
 			} catch (IrresoluteException e) {
 				relativePath.add(new IrresoluteExpr<Expr>(expression,
 						staticContext.getConfiguration()));
@@ -159,9 +164,8 @@ public class PathExpression {
 		else if (expression.getClass().getName().equals(
 				FilterExpression.class.getName())) {
 			try {
-				relativePath.add(new StepExpr(
-						(FilterExpression) expression, staticContext
-								.getConfiguration()));
+				relativePath.add(new StepExpr((FilterExpression) expression,
+						staticContext.getConfiguration()));
 			} catch (IrresoluteException e) {
 				relativePath.add(new IrresoluteExpr<Expr>(expression,
 						staticContext.getConfiguration()));
