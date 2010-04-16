@@ -20,7 +20,7 @@ public class SaxonExamples {
 
 	}
 
-	@Test
+	//@Test
 	public void another() {
 		try {
 			RuntimeTypeInfoSet info = JAXBModelFactory.create(Element.class);
@@ -41,10 +41,10 @@ public class SaxonExamples {
 		}
 	}
 
-	// @Test
+	@Test
 	public void dummy() {
 		PathExpression path = new PathExpression(
-				"declare namespace google='http://www.google.com'; /google:a[matches(@type,'whatev/er*')]/google:b/google:c");
+				"declare namespace google='http://www.google.com'; /google:a[exactly-one(@type)]/google:b/google:c");
 
 		for (String step : path.getSteps())
 			System.out.println(step);

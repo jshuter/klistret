@@ -181,61 +181,67 @@ public class PathExpression {
 	 * @param expression
 	 */
 	private void explain(Expression expression) {
-		/**
-		 * Slash expressions always consist of a controlling and controlled
-		 * expression that can be further explained.
-		 */
-		if (expression.getClass().getName().equals(
-				SlashExpression.class.getName())) {
-			explain(((SlashExpression) expression).getControllingExpression());
-			explain(((SlashExpression) expression).getControlledExpression());
-		}
+		try {
+			/**
+			 * Slash expressions always consist of a controlling and controlled
+			 * expression that can be further explained.
+			 */
+			if (expression.getClass().getName().equals(
+					SlashExpression.class.getName())) {
+				explain(((SlashExpression) expression)
+						.getControllingExpression());
+				explain(((SlashExpression) expression)
+						.getControlledExpression());
+			}
 
-		/**
-		 * Root expression ("/") automatically end up as the first step
-		 */
-		else if (expression.getClass().getName().equals(
-				RootExpression.class.getName())) {
-			relativePath.add(new RootExpr((RootExpression) expression,
-					staticContext.getConfiguration()));
-		}
-
-		/**
-		 * Axis expressions in Saxon have no predicates oddly enough and those
-		 * that can't be processed into a simple step are translated into
-		 * irresolute expressions
-		 */
-		else if (expression.getClass().getName().equals(
-				AxisExpression.class.getName())) {
-			try {
-				relativePath.add(new StepExpr((AxisExpression) expression,
-						staticContext.getConfiguration()));
-			} catch (IrresoluteException e) {
-				relativePath.add(new IrresoluteExpr<Expr>(expression,
+			/**
+			 * Root expression ("/") automatically end up as the first step
+			 */
+			else if (expression.getClass().getName().equals(
+					RootExpression.class.getName())) {
+				relativePath.add(new RootExpr((RootExpression) expression,
 						staticContext.getConfiguration()));
 			}
-		}
 
-		/**
-		 * Same as axis expressions but Saxon filters also for predicates
-		 */
-		else if (expression.getClass().getName().equals(
-				FilterExpression.class.getName())) {
-			try {
-				relativePath.add(new StepExpr((FilterExpression) expression,
-						staticContext.getConfiguration()));
-			} catch (IrresoluteException e) {
-				relativePath.add(new IrresoluteExpr<Expr>(expression,
-						staticContext.getConfiguration()));
+			/**
+			 * Axis expressions in Saxon have no predicates oddly enough and
+			 * those that can't be processed into a simple step are translated
+			 * into irresolute expressions
+			 */
+			else if (expression.getClass().getName().equals(
+					AxisExpression.class.getName())) {
+				StepExpr step = new StepExpr((AxisExpression) expression,
+						staticContext.getConfiguration());
+
+				step.setXPath(getSteps()[relativePath.size()]);
+				relativePath.add(step);
 			}
-		}
 
-		/**
-		 * Default is to capture unresolved expressions as irresolute
-		 */
-		else {
-			relativePath.add(new IrresoluteExpr<Expr>(expression, staticContext
-					.getConfiguration()));
+			/**
+			 * Same as axis expressions but Saxon filters also for predicates
+			 */
+			else if (expression.getClass().getName().equals(
+					FilterExpression.class.getName())) {
+				StepExpr step = new StepExpr((FilterExpression) expression,
+						staticContext.getConfiguration());
+
+				step.setXPath(getSteps()[relativePath.size()]);
+				relativePath.add(step);
+			}
+
+			/**
+			 * Default is to capture unresolved expressions as irresolute
+			 * exception
+			 */
+			else {
+				throw new IrresoluteException();
+			}
+		} catch (IrresoluteException e) {
+			IrresoluteExpr irresolute = new IrresoluteExpr(expression,
+					staticContext.getConfiguration());
+
+			irresolute.setXPath(getSteps()[relativePath.size()]);
+			relativePath.add(irresolute);
 		}
 	}
 
