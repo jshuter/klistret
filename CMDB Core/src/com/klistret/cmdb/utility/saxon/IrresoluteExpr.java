@@ -19,11 +19,6 @@ import net.sf.saxon.expr.Expression;
 
 public class IrresoluteExpr extends Expr {
 
-	/**
-	 * XPath statement representing this expression
-	 */
-	private String xpath;
-
 	protected IrresoluteExpr(Expression expression, Configuration configuration) {
 		super(expression, configuration);
 	}
@@ -39,25 +34,8 @@ public class IrresoluteExpr extends Expr {
 		return false;
 	}
 
-	/**
-	 * Returns the xpath representing this expression (set by the
-	 * PathExpression)
-	 * 
-	 * @return
-	 */
-	public String getXPath() {
-		return this.xpath;
-	}
-
-	/*
-	 * 
-	 */
-	protected void setXPath(String xpath) {
-		this.xpath = xpath;
-	}
-
 	public String toString() {
-		return String.format("type [%s], expression [%s], xpath [%s]",
-				getType(), expression, xpath);
+		return String.format("type [%s], expression [%s]", getType(),
+				expression);
 	}
 }

@@ -210,11 +210,8 @@ public class PathExpression {
 			 */
 			else if (expression.getClass().getName().equals(
 					AxisExpression.class.getName())) {
-				StepExpr step = new StepExpr((AxisExpression) expression,
-						staticContext.getConfiguration());
-
-				step.setXPath(getSteps()[relativePath.size()]);
-				relativePath.add(step);
+				relativePath.add(new StepExpr((AxisExpression) expression,
+						staticContext.getConfiguration()));
 			}
 
 			/**
@@ -222,11 +219,8 @@ public class PathExpression {
 			 */
 			else if (expression.getClass().getName().equals(
 					FilterExpression.class.getName())) {
-				StepExpr step = new StepExpr((FilterExpression) expression,
-						staticContext.getConfiguration());
-
-				step.setXPath(getSteps()[relativePath.size()]);
-				relativePath.add(step);
+				relativePath.add(new StepExpr((FilterExpression) expression,
+						staticContext.getConfiguration()));
 			}
 
 			/**
@@ -237,11 +231,8 @@ public class PathExpression {
 				throw new IrresoluteException();
 			}
 		} catch (IrresoluteException e) {
-			IrresoluteExpr irresolute = new IrresoluteExpr(expression,
-					staticContext.getConfiguration());
-
-			irresolute.setXPath(getSteps()[relativePath.size()]);
-			relativePath.add(irresolute);
+			relativePath.add(new IrresoluteExpr(expression,
+					staticContext.getConfiguration()));
 		}
 	}
 
