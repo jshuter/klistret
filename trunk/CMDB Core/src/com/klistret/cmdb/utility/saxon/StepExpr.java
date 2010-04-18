@@ -50,11 +50,6 @@ public class StepExpr extends Expr {
 	private AxisExpression axisExpression;
 
 	/**
-	 * XPath statement representing this step
-	 */
-	private String xpath;
-
-	/**
 	 * XPath 2.0 allows for only elements or attributes as primary nodes
 	 */
 	public enum PrimaryNodeKind {
@@ -233,22 +228,6 @@ public class StepExpr extends Expr {
 	}
 
 	/**
-	 * Returns the xpath representing this step (set by the PathExpression)
-	 * 
-	 * @return
-	 */
-	public String getXPath() {
-		return this.xpath;
-	}
-
-	/*
-	 * 
-	 */
-	protected void setXPath(String xpath) {
-		this.xpath = xpath;
-	}
-
-	/**
 	 * Returns predicate which may be null
 	 * 
 	 * @return Expr
@@ -358,8 +337,8 @@ public class StepExpr extends Expr {
 	public String toString() {
 		return String
 				.format(
-						"type [%s], step [%s], xpath [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
-						getType(), expression, xpath, getPrimaryNodeKind(),
+						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
+						getType(), expression, getPrimaryNodeKind(),
 						getQName(), isForward(), isAbsolute(), predicate);
 	}
 }
