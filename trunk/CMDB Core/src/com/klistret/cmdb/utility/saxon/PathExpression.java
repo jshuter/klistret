@@ -84,10 +84,10 @@ public class PathExpression {
 			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(\'|\")(.+)(\'|\")\\s?;");
 
 	/**
-	 * Regular expression for delimiting path (slash) expressions (currently
-	 * only works with single quotes)
+	 * Regular expression for delimiting path (slash) expressions (look ahead
+	 * for single as well double quotes)
 	 */
-	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))";
+	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))";
 
 	/**
 	 * Constructor finds through regular expressions the default
@@ -231,8 +231,8 @@ public class PathExpression {
 				throw new IrresoluteException();
 			}
 		} catch (IrresoluteException e) {
-			relativePath.add(new IrresoluteExpr(expression,
-					staticContext.getConfiguration()));
+			relativePath.add(new IrresoluteExpr(expression, staticContext
+					.getConfiguration()));
 		}
 	}
 
