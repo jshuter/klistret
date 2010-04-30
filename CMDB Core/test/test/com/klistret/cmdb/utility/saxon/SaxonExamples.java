@@ -1,14 +1,11 @@
 package test.com.klistret.cmdb.utility.saxon;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.utility.jaxb.ContextHelper;
+import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 
@@ -20,25 +17,23 @@ public class SaxonExamples {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test
+	// @Test
 	public void another() {
 		String[] baseTypes = { "com.klistret.cmdb.Base" };
 		String[] assignablePackages = { "com/klistret/cmdb" };
 
-		ContextHelper helper = new ContextHelper(baseTypes, assignablePackages);
-		System.out.println(helper.getClass(new QName(
-				"http://www.klistret.com/cmdb", "Element")));
+		JAXBContextHelper helper = new JAXBContextHelper(baseTypes, assignablePackages);
 	}
 
-	// @Test
+	@Test
 	public void dummy() {
 		PathExpression path = new PathExpression(
 				"declare namespace google='http://www.google.com'; /google:a[matches(@type,\"what/ever\")]/google:b[matches(@type,'ano\thor')]/google:c");
 
-		for (String step : path.getSteps())
-			System.out.println(step);
-
 		for (Expr expr : path.getRelativePath())
-			System.out.println(expr.toString());
+			System.out.println(String.format("%s, %s", expr.toString(), expr
+					.getXPath()));
+
+		System.out.println(String.format("qname [%s]", path.getQName(2)));
 	}
 }

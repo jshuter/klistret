@@ -28,12 +28,6 @@ public class IrresoluteExpr extends Expr {
 		return Type.Irresolute;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		// TO-DO
-		return false;
-	}
-
 	public String toString() {
 		return String.format("type [%s], expression [%s]", getType(),
 				expression);

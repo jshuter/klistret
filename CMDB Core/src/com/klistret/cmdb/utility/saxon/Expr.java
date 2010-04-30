@@ -19,26 +19,72 @@ import net.sf.saxon.expr.Expression;
 
 public abstract class Expr {
 
+	/**
+	 * Saxon expression
+	 */
 	protected final Expression expression;
 
+	/**
+	 * Saxon configuration
+	 */
 	protected final Configuration configuration;
 
+	/**
+	 * Applicable to step and irresolute expressions
+	 */
+	protected String xpath;
+
+	/**
+	 * Basic expr types
+	 */
 	public enum Type {
-		Root, Path, Or, And, Comparison, Literal, Irresolute
+		Root, Step, Or, And, Comparison, Literal, Irresolute
 	};
 
+	/**
+	 * Expr are based on Saxon expression and configuration for resolving names
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	public Expr(Expression expression, Configuration configuration) {
 		this.expression = expression;
 		this.configuration = configuration;
 	}
 
-	public Expression getExpression() {
+	/**
+	 * Get Saxon expression
+	 * 
+	 * @return
+	 */
+	protected Expression getExpression() {
 		return expression;
 	}
 
+	/**
+	 * Get Expr type
+	 * 
+	 * @return
+	 */
 	public abstract Type getType();
 
-	public abstract boolean equals(Object obj);
+	/**
+	 * Get xpath strig representation
+	 * 
+	 * @return
+	 */
+	public String getXPath() {
+		return this.xpath;
+	}
+
+	/**
+	 * Internal use only
+	 * 
+	 * @param xpath
+	 */
+	protected void setXPath(String xpath) {
+		this.xpath = xpath;
+	}
 
 	public String toString() {
 		return String.format("type [%s], saxon expression [%s]", getType(),

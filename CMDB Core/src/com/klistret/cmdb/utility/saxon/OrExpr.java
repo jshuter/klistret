@@ -27,12 +27,4 @@ public class OrExpr extends LogicalExpr<Expr> {
 	public Type getType() {
 		return Type.Or;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof OrExpr) {
-			return super.equals(obj);
-		}
-		return false;
-	}
 }

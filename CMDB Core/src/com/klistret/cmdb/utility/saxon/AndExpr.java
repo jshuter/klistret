@@ -28,12 +28,4 @@ public class AndExpr extends LogicalExpr<Expr> {
 		return Type.And;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof AndExpr) {
-			return super.equals(obj);
-		}
-		return false;
-	}
-
 }
