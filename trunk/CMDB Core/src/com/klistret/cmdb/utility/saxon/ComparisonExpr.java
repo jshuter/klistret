@@ -170,14 +170,6 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		return operator;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof ComparisonExpr) {
-			return super.equals(obj);
-		}
-		return false;
-	}
-
 	public String toString() {
 		return String.format(
 				"type [%s], comparison [%s], operands [%s], operator [%s]",

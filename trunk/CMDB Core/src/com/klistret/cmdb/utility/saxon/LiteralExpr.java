@@ -55,12 +55,6 @@ public class LiteralExpr extends Expr {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public Type getType() {
 		return Type.Literal;
 	}

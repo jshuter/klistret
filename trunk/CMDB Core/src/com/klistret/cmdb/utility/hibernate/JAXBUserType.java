@@ -21,12 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -37,15 +33,14 @@ import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 
-import com.klistret.cmdb.Base;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 
 public class JAXBUserType implements UserType {
-	private final static String basePackage = "com/klistret/cmdb";
+	private final static String[] assignablePackages = { "com/klistret/cmdb" };
+
+	private final static String[] baseTypes = { "com.klistret.cmdb.Base" };
 
 	private Marshaller marshaller;
 
@@ -130,47 +125,10 @@ public class JAXBUserType implements UserType {
 	}
 
 	protected JAXBContext getContext() {
-		if (xmlSerializer == null) {
+		if (xmlSerializer == null)
+			xmlSerializer = new JAXBContextHelper(baseTypes, assignablePackages)
+					.getJAXBContext();
 
-			String packageNames = null;
-
-			try {
-				ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
-						false);
-
-				provider.addIncludeFilter(new AssignableTypeFilter(Base.class));
-				Set<BeanDefinition> beans = provider
-						.findCandidateComponents(basePackage);
-
-				if (beans.isEmpty())
-					throw new InfrastructureException(
-							"Scanning assignable Base types returned empty");
-
-				HashSet<String> packageNamesHashSet = new HashSet<String>();
-				for (BeanDefinition bean : beans) {
-					packageNamesHashSet.add(bean.getBeanClassName().substring(
-							0, bean.getBeanClassName().lastIndexOf(".")));
-					logger.debug("Adding package for Base assigned type [{}]",
-							bean.getBeanClassName());
-				}
-
-				Iterator<String> packageNamesIterator = packageNamesHashSet
-						.iterator();
-				while (packageNamesIterator.hasNext()) {
-					packageNames = packageNames == null ? packageNamesIterator
-							.next() : String.format("%s:%s", packageNames,
-							packageNamesIterator.next());
-				}
-
-				xmlSerializer = JAXBContext.newInstance(packageNames);
-			} catch (JAXBException e) {
-				throw new InfrastructureException(
-						String
-								.format(
-										"Unable instantiate JAXB Context with packages [%s]: %s",
-										packageNames, e.getMessage()));
-			}
-		}
 		return xmlSerializer;
 	}
 
@@ -227,8 +185,7 @@ public class JAXBUserType implements UserType {
 		Unmarshaller unmarshaller = getUnmarshaller();
 		StreamSource source = new StreamSource(new StringReader(xmlString));
 		try {
-			Object result = ((JAXBElement<?>) unmarshaller.unmarshal(source))
-					.getValue();
+			Object result = unmarshaller.unmarshal(source);
 			logger.debug("unmarshalled xml [{}] to Object class [{}]",
 					xmlString, result.getClass().getName());
 			return result;

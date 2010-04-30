@@ -28,17 +28,6 @@ public abstract class LogicalExpr<T extends Expr> extends Expr {
 		super(expression, configuration);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof LogicalExpr) {
-			LogicalExpr other = (LogicalExpr) obj;
-			return operands == null ? other.operands == null : operands
-					.equals(other.operands);
-		}
-		return false;
-	}
-
 	public List<Expr> getOperands() {
 		return operands;
 	}

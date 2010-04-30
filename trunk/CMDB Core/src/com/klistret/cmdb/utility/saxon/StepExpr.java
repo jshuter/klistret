@@ -184,14 +184,8 @@ public class StepExpr extends Expr {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		// TO-DO
-		return false;
-	}
-
-	@Override
 	public Type getType() {
-		return Type.Path;
+		return Type.Step;
 	}
 
 	/**

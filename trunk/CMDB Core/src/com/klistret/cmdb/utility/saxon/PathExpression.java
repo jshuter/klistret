@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.namespace.QName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,11 @@ public class PathExpression {
 	private String xpath;
 
 	/**
+	 * XPaths split by slash regular expression
+	 */
+	private String[] xpathSplit;
+
+	/**
 	 * Offset within the XPath statement where the actual XPath clause starts
 	 * without preceding declare clauses
 	 */
@@ -67,6 +74,11 @@ public class PathExpression {
 	 * StepExpr)*]
 	 */
 	private List<Expr> relativePath;
+
+	/**
+	 * Root expressions are optional to relative expressions
+	 */
+	private boolean hasRoot = false;
 
 	/**
 	 * Statics expressions are formed after the semantics defined at the
@@ -149,6 +161,11 @@ public class PathExpression {
 		}
 
 		/**
+		 * Divide the xpath into individual xpaths delimited by slash
+		 */
+		xpathSplit = getXPathWithoutProlog().split(slashDelimitor);
+
+		/**
 		 * Make Saxon representation using the start index to begin translation
 		 * after the last declaration.
 		 */
@@ -201,6 +218,7 @@ public class PathExpression {
 					RootExpression.class.getName())) {
 				relativePath.add(new RootExpr((RootExpression) expression,
 						staticContext.getConfiguration()));
+				hasRoot = true;
 			}
 
 			/**
@@ -234,6 +252,14 @@ public class PathExpression {
 			relativePath.add(new IrresoluteExpr(expression, staticContext
 					.getConfiguration()));
 		}
+
+		/**
+		 * Set individual xpath to this depth (ie only types of root, step or
+		 * irresolute)
+		 */
+		int depth = relativePath.size() - 1;
+		if (depth >= 0 && depth > xpathSplit.length)
+			relativePath.get(depth).setXPath(xpathSplit[depth]);
 	}
 
 	public String getXPath() {
@@ -242,10 +268,6 @@ public class PathExpression {
 
 	public String getXPathWithoutProlog() {
 		return this.xpath.substring(prologOffset);
-	}
-
-	public String[] getSteps() {
-		return getXPathWithoutProlog().split(slashDelimitor);
 	}
 
 	public String getDefaultElementNamespace() {
@@ -267,5 +289,24 @@ public class PathExpression {
 
 	public List<Expr> getRelativePath() {
 		return relativePath;
+	}
+
+	public Expr getExpr(int index) {
+		return relativePath.get(index);
+	}
+
+	public QName getQName(int index) {
+		if (getExpr(index).getType() == Expr.Type.Step)
+			return ((StepExpr) getExpr(index)).getQName();
+
+		return null;
+	}
+
+	public String getXPath(int index) {
+		return xpathSplit[index];
+	}
+
+	public boolean hasRoot() {
+		return this.hasRoot;
 	}
 }

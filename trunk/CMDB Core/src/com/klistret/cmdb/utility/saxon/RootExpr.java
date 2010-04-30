@@ -28,10 +28,4 @@ public class RootExpr extends Expr {
 		return Type.Root;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		// TO-DO
-		return false;
-	}
-
 }
