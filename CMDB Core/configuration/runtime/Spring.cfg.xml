@@ -1,27 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		This file is part of Klistret. Klistret is free software: you can
-		redistribute it and/or modify it under the terms of the GNU General
-		Public License as published by the Free Software Foundation, either
-		version 3 of the License, or (at your option) any later version.
-
-		Klistret is distributed in the hope that it will be useful, but
-		WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		General Public License for more details. You should have received a
-		copy of the GNU General Public License along with Klistret. If not,
-		see <http://www.gnu.org/licenses/>
-	-->
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-             http://www.springframework.org/schema/beans/spring-beans.xsd">
+           http://www.springframework.org/schema/beans/spring-beans.xsd 
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd 
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<!-- 
 	<import resource="DAO.cfg.xml" />
 	<import resource="Manager.cfg.xml" />
 	<import resource="Service.cfg.xml" />
+	-->
 	<!--
 	<import resource="Utility.cfg.xml" />
 	<import resource="AOP.cfg.xml" />
 	-->
+	<context:annotation-config />
+	<context:spring-configured />
+	<context:load-time-weaver />
+	<context:component-scan base-package="com.klistret.cmdb" />
+
+	<bean id="JAXBContextHelper"
+		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
+		<constructor-arg>
+			<value type="java.lang.String[]">
+				com.klistret.cmdb.Base
+			</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value type="java.lang.String[]">com/klistret/cmdb</value>
+		</constructor-arg>
+	</bean>
 </beans>

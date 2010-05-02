@@ -33,10 +33,13 @@ import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 
+@Configurable(dependencyCheck=true)
 public class JAXBUserType implements UserType {
 	private final static String[] assignablePackages = { "com/klistret/cmdb" };
 
@@ -46,12 +49,18 @@ public class JAXBUserType implements UserType {
 
 	private Unmarshaller unmarshaller;
 
-	private JAXBContext xmlSerializer;
+	private JAXBContext jaxbContext;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(JAXBUserType.class);
 
 	private static final int[] SQL_TYPES = { Types.VARCHAR };
+
+	@Autowired
+	public void setJAXBContextHelper(JAXBContextHelper jaxbContextHelper) {
+		logger.debug("injected the jaxb context helper");
+		jaxbContext = jaxbContextHelper.getJAXBContext();
+	}
 
 	public Object assemble(Serializable cached, Object owner)
 			throws HibernateException {
@@ -124,17 +133,17 @@ public class JAXBUserType implements UserType {
 		return SQL_TYPES;
 	}
 
-	protected JAXBContext getContext() {
-		if (xmlSerializer == null)
-			xmlSerializer = new JAXBContextHelper(baseTypes, assignablePackages)
+	protected JAXBContext getJAXBContext() {
+		if (jaxbContext == null)
+			jaxbContext = new JAXBContextHelper(baseTypes, assignablePackages)
 					.getJAXBContext();
 
-		return xmlSerializer;
+		return jaxbContext;
 	}
 
 	protected Unmarshaller getUnmarshaller() {
 		if (unmarshaller == null) {
-			JAXBContext jc = getContext();
+			JAXBContext jc = getJAXBContext();
 			try {
 				unmarshaller = jc.createUnmarshaller();
 			} catch (JAXBException e) {
@@ -149,7 +158,7 @@ public class JAXBUserType implements UserType {
 
 	protected Marshaller getMarshaller() {
 		if (marshaller == null) {
-			JAXBContext jc = getContext();
+			JAXBContext jc = getJAXBContext();
 			try {
 				marshaller = jc.createMarshaller();
 			} catch (JAXBException e) {

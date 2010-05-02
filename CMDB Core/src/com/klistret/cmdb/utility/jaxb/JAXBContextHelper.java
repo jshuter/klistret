@@ -77,6 +77,7 @@ public class JAXBContextHelper {
 				false);
 
 		for (String baseType : baseTypes) {
+			baseType = baseType.trim();
 			logger.debug("assigning type filter for base type [{}]", baseType);
 			try {
 				provider.addIncludeFilter(new AssignableTypeFilter(Class
