@@ -12,18 +12,14 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<import resource="DAO.cfg.xml" />
-	<import resource="Manager.cfg.xml" />
-	<import resource="Service.cfg.xml" />
-
-	<!--
-	<import resource="Utility.cfg.xml" />
-	<import resource="AOP.cfg.xml" />
-	-->
-
-</beans>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
+	<annotation>
+		<appinfo>
+			<jaxb:schemaBindings>
+				<jaxb:package name="com.klistret.cmdb" />
+			</jaxb:schemaBindings>
+		</appinfo>
+	</annotation>
+</schema>

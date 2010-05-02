@@ -93,7 +93,8 @@
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
+			<xs:element name="configuration" type="cmdb:Element"
+				maxOccurs="1" minOccurs="1" />
 			<xs:element name="sourceRelations" type="pojo:Relation"
 				maxOccurs="unbounded" minOccurs="0" />
 			<xs:element name="destinationRelations" type="pojo:Relation"
@@ -125,10 +126,8 @@
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
-			<!-- Without the dummy attribute for some reasons collections (in this case) arrays disrupt the JAXBContent and the entire CI hierarchy disappears -->
-			<xs:element name="dummy" type="cmdb:Element" maxOccurs="1"
-				minOccurs="0" />
+			<xs:element name="configuration" type="cmdb:Relation"
+				maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ElementType">
