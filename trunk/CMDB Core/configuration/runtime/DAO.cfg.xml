@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		This file is part of Klistret. Klistret is free software: you can
-		redistribute it and/or modify it under the terms of the GNU General
-		Public License as published by the Free Software Foundation, either
-		version 3 of the License, or (at your option) any later version.
-
-		Klistret is distributed in the hope that it will be useful, but
-		WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		General Public License for more details. You should have received a
-		copy of the GNU General Public License along with Klistret. If not,
-		see <http://www.gnu.org/licenses/>
-	-->
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -21,8 +21,7 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
-				<value>classpath:JDBC.properties
-				</value>
+				<value>classpath:JDBC.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -54,21 +53,39 @@
 		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="configLocation">
-			<value>classpath:Hibernate.cfg.xml
-			</value>
+			<value>classpath:Hibernate.cfg.xml</value>
 		</property>
 	</bean>
 	<!-- DAO -->
-	<bean id="relationTypeDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">
+	<bean id="relationTypeDAO"
+		class="com.klistret.cmdb.dao.RelationDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-	<bean id="elementTypeDAO" class="com.klistret.cmdb.dao.ElementTypeDAOImpl">
+	<bean id="elementTypeDAO"
+		class="com.klistret.cmdb.dao.ElementTypeDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-	<bean id="elementDAO" class="com.klistret.cmdb.dao.ElementDAOImpl">
+	<bean id="elementDAO"
+		class="com.klistret.cmdb.dao.ElementDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-	<bean id="relationDAO" class="com.klistret.cmdb.dao.RelationDAOImpl">
+	<bean id="relationDAO"
+		class="com.klistret.cmdb.dao.RelationDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!-- JAXB UserType -->
+	<bean id="JAXBContextHelper"
+		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
+		<constructor-arg>
+			<value type="java.lang.String[]">
+				com.klistret.cmdb.Base
+			</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value type="java.lang.String[]">com/klistret/cmdb</value>
+		</constructor-arg>
+	</bean>
+	<bean id="JAXBUserType" lazy-init="true">
+		<property name="JAXBContextHelper" ref="JAXBContextHelper" />
 	</bean>
 </beans>
