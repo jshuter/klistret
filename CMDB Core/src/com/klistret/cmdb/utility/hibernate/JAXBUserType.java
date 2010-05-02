@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -30,20 +31,15 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 
-@Configurable(dependencyCheck=true)
-public class JAXBUserType implements UserType {
-	private final static String[] assignablePackages = { "com/klistret/cmdb" };
-
-	private final static String[] baseTypes = { "com.klistret.cmdb.Base" };
+public class JAXBUserType implements UserType, ParameterizedType {
 
 	private Marshaller marshaller;
 
@@ -55,12 +51,6 @@ public class JAXBUserType implements UserType {
 			.getLogger(JAXBUserType.class);
 
 	private static final int[] SQL_TYPES = { Types.VARCHAR };
-
-	@Autowired
-	public void setJAXBContextHelper(JAXBContextHelper jaxbContextHelper) {
-		logger.debug("injected the jaxb context helper");
-		jaxbContext = jaxbContextHelper.getJAXBContext();
-	}
 
 	public Object assemble(Serializable cached, Object owner)
 			throws HibernateException {
@@ -133,19 +123,11 @@ public class JAXBUserType implements UserType {
 		return SQL_TYPES;
 	}
 
-	protected JAXBContext getJAXBContext() {
-		if (jaxbContext == null)
-			jaxbContext = new JAXBContextHelper(baseTypes, assignablePackages)
-					.getJAXBContext();
-
-		return jaxbContext;
-	}
-
 	protected Unmarshaller getUnmarshaller() {
 		if (unmarshaller == null) {
-			JAXBContext jc = getJAXBContext();
+
 			try {
-				unmarshaller = jc.createUnmarshaller();
+				unmarshaller = jaxbContext.createUnmarshaller();
 			} catch (JAXBException e) {
 				IllegalArgumentException ex = new IllegalArgumentException(
 						"Cannot instantiate unmarshaller");
@@ -158,9 +140,9 @@ public class JAXBUserType implements UserType {
 
 	protected Marshaller getMarshaller() {
 		if (marshaller == null) {
-			JAXBContext jc = getJAXBContext();
+
 			try {
-				marshaller = jc.createMarshaller();
+				marshaller = jaxbContext.createMarshaller();
 			} catch (JAXBException e) {
 				IllegalArgumentException ex = new IllegalArgumentException(
 						"Cannot instantiate marshaller");
@@ -202,5 +184,25 @@ public class JAXBUserType implements UserType {
 			throw new InfrastructureException(String.format(
 					"Unable to assemble object: %s", e.getMessage()));
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public void setParameterValues(Properties parameters) {
+		String baseTypesProperty = parameters.getProperty("baseTypes");
+		String assignablePackagesProperty = parameters
+				.getProperty("assignablePackages");
+
+		if (baseTypesProperty == null)
+			throw new InfrastructureException(
+					"Parameter baseTypes note defined to user type");
+
+		if (assignablePackagesProperty == null)
+			throw new InfrastructureException(
+					"Parameter assignablePackages note defined to user type");
+
+		jaxbContext = new JAXBContextHelper(baseTypesProperty.split(","),
+				assignablePackagesProperty.split(",")).getJAXBContext();
 	}
 }

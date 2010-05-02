@@ -31,7 +31,7 @@ public interface ElementService {
 
 	@GET
 	@Path("/element/getById/{id}")
-	@Produces( { MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	Element getById(@PathParam("id")
 	Long id);
 

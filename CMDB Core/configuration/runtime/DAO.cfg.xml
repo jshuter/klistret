@@ -73,19 +73,4 @@
 		class="com.klistret.cmdb.dao.RelationDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
-	<!-- JAXB UserType -->
-	<bean id="JAXBContextHelper"
-		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
-		<constructor-arg>
-			<value type="java.lang.String[]">
-				com.klistret.cmdb.Base
-			</value>
-		</constructor-arg>
-		<constructor-arg>
-			<value type="java.lang.String[]">com/klistret/cmdb</value>
-		</constructor-arg>
-	</bean>
-	<bean id="JAXBUserType" lazy-init="true">
-		<property name="JAXBContextHelper" ref="JAXBContextHelper" />
-	</bean>
 </beans>

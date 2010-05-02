@@ -137,13 +137,15 @@
 			<arg value="-XxmlRootElement" />
 			<arg value="-XxmlNSMap" />
 			<arg value="-XxmlNSMap-archive=C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar" />
-			<schema dir="${schema-basedir}" includes="pojo.xsd" />
+			<schema dir="${schema-basedir}">
+				<include name="pojo.xsd" />
+				<include name="xmlschemaNamespace.xsd" />
+			</schema>
 			<binding file="jaxb.binding.xml" />
 		</xjc>
-		
+
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/pojo/*.java" />
-			<include name="org/w3/_2001/xmlschema/*.java" />
 			<classpath>
 				<path refid="jaxb.class.path" />
 				<path refid="klistret.plugin.class.path" />
@@ -156,7 +158,6 @@
 			<include name="com/klistret/cmdb/*.class" />
 			<include name="com/klistret/cmdb/element/**/*.class" />
 			<include name="com/klistret/cmdb/relation/**/*.class" />
-			<include name="org/w3/_2001/xmlschema/*.class" />
 		</jar>
 	</target>
 </project>

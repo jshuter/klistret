@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -29,22 +28,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.element.logical.collection.Environment;
 import com.klistret.cmdb.pojo.Element;
-import com.klistret.cmdb.utility.hibernate.JAXBUserType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
-// @TransactionConfiguration
-// @Transactional
-public class ElementService extends AbstractJUnit4SpringContextTests {
+@TransactionConfiguration
+@Transactional
+public class ElementService extends
+		AbstractTransactionalJUnit4SpringContextTests {
 
-	// @Autowired
+	@Autowired
 	protected com.klistret.cmdb.service.ElementService elementService;
 
-	// @Autowired
+	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(44));
 		System.out
@@ -68,8 +67,4 @@ public class ElementService extends AbstractJUnit4SpringContextTests {
 		elementService.set(element);
 	}
 
-	@Test
-	public void dummy() {
-		JAXBUserType type = new JAXBUserType();
-	}
 }

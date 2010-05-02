@@ -49,6 +49,7 @@ public class RestEasyService {
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element/getById/44");
+
 		MockHttpResponse response = new MockHttpResponse();
 
 		dispatcher.invoke(request, response);
