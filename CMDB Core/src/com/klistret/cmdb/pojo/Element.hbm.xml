@@ -20,7 +20,7 @@
 
 	<class name="Element" table="ELEMENT" entity-name="Element">
 
-		<id name="id">
+		<id name="id" type="long">
 			<column name="ELEMENTID" sql-type="INTEGER" />
 			<generator class="identity"></generator>
 		</id>
