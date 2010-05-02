@@ -1,4 +1,4 @@
-<project default="ci">
+<project default="pojo">
 	<!-- Windows -->
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
@@ -131,11 +131,12 @@
 
 	</target>
 
-	<target name="pojo">
+	<target name="pojo" depends="ci">
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-XxmlRootElement" />
 			<arg value="-XxmlNSMap" />
+			<arg value="-Xinject-code" />
 			<arg value="-XxmlNSMap-archive=C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar" />
 			<schema dir="${schema-basedir}">
 				<include name="pojo.xsd" />

@@ -17,7 +17,10 @@
 	xmlns:pojo="http://www.klistret.com/cmdb/pojo"
 	xmlns:cmdb="http://www.klistret.com/cmdb"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified">
+	elementFormDefault="qualified"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:ci="http://jaxb.dev.java.net/plugin/code-injector"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="ci">
 	<xs:import namespace="http://www.klistret.com/cmdb"
 		schemaLocation="commons.xsd" />
 	<xs:simpleType name="id">
@@ -74,8 +77,35 @@
 	</xs:simpleType>
 	<xs:complexType name="Element">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:appinfo>
+				<ci:code><![CDATA[
+					public boolean equals(Object other) { 
+						if (this == other)
+							return true;
+						
+						if (this.id == null)
+							return false;
+							
+						if (!(other instanceof Element))
+							return false;
+						
+						final Element that = (Element) other;
+						
+						return this.id.equals(that.getId());
+					}
+					
+					public int hashCode() {
+        				if (id != null) {
+            				return id.hashCode();
+        				} else {
+            				return super.hashCode();
+        				}
+    				}
+					]]>
+				</ci:code>
+			</xs:appinfo>
 		</xs:annotation>
+
 		<xs:sequence>
 			<xs:element name="id" type="pojo:id" maxOccurs="1"
 				minOccurs="1" />
@@ -103,8 +133,35 @@
 	</xs:complexType>
 	<xs:complexType name="Relation">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:appinfo>
+				<ci:code><![CDATA[
+					public boolean equals(Object other) { 
+						if (this == other)
+							return true;
+						
+						if (this.id == null)
+							return false;
+							
+						if (!(other instanceof Relation))
+							return false;
+						
+						final Relation that = (Relation) other;
+						
+						return this.id.equals(that.getId());
+					}
+					
+					public int hashCode() {
+        				if (id != null) {
+            				return id.hashCode();
+        				} else {
+            				return super.hashCode();
+        				}
+    				}
+					]]>
+				</ci:code>
+			</xs:appinfo>
 		</xs:annotation>
+
 		<xs:sequence>
 			<xs:element name="id" type="pojo:id" maxOccurs="1"
 				minOccurs="1" />
@@ -131,6 +188,36 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ElementType">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:code><![CDATA[
+					public boolean equals(Object other) { 
+						if (this == other)
+							return true;
+						
+						if (this.id == null)
+							return false;
+							
+						if (!(other instanceof ElementType))
+							return false;
+						
+						final ElementType that = (ElementType) other;
+						
+						return this.id.equals(that.getId());
+					}
+					
+					public int hashCode() {
+        				if (id != null) {
+            				return id.hashCode();
+        				} else {
+            				return super.hashCode();
+        				}
+    				}
+					]]>
+				</ci:code>
+			</xs:appinfo>
+		</xs:annotation>
+
 		<xs:sequence>
 			<xs:element name="id" type="pojo:id" maxOccurs="1"
 				minOccurs="1" />
@@ -149,6 +236,36 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RelationType">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:code><![CDATA[
+					public boolean equals(Object other) { 
+						if (this == other)
+							return true;
+						
+						if (this.id == null)
+							return false;
+							
+						if (!(other instanceof RelationType))
+							return false;
+						
+						final RelationType that = (RelationType) other;
+						
+						return this.id.equals(that.getId());
+					}
+					
+					public int hashCode() {
+        				if (id != null) {
+            				return id.hashCode();
+        				} else {
+            				return super.hashCode();
+        				}
+    				}
+					]]>
+				</ci:code>
+			</xs:appinfo>
+		</xs:annotation>
+
 		<xs:sequence>
 			<xs:element name="id" type="pojo:id" maxOccurs="1"
 				minOccurs="1" />

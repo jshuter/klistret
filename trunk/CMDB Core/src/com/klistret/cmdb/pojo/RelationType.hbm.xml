@@ -20,7 +20,7 @@
 
 	<class name="RelationType" table="RELATIONTYPE" entity-name="RelationType">
 
-		<id name="id">
+		<id name="id" type="long">
 			<column name="RELATIONTYPEID" sql-type="INTEGER" />
 			<generator class="identity">
 			</generator>

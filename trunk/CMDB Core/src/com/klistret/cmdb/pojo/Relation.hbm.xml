@@ -21,7 +21,7 @@
 
 	<class name="Relation" table="RELATION" entity-name="Relation">
 
-		<id name="id">
+		<id name="id" type="long">
 			<column name="RELATIONID" sql-type="INTEGER" />
 			<generator class="identity"></generator>
 		</id>
