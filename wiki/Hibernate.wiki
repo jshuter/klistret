@@ -6,6 +6,9 @@ Hibernate (rather than JPA 2.0) is the data model manager.
 == JPA ==
 Until there is a way to write [http://www.bashanblog.com/2009/10/using-user-type-enumeration-in.html user types] in JPA 2.0 annotations the Hibernate configuration must remain in external XML files.  A better solution would be to translate these XML directives into JPA 2.0 annotations during XJC generation with [https://hyperjaxb.dev.java.net HyperJAXB].
 
+=== Spring 3.0 ===
+[http://paulszulc.wordpress.com/2010/01/09/jpa-2-0-and-spring-3-0-with-maven Spring 3.0] hooks in JPA with Hibernate as the underlying implementation.
+
 = Details =
 
 == XJC integration ==
@@ -15,3 +18,6 @@ Until there is a way to write [http://www.bashanblog.com/2009/10/using-user-type
 
 === Identity ===
 [http://onjava.com/pub/a/onjava/2006/09/13/dont-let-hibernate-steal-your-identity.html?page=1 Identity] is established with the *equals* and *hashcode* methods that are injected into the generated POJO classes with XJC.  There is an [http://confluence.highsource.org/display/J2B/Equals+plugin equals plug-in] for XJC but the syntax is messy.  It is easier to use the [http://weblogs.java.net/blog/2005/06/01/writing-plug-jaxb-ri-really-easy code injector] part of the JAXB commons framework.  Another solution is to extend every Hibernate class with predefined generic methods.
+
+=== User Type ===
+The major Pojo classes Element and Relation have CI properties defined by the pojo.xsd schema.  These CI properties are mapped by Hibernate through a user type which translates the XML sql-column between a string representation and JAXB generated class.  The user type extends the ParameterizedType which lets parameters be passed to the class at creation time.  Temporarily parameters are used to construct a JAXBContext.  Spring provides a way to inject dependencies into objects constructed outside of the application context with the [http://chris-richardson.blog-city.com/migrating_to_spring_2_part_3__injecting_dependencies_into_en.htm Configurable annotation].  However this requires a Java agent during JVM start up that isn't such a clean solution.
