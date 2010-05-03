@@ -1,0 +1,10 @@
+Hibernate (rather than JPA 2.0) is the data model manager.
+
+= Hibernate =
+
+= Details =
+
+== XJC integration ==
+
+=== Identity ===
+[http://onjava.com/pub/a/onjava/2006/09/13/dont-let-hibernate-steal-your-identity.html?page=1 Identity] is established with the equals and hashcode methods that are injected into the generated POJO classes with XJC.
