@@ -1,6 +1,10 @@
 Hibernate (rather than JPA 2.0) is the data model manager.
 
 = Hibernate =
+[http://www.hibernate.org Hibernate] has been around for many years and is stable.  Plus the integration with Spring is straightforward (show later on).
+
+== JPA ==
+Until there is a way to write [http://www.bashanblog.com/2009/10/using-user-type-enumeration-in.html user types] in JPA 2.0 annotations the Hibernate configuration must remain in external XML files.  A better solution would be to translate these XML directives into JPA 2.0 annotations during XJC generation with [https://hyperjaxb.dev.java.net HyperJAXB].
 
 = Details =
 
