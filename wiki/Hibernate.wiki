@@ -6,5 +6,8 @@ Hibernate (rather than JPA 2.0) is the data model manager.
 
 == XJC integration ==
 
+=== Java Type ===
+[http://fusesource.com/docs/framework/2.2/jaxws/JAXWSCustomTypeMappingJavaType.html Customization] of Java types is necessary to transform long into Long as well handle date formats with JAXB.
+
 === Identity ===
-[http://onjava.com/pub/a/onjava/2006/09/13/dont-let-hibernate-steal-your-identity.html?page=1 Identity] is established with the equals and hashcode methods that are injected into the generated POJO classes with XJC.
+[http://onjava.com/pub/a/onjava/2006/09/13/dont-let-hibernate-steal-your-identity.html?page=1 Identity] is established with the *equals* and *hashcode* methods that are injected into the generated POJO classes with XJC.  There is an [http://confluence.highsource.org/display/J2B/Equals+plugin equals plug-in] for XJC but the syntax is messy.  It is easier to use the [http://weblogs.java.net/blog/2005/06/01/writing-plug-jaxb-ri-really-easy code injector] part of the JAXB commons framework.  Another solution is to extend every Hibernate class with predefined generic methods.
