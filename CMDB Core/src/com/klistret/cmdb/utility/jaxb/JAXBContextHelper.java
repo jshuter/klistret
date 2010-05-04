@@ -150,8 +150,8 @@ public class JAXBContextHelper {
 
 			Map<Class, ? extends RuntimeClassInfo> beanMapByClass = runtimeTypeInfoSet
 					.beans();
-			beanMapByQName = new QNameMap();
 
+			beanMapByQName = new QNameMap();
 			for (Map.Entry<Class, ? extends RuntimeClassInfo> beanMapByClassEntry : beanMapByClass
 					.entrySet()) {
 				RuntimeClassInfo runtimeClassInfo = beanMapByClassEntry
@@ -163,6 +163,7 @@ public class JAXBContextHelper {
 				beanMapByQName.put(runtimeClassInfo.getElementName(),
 						runtimeClassInfo);
 			}
+
 		} catch (IllegalAnnotationsException e) {
 			throw new InfrastructureException(
 					String

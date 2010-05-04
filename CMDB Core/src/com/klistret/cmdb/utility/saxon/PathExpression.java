@@ -309,4 +309,8 @@ public class PathExpression {
 	public boolean hasRoot() {
 		return this.hasRoot;
 	}
+
+	public int getDepth() {
+		return relativePath.size();
+	}
 }

@@ -128,10 +128,9 @@
 			<include name="com/klistret/cmdb/element/**/*.class" />
 			<include name="com/klistret/cmdb/relation/**/*.class" />
 		</jar>
-
 	</target>
 
-	<target name="pojo" depends="ci">
+	<target name="pojo">
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-XxmlRootElement" />
