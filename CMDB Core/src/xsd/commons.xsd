@@ -90,7 +90,7 @@
 		</xs:choice>
 	</xs:complexType>
 
-	<xs:complexType name="Base">
+	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
 			<xs:element name="Name" type="cmdb:Name" maxOccurs="1"></xs:element>
 			<xs:element name="Namespace" type="cmdb:Namespace"
@@ -103,7 +103,7 @@
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
-	<xs:complexType name="Element">
+	<xs:complexType name="Element" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
 				Root CI (abstract) defining common CI characteristics
@@ -114,10 +114,10 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Element" type="cmdb:Element" abstract="true">
+	<xs:element name="Element" type="cmdb:Element">
 	</xs:element>
 
-	<xs:complexType name="Relation">
+	<xs:complexType name="Relation" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
 				Root association (abstract) between only two CIs
@@ -128,5 +128,5 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Relation" type="cmdb:Relation" abstract="true"></xs:element>
+	<xs:element name="Relation" type="cmdb:Relation"></xs:element>
 </schema>

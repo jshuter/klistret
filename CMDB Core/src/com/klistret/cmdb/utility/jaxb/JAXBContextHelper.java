@@ -30,10 +30,10 @@ import org.jvnet.jaxb.reflection.util.QNameMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
 public class JAXBContextHelper {
 
@@ -73,7 +73,7 @@ public class JAXBContextHelper {
 		this.baseTypes = baseTypes;
 		this.assignablePackages = assignablePackages;
 
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+		ClassPathScanningCandidateDefinitionProvider provider = new ClassPathScanningCandidateDefinitionProvider(
 				false);
 
 		for (String baseType : baseTypes) {

@@ -1,11 +1,11 @@
 <project default="xjc:compile">
-    <!-- Windows -->
-    <property name="tmp-destdir" location="C:/temp"/>
-    <property name="thirdparty-basedir" location="C:/workshop/downloads"/>
-    <property name="dist-basedir" location="C:/workshop/downloads/klistret"/>
-    <property name="project-basedir" location="C:/workshop/klistret/CMDB Core"/>
-    
-    <!-- Linux -->
+	<!-- Windows -->
+	<property name="tmp-destdir" location="C:/temp" />
+	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
+	<property name="dist-basedir" location="C:/workshop/downloads/klistret" />
+	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
+
+	<!-- Linux -->
 	<!--
     <property name="tmp-destdir" location="/tmp" />
     <property name="thirdparty-basedir" location="/home/matthew/Documents/software" />
@@ -13,34 +13,34 @@
     <property name="project-basedir" location="/home/matthew/Documents/workspace/klistret/CMDB Core" />
 	-->
 
-    
-    <path id="jaxb.class.path">
-        <fileset dir="${thirdparty-basedir}/jaxb-ri-20091104/lib">
-            <include name="jaxb1-impl.jar"/>
-            <include name="jaxb-api.jar"/>
-            <include name="jaxb-impl.jar"/>
-            <include name="jaxb-xjc.jar"/>
-        </fileset>
-    </path>
-	
+
+	<path id="jaxb.class.path">
+		<fileset dir="${thirdparty-basedir}/jaxb-ri-20091104/lib">
+			<include name="jaxb1-impl.jar" />
+			<include name="jaxb-api.jar" />
+			<include name="jaxb-impl.jar" />
+			<include name="jaxb-xjc.jar" />
+		</fileset>
+	</path>
+
 	<path id="jaxb2-basics.class.path">
 		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.2/dist">
 			<include name="jaxb2-basics-tools-*.jar" />
 		</fileset>
 	</path>
-	
+
 	<path id="spring.class.path">
 		<fileset dir="${thirdparty-basedir}/spring-framework-2.5.6.SEC01/dist">
 			<include name="spring.jar" />
 		</fileset>
 	</path>
-	
+
 	<path id="resteasy.class.path">
 		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.1.GA/lib">
 			<include name="resteasy-jettison-provider-1.2.1.GA.jar" />
 		</fileset>
 	</path>
-	
+
 	<path id="logging.class.path">
 		<fileset dir="${thirdparty-basedir}/slf4j-1.5.10">
 			<include name="slf4j-api-1.5.10.jar" />
@@ -50,27 +50,31 @@
 			<include name="log4j-1.2.15.jar" />
 		</fileset>
 	</path>
-    
-    <target name="xjc:compile" description="Generate XJC extensions">
-        <javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
-            <include name="com/klistret/cmdb/utility/jaxb/DateConverter.java"/>
-        	<include name="com/klistret/cmdb/utility/jaxb/*Plugin.java"/>
-            <classpath>
-                <path refid="jaxb.class.path"/>
-				<path refid="jaxb2-basics.class.path"/>
-				<path refid="spring.class.path"/>
-				<path refid="resteasy.class.path"/>
-				<path refid="logging.class.path"/>
-            </classpath>
-        </javac>
-        
-        <copy todir="${tmp-destdir}/META-INF">
-            <fileset dir="${project-basedir}/configuration/build/META-INF"/>
-        </copy>
-        
-        <jar destfile="${dist-basedir}/klistret.xjc.jar">
-            <fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/jaxb/**.class"/>
-            <fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin"/>
-        </jar>
-    </target>
+
+	<target name="xjc:compile" description="Generate XJC extensions">
+		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
+			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+			<include name="com/klistret/cmdb/utility/jaxb/*Plugin.java" />
+			<classpath>
+				<path refid="jaxb.class.path" />
+				<path refid="jaxb2-basics.class.path" />
+				<path refid="spring.class.path" />
+				<path refid="resteasy.class.path" />
+				<path refid="logging.class.path" />
+			</classpath>
+		</javac>
+
+		<copy todir="${tmp-destdir}/META-INF">
+			<fileset dir="${project-basedir}/configuration/build/META-INF" />
+		</copy>
+
+		<jar destfile="${dist-basedir}/klistret.xjc.jar">
+			<fileset dir="${tmp-destdir}">
+				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+				<include name="com/klistret/cmdb/utility/jaxb/*Plugin.class" />
+			</fileset>
+			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/spring/ClassPathScanningCandidateDefinitionProvider.class" />
+			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
+		</jar>
+	</target>
 </project>
