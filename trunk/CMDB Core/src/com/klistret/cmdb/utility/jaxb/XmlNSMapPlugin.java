@@ -20,10 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.xml.sax.ErrorHandler;
 
+import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
@@ -54,7 +54,7 @@ public class XmlNSMapPlugin extends AbstractParameterizablePlugin {
 	private static final Logger logger = LoggerFactory
 			.getLogger(XmlNSMapPlugin.class);
 
-	private static ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+	private static ClassPathScanningCandidateDefinitionProvider provider = new ClassPathScanningCandidateDefinitionProvider(
 			false);
 
 	private File archive;
