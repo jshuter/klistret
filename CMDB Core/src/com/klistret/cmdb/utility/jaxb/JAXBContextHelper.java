@@ -20,10 +20,10 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb.reflection.JAXBModelFactory;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeClassInfo;
+import org.jvnet.jaxb.reflection.model.runtime.RuntimePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfoSet;
 import org.jvnet.jaxb.reflection.runtime.IllegalAnnotationsException;
 import org.jvnet.jaxb.reflection.util.QNameMap;
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.ElementNode;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
 public class JAXBContextHelper {
@@ -52,6 +53,11 @@ public class JAXBContextHelper {
 	private String[] baseTypes;
 
 	/**
+	 * Context path comprised of classes found by the Spring Bean scanner
+	 */
+	private Set<Class<?>> contextPath = new HashSet<Class<?>>();
+
+	/**
 	 * JAXB context (expensive to build)
 	 */
 	private JAXBContext jaxbContext;
@@ -60,7 +66,7 @@ public class JAXBContextHelper {
 	 * Map keyed off qname rather than class names since the primary method for
 	 * searching is XPath
 	 */
-	private QNameMap<RuntimeClassInfo> beanMapByQName;
+	private QNameMap<ElementNode> elementNodes;
 
 	/**
 	 * Relies on Spring class path scanning module to filter out beans based on
@@ -92,100 +98,160 @@ public class JAXBContextHelper {
 		 * Set is used since the number of identifiable beans is unknown and
 		 * user specific
 		 */
-		Set<BeanDefinition> beans = new HashSet<BeanDefinition>();
-
+		Set<BeanDefinition> candidateBeans = new HashSet<BeanDefinition>();
 		for (String assignablePackage : assignablePackages) {
 			logger.debug(
 					"adding beans from package [{}] to a context collection",
 					assignablePackage);
-			beans.addAll(provider.findCandidateComponents(assignablePackage));
+			candidateBeans.addAll(provider
+					.findCandidateComponents(assignablePackage));
 		}
-
-		setContext(beans);
-	}
-
-	/**
-	 * Defines a JAXBContext as well a reflection context
-	 * 
-	 * @param beans
-	 */
-	@SuppressWarnings("unchecked")
-	private void setContext(Set<BeanDefinition> beans) {
-		Set<Class<?>> contextPath = new HashSet<Class<?>>();
 
 		/**
 		 * Add all beans into the context path (which essentially build on the
 		 * package name of the class so all class in the package are captured)
 		 */
-		for (BeanDefinition bean : beans) {
-			logger.debug("adding bean [{}] to context path", bean
+		for (BeanDefinition beanDefinition : candidateBeans) {
+			logger.debug("adding bean [{}] to context path", beanDefinition
 					.getBeanClassName());
 			try {
-				contextPath.add(Class.forName(bean.getBeanClassName()));
+				contextPath.add(Class
+						.forName(beanDefinition.getBeanClassName()));
 			} catch (ClassNotFoundException e) {
 				throw new InfrastructureException(String.format(
-						"Class unloadable [%s] into the context path", bean
-								.getBeanClassName()), e);
+						"Class unloadable [%s] into the context path",
+						beanDefinition.getBeanClassName()), e);
 			}
-		}
-
-		/**
-		 * Generate a JAXBContext
-		 */
-		try {
-			jaxbContext = JAXBContext.newInstance(contextPath
-					.toArray(new Class[0]));
-		} catch (JAXBException e) {
-			throw new InfrastructureException(String.format(
-					"Unable instantiate JAXBContext with context path [%s]",
-					contextPath), e);
-		}
-
-		/**
-		 * Reflection module to have runtime class information by qname
-		 */
-		try {
-			RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
-					.create(contextPath.toArray(new Class[0]));
-
-			Map<Class, ? extends RuntimeClassInfo> beanMapByClass = runtimeTypeInfoSet
-					.beans();
-
-			beanMapByQName = new QNameMap();
-			for (Map.Entry<Class, ? extends RuntimeClassInfo> beanMapByClassEntry : beanMapByClass
-					.entrySet()) {
-				RuntimeClassInfo runtimeClassInfo = beanMapByClassEntry
-						.getValue();
-
-				logger.debug("adding bean [{}] to map by qname [{}] ",
-						runtimeClassInfo.getClazz().getName(), runtimeClassInfo
-								.getElementName());
-				beanMapByQName.put(runtimeClassInfo.getElementName(),
-						runtimeClassInfo);
-			}
-
-		} catch (IllegalAnnotationsException e) {
-			throw new InfrastructureException(
-					String
-							.format(
-									"Unable instantiate JAXBModelFactory with context path [%s]",
-									contextPath), e);
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String[] getAssignablePackages() {
 		return this.assignablePackages;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String[] getBaseTypes() {
 		return this.baseTypes;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public JAXBContext getJAXBContext() {
-		return this.jaxbContext;
+		if (jaxbContext == null) {
+			try {
+				jaxbContext = JAXBContext.newInstance(contextPath
+						.toArray(new Class[0]));
+			} catch (JAXBException e) {
+				throw new InfrastructureException(
+						String
+								.format(
+										"Unable instantiate JAXBContext with context path [%s]",
+										contextPath), e);
+			}
+		}
+
+		return jaxbContext;
 	}
 
-	public RuntimeClassInfo getRuntimeClassInfo(QName qname) {
-		return this.beanMapByQName.get(qname);
+	/**
+	 * 
+	 * @param runtimeClassInfo
+	 * @return
+	 */
+	private ElementNode getElementNode(RuntimeClassInfo runtimeClassInfo) {
+		ElementNode elementNode = new ElementNode();
+
+		elementNode.setName(runtimeClassInfo.getElementName());
+		elementNode.setClassName(runtimeClassInfo.getName());
+		elementNode.setTypeName(runtimeClassInfo.getTypeName());
+
+		/**
+		 * Unknown right now what to do with namespaces
+		 */
+
+		elementNode.setAbstract(runtimeClassInfo.isAbstract());
+		elementNode.setFinal(runtimeClassInfo.isFinal());
+		elementNode.setSimpleType(runtimeClassInfo.isSimpleType());
+
+		RuntimeClassInfo baseClass = runtimeClassInfo.getBaseClass();
+
+		for (RuntimePropertyInfo runtimePropertyInfo : runtimeClassInfo
+				.getProperties()) {
+			runtimePropertyInfo.getRawType();
+		}
+
+		return elementNode;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<RuntimeClassInfo> findBeans(
+			RuntimeTypeInfoSet runtimeTypeInfoSet, RuntimeClassInfo baseType) {
+		Set<RuntimeClassInfo> beans = new HashSet<RuntimeClassInfo>();
+
+		for (Map.Entry<Class, ? extends RuntimeClassInfo> entry : runtimeTypeInfoSet
+				.beans().entrySet()) {
+			RuntimeClassInfo runtimeClassInfo = entry.getValue();
+
+			if (runtimeClassInfo.getBaseClass().equals(baseType))
+				beans.add(runtimeClassInfo);
+		}
+
+		return beans;
+	}
+
+	private void tranlateBeans(RuntimeTypeInfoSet runtimeTypeInfoSet,
+			RuntimeClassInfo baseType) {
+		Set<RuntimeClassInfo> beans = findBeans(runtimeTypeInfoSet, baseType);
+
+		for (RuntimeClassInfo bean : beans) {
+			ElementNode elementNode = getElementNode(bean);
+
+			Set<RuntimeClassInfo> extentions = findBeans(runtimeTypeInfoSet,
+					bean);
+			for (RuntimeClassInfo extending : extentions) {
+				tranlateBeans(runtimeTypeInfoSet, bean);
+				
+			}
+
+			elementNodes.put(elementNode.getName(), elementNode);
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public QNameMap<ElementNode> getElementNodes() {
+		if (elementNodes == null) {
+			try {
+				elementNodes = new QNameMap<ElementNode>();
+
+				RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
+						.create(contextPath.toArray(new Class[0]));
+
+				/**
+				 * Start with the roots of hierarchy and recursively work
+				 * downward
+				 */
+				tranlateBeans(runtimeTypeInfoSet, null);
+			} catch (IllegalAnnotationsException e) {
+				throw new InfrastructureException(
+						String
+								.format(
+										"Unable instantiate JAXBModelFactory with context path [%s]",
+										contextPath), e);
+			}
+		}
+
+		return elementNodes;
 	}
 }
