@@ -1,7 +1,5 @@
 package test.com.klistret.cmdb.utility.saxon;
 
-import javax.xml.namespace.QName;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,15 +15,17 @@ public class SaxonExamples {
 	}
 
 	@SuppressWarnings("unchecked")
-	// @Test
+	@Test
 	public void another() {
 		String[] baseTypes = { "com.klistret.cmdb.Base" };
 		String[] assignablePackages = { "com/klistret/cmdb" };
 
-		JAXBContextHelper helper = new JAXBContextHelper(baseTypes, assignablePackages);
+		JAXBContextHelper helper = new JAXBContextHelper(baseTypes,
+				assignablePackages);
+		helper.getElementNodes();
 	}
 
-	@Test
+	// @Test
 	public void dummy() {
 		PathExpression path = new PathExpression(
 				"declare namespace google='http://www.google.com'; /google:a[matches(@type,\"what/ever\")]/google:b[matches(@type,'ano\thor')]/google:c");
