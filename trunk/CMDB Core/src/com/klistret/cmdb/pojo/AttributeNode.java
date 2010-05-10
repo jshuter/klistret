@@ -49,4 +49,9 @@ public class AttributeNode {
 	public void setEntity(boolean isEntity) {
 		this.isEntity = isEntity;
 	}
+
+	public String toString() {
+		return String.format("attribute node name [%s], xml schema type [%s]",
+				name, typeName);
+	}
 }
