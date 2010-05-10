@@ -20,9 +20,13 @@ import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jvnet.jaxb.reflection.JAXBModelFactory;
+import org.jvnet.jaxb.reflection.model.core.PropertyKind;
+import org.jvnet.jaxb.reflection.model.runtime.RuntimeAttributePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeClassInfo;
+import org.jvnet.jaxb.reflection.model.runtime.RuntimeElementPropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfoSet;
 import org.jvnet.jaxb.reflection.runtime.IllegalAnnotationsException;
@@ -33,6 +37,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.AttributeNode;
 import com.klistret.cmdb.pojo.ElementNode;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
@@ -162,31 +167,77 @@ public class JAXBContextHelper {
 		return jaxbContext;
 	}
 
+	private ElementNode getElmenetNodeFromProperty(
+			RuntimeTypeInfoSet runtimeTypeInfoSet) {
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param runtimeClassInfo
 	 * @return
 	 */
-	private ElementNode getElementNode(RuntimeClassInfo runtimeClassInfo) {
+	private ElementNode getElementNodeFromBean(
+			RuntimeTypeInfoSet runtimeTypeInfoSet, RuntimeClassInfo beanInfo,
+			ElementNode baseInfo) {
 		ElementNode elementNode = new ElementNode();
 
-		elementNode.setName(runtimeClassInfo.getElementName());
-		elementNode.setClassName(runtimeClassInfo.getName());
-		elementNode.setTypeName(runtimeClassInfo.getTypeName());
+		/**
+		 * General information (no parent for beans)
+		 */
+		elementNode.setName(beanInfo.getElementName());
+		elementNode.setClassName(beanInfo.getName());
+		elementNode.setTypeName(beanInfo.getTypeName());
 
 		/**
 		 * Unknown right now what to do with namespaces
 		 */
 
-		elementNode.setAbstract(runtimeClassInfo.isAbstract());
-		elementNode.setFinal(runtimeClassInfo.isFinal());
-		elementNode.setSimpleType(runtimeClassInfo.isSimpleType());
+		/**
+		 * Specific conditions
+		 */
+		elementNode.setAbstract(beanInfo.isAbstract());
+		elementNode.setFinal(beanInfo.isFinal());
+		elementNode.setSimpleType(beanInfo.isSimpleType());
 
-		RuntimeClassInfo baseClass = runtimeClassInfo.getBaseClass();
+		/**
+		 * XML Root Element
+		 */
+		if (((Class<?>) beanInfo.getClazz())
+				.getAnnotation(XmlRootElement.class) != null)
+			elementNode.setXmlRootElement(true);
 
-		for (RuntimePropertyInfo runtimePropertyInfo : runtimeClassInfo
-				.getProperties()) {
-			runtimePropertyInfo.getRawType();
+		/**
+		 * Extended base type
+		 */
+		elementNode.setExtended(baseInfo);
+
+		/**
+		 * Children/Attributes
+		 */
+		for (RuntimePropertyInfo runtimePropertyInfo : beanInfo.getProperties()) {
+			if (runtimePropertyInfo.kind().equals(PropertyKind.ELEMENT)
+					&& runtimePropertyInfo instanceof RuntimeElementPropertyInfo) {
+				RuntimeElementPropertyInfo elementInfo = (RuntimeElementPropertyInfo) runtimePropertyInfo;
+
+				ElementNode child = new ElementNode();
+				child.setName(elementInfo.getXmlName());
+				child.setTypeName(elementInfo.getTypeName());
+				child.setParent(elementNode);
+				child.setClassName(elementInfo.displayName());
+
+				elementNode.getChildren().add(child);
+			}
+			if (runtimePropertyInfo.kind().equals(PropertyKind.ATTRIBUTE)
+					&& runtimePropertyInfo instanceof RuntimeAttributePropertyInfo) {
+				RuntimeAttributePropertyInfo attributeInfo = (RuntimeAttributePropertyInfo) runtimePropertyInfo;
+
+				AttributeNode attributeNode = new AttributeNode();
+				attributeNode.setName(attributeInfo.getXmlName());
+				attributeNode.setTypeName(attributeInfo.getSchemaType());
+
+				elementNode.getAttributes().add(attributeNode);
+			}
 		}
 
 		return elementNode;
@@ -197,32 +248,54 @@ public class JAXBContextHelper {
 			RuntimeTypeInfoSet runtimeTypeInfoSet, RuntimeClassInfo baseType) {
 		Set<RuntimeClassInfo> beans = new HashSet<RuntimeClassInfo>();
 
+		/**
+		 * Loop through the entire type info set for beans with a particular
+		 * base type
+		 */
 		for (Map.Entry<Class, ? extends RuntimeClassInfo> entry : runtimeTypeInfoSet
 				.beans().entrySet()) {
 			RuntimeClassInfo runtimeClassInfo = entry.getValue();
 
-			if (runtimeClassInfo.getBaseClass().equals(baseType))
+			if (runtimeClassInfo.getBaseClass() == null && baseType == null)
+				beans.add(runtimeClassInfo);
+
+			if (runtimeClassInfo.getBaseClass() != null
+					&& runtimeClassInfo.getBaseClass().equals(baseType))
 				beans.add(runtimeClassInfo);
 		}
 
 		return beans;
 	}
 
-	private void tranlateBeans(RuntimeTypeInfoSet runtimeTypeInfoSet,
+	private void translateBeans(RuntimeTypeInfoSet runtimeTypeInfoSet,
 			RuntimeClassInfo baseType) {
-		Set<RuntimeClassInfo> beans = findBeans(runtimeTypeInfoSet, baseType);
+		/**
+		 * Loop through beans with a particular base type
+		 */
+		for (RuntimeClassInfo bean : findBeans(runtimeTypeInfoSet, baseType)) {
+			/**
+			 * Find base type as element node
+			 */
+			ElementNode baseNode = baseType == null ? null : elementNodes
+					.get(baseType.getElementName());
 
-		for (RuntimeClassInfo bean : beans) {
-			ElementNode elementNode = getElementNode(bean);
-
-			Set<RuntimeClassInfo> extentions = findBeans(runtimeTypeInfoSet,
-					bean);
-			for (RuntimeClassInfo extending : extentions) {
-				tranlateBeans(runtimeTypeInfoSet, bean);
-				
-			}
-
+			/**
+			 * Construct and save an element node
+			 */
+			ElementNode elementNode = getElementNodeFromBean(
+					runtimeTypeInfoSet, bean, baseNode);
 			elementNodes.put(elementNode.getName(), elementNode);
+
+			/**
+			 * Build up list over extending elements
+			 */
+			if (baseNode != null)
+				baseNode.getExtending().add(elementNode);
+
+			/**
+			 * Recursively add beans
+			 */
+			translateBeans(runtimeTypeInfoSet, bean);
 		}
 	}
 
@@ -242,7 +315,7 @@ public class JAXBContextHelper {
 				 * Start with the roots of hierarchy and recursively work
 				 * downward
 				 */
-				tranlateBeans(runtimeTypeInfoSet, null);
+				translateBeans(runtimeTypeInfoSet, null);
 			} catch (IllegalAnnotationsException e) {
 				throw new InfrastructureException(
 						String

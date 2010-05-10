@@ -1,5 +1,8 @@
 package com.klistret.cmdb.pojo;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -15,27 +18,29 @@ public class ElementNode {
 
 	private String className;
 
-	private NamespaceNode[] namespaces;
+	private List<NamespaceNode> namespaces = new LinkedList<NamespaceNode>();
 
 	private QName typeName;
 
 	private ElementNode parent;
 
-	private boolean isAbstract = false;
+	private Boolean isAbstract;
 
-	private boolean isFinal = false;
+	private Boolean isFinal;
 
-	private boolean isEntity = false;
+	private Boolean isEntity;
 
-	private boolean isSimpleType = false;
+	private Boolean isSimpleType;
 
-	private boolean isNilled = false;
+	private Boolean isXmlRootElement;
 
-	private ElementNode[] children;
+	private Boolean isNilled;
 
-	private AttributeNode[] attributes;
+	private List<ElementNode> children = new LinkedList<ElementNode>();
 
-	private ElementNode[] extending;
+	private List<AttributeNode> attributes = new LinkedList<AttributeNode>();
+
+	private List<ElementNode> extending = new LinkedList<ElementNode>();
 
 	private ElementNode extended;
 
@@ -70,11 +75,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public NamespaceNode[] getNamespaces() {
+	public List<NamespaceNode> getNamespaces() {
 		return namespaces;
 	}
 
-	public void setNamespaces(NamespaceNode[] namespaces) {
+	public void setNamespaces(List<NamespaceNode> namespaces) {
 		this.namespaces = namespaces;
 	}
 
@@ -158,6 +163,19 @@ public class ElementNode {
 	}
 
 	/**
+	 * Earmarked XML root element (annotation)
+	 * 
+	 * @return
+	 */
+	public boolean isXmlRootElement() {
+		return isXmlRootElement;
+	}
+
+	public void setXmlRootElement(boolean isXmlRootElement) {
+		this.isXmlRootElement = isXmlRootElement;
+	}
+
+	/**
 	 * If the nilled property is true, then the children property must not
 	 * contain Element Nodes or Text Nodes
 	 * 
@@ -178,11 +196,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public ElementNode[] getChildren() {
+	public List<ElementNode> getChildren() {
 		return children;
 	}
 
-	public void setChildren(ElementNode[] children) {
+	public void setChildren(List<ElementNode> children) {
 		this.children = children;
 	}
 
@@ -191,11 +209,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public AttributeNode[] getAttributes() {
+	public List<AttributeNode> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(AttributeNode[] attributes) {
+	public void setAttributes(List<AttributeNode> attributes) {
 		this.attributes = attributes;
 	}
 
@@ -204,11 +222,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public ElementNode[] getExtending() {
+	public List<ElementNode> getExtending() {
 		return extending;
 	}
 
-	public void setExtending(ElementNode[] extending) {
+	public void setExtending(List<ElementNode> extending) {
 		this.extending = extending;
 	}
 
@@ -223,5 +241,12 @@ public class ElementNode {
 
 	public void setExtended(ElementNode extended) {
 		this.extended = extended;
+	}
+
+	public String toString() {
+		return String
+				.format(
+						"element node name [%s], xml schema type [%s], class name [%s]",
+						name, typeName, className);
 	}
 }
