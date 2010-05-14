@@ -18,6 +18,8 @@ public class ElementNode {
 
 	private String className;
 
+	private String propertyName;
+
 	private List<NamespaceNode> namespaces = new LinkedList<NamespaceNode>();
 
 	private QName typeName;
@@ -44,6 +46,8 @@ public class ElementNode {
 
 	private ElementNode extended;
 
+	private List<ElementNode> descendents;
+
 	/**
 	 * Element qualified name value
 	 * 
@@ -67,6 +71,19 @@ public class ElementNode {
 
 	public void setClassName(String className) {
 		this.className = className;
+	}
+
+	/**
+	 * Element property name (non-language specific)
+	 * 
+	 * @return
+	 */
+	public String getPropertyName() {
+		return this.propertyName;
+	}
+
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
 	}
 
 	/**
@@ -243,10 +260,28 @@ public class ElementNode {
 		this.extended = extended;
 	}
 
+	public List<ElementNode> getDescendents() {
+		return null;
+	}
+
 	public String toString() {
 		return String
 				.format(
 						"element node name [%s], xml schema type [%s], class name [%s]",
 						name, typeName, className);
 	}
+
+	/**
+	 * 
+	 */
+	public boolean equals(Object other) {
+		if (other instanceof ElementNode) {
+			if (((ElementNode) other).getName() != null && getName() != null
+					&& ((ElementNode) other).getName().equals(getName()))
+				return true;
+		}
+
+		return false;
+	}
+
 }
