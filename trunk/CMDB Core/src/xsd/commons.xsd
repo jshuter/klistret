@@ -110,12 +110,17 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="cmdb:Base" />
+			<xs:extension base="cmdb:Base">
+				<xs:sequence>
+					<xs:element name="Ownership" type="cmdb:Ownership"
+						maxOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Element" type="cmdb:Element">
-	</xs:element>
+	<xs:element name="Element" type="cmdb:Element"></xs:element>
 
 	<xs:complexType name="Relation" abstract="true">
 		<xs:annotation>

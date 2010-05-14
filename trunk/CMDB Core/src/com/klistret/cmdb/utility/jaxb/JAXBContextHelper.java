@@ -14,18 +14,25 @@
 
 package com.klistret.cmdb.utility.jaxb;
 
+import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb.reflection.JAXBModelFactory;
 import org.jvnet.jaxb.reflection.model.core.PropertyKind;
+import org.jvnet.jaxb.reflection.model.nav.Navigator;
+import org.jvnet.jaxb.reflection.model.nav.ReflectionNavigator;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeAttributePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeClassInfo;
+import org.jvnet.jaxb.reflection.model.runtime.RuntimeElementInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeElementPropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfoSet;
@@ -167,19 +174,13 @@ public class JAXBContextHelper {
 		return jaxbContext;
 	}
 
-	private ElementNode getElmenetNodeFromProperty(
-			RuntimeTypeInfoSet runtimeTypeInfoSet) {
-		return null;
-	}
-
 	/**
 	 * 
 	 * @param runtimeClassInfo
 	 * @return
 	 */
-	private ElementNode getElementNodeFromBean(
-			RuntimeTypeInfoSet runtimeTypeInfoSet, RuntimeClassInfo beanInfo,
-			ElementNode baseInfo) {
+	private ElementNode getElementNode(ReflectionNavigator navigator,
+			RuntimeClassInfo beanInfo, ElementNode baseInfo) {
 		ElementNode elementNode = new ElementNode();
 
 		/**
@@ -213,30 +214,23 @@ public class JAXBContextHelper {
 		elementNode.setExtended(baseInfo);
 
 		/**
-		 * Children/Attributes
+		 * Descendants/Attributes
 		 */
 		for (RuntimePropertyInfo runtimePropertyInfo : beanInfo.getProperties()) {
 			if (runtimePropertyInfo.kind().equals(PropertyKind.ELEMENT)
 					&& runtimePropertyInfo instanceof RuntimeElementPropertyInfo) {
 				RuntimeElementPropertyInfo elementInfo = (RuntimeElementPropertyInfo) runtimePropertyInfo;
 
-				ElementNode child = new ElementNode();
-				child.setName(elementInfo.getXmlName());
-				child.setTypeName(elementInfo.getTypeName());
-				child.setParent(elementNode);
-				child.setClassName(elementInfo.displayName());
-
-				elementNode.getChildren().add(child);
+				Type individualType = elementInfo.getIndividualType();
+				Class<?> individualClass = navigator.erasure(individualType);
+				logger.debug("individual name {}, xmlelement annotation {}",
+						individualClass.getName(), individualClass
+								.isAnnotationPresent(XmlRootElement.class));
 			}
+
 			if (runtimePropertyInfo.kind().equals(PropertyKind.ATTRIBUTE)
 					&& runtimePropertyInfo instanceof RuntimeAttributePropertyInfo) {
 				RuntimeAttributePropertyInfo attributeInfo = (RuntimeAttributePropertyInfo) runtimePropertyInfo;
-
-				AttributeNode attributeNode = new AttributeNode();
-				attributeNode.setName(attributeInfo.getXmlName());
-				attributeNode.setTypeName(attributeInfo.getSchemaType());
-
-				elementNode.getAttributes().add(attributeNode);
 			}
 		}
 
@@ -282,8 +276,8 @@ public class JAXBContextHelper {
 			/**
 			 * Construct and save an element node
 			 */
-			ElementNode elementNode = getElementNodeFromBean(
-					runtimeTypeInfoSet, bean, baseNode);
+			ElementNode elementNode = getElementNode(runtimeTypeInfoSet
+					.getNavigator(), bean, baseNode);
 			elementNodes.put(elementNode.getName(), elementNode);
 
 			/**
