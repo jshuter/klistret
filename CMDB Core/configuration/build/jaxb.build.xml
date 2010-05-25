@@ -108,7 +108,7 @@
 			</path>
 			<sequential>
 				<xjc destdir="${tmp-destdir}" extension="true">
-					<arg value="-XxmlRootElement" />
+					<arg value="-XxmlRootElement-ancestors=com.klistret.cmdb.Base" />
 					<schema file="@{file}" />
 				</xjc>
 			</sequential>
@@ -133,7 +133,7 @@
 	<target name="pojo">
 		<xjc destdir="${tmp-destdir}" extension="true">
 			<arg value="-Xcollection-setter-injector" />
-			<arg value="-XxmlRootElement" />
+			<arg value="-XxmlRootElement-ancestors=com.klistret.cmdb.Base" />
 			<arg value="-XxmlNSMap" />
 			<arg value="-Xinject-code" />
 			<arg value="-XxmlNSMap-archive=C:\\workshop\\downloads\\klistret\\klistret.jaxb.jar" />

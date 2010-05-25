@@ -1,6 +1,5 @@
 package test.com.klistret.cmdb.utility.jaxb;
 
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,8 +21,16 @@ public class XJC {
 				"-b",
 				"C:/workshop/klistret/CMDB Core/configuration/build/jaxb.binding.xml",
 				"C:/workshop/klistret/CMDB Core/src/xsd/pojo.xsd",
-				"-Xcollection-setter-injector", "-XxmlRootElement",
-				"-XxmlNSMap", "-Xinject-code" };
+				"C:/workshop/klistret/CMDB Core/src/xsd/commons.xsd",
+				"C:/workshop/klistret/CMDB Core/src/xsd/xmlschemaNamespace.xsd",
+				"C:/workshop/klistret/CMDB Core/src/xsd/element",
+				"C:/workshop/klistret/CMDB Core/src/xsd/relation",
+				"-Xcollection-setter-injector",
+				"-Xinject-code",
+				"-XxmlElement",
+				"-XxmlElement-baseClasses=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType",
+				"-XxmlNSMap",
+				"-XxmlNSMap-targetProperties=com.klistret.cmdb.pojo.Element.configuration,com.klistret.cmdb.pojo.Relation.configuration" };
 
 		XJCFacade.main(args);
 	}
