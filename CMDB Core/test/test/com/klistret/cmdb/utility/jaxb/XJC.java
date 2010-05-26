@@ -28,9 +28,9 @@ public class XJC {
 				"-Xcollection-setter-injector",
 				"-Xinject-code",
 				"-XxmlElement",
-				"-XxmlElement-baseClasses=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType",
+				"-XxmlElement-bases=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType",
 				"-XxmlNSMap",
-				"-XxmlNSMap-targetProperties=com.klistret.cmdb.pojo.Element.configuration,com.klistret.cmdb.pojo.Relation.configuration" };
+				"-XxmlNSMap-targets=com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.Relation" };
 
 		XJCFacade.main(args);
 	}
