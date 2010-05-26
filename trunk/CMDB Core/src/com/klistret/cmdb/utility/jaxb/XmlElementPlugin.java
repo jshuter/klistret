@@ -35,7 +35,7 @@ import com.sun.tools.xjc.outline.Outline;
  */
 public class XmlElementPlugin extends AbstractParameterizablePlugin {
 
-	private String baseClasses;
+	private String bases;
 
 	private List<JDefinedClass> baseJDefinedClasses;
 
@@ -50,12 +50,12 @@ public class XmlElementPlugin extends AbstractParameterizablePlugin {
 				+ "-XxmlElement-baseClasses: classes recursively assignable from base classes get the XmlRootElement annotation";
 	}
 
-	public String getBaseClasses() {
-		return this.baseClasses;
+	public String getBases() {
+		return this.bases;
 	}
 
-	public void setBaseClasses(String baseClasses) {
-		this.baseClasses = baseClasses;
+	public void setBases(String bases) {
+		this.bases = bases;
 	}
 
 	private boolean isAssignable(JDefinedClass other) {
@@ -93,8 +93,8 @@ public class XmlElementPlugin extends AbstractParameterizablePlugin {
 		 */
 		baseJDefinedClasses = new ArrayList<JDefinedClass>();
 		for (ClassOutline co : model.getClasses()) {
-			for (String baseClass : baseClasses.split(",")) {
-				if (co.implClass.fullName().equals(baseClass.trim()))
+			for (String base : bases.split(",")) {
+				if (co.implClass.fullName().equals(base.trim()))
 					baseJDefinedClasses.add(co.implClass);
 			}
 		}
