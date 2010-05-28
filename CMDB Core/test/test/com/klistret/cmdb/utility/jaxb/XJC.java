@@ -27,8 +27,8 @@ public class XJC {
 				"C:/workshop/klistret/CMDB Core/src/xsd/relation",
 				"-Xcollection-setter-injector",
 				"-Xinject-code",
-				"-XxmlElement",
-				"-XxmlElement-bases=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType",
+				"-XxmlRootElement",
+				"-XxmlRootElement-bases=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType",
 				"-XxmlNSMap",
 				"-XxmlNSMap-targets=com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.Relation" };
 

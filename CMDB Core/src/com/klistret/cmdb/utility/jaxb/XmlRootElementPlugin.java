@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlElement;
 
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.xml.sax.ErrorHandler;
@@ -33,7 +32,7 @@ import com.sun.tools.xjc.outline.Outline;
  * 
  * 
  */
-public class XmlElementPlugin extends AbstractParameterizablePlugin {
+public class XmlRootElementPlugin extends AbstractParameterizablePlugin {
 
 	private String bases;
 
@@ -41,13 +40,13 @@ public class XmlElementPlugin extends AbstractParameterizablePlugin {
 
 	@Override
 	public String getOptionName() {
-		return "XxmlElement";
+		return "XxmlRootElement";
 	}
 
 	@Override
 	public String getUsage() {
-		return "  -XxmlElement :  inject either the XmlRootElement or XmlElement annonation depending on class assignment"
-				+ "-XxmlElement-baseClasses: classes recursively assignable from base classes get the XmlRootElement annotation";
+		return "  -XxmlRootElement :  inject XmlRootElement on concrete CI classes"
+				+ "-XxmlRootElement-baseClasses: classes recursively assignable from base classes get the XmlRootElement annotation";
 	}
 
 	public String getBases() {
@@ -78,13 +77,6 @@ public class XmlElementPlugin extends AbstractParameterizablePlugin {
 		return false;
 	}
 
-	private boolean isXmlElementCandidate(JDefinedClass other) {
-		if (!isAssignable(other))
-			return true;
-
-		return false;
-	}
-
 	@Override
 	public boolean run(Outline model, Options opt, ErrorHandler errorHandler) {
 
@@ -110,17 +102,6 @@ public class XmlElementPlugin extends AbstractParameterizablePlugin {
 						.annotate(XmlRootElement.class);
 
 				xmlRootElementAnnotation.param("name", co.implClass.name());
-				xmlRootElementAnnotation.param("namespace", co._package()
-						.getMostUsedNamespaceURI());
-			}
-
-			if (isXmlElementCandidate(co.implClass)) {
-				JAnnotationUse xmlElementAnnotation = co.implClass
-						.annotate(XmlElement.class);
-
-				xmlElementAnnotation.param("name", co.implClass.name());
-				xmlElementAnnotation.param("namespace", co._package()
-						.getMostUsedNamespaceURI());
 			}
 		}
 

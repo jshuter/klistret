@@ -20,9 +20,7 @@ public class ElementNode {
 
 	private String propertyName;
 
-	private List<NamespaceNode> namespaces = new LinkedList<NamespaceNode>();
-
-	private QName typeName;
+	private QName type;
 
 	private ElementNode parent;
 
@@ -38,15 +36,13 @@ public class ElementNode {
 
 	private Boolean isNilled;
 
-	private List<ElementNode> children = new LinkedList<ElementNode>();
+	private List<QName> children = new LinkedList<QName>();
 
 	private List<AttributeNode> attributes = new LinkedList<AttributeNode>();
 
-	private List<ElementNode> extending = new LinkedList<ElementNode>();
+	private List<QName> extending = new LinkedList<QName>();
 
-	private ElementNode extended;
-
-	private List<ElementNode> descendents;
+	private QName extended;
 
 	/**
 	 * Element qualified name value
@@ -87,31 +83,17 @@ public class ElementNode {
 	}
 
 	/**
-	 * Set of namespaces contain one namespace node for each distinct namespace
-	 * that is declared explicitly on the element
-	 * 
-	 * @return
-	 */
-	public List<NamespaceNode> getNamespaces() {
-		return namespaces;
-	}
-
-	public void setNamespaces(List<NamespaceNode> namespaces) {
-		this.namespaces = namespaces;
-	}
-
-	/**
 	 * A Java type can be mapped to multiple XML types, but one of them is
 	 * considered "primary" and used when generating a schema.
 	 * 
 	 * @return
 	 */
-	public QName getTypeName() {
-		return typeName;
+	public QName getType() {
+		return type;
 	}
 
-	public void setTypeName(QName typeName) {
-		this.typeName = typeName;
+	public void setType(QName type) {
+		this.type = type;
 	}
 
 	/**
@@ -213,11 +195,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public List<ElementNode> getChildren() {
+	public List<QName> getChildren() {
 		return children;
 	}
 
-	public void setChildren(List<ElementNode> children) {
+	public void setChildren(List<QName> children) {
 		this.children = children;
 	}
 
@@ -239,11 +221,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public List<ElementNode> getExtending() {
+	public List<QName> getExtending() {
 		return extending;
 	}
 
-	public void setExtending(List<ElementNode> extending) {
+	public void setExtending(List<QName> extending) {
 		this.extending = extending;
 	}
 
@@ -252,11 +234,11 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public ElementNode getExtended() {
+	public QName getExtended() {
 		return extended;
 	}
 
-	public void setExtended(ElementNode extended) {
+	public void setExtended(QName extended) {
 		this.extended = extended;
 	}
 
@@ -265,10 +247,9 @@ public class ElementNode {
 	}
 
 	public String toString() {
-		return String
-				.format(
-						"element node name [%s], xml schema type [%s], class name [%s]",
-						name, typeName, className);
+		return String.format(
+				"element node name [%s], class name [%s], extends [%s]", name,
+				className, extended);
 	}
 
 	/**
