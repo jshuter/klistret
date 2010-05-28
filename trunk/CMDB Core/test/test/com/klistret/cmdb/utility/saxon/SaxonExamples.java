@@ -1,10 +1,10 @@
 package test.com.klistret.cmdb.utility.saxon;
 
-import javax.xml.namespace.QName;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.jvnet.jaxb.reflection.util.QNameMap;
 
+import com.klistret.cmdb.pojo.ElementNode;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
@@ -24,11 +24,10 @@ public class SaxonExamples {
 
 		JAXBContextHelper helper = new JAXBContextHelper(baseTypes,
 				assignablePackages);
-		System.out.println(String.format(
-				"Base extending classes attributes [%s]", helper
-						.getElementNodes().get(
-								new QName("http://www.klistret.com/cmdb",
-										"Base")).getChildren()));
+		for (QNameMap.Entry<ElementNode> entry : helper.getElementNodes()
+				.entrySet()) {
+			System.out.println(entry.getValue().toString());
+		}
 	}
 
 	// @Test

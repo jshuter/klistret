@@ -6,9 +6,9 @@ public class AttributeNode {
 
 	private QName name;
 
-	private QName typeName;
+	private QName type;
 
-	private boolean isEntity = false;
+	private Boolean isEntity;
 
 	/**
 	 * Attribute qualified name value
@@ -29,12 +29,12 @@ public class AttributeNode {
 	 * 
 	 * @return
 	 */
-	public QName getTypeName() {
-		return typeName;
+	public QName getType() {
+		return type;
 	}
 
-	public void setTypeName(QName typeName) {
-		this.typeName = typeName;
+	public void setType(QName type) {
+		this.type = type;
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class AttributeNode {
 	}
 
 	public String toString() {
-		return String.format("attribute node name [%s], xml schema type [%s]",
-				name, typeName);
+		return String.format("attribute node name [%s], schema type [%s]",
+				name, type);
 	}
 }
