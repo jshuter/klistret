@@ -14,7 +14,6 @@
 
 package com.klistret.cmdb.utility.jaxb;
 
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +39,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.AttributeNode;
-import com.klistret.cmdb.pojo.ElementNode;
+import com.klistret.cmdb.pojo.XMLAttributeProperty;
+import com.klistret.cmdb.pojo.XMLElementProperty;
+import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
 public class JAXBContextHelper {
@@ -74,7 +74,7 @@ public class JAXBContextHelper {
 	 * Map keyed off qname rather than class names since the primary method for
 	 * searching is XPath
 	 */
-	private QNameMap<ElementNode> elementNodes;
+	private QNameMap<XMLBean> xmlBeans;
 
 	/**
 	 * Relies on Spring class path scanning module to filter out beans based on
@@ -175,38 +175,39 @@ public class JAXBContextHelper {
 	 * @param runtimeClassInfo
 	 * @return
 	 */
-	private ElementNode getElementNode(RuntimeClassInfo beanInfo) {
-		ElementNode elementNode = new ElementNode();
+	private XMLBean getXMLBean(RuntimeClassInfo beanInfo) {
+		XMLBean xmlBean = new XMLBean();
 
 		/**
 		 * General information (no parent for beans)
 		 */
-		elementNode.setName(beanInfo.getTypeName());
-		elementNode.setClassName(beanInfo.getName());
+		xmlBean.setName(beanInfo.getTypeName());
+		xmlBean.setClazz(beanInfo.getClazz());
+
 
 		if (beanInfo.getType() instanceof BuiltinLeafInfo)
-			elementNode.setType(((BuiltinLeafInfo<?, ?>) beanInfo.getType())
+			xmlBean.setType(((BuiltinLeafInfo<?, ?>) beanInfo.getType())
 					.getTypeName());
 
 		/**
 		 * Specific conditions
 		 */
-		elementNode.setAbstract(beanInfo.isAbstract());
-		elementNode.setFinal(beanInfo.isFinal());
-		elementNode.setSimpleType(beanInfo.isSimpleType());
+		xmlBean.setAbstract(beanInfo.isAbstract());
+		xmlBean.setFinal(beanInfo.isFinal());
+		xmlBean.setSimpleType(beanInfo.isSimpleType());
 
 		/**
 		 * xml root element
 		 */
 		if (((Class<?>) beanInfo.getClazz())
 				.getAnnotation(XmlRootElement.class) != null)
-			elementNode.setXmlRootElement(true);
+			xmlBean.setXmlRootElement(true);
 
 		/**
 		 * Extended base type
 		 */
-		elementNode.setExtended(beanInfo.getBaseClass() == null ? null
-				: beanInfo.getBaseClass().getTypeName());
+		xmlBean.setExtended(beanInfo.getBaseClass() == null ? null : beanInfo
+				.getBaseClass().getTypeName());
 
 		/**
 		 * Children/Attributes
@@ -216,49 +217,72 @@ public class JAXBContextHelper {
 					&& runtimePropertyInfo instanceof RuntimeAttributePropertyInfo) {
 				RuntimeAttributePropertyInfo attributeInfo = (RuntimeAttributePropertyInfo) runtimePropertyInfo;
 
-				AttributeNode attributeNode = new AttributeNode();
-				attributeNode.setName(attributeInfo.getXmlName());
+				XMLAttributeProperty property = new XMLAttributeProperty();
+				property.setName(attributeInfo.getName());
+				property.setRequired(attributeInfo.isRequired());
 
 				for (RuntimeTypeInfo typeInfo : attributeInfo.ref()) {
 					if (typeInfo instanceof BuiltinLeafInfo)
-						attributeNode
-								.setType(((BuiltinLeafInfo<?, ?>) typeInfo)
-										.getTypeName());
+						property.setType(((BuiltinLeafInfo<?, ?>) typeInfo)
+								.getTypeName());
 				}
 
-				elementNode.getAttributes().add(attributeNode);
+				xmlBean.getProperties().add(property);
 			}
 
 			if (runtimePropertyInfo.kind().equals(PropertyKind.ELEMENT)
 					&& runtimePropertyInfo instanceof RuntimeElementPropertyInfo) {
 				RuntimeElementPropertyInfo elementInfo = (RuntimeElementPropertyInfo) runtimePropertyInfo;
 
-				Type rawType = elementInfo.getRawType();
+				XMLElementProperty property = new XMLElementProperty();
+				property.setName(elementInfo.getName());
+				property.setRequired(elementInfo.isRequired());
+				property.setValueList(elementInfo.isValueList());
 
 				for (RuntimeTypeInfo typeInfo : elementInfo.ref()) {
 					if (typeInfo instanceof BuiltinLeafInfo)
-						((BuiltinLeafInfo<?, ?>) typeInfo).getTypeName();
+						property.setType(((BuiltinLeafInfo<?, ?>) typeInfo)
+								.getTypeName());
+
+					if (typeInfo instanceof RuntimeClassInfo)
+						property.setType(((RuntimeClassInfo) typeInfo)
+								.getTypeName());
 				}
+
+				xmlBean.getProperties().add(property);
 			}
 		}
 
-		return elementNode;
+		return xmlBean;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void translateBeans(RuntimeTypeInfoSet runtimeTypeInfoSet,
-			QNameMap<ElementNode> elementNodes) {
+			QNameMap<XMLBean> xmlBeans) {
 
 		/**
-		 * construct nodes with attribute information from beans without finding
-		 * children or extending classes
+		 * construct nodes with property information from JAXB beans
 		 */
 		for (Map.Entry<Class, ? extends RuntimeClassInfo> entry : runtimeTypeInfoSet
 				.beans().entrySet()) {
 			RuntimeClassInfo bean = entry.getValue();
 
 			if (bean.getTypeName() != null)
-				elementNodes.put(bean.getTypeName(), getElementNode(bean));
+				xmlBeans.put(bean.getTypeName(), getXMLBean(bean));
+		}
+
+		/**
+		 * add extending information
+		 */
+		for (QNameMap.Entry<XMLBean> entry : xmlBeans.entrySet()) {
+
+			for (QNameMap.Entry<XMLBean> other : xmlBeans.entrySet()) {
+				if (other.getValue().getExtended() != null
+						&& other.getValue().getExtended().equals(
+								entry.getValue().getName()))
+					entry.getValue().getExtending().add(
+							other.getValue().getName());
+			}
 		}
 	}
 
@@ -266,15 +290,15 @@ public class JAXBContextHelper {
 	 * 
 	 * @return
 	 */
-	public QNameMap<ElementNode> getElementNodes() {
-		if (elementNodes == null) {
+	public QNameMap<XMLBean> getXMLBeans() {
+		if (xmlBeans == null) {
 			try {
-				elementNodes = new QNameMap<ElementNode>();
+				xmlBeans = new QNameMap<XMLBean>();
 
 				RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
 						.create(contextPath.toArray(new Class[0]));
 
-				translateBeans(runtimeTypeInfoSet, elementNodes);
+				translateBeans(runtimeTypeInfoSet, xmlBeans);
 			} catch (IllegalAnnotationsException e) {
 				throw new InfrastructureException(
 						String
@@ -284,6 +308,6 @@ public class JAXBContextHelper {
 			}
 		}
 
-		return elementNodes;
+		return xmlBeans;
 	}
 }
