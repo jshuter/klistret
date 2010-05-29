@@ -35,8 +35,7 @@ public interface ElementService {
 	Element getById(@PathParam("id")
 	Long id);
 
-	Collection<Element> findByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria);
+	Collection<Element> findByExpressions(String[] expressions);
 
 	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
 

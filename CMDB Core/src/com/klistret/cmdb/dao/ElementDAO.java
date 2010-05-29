@@ -42,11 +42,11 @@ public interface ElementDAO {
 	 * expressions, operators, and values to be applied into the passed
 	 * operation.
 	 * 
-	 * @param criteria
+	 * @param expressions
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.pojo.Element> findByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria);
+	Collection<com.klistret.cmdb.pojo.Element> findByExpressions(
+			String[] expressions);
 
 	/**
 	 * CRUD count by criteria (under the hood the findByCriteria method)

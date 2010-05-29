@@ -68,9 +68,11 @@
 	<bean id="elementDAO"
 		class="com.klistret.cmdb.dao.ElementDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="JAXBContextHelper" ref="jaxbContextHelper" />
 	</bean>
 	<bean id="relationDAO"
 		class="com.klistret.cmdb.dao.RelationDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="JAXBContextHelper" ref="jaxbContextHelper" />
 	</bean>
 </beans>

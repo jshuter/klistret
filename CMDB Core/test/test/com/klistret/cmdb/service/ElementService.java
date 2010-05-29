@@ -42,8 +42,8 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	@Test
-	@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(44));
 		System.out
@@ -67,4 +67,11 @@ public class ElementService extends
 		elementService.set(element);
 	}
 
+	@Test
+	@Rollback(value = false)
+	public void findByExpr() {
+		String[] expressions = { "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo'; /pojo:Element[matches(@id,\"43423\")]" };
+
+		elementService.findByExpressions(expressions);
+	}
 }

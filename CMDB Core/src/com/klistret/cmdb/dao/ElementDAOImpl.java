@@ -31,6 +31,7 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.Element;
 import com.klistret.cmdb.pojo.ElementType;
+import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 
 /**
  * 
@@ -71,10 +72,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<Element> findByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
+	public Collection<Element> findByExpressions(String[] expressions) {
 		try {
-			Criteria hcriteria = criteria.getCriteria(getSession());
+			Criteria hcriteria = new XPathCriteria(expressions,
+					getJAXBContextHelper()).getCriteria(getSession());
 			String alias = hcriteria.getAlias();
 
 			hcriteria.setProjection(Projections.projectionList().add(
@@ -87,9 +88,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					Projections.property(alias + ".createTimeStamp")).add(
 					Projections.property(alias + ".updateTimeStamp")).add(
 					Projections.property(alias + ".configuration")));
-
-			hcriteria.setMaxResults(criteria.getMaxResults());
-			hcriteria.setFirstResult(criteria.getFirstResult());
 
 			Object[] results = hcriteria.list().toArray();
 
@@ -107,11 +105,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateId((String) row[5]);
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
-				element.setConfiguration(row[8]);
+				element.setConfiguration((com.klistret.cmdb.Element) row[8]);
 
 				elements.add(element);
 			}
-			
+
 			results = null;
 
 			return elements;
