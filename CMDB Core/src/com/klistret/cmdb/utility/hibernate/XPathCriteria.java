@@ -6,11 +6,13 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
-import org.jvnet.jaxb.reflection.model.runtime.RuntimeClassInfo;
 
 import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
+import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class XPathCriteria {
 
@@ -42,15 +44,29 @@ public class XPathCriteria {
 	}
 
 	public Criteria getCriteria(Session session) {
-		PathExpression[] pathExpressions = explain(xpaths);
+		/**
+		 * validate xpath expressions
+		 */
+		PathExpression[] expressions = explain(xpaths);
 
-		ClassMetadata hClassMetadata = getClassMetadata(containingQName);
+		/**
+		 * construct hibernate criteria based on the root step
+		 */
+		XMLBean xmlBean = jaxbContextHelper.getXMLBeans().get(containingQName);
+		ClassMetadata hClassMetadata = sessionFactory.getClassMetadata(xmlBean
+				.getClazz());
+
+		if (hClassMetadata == null)
+			throw new ApplicationException();
+
 		Criteria criteria = session.createCriteria(hClassMetadata
 				.getEntityName());
 
-		for (PathExpression pathExpression : pathExpressions) {
-
-		}
+		/**
+		 * piece together criteria from each expression
+		 */
+		for (PathExpression expression : expressions)
+			transform(criteria, expression);
 
 		return criteria;
 	}
@@ -86,20 +102,24 @@ public class XPathCriteria {
 		return pathExpressions;
 	}
 
-	private ClassMetadata getClassMetadata(QName qname) {
-		RuntimeClassInfo runtimeClassInfo = jaxbContextHelper
-				.getRuntimeClassInfo(qname);
+	private void transform(Criteria critera, PathExpression expression) {
+		// ignore root
+		for (int index = 1; index < expression.getRelativePath().size(); index++) {
+			Expr expr = expression.getRelativePath().get(index);
 
-		ClassMetadata hClassMetadata = sessionFactory
-				.getClassMetadata(runtimeClassInfo.getClazz());
+			// ignore containing step except for the predicate
+			if (index == 1 && expr.getType().equals(Expr.Type.Step)
+					&& ((StepExpr) expr).hasPredicate())
+				expr = ((StepExpr) expr).getPredicate();
 
-		if (hClassMetadata == null)
-			throw new ApplicationException(
-					String
-							.format(
-									"QName [%s] has not corresponding entity defined to Hibernate",
-									containingQName));
-
-		return hClassMetadata;
+			switch (expr.getType()) {
+			case Step:
+				break;
+			case Comparison:
+				break;
+			case Irresolute:
+				break;
+			}
+		}
 	}
 }

@@ -9,26 +9,18 @@ import javax.xml.namespace.QName;
  * Based on http://www.w3.org/TR/2000/WD-query-datamodel-20000511 and
  * http://www.w3.org/TR/xpath-datamodel
  * 
- * @author 40042466
- * 
  */
-public class ElementNode {
+public class XMLBean {
 
 	private QName name;
 
-	private String className;
-
-	private String propertyName;
+	private Class<?> clazz;
 
 	private QName type;
-
-	private ElementNode parent;
 
 	private Boolean isAbstract;
 
 	private Boolean isFinal;
-
-	private Boolean isEntity;
 
 	private Boolean isSimpleType;
 
@@ -36,9 +28,7 @@ public class ElementNode {
 
 	private Boolean isNilled;
 
-	private List<QName> children = new LinkedList<QName>();
-
-	private List<AttributeNode> attributes = new LinkedList<AttributeNode>();
+	private List<XMLProperty> properties = new LinkedList<XMLProperty>();
 
 	private List<QName> extending = new LinkedList<QName>();
 
@@ -61,25 +51,12 @@ public class ElementNode {
 	 * 
 	 * @return
 	 */
-	public String getClassName() {
-		return this.className;
+	public Class<?> getClazz() {
+		return this.clazz;
 	}
 
-	public void setClassName(String className) {
-		this.className = className;
-	}
-
-	/**
-	 * Element property name (non-language specific)
-	 * 
-	 * @return
-	 */
-	public String getPropertyName() {
-		return this.propertyName;
-	}
-
-	public void setPropertyName(String propertyName) {
-		this.propertyName = propertyName;
+	public void setClazz(Class<?> clazz) {
+		this.clazz = clazz;
 	}
 
 	/**
@@ -94,19 +71,6 @@ public class ElementNode {
 
 	public void setType(QName type) {
 		this.type = type;
-	}
-
-	/**
-	 * A reference to the unique parent of an ElemNode
-	 * 
-	 * @return
-	 */
-	public ElementNode getParent() {
-		return parent;
-	}
-
-	public void setParent(ElementNode parent) {
-		this.parent = parent;
 	}
 
 	/**
@@ -132,19 +96,6 @@ public class ElementNode {
 
 	public void setFinal(boolean isFinal) {
 		this.isFinal = isFinal;
-	}
-
-	/**
-	 * JPA entity
-	 * 
-	 * @return
-	 */
-	public boolean isEntity() {
-		return isEntity;
-	}
-
-	public void setEntity(boolean isEntity) {
-		this.isEntity = isEntity;
 	}
 
 	/**
@@ -189,31 +140,16 @@ public class ElementNode {
 	}
 
 	/**
-	 * Children is a list of references to ElemNode, ValueNode, PINode,
-	 * CommentNode, and InfoItemNode values except XPath/SQL queries limit to
-	 * only ElemNode nodes.
-	 * 
-	 * @return
-	 */
-	public List<QName> getChildren() {
-		return children;
-	}
-
-	public void setChildren(List<QName> children) {
-		this.children = children;
-	}
-
-	/**
 	 * List of attributes to ElemNode
 	 * 
 	 * @return
 	 */
-	public List<AttributeNode> getAttributes() {
-		return attributes;
+	public List<XMLProperty> getProperties() {
+		return properties;
 	}
 
-	public void setAttributes(List<AttributeNode> attributes) {
-		this.attributes = attributes;
+	public void setProperties(List<XMLProperty> properties) {
+		this.properties = properties;
 	}
 
 	/**
@@ -242,23 +178,24 @@ public class ElementNode {
 		this.extended = extended;
 	}
 
-	public List<ElementNode> getDescendents() {
+	public List<XMLBean> getDescendents() {
 		return null;
 	}
 
 	public String toString() {
-		return String.format(
-				"element node name [%s], class name [%s], extends [%s]", name,
-				className, extended);
+		return String
+				.format(
+						"element node name [%s], class name [%s], extends [%s], extending %d",
+						name, clazz.getName(), extended, extending.size());
 	}
 
 	/**
 	 * 
 	 */
 	public boolean equals(Object other) {
-		if (other instanceof ElementNode) {
-			if (((ElementNode) other).getName() != null && getName() != null
-					&& ((ElementNode) other).getName().equals(getName()))
+		if (other instanceof XMLBean) {
+			if (((XMLBean) other).getName() != null && getName() != null
+					&& ((XMLBean) other).getName().equals(getName()))
 				return true;
 		}
 
