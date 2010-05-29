@@ -4,7 +4,6 @@ import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
 
 import com.klistret.cmdb.exception.ApplicationException;
@@ -20,15 +19,11 @@ public class XPathCriteria {
 
 	private JAXBContextHelper jaxbContextHelper;
 
-	private SessionFactory sessionFactory;
-
 	private QName containingQName;
 
-	public XPathCriteria(String[] xpaths, JAXBContextHelper jaxbContextHelper,
-			SessionFactory sessionFactory) {
+	public XPathCriteria(String[] xpaths, JAXBContextHelper jaxbContextHelper) {
 		this.xpaths = xpaths;
 		this.jaxbContextHelper = jaxbContextHelper;
-		this.sessionFactory = sessionFactory;
 	}
 
 	public String[] getXPaths() {
@@ -39,11 +34,8 @@ public class XPathCriteria {
 		return this.jaxbContextHelper;
 	}
 
-	public SessionFactory getSessionFactory() {
-		return this.sessionFactory;
-	}
-
 	public Criteria getCriteria(Session session) {
+
 		/**
 		 * validate xpath expressions
 		 */
@@ -53,8 +45,8 @@ public class XPathCriteria {
 		 * construct hibernate criteria based on the root step
 		 */
 		XMLBean xmlBean = jaxbContextHelper.getXMLBeans().get(containingQName);
-		ClassMetadata hClassMetadata = sessionFactory.getClassMetadata(xmlBean
-				.getClazz());
+		ClassMetadata hClassMetadata = session.getSessionFactory()
+				.getClassMetadata(xmlBean.getClazz());
 
 		if (hClassMetadata == null)
 			throw new ApplicationException();

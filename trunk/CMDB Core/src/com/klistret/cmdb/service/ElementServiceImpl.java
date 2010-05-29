@@ -33,8 +33,8 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.countByCriteria(criteria);
 	}
 
-	public Collection<Element> findByCriteria(PropertyCriteria criteria) {
-		return elementDAO.findByCriteria(criteria);
+	public Collection<Element> findByExpressions(String[] expressions) {
+		return elementDAO.findByExpressions(expressions);
 	}
 
 	public Element getById(Long id) {
