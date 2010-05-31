@@ -105,6 +105,8 @@ public class XPathCriteria {
 
 	private void transform(Session session, Criteria criteria,
 			PathExpression expression) {
+		Stage stage = new Stage();
+
 		// ignore root
 		for (int index = 1; index < expression.getRelativePath().size(); index++) {
 			Expr expr = expression.getRelativePath().get(index);
@@ -114,11 +116,18 @@ public class XPathCriteria {
 					&& ((StepExpr) expr).hasPredicate())
 				expr = ((StepExpr) expr).getPredicate();
 
-			criteria.add(explain(expr));
+			stage.setCriteria(criteria);
+			stage.setJaxbContextHelper(jaxbContextHelper);
+			stage.setSession(session);
+			stage.setExpr(expr);
+
+			explain(stage);
 		}
 	}
 
-	private Criterion explain(Expr expr) {
+	private Criterion explain(Stage stage) {
+		Expr expr = stage.getExpr();
+
 		switch (expr.getType()) {
 		case Step:
 			return explain((StepExpr) expr);
@@ -162,11 +171,14 @@ public class XPathCriteria {
 
 	private Criterion explain(ComparisonExpr expr) {
 		if (expr.getOperands().size() != 1)
-			throw new ApplicationException(String.format(
-					"Comparison expression [%s] must have only 1 operand", expr));
-		
+			throw new ApplicationException(
+					String
+							.format(
+									"Comparison expression [%s] must have only 1 operand",
+									expr));
+
 		Expr operand = expr.getOperands().get(0);
-		
+
 		switch (expr.getOperator()) {
 		case ValueEquals:
 			return null;
@@ -184,5 +196,47 @@ public class XPathCriteria {
 
 	private Criterion explain(IrresoluteExpr expr) {
 		return null;
+	}
+
+	private class Stage {
+		private Session session;
+
+		private Criteria criteria;
+
+		private Expr expr;
+
+		private JAXBContextHelper jaxbContextHelper;
+
+		public Session getSession() {
+			return session;
+		}
+
+		public void setSession(Session session) {
+			this.session = session;
+		}
+
+		public Criteria getCriteria() {
+			return criteria;
+		}
+
+		public void setCriteria(Criteria criteria) {
+			this.criteria = criteria;
+		}
+
+		public Expr getExpr() {
+			return expr;
+		}
+
+		public void setExpr(Expr expr) {
+			this.expr = expr;
+		}
+
+		public JAXBContextHelper getJaxbContextHelper() {
+			return jaxbContextHelper;
+		}
+
+		public void setJaxbContextHelper(JAXBContextHelper jaxbContextHelper) {
+			this.jaxbContextHelper = jaxbContextHelper;
+		}
 	}
 }
