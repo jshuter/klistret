@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 
 import org.jvnet.jaxb.reflection.JAXBModelFactory;
 import org.jvnet.jaxb.reflection.model.core.BuiltinLeafInfo;
@@ -131,6 +132,24 @@ public class JAXBContextHelper {
 						beanDefinition.getBeanClassName()), e);
 			}
 		}
+
+		/**
+		 * Define XML beans
+		 */
+		try {
+			xmlBeans = new QNameMap<XMLBean>();
+
+			RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
+					.create(contextPath.toArray(new Class[0]));
+
+			translateBeans(runtimeTypeInfoSet, xmlBeans);
+		} catch (IllegalAnnotationsException e) {
+			throw new InfrastructureException(
+					String
+							.format(
+									"Unable instantiate JAXBModelFactory with context path [%s]",
+									contextPath), e);
+		}
 	}
 
 	/**
@@ -183,7 +202,6 @@ public class JAXBContextHelper {
 		 */
 		xmlBean.setName(beanInfo.getTypeName());
 		xmlBean.setClazz(beanInfo.getClazz());
-
 
 		if (beanInfo.getType() instanceof BuiltinLeafInfo)
 			xmlBean.setType(((BuiltinLeafInfo<?, ?>) beanInfo.getType())
@@ -291,23 +309,20 @@ public class JAXBContextHelper {
 	 * @return
 	 */
 	public QNameMap<XMLBean> getXMLBeans() {
-		if (xmlBeans == null) {
-			try {
-				xmlBeans = new QNameMap<XMLBean>();
+		return xmlBeans;
+	}
 
-				RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
-						.create(contextPath.toArray(new Class[0]));
-
-				translateBeans(runtimeTypeInfoSet, xmlBeans);
-			} catch (IllegalAnnotationsException e) {
-				throw new InfrastructureException(
-						String
-								.format(
-										"Unable instantiate JAXBModelFactory with context path [%s]",
-										contextPath), e);
-			}
+	/**
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	public XMLBean getXMLBean(QName qname) {
+		for (QNameMap.Entry<XMLBean> entry : xmlBeans.entrySet()) {
+			if (entry.getValue().getName().equals(qname))
+				return entry.getValue();
 		}
 
-		return xmlBeans;
+		return null;
 	}
 }

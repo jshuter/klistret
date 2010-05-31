@@ -22,9 +22,4 @@
 	<import resource="Service.cfg.xml" />
 	<import resource="Utility.cfg.xml" />
 
-	<!--
-	<import resource="Utility.cfg.xml" />
-	<import resource="AOP.cfg.xml" />
-	-->
-
 </beans>
