@@ -87,13 +87,13 @@ public class PathExpression {
 	 * defined invalid URIs.
 	 */
 	static final Pattern defaultElementNamespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+default\\s+element\\s+namespace\\s+(\'|\")(.+)(\'|\")\\s?;");
+			.compile("\\s?declare\\s+default\\s+element\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s?;");
 
 	static final Pattern defaultFunctionNamespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(.+)(\'|\")\\s?;");
+			.compile("\\s?declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s?;");
 
 	static final Pattern namespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+namespace\\s+(.+)\\s?=\\s?(\'|\")(.+)(\'|\")\\s?;");
+			.compile("\\s?declare\\s+namespace\\s+(((?!\\s*=\\s*).)*)\\s?=\\s?(\'|\")(((?!\\3).)*)\\3\\s?;");
 
 	/**
 	 * Regular expression for delimiting path (slash) expressions (look ahead
@@ -153,11 +153,11 @@ public class PathExpression {
 		while (nd.find()) {
 			logger.debug(
 					"Identified namespace declaration [prefix: {}, uri: {}]",
-					nd.group(1), nd.group(3));
+					nd.group(1), nd.group(4));
 
 			if (nd.end() > prologOffset)
 				prologOffset = nd.end();
-			staticContext.declareNamespace(nd.group(1), nd.group(3));
+			staticContext.declareNamespace(nd.group(1), nd.group(4));
 		}
 
 		/**

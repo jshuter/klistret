@@ -215,9 +215,12 @@ public class StepExpr extends Expr {
 		// URI, local name (suggested prefix is really saved internally)
 		String[] parsedClarkName = NamePool.parseClarkName(clarkName);
 
+		// prefix not used to determine equality
+		String suggestedPrefix = configuration.getNamePool()
+				.suggestPrefixForURI(parsedClarkName[0]);
+
 		QName qname = new QName(parsedClarkName[0], parsedClarkName[1],
-				configuration.getNamePool().suggestPrefixForURI(
-						parsedClarkName[0]));
+				suggestedPrefix);
 		return qname;
 	}
 

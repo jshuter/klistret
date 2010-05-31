@@ -26,12 +26,12 @@
 	<!-- jaxb context -->
 	<bean id="jaxbContextHelper"
 		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
-		<constructor-arg>
+		<constructor-arg index="0">
 			<value type="java.lang.String[]">
-				com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element
+				com.klistret.cmdb.pojo.Element,com.klistret.cmdb.Base
 			</value>
 		</constructor-arg>
-		<constructor-arg>
+		<constructor-arg index="1">
 			<value type="java.lang.String[]">com/klistret/cmdb</value>
 		</constructor-arg>
 	</bean>
