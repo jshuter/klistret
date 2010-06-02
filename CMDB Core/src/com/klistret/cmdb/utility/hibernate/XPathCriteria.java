@@ -22,43 +22,50 @@ import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class XPathCriteria {
 
-	private String[] xpaths;
+	public static Criteria getCriteria(String[] xpaths,
+			JAXBContextHelper jaxbContextHelper, Session session) {
 
-	private JAXBContextHelper jaxbContextHelper;
-
-	private QName containingQName;
-
-	public XPathCriteria(String[] xpaths, JAXBContextHelper jaxbContextHelper) {
-		this.xpaths = xpaths;
-		this.jaxbContextHelper = jaxbContextHelper;
-	}
-
-	public String[] getXPaths() {
-		return this.xpaths;
-	}
-
-	public JAXBContextHelper getJAXBContextHelper() {
-		return this.jaxbContextHelper;
-	}
-
-	public Criteria getCriteria(Session session) {
+		PathExpression[] expressions = new PathExpression[xpaths.length];
 
 		/**
 		 * validate xpath expressions
 		 */
-		PathExpression[] expressions = explain(xpaths);
+		QName container = null;
+		for (int index = 0; index < xpaths.length; index++) {
+			PathExpression expression = new PathExpression(xpaths[index]);
+			expressions[index] = expression;
+
+			if (!expression.hasRoot())
+				throw new ApplicationException(String.format(
+						"XPath [%s] does not have a root expression",
+						expression.getXPath()));
+
+			QName qname = expression.getQName(1);
+			if (qname == null)
+				throw new ApplicationException(String.format(
+						"Containg QName not defined for xpath [%s]", expression
+								.getXPath()));
+
+			if (container != null && !container.equals(qname))
+				throw new ApplicationException(
+						String
+								.format(
+										"Leading QName [%s] not unique across xpath statements [%s]",
+										qname, xpaths));
+
+			container = qname;
+		}
 
 		/**
 		 * construct hibernate criteria based on the root step
 		 */
-		XMLBean xmlBean = jaxbContextHelper.getXMLBean(containingQName);
+		XMLBean xmlBean = jaxbContextHelper.getXMLBean(container);
 		ClassMetadata hClassMetadata = session.getSessionFactory()
 				.getClassMetadata(xmlBean.getName().getLocalPart());
 
 		if (hClassMetadata == null)
 			throw new ApplicationException(String.format(
-					"Hibernate class does not exist for qname [%s]",
-					containingQName));
+					"Hibernate class does not exist for qname [%s]", container));
 
 		Criteria criteria = session.createCriteria(hClassMetadata
 				.getEntityName());
@@ -67,46 +74,14 @@ public class XPathCriteria {
 		 * piece together criteria from each expression
 		 */
 		for (PathExpression expression : expressions)
-			transform(session, criteria, expression);
+			transform(expression, jaxbContextHelper, session, criteria);
 
 		return criteria;
 	}
 
-	private PathExpression[] explain(String[] xpaths) {
-		PathExpression[] pathExpressions = new PathExpression[xpaths.length];
-
-		for (int index = 0; index < xpaths.length; index++) {
-			PathExpression pathExpression = new PathExpression(xpaths[index]);
-			pathExpressions[index] = pathExpression;
-
-			if (!pathExpression.hasRoot())
-				throw new ApplicationException(String.format(
-						"XPath [%s] does not have a root expression",
-						pathExpression.getXPath()));
-
-			QName qname = pathExpression.getQName(1);
-			if (qname == null)
-				throw new ApplicationException(String.format(
-						"Containg QName not defined for xpath [%s]",
-						pathExpression.getXPath()));
-
-			if (containingQName != null && !containingQName.equals(qname))
-				throw new ApplicationException(
-						String
-								.format(
-										"Leading QName [%s] not unique across xpath statements [%s]",
-										qname, xpaths));
-
-			containingQName = qname;
-		}
-
-		return pathExpressions;
-	}
-
-	private void transform(Session session, Criteria criteria,
-			PathExpression expression) {
-		Stage stage = new Stage();
-
+	private static void transform(PathExpression expression,
+			JAXBContextHelper jaxbContextHelper, Session session,
+			Criteria criteria) {
 		// ignore root
 		for (int index = 1; index < expression.getRelativePath().size(); index++) {
 			Expr expr = expression.getRelativePath().get(index);
@@ -116,12 +91,6 @@ public class XPathCriteria {
 					&& ((StepExpr) expr).hasPredicate())
 				expr = ((StepExpr) expr).getPredicate();
 
-			stage.setCriteria(criteria);
-			stage.setJaxbContextHelper(jaxbContextHelper);
-			stage.setSession(session);
-			stage.setExpr(expr);
-
-			explain(stage);
 		}
 	}
 
@@ -198,45 +167,4 @@ public class XPathCriteria {
 		return null;
 	}
 
-	private class Stage {
-		private Session session;
-
-		private Criteria criteria;
-
-		private Expr expr;
-
-		private JAXBContextHelper jaxbContextHelper;
-
-		public Session getSession() {
-			return session;
-		}
-
-		public void setSession(Session session) {
-			this.session = session;
-		}
-
-		public Criteria getCriteria() {
-			return criteria;
-		}
-
-		public void setCriteria(Criteria criteria) {
-			this.criteria = criteria;
-		}
-
-		public Expr getExpr() {
-			return expr;
-		}
-
-		public void setExpr(Expr expr) {
-			this.expr = expr;
-		}
-
-		public JAXBContextHelper getJaxbContextHelper() {
-			return jaxbContextHelper;
-		}
-
-		public void setJaxbContextHelper(JAXBContextHelper jaxbContextHelper) {
-			this.jaxbContextHelper = jaxbContextHelper;
-		}
-	}
 }
