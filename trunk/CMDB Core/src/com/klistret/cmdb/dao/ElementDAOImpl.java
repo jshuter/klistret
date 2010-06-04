@@ -75,7 +75,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	public Collection<Element> findByExpressions(String[] expressions) {
 		try {
 			Criteria hcriteria = new XPathCriteria(expressions,
-					getJAXBContextHelper()).getCriteria(getSession());
+					getJAXBContextHelper(), getSession()).getCriteria();
 			String alias = hcriteria.getAlias();
 
 			hcriteria.setProjection(Projections.projectionList().add(

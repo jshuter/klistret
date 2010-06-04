@@ -31,7 +31,7 @@ import net.sf.saxon.om.NamePool;
 import net.sf.saxon.expr.Token;
 import net.sf.saxon.instruct.TraceExpression;
 
-public class StepExpr extends Expr {
+public class StepExpr extends Step {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(StepExpr.class);

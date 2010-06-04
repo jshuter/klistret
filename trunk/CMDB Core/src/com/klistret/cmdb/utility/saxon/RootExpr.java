@@ -17,7 +17,7 @@ package com.klistret.cmdb.utility.saxon;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.RootExpression;
 
-public class RootExpr extends Expr {
+public class RootExpr extends Step {
 
 	protected RootExpr(RootExpression expression, Configuration configuration) {
 		super(expression, configuration);

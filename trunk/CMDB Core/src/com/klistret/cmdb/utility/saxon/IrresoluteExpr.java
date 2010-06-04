@@ -14,10 +14,12 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import javax.xml.namespace.QName;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
-public class IrresoluteExpr extends Expr {
+public class IrresoluteExpr extends Step {
 
 	protected IrresoluteExpr(Expression expression, Configuration configuration) {
 		super(expression, configuration);
@@ -26,6 +28,10 @@ public class IrresoluteExpr extends Expr {
 	@Override
 	public Type getType() {
 		return Type.Irresolute;
+	}
+
+	public QName getQName() {
+		return null;
 	}
 
 	public String toString() {

@@ -10,6 +10,7 @@ import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.Step;
 
 public class SaxonExamples {
 
@@ -37,12 +38,12 @@ public class SaxonExamples {
 
 	@Test
 	public void dummy() {
-		String xpath = "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo';/pojo:Element[matches(@id,\"43423\") and exists(@toTimeStamp)]";
+		String xpath = "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo';/pojo:Element[. = 'whatever' and exists(@toTimeStamp)]/pojo:Relation/pojo:RelationType";
 
 		PathExpression path = new PathExpression(xpath);
 
 		for (Expr expr : path.getRelativePath())
-			System.out.println(String.format("%s, %s", expr.toString(), expr
-					.getXPath()));
+			System.out.println(String.format("%s, %s", expr.toString(),
+					((Step) expr).getXPath()));
 	}
 }

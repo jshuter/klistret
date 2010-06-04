@@ -258,8 +258,12 @@ public class PathExpression {
 		 * irresolute)
 		 */
 		int depth = relativePath.size() - 1;
-		if (depth >= 0 && depth > xpathSplit.length)
-			relativePath.get(depth).setXPath(xpathSplit[depth]);
+		if (depth >= 0 && depth > xpathSplit.length) {
+			Step step = ((Step) relativePath.get(depth));
+			
+			step.setXPath(xpathSplit[depth]);
+			step.setDepth(depth);
+		}
 	}
 
 	public String getXPath() {
