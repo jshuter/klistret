@@ -30,11 +30,6 @@ public abstract class Expr {
 	protected final Configuration configuration;
 
 	/**
-	 * Applicable to step and irresolute expressions
-	 */
-	protected String xpath;
-
-	/**
 	 * Basic expr types
 	 */
 	public enum Type {
@@ -67,24 +62,6 @@ public abstract class Expr {
 	 * @return
 	 */
 	public abstract Type getType();
-
-	/**
-	 * Get xpath strig representation
-	 * 
-	 * @return
-	 */
-	public String getXPath() {
-		return this.xpath;
-	}
-
-	/**
-	 * Internal use only
-	 * 
-	 * @param xpath
-	 */
-	protected void setXPath(String xpath) {
-		this.xpath = xpath;
-	}
 
 	public String toString() {
 		return String.format("type [%s], saxon expression [%s]", getType(),
