@@ -84,20 +84,30 @@ public abstract class Step extends Expr {
 	}
 
 	/**
-	 * Concatenation of this xpath plus descendents
+	 * Concatenation of descending xpath
 	 * 
 	 * @return
 	 */
 	public String getRemainingXPath() {
-		return next == null ? xpath : depth == 0 ? xpath.concat(next
-				.getRemainingXPath()) : xpath.concat("/".concat(next
-				.getRemainingXPath()));
+		return next == null ? null : next.getRemainingXPath() == null ? next
+				.getXPath() : next.getXPath().concat("/").concat(
+				next.getRemainingXPath());
 	}
 
+	/**
+	 * Owning path expression
+	 * 
+	 * @return
+	 */
 	public PathExpression getPathExpression() {
 		return this.pathExpression;
 	}
 
+	/**
+	 * Set owning path expression
+	 * 
+	 * @param pathExpression
+	 */
 	public void setPathExpression(PathExpression pathExpression) {
 		this.pathExpression = pathExpression;
 	}
