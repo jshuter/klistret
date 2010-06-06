@@ -142,7 +142,8 @@ public class XPathCriteria {
 					buildFromExpression(nextClassMetadata, nextCriteria, step
 							.getNext());
 				} else {
-					criteria.add(Restrictions.sqlRestriction(""));
+					criteria.add(new XPathRestriction(propertyType.getName(),
+							step));
 				}
 
 			}

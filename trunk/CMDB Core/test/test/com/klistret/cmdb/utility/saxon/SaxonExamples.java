@@ -48,5 +48,8 @@ public class SaxonExamples {
 
 		for (String namespace : path.getNamespaces())
 			System.out.println(String.format("namespace [%s]", namespace));
+
+		System.out.println(((Step) path.getRelativePath().get(1))
+				.getRemainingXPath());
 	}
 }

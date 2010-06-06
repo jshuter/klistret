@@ -25,6 +25,8 @@ import org.hibernate.engine.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.utility.saxon.Step;
+
 /**
  * Implements Hibernate Criterion for XPath expressions
  * 
@@ -42,15 +44,9 @@ public class XPathRestriction implements Criterion {
 	private final String propertyName;
 
 	/**
-	 * XPath statement
+	 * Expression step
 	 */
-	private final String xpath;
-
-	/**
-	 * XPath statements have (currently) support for a single context variable
-	 * reference
-	 */
-	private final String variableReference;
+	private final Step step;
 
 	/**
 	 * Default Function name-space for DB2 Viper (9 version)
@@ -74,11 +70,9 @@ public class XPathRestriction implements Criterion {
 	 * @param xpath
 	 * @param variableReference
 	 */
-	public XPathRestriction(String propertyName, String xpath,
-			String variableReference) {
+	public XPathRestriction(String propertyName, Step step) {
 		this.propertyName = propertyName;
-		this.xpath = xpath;
-		this.variableReference = variableReference;
+		this.step = step;
 	}
 
 	/**
@@ -105,7 +99,8 @@ public class XPathRestriction implements Criterion {
 					"xpathExists may only be used with single-column properties");
 		}
 
-		logger.debug("xpath [{}] prior to applying dialect", xpath);
+		logger.debug("xpath [{}] prior to applying dialect", step
+				.getRemainingXPath());
 
 		if (dialect instanceof DB2Dialect) {
 			String db2Xpath = xpath.replaceAll(reDefaultFunctionNamespace, "");
