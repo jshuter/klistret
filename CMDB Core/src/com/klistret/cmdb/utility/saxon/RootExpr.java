@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import javax.xml.namespace.QName;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.RootExpression;
 
@@ -28,4 +30,7 @@ public class RootExpr extends Step {
 		return Type.Root;
 	}
 
+	public QName getQName() {
+		return null;
+	}
 }

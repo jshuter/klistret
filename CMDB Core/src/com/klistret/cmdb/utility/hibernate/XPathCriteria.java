@@ -5,13 +5,16 @@ import javax.xml.namespace.QName;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.type.Type;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class XPathCriteria {
@@ -61,7 +64,8 @@ public class XPathCriteria {
 		 * piece together criteria from each expression
 		 */
 		for (PathExpression expression : expressions)
-			build(criteria, expression);
+			buildFromExpression(hClassMetadata, criteria, (Step) expression
+					.getExpr(0));
 
 		return criteria;
 	}
@@ -105,32 +109,56 @@ public class XPathCriteria {
 		return hClassMetadata;
 	}
 
-	private void build(Criteria criteria, PathExpression expression) {
+	private void buildFromExpression(ClassMetadata hClassMetadata,
+			Criteria criteria, Step step) {
+		if (step == null)
+			return;
 
-		for (Expr expr : expression.getRelativePath()) {
-			switch (expr.getType()) {
-			case Step:
-				StepExpr stepExpr = (StepExpr) expr;
+		switch (step.getType()) {
+		case Step:
+			if (step.getDepth() == 1) {
+				criteria.add(buildFromPredicate(((StepExpr) step)
+						.getPredicate()));
 
-				if (stepExpr.getDepth() != 1) {
-					criteria = criteria.createCriteria("");
+				buildFromExpression(hClassMetadata, criteria, step.getNext());
+			} else {
+				if (step.getQName() == null)
+					throw new ApplicationException(String.format(
+							"Step QName not defined for xpath [%s]", step
+									.getXPath()));
+
+				Type propertyType = hClassMetadata.getPropertyType(step
+						.getQName().getLocalPart());
+
+				if (propertyType.isEntityType()) {
+					ClassMetadata nextClassMetadata = getClassMetadata(step
+							.getQName());
+
+					Criteria nextCriteria = criteria
+							.createCriteria(hClassMetadata.getEntityName());
+					nextCriteria.add(buildFromPredicate(((StepExpr) step)
+							.getPredicate()));
+
+					buildFromExpression(nextClassMetadata, nextCriteria, step
+							.getNext());
+				} else {
+					criteria.add(Restrictions.sqlRestriction(""));
 				}
 
-				criteria.add(getCriterion(stepExpr.getPredicate()));
-				break;
-			case Irresolute:
-				break;
-			case Root:
-				// ignore
-				break;
-			default:
-				throw new ApplicationException(String.format(
-						"Unexpected expr [%s] type for path step", expr));
 			}
+			break;
+		case Irresolute:
+			break;
+		case Root:
+			buildFromExpression(hClassMetadata, criteria, step.getNext());
+			break;
+		default:
+			throw new ApplicationException(String.format(
+					"Unexpected expr [%s] type for step", step));
 		}
 	}
 
-	private Criterion getCriterion(Expr expr) {
+	private Criterion buildFromPredicate(Expr expr) {
 		return null;
 	}
 }

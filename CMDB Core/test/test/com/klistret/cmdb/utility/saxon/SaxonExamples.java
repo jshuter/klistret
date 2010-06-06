@@ -45,5 +45,8 @@ public class SaxonExamples {
 		for (Expr expr : path.getRelativePath())
 			System.out.println(String.format("%s, %s", expr.toString(),
 					((Step) expr).getXPath()));
+
+		for (String namespace : path.getNamespaces())
+			System.out.println(String.format("namespace [%s]", namespace));
 	}
 }
