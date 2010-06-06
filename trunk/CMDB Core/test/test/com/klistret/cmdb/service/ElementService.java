@@ -70,7 +70,7 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = { "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo'; /pojo:Element[matches(@id,\"43423\") or exists(@toTimeStamp) or exists(@toTimeStamp)]" };
+		String[] expressions = { "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo'; /pojo:Element/cmdb:configuration" };
 
 		elementService.findByExpressions(expressions);
 	}

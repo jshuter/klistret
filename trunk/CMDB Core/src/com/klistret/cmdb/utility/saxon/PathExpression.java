@@ -81,6 +81,11 @@ public class PathExpression {
 	private boolean hasRoot = false;
 
 	/**
+	 * Place holder for namespaces
+	 */
+	private List<String> namespaces = new ArrayList<String>();
+
+	/**
 	 * Statics expressions are formed after the semantics defined at the
 	 * following site http://www.w3.org/TR/xquery-semantics and the URI literal
 	 * is intentionally left as a wild-card because end-users will likely
@@ -158,6 +163,8 @@ public class PathExpression {
 			if (nd.end() > prologOffset)
 				prologOffset = nd.end();
 			staticContext.declareNamespace(nd.group(1), nd.group(4));
+
+			namespaces.add(xpath.substring(nd.start(), nd.end()).trim());
 		}
 
 		/**
@@ -254,15 +261,18 @@ public class PathExpression {
 		}
 
 		/**
-		 * Set individual xpath to this depth (ie only types of root, step or
-		 * irresolute)
+		 * Setup step information (ie only types of root, step or irresolute)
 		 */
 		int depth = relativePath.size() - 1;
-		if (depth >= 0 && depth > xpathSplit.length) {
+		if (depth >= 0 && depth < xpathSplit.length) {
 			Step step = ((Step) relativePath.get(depth));
-			
-			step.setXPath(xpathSplit[depth]);
+
+			step.setPathExpression(this);
+			step.setXPath(depth == 0 ? "/" : xpathSplit[depth]);
 			step.setDepth(depth);
+
+			if (depth != 0)
+				((Step) relativePath.get(depth - 1)).setNext(step);
 		}
 	}
 
@@ -289,6 +299,10 @@ public class PathExpression {
 	public String getNamespace(String prefix) {
 		return staticContext.getNamespaceResolver().getURIForPrefix(prefix,
 				false);
+	}
+
+	public List<String> getNamespaces() {
+		return namespaces;
 	}
 
 	public List<Expr> getRelativePath() {

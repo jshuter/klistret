@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.utility.hibernate.XPathExpression;
+import com.klistret.cmdb.utility.hibernate.XPathRestriction;
 import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
 import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
 
@@ -245,53 +245,53 @@ public class PropertyCriteria {
 
 			switch (propertyCriterion.getOperation()) {
 			case matches:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.matches(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case contains:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.contains(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case startsWith:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.startsWith(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case endsWith:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.endsWith(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case equal:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.equal(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case notEqual:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.notEqual(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case lessThan:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.lessThan(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case lessThanOrEqual:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.lessThanOrEqual(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case greaterThan:
-				criteria.add(new XPathExpression(property, propertyExpression
+				criteria.add(new XPathRestriction(property, propertyExpression
 						.greaterThan(getValueAsString(propertyCriterion)),
 						propertyExpression.getVariableReference()));
 				break;
 			case greaterThanOrEqual:
 				criteria
-						.add(new XPathExpression(
+						.add(new XPathRestriction(
 								property,
 								propertyExpression
 										.greaterThanOrEqual(getValueAsString(propertyCriterion)),

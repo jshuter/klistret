@@ -12,7 +12,20 @@ public abstract class Step extends Expr {
 	 */
 	protected String xpath;
 
+	/**
+	 * Depth within the regular expression
+	 */
 	protected int depth;
+
+	/**
+	 * Next step in the regular expression
+	 */
+	protected Step next;
+
+	/**
+	 * Owning path expression
+	 */
+	protected PathExpression pathExpression;
 
 	public Step(Expression expression, Configuration configuration) {
 		super(expression, configuration);
@@ -28,7 +41,7 @@ public abstract class Step extends Expr {
 	}
 
 	/**
-	 * Internal use only
+	 * Set xpath for this step
 	 * 
 	 * @param xpath
 	 */
@@ -36,13 +49,63 @@ public abstract class Step extends Expr {
 		this.xpath = xpath;
 	}
 
+	/**
+	 * Get depth within regular expression
+	 * 
+	 * @return
+	 */
 	public int getDepth() {
 		return this.depth;
 	}
 
+	/**
+	 * Set depth
+	 * 
+	 * @param depth
+	 */
 	public void setDepth(int depth) {
 		this.depth = depth;
 	}
-	
+
+	/*
+	 * Next step in the regular expression
+	 */
+	public Step getNext() {
+		return this.next;
+	}
+
+	/**
+	 * Set step
+	 * 
+	 * @param next
+	 */
+	public void setNext(Step next) {
+		this.next = next;
+	}
+
+	/**
+	 * Concatenation of this xpath plus descendents
+	 * 
+	 * @return
+	 */
+	public String getRemainingXPath() {
+		return next == null ? xpath : depth == 0 ? xpath.concat(next
+				.getRemainingXPath()) : xpath.concat("/".concat(next
+				.getRemainingXPath()));
+	}
+
+	public PathExpression getPathExpression() {
+		return this.pathExpression;
+	}
+
+	public void setPathExpression(PathExpression pathExpression) {
+		this.pathExpression = pathExpression;
+	}
+
+	/**
+	 * QName associated with the step minus the filter
+	 * 
+	 * @return
+	 */
 	public abstract QName getQName();
 }

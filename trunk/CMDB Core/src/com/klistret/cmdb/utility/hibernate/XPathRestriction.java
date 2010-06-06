@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @SuppressWarnings("serial")
-public class XPathExpression implements Criterion {
+public class XPathRestriction implements Criterion {
 	private static final Logger logger = LoggerFactory
-			.getLogger(XPathExpression.class);
+			.getLogger(XPathRestriction.class);
 
 	/**
 	 * Binding property for Hibernate criteria (as stated in mapping files)
@@ -63,11 +63,6 @@ public class XPathExpression implements Criterion {
 	private final String OracleDefaultFunctionNamespace = "http://xmlns.oracle.com/xdb";
 
 	/**
-	 * Regular Expression matches name-space declarations
-	 */
-	private final String reDefaultFunctionNamespace = "declare\\s+default\\s+function\\s+namespace\\s+\"(http(s?):\\/\\/|(www.))([a-z0-9\\/_;:%#=&?@\\-.]+[a-z0-9\\/_#=&?\\-])\"";
-
-	/**
 	 * Return value for criterion without types values
 	 */
 	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
@@ -79,7 +74,7 @@ public class XPathExpression implements Criterion {
 	 * @param xpath
 	 * @param variableReference
 	 */
-	public XPathExpression(String propertyName, String xpath,
+	public XPathRestriction(String propertyName, String xpath,
 			String variableReference) {
 		this.propertyName = propertyName;
 		this.xpath = xpath;
