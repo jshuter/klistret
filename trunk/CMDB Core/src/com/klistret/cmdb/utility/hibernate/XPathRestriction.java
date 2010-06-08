@@ -30,6 +30,9 @@ import com.klistret.cmdb.utility.saxon.Step;
 /**
  * Implements Hibernate Criterion for XPath expressions
  * 
+ * Static default function declarations should be edit-ready rather then hard
+ * coded.
+ * 
  * @author Matthew Young
  * 
  */
@@ -68,6 +71,13 @@ public class XPathRestriction implements Criterion {
 	 */
 	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
 
+	/**
+	 * Constructor transfers over arguments to properties (variable refenese
+	 * defaults to "this")
+	 * 
+	 * @param propertyName
+	 * @param step
+	 */
 	public XPathRestriction(String propertyName, Step step) {
 		this.propertyName = propertyName;
 		this.step = step;
@@ -106,17 +116,17 @@ public class XPathRestriction implements Criterion {
 		if (columns.length != 1) {
 			logger
 					.error(
-							"xpathExists may only be used with single-column properties [property: {}]",
+							"XMLEXISTS may only be used with single-column properties [property: {}]",
 							propertyName);
 			throw new HibernateException(
-					"xpathExists may only be used with single-column properties");
+					"XMLEXISTS may only be used with single-column properties");
 		}
 
-		String xpath = "$".concat(variableReference.concat("/".concat(step
-				.getRemainingXPath())));
+		String xpath = String.format("$%s/%s", variableReference, step
+				.getRemainingXPath());
 		logger
 				.debug(
-						"xpath [{}] prior to applying dialect and namespace declarations",
+						"XPath [{}] prior prefixing default function declaration and namespace declarations",
 						xpath);
 
 		for (String namespace : step.getPathExpression().getNamespaces())
@@ -129,7 +139,8 @@ public class XPathRestriction implements Criterion {
 		if (dialect instanceof DB2Dialect) {
 			xpath = String.format("declare default function namespace \"%s\";",
 					DB2DefaultFunctionNamespace).concat(xpath);
-			logger.debug("xpath [{}] prior to returning sql", xpath);
+			logger.debug("XPath [{}] prior to returning XMLEXISTS clause",
+					xpath);
 
 			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",
 					xpath, columns[0], variableReference);
@@ -138,19 +149,20 @@ public class XPathRestriction implements Criterion {
 		if (dialect instanceof Oracle9iDialect) {
 			xpath = String.format("declare default function namespace \"%s\";",
 					OracleDefaultFunctionNamespace).concat(xpath);
-			logger.debug("xpath [{}] prior to returning sql", xpath);
+			logger.debug("XPath [{}] prior to returning XMLEXISTS clause",
+					xpath);
 
 			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
 					xpath, columns[0], variableReference);
 		}
 
-		logger.error("dialect [{}] not supported for xpath expression", dialect
-				.toString());
 		throw new HibernateException(String.format(
-				"dialect [%s] not supported for xpath expression", dialect
-						.toString()));
+				"Dialect [%s] not supported for xpath expression", dialect));
 	}
 
+	/**
+	 * Returns NO_TYPED_VALUES constant
+	 */
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
 		return NO_TYPED_VALUES;
@@ -164,7 +176,7 @@ public class XPathRestriction implements Criterion {
 	public String toString() {
 		return String
 				.format(
-						"xpath [%s] against property [%s] with variable reference [%s]",
+						"XPath [%s] against property [%s] with variable reference [%s]",
 						step.getRemainingXPath(), propertyName,
 						variableReference);
 	}
