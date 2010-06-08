@@ -17,10 +17,15 @@ package com.klistret.cmdb.utility.saxon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.Literal;
+import net.sf.saxon.om.Item;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.value.AtomicValue;
+import net.sf.saxon.value.SequenceExtent;
 import net.sf.saxon.value.Value;
 
 public class LiteralExpr extends Expr {
@@ -30,7 +35,13 @@ public class LiteralExpr extends Expr {
 
 	private String valueAsString;
 
+	private String[] valueAsStringArray;
+
 	private Object value;
+
+	private Object[] valueAsArray;
+
+	private Boolean atomic;
 
 	protected LiteralExpr(StringLiteral expression, Configuration configuration) {
 		super(expression, configuration);
@@ -44,8 +55,31 @@ public class LiteralExpr extends Expr {
 
 	private void setValue(Literal expression) {
 		try {
-			valueAsString = expression.getValue().getStringValue();
-			value = Value.convertToJava(expression.getValue().asItem());
+			atomic = Literal.isAtomic(expression);
+
+			if (Literal.isEmptySequence(expression))
+				throw new ApplicationException(String.format(
+						"Literal [%s] values may not be empty sequences",
+						expression));
+
+			Value literal = expression.getValue();
+
+			if (literal instanceof AtomicValue) {
+				valueAsString = literal.getStringValue();
+				value = Value.convertToJava(literal.asItem());
+			}
+
+			if (literal instanceof SequenceExtent) {
+				valueAsStringArray = new String[literal.getLength()];
+				valueAsArray = new Object[literal.getLength()];
+
+				for (int index = 0; index < literal.getLength(); index++) {
+					Item item = ((SequenceExtent) literal).itemAt(index);
+
+					valueAsStringArray[index] = item.getStringValue();
+					valueAsArray[index] = Value.convertToJava(item);
+				}
+			}
 		} catch (XPathException e) {
 			logger
 					.debug(
@@ -63,8 +97,20 @@ public class LiteralExpr extends Expr {
 		return value;
 	}
 
+	public Object[] getValueAsArray() {
+		return valueAsArray;
+	}
+
 	public String getValueAsString() {
-		return this.valueAsString;
+		return valueAsString;
+	}
+
+	public String[] getValueAsStringArray() {
+		return valueAsStringArray;
+	}
+
+	public Boolean isAtomic() {
+		return atomic;
 	}
 
 	public String toString() {

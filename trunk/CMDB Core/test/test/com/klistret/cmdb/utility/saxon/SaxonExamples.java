@@ -31,14 +31,17 @@ public class SaxonExamples {
 			System.out.println(entry.getValue().toString());
 		}
 
-		QName qname = new QName("http://www.klistret.com/cmdb/pojo", "Element",
-				"pojo");
-		helper.getXMLBeans().get(qname);
+		QName propertyOwner = new QName("http://www.klistret.com/cmdb/pojo",
+				"Element", "pojo");
+		QName propertyType = new QName("http://www.klistret.com/cmdb",
+				"Element", "cmdb");
+		System.out.println(helper.suggestPropertyName(propertyOwner,
+				propertyType));
 	}
 
 	@Test
 	public void dummy() {
-		String xpath = "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo';/pojo:Element[. = 'whatever' and exists(@toTimeStamp)]/pojo:Relation/pojo:RelationType";
+		String xpath = "declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; declare namespace col=\"http://www.klistret.com/cmdb/element/logical/collection\"; /pojo:Element[@id is true]/col:Environment/cmdb:Namespace[. = \"development\"]";
 
 		PathExpression path = new PathExpression(xpath);
 

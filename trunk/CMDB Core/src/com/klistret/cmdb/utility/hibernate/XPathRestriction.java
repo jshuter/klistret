@@ -49,6 +49,11 @@ public class XPathRestriction implements Criterion {
 	private final Step step;
 
 	/**
+	 * 
+	 */
+	private final String variableReference;
+
+	/**
 	 * Default Function name-space for DB2 Viper (9 version)
 	 */
 	private final String DB2DefaultFunctionNamespace = "http://www.ibm.com/xmlns/prod/db2/functions";
@@ -63,6 +68,12 @@ public class XPathRestriction implements Criterion {
 	 */
 	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
 
+	public XPathRestriction(String propertyName, Step step) {
+		this.propertyName = propertyName;
+		this.step = step;
+		this.variableReference = "this";
+	}
+
 	/**
 	 * Constructor transfers over arguments to properties
 	 * 
@@ -70,9 +81,11 @@ public class XPathRestriction implements Criterion {
 	 * @param xpath
 	 * @param variableReference
 	 */
-	public XPathRestriction(String propertyName, Step step) {
+	public XPathRestriction(String propertyName, Step step,
+			String variableReference) {
 		this.propertyName = propertyName;
 		this.step = step;
+		this.variableReference = variableReference;
 	}
 
 	/**
@@ -99,28 +112,36 @@ public class XPathRestriction implements Criterion {
 					"xpathExists may only be used with single-column properties");
 		}
 
-		logger.debug("xpath [{}] prior to applying dialect", step
-				.getRemainingXPath());
+		String xpath = "$".concat(variableReference.concat("/".concat(step
+				.getRemainingXPath())));
+		logger
+				.debug(
+						"xpath [{}] prior to applying dialect and namespace declarations",
+						xpath);
+
+		for (String namespace : step.getPathExpression().getNamespaces())
+			xpath = namespace.concat(xpath);
+
+		if (step.getPathExpression().getDefaultElementNamespace() != null)
+			xpath = step.getPathExpression().getDefaultElementNamespace()
+					.concat(xpath);
 
 		if (dialect instanceof DB2Dialect) {
-			String db2Xpath = xpath.replaceAll(reDefaultFunctionNamespace, "");
-			db2Xpath = String.format(
-					"declare default function namespace \"%s\";",
+			xpath = String.format("declare default function namespace \"%s\";",
 					DB2DefaultFunctionNamespace).concat(xpath);
+			logger.debug("xpath [{}] prior to returning sql", xpath);
 
 			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",
-					db2Xpath, columns[0], variableReference);
+					xpath, columns[0], variableReference);
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
-			String oracleXpath = xpath.replaceAll(reDefaultFunctionNamespace,
-					"");
-			oracleXpath = String.format(
-					"declare default function namespace \"%s\";",
+			xpath = String.format("declare default function namespace \"%s\";",
 					OracleDefaultFunctionNamespace).concat(xpath);
+			logger.debug("xpath [{}] prior to returning sql", xpath);
 
 			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
-					oracleXpath, columns[0], variableReference);
+					xpath, columns[0], variableReference);
 		}
 
 		logger.error("dialect [{}] not supported for xpath expression", dialect
@@ -144,6 +165,7 @@ public class XPathRestriction implements Criterion {
 		return String
 				.format(
 						"xpath [%s] against property [%s] with variable reference [%s]",
-						xpath, propertyName, variableReference);
+						step.getRemainingXPath(), propertyName,
+						variableReference);
 	}
 }

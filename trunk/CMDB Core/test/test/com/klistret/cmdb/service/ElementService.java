@@ -70,7 +70,7 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = { "declare namespace cmdb='http://www.klistret.com/cmdb'; declare namespace pojo='http://www.klistret.com/cmdb/pojo'; /pojo:Element/cmdb:configuration" };
+		String[] expressions = { "declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; declare namespace col=\"http://www.klistret.com/cmdb/element/logical/collection\"; /pojo:Element[matches(@name,'dev')]/col:Environment/cmdb:Namespace[. = \"development\"]" };
 
 		elementService.findByExpressions(expressions);
 	}
