@@ -37,6 +37,18 @@ import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.trans.XPathException;
 
+/**
+ * The basic idea is to only handle relative path expressions as defined by the
+ * XPath 2.0 specification (http://www.w3.org/TR/xpath20/#id-path-expressions).
+ * Restricting the acceptable expressions to a list of steps (ie a slash
+ * expression in Saxon terms) maps XPaths (not XQuerys) to JPA mappings. The JPA
+ * structure is generally a combination of step with or without predicates. The
+ * XPath simplification stops once a XML column/property is reached whereby even
+ * other expressions than steps are acceptable (denoted as irresolute).
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class PathExpression {
 
 	private static final Logger logger = LoggerFactory
@@ -184,16 +196,24 @@ public class PathExpression {
 
 			explain(expression);
 		} catch (XPathException e) {
+			logger
+					.error(
+							"XPathException [{}] creating Saxon expression from xpath [{}]",
+							e.getMessage(), xpath);
 			throw new ApplicationException(
 					String
 							.format(
-									"Unable to make Saxon expression from xpath [%s], start character [%d]",
+									"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
 									xpath, prologOffset), e);
 		} catch (ClassCastException e) {
+			logger
+					.error(
+							"ClassCastException [{}] creating Saxon expression from xpath [{}]",
+							e.getMessage(), xpath);
 			throw new ApplicationException(
 					String
 							.format(
-									"Unable to make Saxon expression from xpath [%s], start character [%d]",
+									"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
 									xpath, prologOffset), e);
 		}
 	}
@@ -276,43 +296,97 @@ public class PathExpression {
 		}
 	}
 
+	/**
+	 * Get original XPath statement including prolog
+	 * 
+	 * @return XPath
+	 */
 	public String getXPath() {
 		return this.xpath;
 	}
 
+	/**
+	 * Get original XPath statement without prolog
+	 * 
+	 * @return XPath without prolog
+	 */
 	public String getXPathWithoutProlog() {
 		return this.xpath.substring(prologOffset);
 	}
 
+	/**
+	 * Get default element namespace
+	 * 
+	 * @return Default element namespace
+	 */
 	public String getDefaultElementNamespace() {
 		return staticContext.getDefaultElementNamespace();
 	}
 
+	/**
+	 * Get default function namespace
+	 * 
+	 * @return Default function namespace
+	 */
 	public String getDefaultFunctionNamespace() {
 		return staticContext.getDefaultFunctionNamespace();
 	}
 
+	/**
+	 * Every namespace declaration has a prefix
+	 * 
+	 * @return Namespace prefixes
+	 */
 	public Iterator<String> getPrefixes() {
 		return staticContext.getNamespaceResolver().iteratePrefixes();
 	}
 
+	/**
+	 * Return namespace by prefix
+	 * 
+	 * @param prefix
+	 * @return Namespace
+	 */
 	public String getNamespace(String prefix) {
 		return staticContext.getNamespaceResolver().getURIForPrefix(prefix,
 				false);
 	}
 
+	/**
+	 * Entire namespace declaration is returned
+	 * 
+	 * @return List of namespaces
+	 */
 	public List<String> getNamespaces() {
 		return namespaces;
 	}
 
+	/**
+	 * Relative paths are a list of steps (ie root, step, or irresolute)
+	 * 
+	 * @return Relative path expression
+	 */
 	public List<Expr> getRelativePath() {
 		return relativePath;
 	}
 
+	/**
+	 * Get a step by index within the relative path
+	 * 
+	 * @param index
+	 * @return Expression
+	 */
 	public Expr getExpr(int index) {
 		return relativePath.get(index);
 	}
 
+	/**
+	 * Get QName for a particular step expression in the relative path (null for
+	 * root or irresolute)
+	 * 
+	 * @param index
+	 * @return QName
+	 */
 	public QName getQName(int index) {
 		if (getExpr(index).getType() == Expr.Type.Step)
 			return ((StepExpr) getExpr(index)).getQName();
@@ -320,14 +394,30 @@ public class PathExpression {
 		return null;
 	}
 
+	/**
+	 * Get xpath for a particular expression
+	 * 
+	 * @param index
+	 * @return XPath
+	 */
 	public String getXPath(int index) {
 		return xpathSplit[index];
 	}
 
+	/**
+	 * Existence of a root expression within the relative path
+	 * 
+	 * @return boolean
+	 */
 	public boolean hasRoot() {
 		return this.hasRoot;
 	}
 
+	/**
+	 * Get number of expressions within the relative path
+	 * 
+	 * @return Size of the relative path
+	 */
 	public int getDepth() {
 		return relativePath.size();
 	}
