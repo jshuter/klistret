@@ -39,9 +39,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.XMLAttributeProperty;
 import com.klistret.cmdb.pojo.XMLElementProperty;
+import com.klistret.cmdb.pojo.XMLProperty;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
@@ -200,12 +202,8 @@ public class JAXBContextHelper {
 		/**
 		 * General information (no parent for beans)
 		 */
-		xmlBean.setName(beanInfo.getTypeName());
+		xmlBean.setType(beanInfo.getTypeName());
 		xmlBean.setClazz(beanInfo.getClazz());
-
-		if (beanInfo.getType() instanceof BuiltinLeafInfo)
-			xmlBean.setType(((BuiltinLeafInfo<?, ?>) beanInfo.getType())
-					.getTypeName());
 
 		/**
 		 * Specific conditions
@@ -297,9 +295,9 @@ public class JAXBContextHelper {
 			for (QNameMap.Entry<XMLBean> other : xmlBeans.entrySet()) {
 				if (other.getValue().getExtended() != null
 						&& other.getValue().getExtended().equals(
-								entry.getValue().getName()))
+								entry.getValue().getType()))
 					entry.getValue().getExtending().add(
-							other.getValue().getName());
+							other.getValue().getType());
 			}
 		}
 	}
@@ -319,8 +317,37 @@ public class JAXBContextHelper {
 	 */
 	public XMLBean getXMLBean(QName qname) {
 		for (QNameMap.Entry<XMLBean> entry : xmlBeans.entrySet()) {
-			if (entry.getValue().getName().equals(qname))
+			if (entry.getValue().getType().equals(qname))
 				return entry.getValue();
+		}
+
+		return null;
+	}
+
+	public String suggestPropertyName(QName propertyOwner, QName propertyType) {
+		XMLBean xmlBeanOwner = getXMLBean(propertyOwner);
+		if (xmlBeanOwner == null)
+			throw new ApplicationException(String.format(
+					"Property owner [%s] has no corresponding xmlbean",
+					propertyOwner));
+
+		XMLBean xmlBeanType = getXMLBean(propertyType);
+		if (xmlBeanType == null)
+			throw new ApplicationException(String.format(
+					"Property type [%s] has no corresponding xmlbean",
+					propertyOwner));
+		for (XMLProperty xmlProperty : xmlBeanOwner.getProperties()) {
+			if (xmlProperty instanceof XMLElementProperty) {
+				XMLBean type = xmlBeanType;
+
+				while (type != null) {
+					if (type.getType().equals(xmlProperty.getType()))
+						return xmlProperty.getName();
+
+					type = type.getExtended() == null ? null : getXMLBean(type
+							.getExtended());
+				}
+			}
 		}
 
 		return null;

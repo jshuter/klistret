@@ -12,11 +12,9 @@ import javax.xml.namespace.QName;
  */
 public class XMLBean {
 
-	private QName name;
+	private QName type;
 
 	private Class<?> clazz;
-
-	private QName type;
 
 	private Boolean isAbstract;
 
@@ -39,12 +37,12 @@ public class XMLBean {
 	 * 
 	 * @return
 	 */
-	public QName getName() {
-		return this.name;
+	public QName getType() {
+		return this.type;
 	}
 
-	public void setName(QName name) {
-		this.name = name;
+	public void setType(QName type) {
+		this.type = type;
 	}
 
 	/**
@@ -57,20 +55,6 @@ public class XMLBean {
 
 	public void setClazz(Class<?> clazz) {
 		this.clazz = clazz;
-	}
-
-	/**
-	 * A Java type can be mapped to multiple XML types, but one of them is
-	 * considered "primary" and used when generating a schema.
-	 * 
-	 * @return
-	 */
-	public QName getType() {
-		return type;
-	}
-
-	public void setType(QName type) {
-		this.type = type;
 	}
 
 	/**
@@ -185,8 +169,8 @@ public class XMLBean {
 	public String toString() {
 		return String
 				.format(
-						"element node name [%s], class name [%s], extends [%s], extending %d",
-						name, clazz.getName(), extended, extending.size());
+						"element type [%s], class name [%s], extends [%s], extending %d",
+						type, clazz.getName(), extended, extending.size());
 	}
 
 	/**
@@ -194,8 +178,8 @@ public class XMLBean {
 	 */
 	public boolean equals(Object other) {
 		if (other instanceof XMLBean) {
-			if (((XMLBean) other).getName() != null && getName() != null
-					&& ((XMLBean) other).getName().equals(getName()))
+			if (((XMLBean) other).getType() != null && getType() != null
+					&& ((XMLBean) other).getType().equals(getType()))
 				return true;
 		}
 
