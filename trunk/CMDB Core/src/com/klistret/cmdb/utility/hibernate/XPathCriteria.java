@@ -17,14 +17,18 @@ package com.klistret.cmdb.utility.hibernate;
 import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.AndExpr;
@@ -36,7 +40,22 @@ import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * XPaths are the query language. XPaths are translated into JTA criteria (right
+ * now only Hibernate but soon to JTA syntax). Each step in slash expressions
+ * are mapped either to a Hibernate entity or a column capable of handling XML
+ * data. Entities may have restrictions which map to comparison or logical XPath
+ * expressions. Irresolute expressions are only excepted with XML columns. The
+ * JAXBContextHelper is used to extract metadata and relationships between XML
+ * beans, elements and attributes.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class XPathCriteria {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(XPathCriteria.class);
 
 	private String[] xpaths;
 
@@ -63,31 +82,53 @@ public class XPathCriteria {
 		return session;
 	}
 
+	/**
+	 * Construct a Hibernate criteria based on the XPath array
+	 * 
+	 * @return Hibernate Criteria
+	 */
 	public Criteria getCriteria() {
-		PathExpression[] expressions = new PathExpression[xpaths.length];
+		try {
+			PathExpression[] expressions = new PathExpression[xpaths.length];
 
-		/**
-		 * Leading step as Hibernate class metadata common to all expressions
-		 * which the criteria is based on
-		 */
-		QName step = getContainer(expressions);
-		ClassMetadata hClassMetadata = getClassMetadata(getContainer(expressions));
-		if (hClassMetadata == null)
-			throw new ApplicationException(String.format(
-					"Hibernate class does not exist for qname [%s]", step));
+			/**
+			 * Leading step as Hibernate class metadata common to all
+			 * expressions which the criteria is based on
+			 */
+			QName step = getContainer(expressions);
+			ClassMetadata hClassMetadata = getClassMetadata(getContainer(expressions));
+			if (hClassMetadata == null)
+				throw new ApplicationException(String.format(
+						"Hibernate class does not exist for qname [%s]", step));
 
-		Criteria criteria = session.createCriteria(hClassMetadata
-				.getEntityName());
+			/**
+			 * Top criteria is created here then handed over to the build calls
+			 */
+			Criteria criteria = session.createCriteria(hClassMetadata
+					.getEntityName());
 
-		/**
-		 * piece together criteria from each expression
-		 */
-		for (PathExpression expression : expressions)
-			buildFromExpression(criteria, (Step) expression.getExpr(0));
+			/**
+			 * Piece together criteria (iterative) from each expression
+			 */
+			for (PathExpression expression : expressions)
+				buildFromExpression(criteria, (Step) expression.getExpr(0));
 
-		return criteria;
+			return criteria;
+		} catch (HibernateException e) {
+			throw new InfrastructureException(
+					"Unexpected Hibernate expression while forming criteria from XPaths",
+					e);
+		}
 	}
 
+	/**
+	 * Each XPath expression should have the same initial step or "container" to
+	 * loan a word from Saxon. Every XPath must have a root and at least one
+	 * step.
+	 * 
+	 * @param expressions
+	 * @return
+	 */
 	private QName getContainer(PathExpression[] expressions) {
 		QName container = null;
 
@@ -98,6 +139,11 @@ public class XPathCriteria {
 			if (!expression.hasRoot())
 				throw new ApplicationException(String.format(
 						"XPath [%s] does not have a root expression",
+						expression.getXPath()));
+
+			if (!(expression.getDepth() > 1))
+				throw new ApplicationException(String.format(
+						"XPath [%s] does not have at least one step",
 						expression.getXPath()));
 
 			QName qname = expression.getQName(1);
@@ -119,7 +165,16 @@ public class XPathCriteria {
 		return container;
 	}
 
-	private ClassMetadata getClassMetadata(QName qname) {
+	/**
+	 * Based on the qname the JAXBContextHelper helps get the Hibernate entity
+	 * name and through the session factory the Hibernate class metadata
+	 * 
+	 * @param qname
+	 * @return Hibernate Class metadata
+	 * @throws HibernateException
+	 */
+	private ClassMetadata getClassMetadata(QName qname)
+			throws HibernateException {
 		XMLBean xmlBean = jaxbContextHelper.getXMLBean(qname);
 		ClassMetadata hClassMetadata = session.getSessionFactory()
 				.getClassMetadata(xmlBean.getType().getLocalPart());
@@ -127,47 +182,125 @@ public class XPathCriteria {
 		return hClassMetadata;
 	}
 
+	/**
+	 * Build criteria iterative for each step in the relative path
+	 * 
+	 * @param criteria
+	 * @param step
+	 */
 	private void buildFromExpression(Criteria criteria, Step step) {
+		/**
+		 * Hault iterative process when step is null
+		 */
 		if (step == null)
 			return;
 
 		switch (step.getType()) {
 		case Step:
-			if (step.getDepth() == 1) {
+			logger.debug("Criteria creation against step [{}] at depth [{}]",
+					step, step.getDepth());
 
+			/**
+			 * Containing or first step already has an active criteria (passed
+			 * from the first call to this method) so only the predicates need
+			 * to be built then iterate to the next step.
+			 */
+			if (step.getDepth() == 1) {
+				logger
+						.debug("Containing step build only predicate then iterate");
 				criteria.add(buildFromPredicate(((StepExpr) step)
 						.getPredicate()));
 
 				buildFromExpression(criteria, step.getNext());
-			} else {
+			}
+
+			/**
+			 * Subsequent steps need to create a new criteria to act based on
+			 * the passed criteria to this method (done without alias).
+			 */
+			if (step.getDepth() > 1) {
 				Step parent = (Step) step.getPathExpression().getRelativePath()
 						.get(step.getDepth() - 1);
 
+				/**
+				 * Hibernate class metadata from the step's parent gives the
+				 * available properties (associations, collections, normal
+				 * attributes).
+				 */
 				ClassMetadata hClassMetadata = getClassMetadata(parent
 						.getQName());
 				String propertyName = jaxbContextHelper.suggestPropertyName(
 						parent.getQName(), step.getQName());
+				if (propertyName == null)
+					throw new ApplicationException(
+							String
+									.format(
+											"No property suggestion for parent [%s], step [%s]",
+											parent, step));
+
+				Object[] args1 = { parent, step };
+				logger
+						.debug(
+								"Suggested property [{}] owned by parent [{}] for step [{}]",
+								propertyName, args1);
+
+				/**
+				 * Entities are candidates for criteria creation and iteration
+				 */
 				Type propertyType = hClassMetadata
 						.getPropertyType(propertyName);
-
 				if (propertyType.isEntityType()) {
+					logger.debug("Property [{}] is an entity", propertyName);
+
+					/**
+					 * Create criteria based on the current step's qname
+					 */
+					ClassMetadata nClassMetadata = getClassMetadata(step
+							.getQName());
+					if (nClassMetadata == null)
+						throw new ApplicationException(
+								String
+										.format(
+												"Hibernate class does not exist for qname [%s]",
+												step));
+
 					Criteria nextCriteria = criteria
-							.createCriteria(hClassMetadata.getEntityName());
+							.createCriteria(nClassMetadata.getEntityName());
 					nextCriteria.add(buildFromPredicate(((StepExpr) step)
 							.getPredicate()));
 
 					buildFromExpression(nextCriteria, step.getNext());
-				} else {
+				}
+
+				/**
+				 * Regular properties (non-relationships) are deemed as a XML
+				 * column candidate
+				 */
+				if (!(propertyType.isEntityType())) {
+					logger
+							.debug(
+									"Property [{}] is a non-entity and deemed XML column candidate by default",
+									propertyName);
 					criteria.add(new XPathRestriction(propertyName, step));
 				}
 
 			}
 			break;
+		/**
+		 * Ignore irresolute (in the future it would be nice to even be able to
+		 * handle these types of expressions)
+		 */
 		case Irresolute:
 			break;
+		/**
+		 * Ignore roots but iterate to the next step
+		 */
 		case Root:
 			buildFromExpression(criteria, step.getNext());
 			break;
+		/**
+		 * Relative paths only contain root, steps or irresolutes
+		 */
 		default:
 			throw new ApplicationException(String.format(
 					"Unexpected expr [%s] type for step", step));
@@ -193,39 +326,28 @@ public class XPathCriteria {
 					.getOperands().get(0)), buildFromPredicate(((AndExpr) expr)
 					.getOperands().get(1)));
 		case Comparison:
-			if (((ComparisonExpr) expr).getOperands().size() != 2)
-				throw new ApplicationException(String.format(
-						"ComparisonExpr expression [%s] expects 2 operands",
-						expr));
-
+			/**
+			 * Always at least one operand (step without predicates)
+			 */
 			Expr right = ((ComparisonExpr) expr).getOperands().get(0);
-			if (!(right instanceof StepExpr))
-				throw new ApplicationException(
-						String
-								.format(
-										"Right operand in comparison expression [%s] must be a step",
-										expr));
-			if (!(((StepExpr) right).getPrimaryNodeKind()
-					.equals(StepExpr.PrimaryNodeKind.Attribute)))
-				throw new ApplicationException(
-						String
-								.format(
-										"Right operand in comparison expression [%s] must be an attribute node",
-										expr));
 
-			Expr left = ((ComparisonExpr) expr).getOperands().get(1);
-			if (!(left instanceof LiteralExpr))
-				throw new ApplicationException(
-						String
-								.format(
-										"Left operand in comparison expression [%s] must be a liberal",
-										expr));
+			/**
+			 * Value/General comparisons have only 2 operands whereas function
+			 * calls vary
+			 */
+			Expr left = ((ComparisonExpr) expr).isFunctional() ? null
+					: ((ComparisonExpr) expr).getOperands().get(1);
 
 			switch (((ComparisonExpr) expr).getOperator()) {
 			case ValueEquals:
 				return Restrictions.eq(((StepExpr) right).getQName()
 						.getLocalPart(), ((LiteralExpr) left).getValue());
 			case GeneralEquals:
+				/**
+				 * If atomic (not a sequence) then the 'in' restriction is not
+				 * usable (defaults to 'eq' restriction) since the argument is
+				 * an array of objects.
+				 */
 				if (((LiteralExpr) left).isAtomic())
 					return Restrictions.eq(((StepExpr) right).getQName()
 							.getLocalPart(), ((LiteralExpr) left).getValue());
@@ -234,6 +356,11 @@ public class XPathCriteria {
 						.in(((StepExpr) right).getQName().getLocalPart(),
 								((LiteralExpr) left).getValueAsArray());
 			case Matches:
+				if (((ComparisonExpr) expr).getOperands().size() != 2)
+					throw new ApplicationException(String.format(
+							"Matches function [%s] expects 2 operands", expr));
+
+				left = ((ComparisonExpr) expr).getOperands().get(1);
 				return Restrictions.ilike(((StepExpr) right).getQName()
 						.getLocalPart(), ((LiteralExpr) left)
 						.getValueAsString(), MatchMode.ANYWHERE);
