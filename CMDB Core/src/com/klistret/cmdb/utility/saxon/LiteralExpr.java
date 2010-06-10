@@ -58,9 +58,11 @@ public class LiteralExpr extends Expr {
 			atomic = Literal.isAtomic(expression);
 
 			if (Literal.isEmptySequence(expression))
-				throw new ApplicationException(String.format(
-						"Literal [%s] values may not be empty sequences",
-						expression));
+				throw new ApplicationException(
+						String
+								.format(
+										"Literal [%s] values are not allowed to be empty sequences",
+										expression));
 
 			Value literal = expression.getValue();
 

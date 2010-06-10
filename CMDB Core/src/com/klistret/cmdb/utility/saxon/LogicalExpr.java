@@ -20,6 +20,15 @@ import java.util.List;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
+/**
+ * A logical expression is either an and-expression or an or-expression. If a
+ * logical expression does not raise an error, its value is always one of the
+ * boolean values true or false
+ * 
+ * @author Matthew Young
+ * 
+ * @param <T>
+ */
 public abstract class LogicalExpr<T extends Expr> extends Expr {
 
 	protected List<Expr> operands;
