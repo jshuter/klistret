@@ -50,6 +50,11 @@ public class StepExpr extends Step {
 	private AxisExpression axisExpression;
 
 	/**
+	 * QName for step
+	 */
+	private QName qname;
+
+	/**
 	 * XPath 2.0 allows for only elements or attributes as primary nodes
 	 */
 	public enum PrimaryNodeKind {
@@ -89,8 +94,42 @@ public class StepExpr extends Step {
 		predicate = explainPredicate(expression.getFilter());
 	}
 
+	/**
+	 * Sets the axis without predicate and generates the QName. QName identifies
+	 * the node in a general manner based on a name test but not allowing for
+	 * wildcard.
+	 * 
+	 * @param expression
+	 */
 	private void setAxisExpression(AxisExpression expression) {
 		this.axisExpression = expression;
+
+		// Wild cards generate empty node tests
+		if (axisExpression.getNodeTest() == null)
+			qname = null;
+
+		int fingerprint = axisExpression.getNodeTest().getFingerprint();
+
+		// Finger print = -1 if the node test matches nodes of more than one
+		// name
+		if (fingerprint == -1)
+			qname = null;
+
+		String clarkName = configuration.getNamePool()
+				.getClarkName(fingerprint);
+
+		if (clarkName == null)
+			qname = null;
+
+		// URI, local name (suggested prefix is really saved internally)
+		String[] parsedClarkName = NamePool.parseClarkName(clarkName);
+
+		// prefix not used to determine equality
+		String suggestedPrefix = configuration.getNamePool()
+				.suggestPrefixForURI(parsedClarkName[0]);
+
+		qname = new QName(parsedClarkName[0], parsedClarkName[1],
+				suggestedPrefix);
 
 		/**
 		 * Manageable axis expressions are limited to primary (element or
@@ -189,38 +228,11 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * QName identifies the node in a general manner based on a name test but
-	 * not allowing for wildcard.
+	 * Get QName
 	 * 
 	 * @return
 	 */
 	public QName getQName() {
-		// Wild cards generate empty node tests
-		if (axisExpression.getNodeTest() == null)
-			return null;
-
-		int fingerprint = axisExpression.getNodeTest().getFingerprint();
-
-		// Finger print = -1 if the node test matches nodes of more than one
-		// name
-		if (fingerprint == -1)
-			return null;
-
-		String clarkName = configuration.getNamePool()
-				.getClarkName(fingerprint);
-
-		if (clarkName == null)
-			return null;
-
-		// URI, local name (suggested prefix is really saved internally)
-		String[] parsedClarkName = NamePool.parseClarkName(clarkName);
-
-		// prefix not used to determine equality
-		String suggestedPrefix = configuration.getNamePool()
-				.suggestPrefixForURI(parsedClarkName[0]);
-
-		QName qname = new QName(parsedClarkName[0], parsedClarkName[1],
-				suggestedPrefix);
 		return qname;
 	}
 
