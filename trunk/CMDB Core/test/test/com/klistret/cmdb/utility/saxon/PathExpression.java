@@ -35,7 +35,7 @@ public class PathExpression {
 
 	static final String validXPathWithoutDeclaresOrRoot = "a:google/a:without/b:microsoft";
 
-	static final String validXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
+	static final String validXPathStepsOnly = "a:google[@id = 'hello']/a:without[@xsi:type='b:Type' and exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
 
 	static final String invalidXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[contains(@name,'yes')]";
 
@@ -46,7 +46,7 @@ public class PathExpression {
 
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Valid namespace declarations
 	 */
@@ -68,7 +68,7 @@ public class PathExpression {
 		assertNotNull(pathExpression);
 	}
 
-	@Test
+	//@Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
@@ -90,7 +90,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Missing namespace declaration for prefix a
 	 */
@@ -111,7 +111,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Missing semicolon between prefix a and prefix b
 	 */
@@ -133,7 +133,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Validate that a root exists
 	 */
@@ -155,7 +155,7 @@ public class PathExpression {
 		assertTrue(pathExpression.hasRoot());
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Validate that a root does not exist
 	 */
@@ -184,7 +184,7 @@ public class PathExpression {
 	public void typeValidation3() {
 		String xpath = String
 				.format(
-						"declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+						"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathStepsOnly);
 
 		try {
@@ -197,11 +197,12 @@ public class PathExpression {
 		}
 
 		for (Expr expr : pathExpression.getRelativePath()) {
+			System.out.println(expr);
 			assertEquals(StepExpr.class, expr.getClass());
 		}
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions

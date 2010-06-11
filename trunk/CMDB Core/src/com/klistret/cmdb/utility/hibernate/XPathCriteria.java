@@ -208,8 +208,10 @@ public class XPathCriteria {
 			if (step.getDepth() == 1) {
 				logger
 						.debug("Containing step build only predicate then iterate");
-				criteria.add(buildFromPredicate(((StepExpr) step)
-						.getPredicate()));
+				if (((StepExpr) step).hasPredicate()) {
+					criteria.add(buildFromPredicate(((StepExpr) step)
+							.getPredicate()));
+				}
 
 				buildFromExpression(criteria, step.getNext());
 			}
@@ -229,45 +231,42 @@ public class XPathCriteria {
 				 */
 				ClassMetadata hClassMetadata = getClassMetadata(parent
 						.getQName());
-				String propertyName = jaxbContextHelper.suggestPropertyName(
-						parent.getQName(), step.getQName());
-				if (propertyName == null)
-					throw new ApplicationException(
-							String
-									.format(
-											"No property suggestion for parent [%s], step [%s]",
-											parent, step));
-
-				Object[] args1 = { parent, step };
-				logger
-						.debug(
-								"Suggested property [{}] owned by parent [{}] for step [{}]",
-								propertyName, args1);
 
 				/**
-				 * Entities are candidates for criteria creation and iteration
+				 * Property name is the local part of the step's qname
+				 */
+				String propertyName = step.getQName().getLocalPart();
+				if (propertyName == null)
+					throw new ApplicationException(String.format(
+							"QName local part for step [%s] is null", step));
+
+				/**
+				 * Hibernate type needs to return the same underlying class as
+				 * the step (add check later)
 				 */
 				Type propertyType = hClassMetadata
 						.getPropertyType(propertyName);
+				if (propertyType == null)
+					throw new ApplicationException(
+							String
+									.format(
+											"Local part [%s] is not a property of the Hibernate entity [%s]",
+											propertyName, hClassMetadata
+													.getEntityName()));
+
+				/**
+				 * Entities are candidates for criteria creation (based on the
+				 * property name not the entity name) and iteration
+				 */
 				if (propertyType.isEntityType()) {
 					logger.debug("Property [{}] is an entity", propertyName);
 
-					/**
-					 * Create criteria based on the current step's qname
-					 */
-					ClassMetadata nClassMetadata = getClassMetadata(step
-							.getQName());
-					if (nClassMetadata == null)
-						throw new ApplicationException(
-								String
-										.format(
-												"Hibernate class does not exist for qname [%s]",
-												step));
-
 					Criteria nextCriteria = criteria
-							.createCriteria(nClassMetadata.getEntityName());
-					nextCriteria.add(buildFromPredicate(((StepExpr) step)
-							.getPredicate()));
+							.createCriteria(propertyName);
+					if (((StepExpr) step).hasPredicate()) {
+						nextCriteria.add(buildFromPredicate(((StepExpr) step)
+								.getPredicate()));
+					}
 
 					buildFromExpression(nextCriteria, step.getNext());
 				}
@@ -281,6 +280,7 @@ public class XPathCriteria {
 							.debug(
 									"Property [{}] is a non-entity and deemed XML column candidate by default",
 									propertyName);
+					
 					criteria.add(new XPathRestriction(propertyName, step));
 				}
 
