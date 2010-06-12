@@ -78,12 +78,17 @@ public class StepExpr extends Step {
 		 */
 		Expression controlling = expression.getControllingExpression();
 		if (!controlling.getClass().getName().equals(
-				AxisExpression.class.getName()))
+				AxisExpression.class.getName())) {
+			logger
+					.debug(
+							"Controlling step [{}] in filter expression is not an axis expression",
+							controlling);
 			throw new IrresoluteException(
 					String
 							.format(
 									"Controlling step [%s] in filter expression is not an axis expression",
 									controlling));
+		}
 
 		setAxisExpression((AxisExpression) controlling);
 
@@ -137,12 +142,13 @@ public class StepExpr extends Step {
 		 * Notable that Saxon does not formulate expressions into an axis with
 		 * predicates.
 		 */
-		if (getPrimaryNodeKind() == null || !isAbsolute() || getQName() == null)
+		if (getPrimaryNodeKind() == null || !isAbsolute() || getQName() == null) {
 			throw new IrresoluteException(
 					String
 							.format(
 									"Axis expression [%s] is either neither not a primary node or is not an absolute step or the qname is null (likely a wildcard)",
 									expression));
+		}
 	}
 
 	/**
@@ -187,6 +193,10 @@ public class StepExpr extends Step {
 				return orExpr;
 
 			default:
+				logger
+						.debug(
+								"Boolean expression [{}] must either be an AND or OR operation",
+								expression);
 				throw new IrresoluteException(
 						String
 								.format(
@@ -214,6 +224,10 @@ public class StepExpr extends Step {
 		}
 
 		else {
+			logger
+					.debug(
+							"Operand [{}] not a boolean, general or value logical expression",
+							expression);
 			throw new IrresoluteException(
 					String
 							.format(

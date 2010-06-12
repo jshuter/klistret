@@ -17,6 +17,14 @@ package com.klistret.cmdb.utility.saxon;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
+/**
+ * Expr is the basis for all acceptable Saxon expressions determining
+ * construction and type (distilled to roots, steps, or irresolutes where steps
+ * can have filters but only comparison filters).
+ * 
+ * @author Matthew Young
+ * 
+ */
 public abstract class Expr {
 
 	/**
@@ -30,7 +38,7 @@ public abstract class Expr {
 	protected final Configuration configuration;
 
 	/**
-	 * Basic expr types
+	 * Basic Expr types
 	 */
 	public enum Type {
 		Root, Step, Or, And, Comparison, Literal, Irresolute
@@ -50,7 +58,7 @@ public abstract class Expr {
 	/**
 	 * Get Saxon expression
 	 * 
-	 * @return
+	 * @return Original Saxon expression
 	 */
 	protected Expression getExpression() {
 		return expression;
@@ -59,7 +67,7 @@ public abstract class Expr {
 	/**
 	 * Get Expr type
 	 * 
-	 * @return
+	 * @return Expr type
 	 */
 	public abstract Type getType();
 

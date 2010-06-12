@@ -28,6 +28,14 @@ import net.sf.saxon.value.AtomicValue;
 import net.sf.saxon.value.SequenceExtent;
 import net.sf.saxon.value.Value;
 
+/**
+ * A literal is a direct syntactic representation of an atomic value. However
+ * the syntax really supports sequences and atomics. XPath supports two kinds of
+ * literals: numeric literals and string literals.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class LiteralExpr extends Expr {
 
 	private static final Logger logger = LoggerFactory
@@ -53,6 +61,12 @@ public class LiteralExpr extends Expr {
 		setValue(expression);
 	}
 
+	/**
+	 * Executed directly in the constructors. First check is whether the literal
+	 * is atomic. Empty sequences are not allowed.
+	 * 
+	 * @param expression
+	 */
 	private void setValue(Literal expression) {
 		try {
 			atomic = Literal.isAtomic(expression);
@@ -84,9 +98,9 @@ public class LiteralExpr extends Expr {
 			}
 		} catch (XPathException e) {
 			logger
-					.debug(
-							"Literal [{}] either had no string representation or could not be converted to Java",
-							expression);
+					.warn(
+							"Literal [{}] either had no string representation or could not be converted to Java: {}",
+							expression, e.getCause());
 		}
 	}
 
@@ -95,22 +109,47 @@ public class LiteralExpr extends Expr {
 		return Type.Literal;
 	}
 
+	/**
+	 * Atomic literals only
+	 * 
+	 * @return Object
+	 */
 	public Object getValue() {
 		return value;
 	}
 
+	/**
+	 * Sequence literals only
+	 * 
+	 * @return Object array
+	 */
 	public Object[] getValueAsArray() {
 		return valueAsArray;
 	}
 
+	/**
+	 * String representation of only atomic literals
+	 * 
+	 * @return String
+	 */
 	public String getValueAsString() {
 		return valueAsString;
 	}
 
+	/**
+	 * String array representation of only sequential literals
+	 * 
+	 * @return String array
+	 */
 	public String[] getValueAsStringArray() {
 		return valueAsStringArray;
 	}
 
+	/**
+	 * Is atomic?
+	 * 
+	 * @return Boolean
+	 */
 	public Boolean isAtomic() {
 		return atomic;
 	}

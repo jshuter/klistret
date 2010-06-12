@@ -5,6 +5,15 @@ import javax.xml.namespace.QName;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
+/**
+ * Root, step and irresolute Expr extend this abstract extension of Expr to
+ * store XPath strings for each step, next step pointers, depth within the
+ * relative path, and the relative path. This added information is not necessary
+ * for general Expr objects.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public abstract class Step extends Expr {
 
 	/**

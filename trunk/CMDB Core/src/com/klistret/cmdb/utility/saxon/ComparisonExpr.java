@@ -95,6 +95,9 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			break;
 
 		default:
+			logger.debug(
+					"General expression [{}] using unsupported operator [{}]",
+					expression, expression.getOperator());
 			throw new IrresoluteException(String.format(
 					"General expression [%s] using unsupported operator [%d]",
 					expression, expression.getOperator()));
@@ -142,6 +145,9 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			break;
 
 		default:
+			logger.debug(
+					"Value expression [{}] using unsupported operator [{}]",
+					expression, expression.getOperator());
 			throw new IrresoluteException(String.format(
 					"Value expression [%s] using unsupported operator [%d]",
 					expression, expression.getOperator()));
@@ -188,10 +194,14 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		else if (functionName.equals("matches"))
 			operator = Operator.Matches;
 
-		else
+		else {
+			logger.debug(
+					"Trace expression [{}] using unsupported function [{}]",
+					expression, functionName);
 			throw new IrresoluteException(String.format(
 					"Trace expression [%s] using unsupported function [%s]",
 					expression, functionName));
+		}
 
 		logger.debug("Function [{}] prior to explaining arguments",
 				functionName);
@@ -205,29 +215,44 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * @param operands
 	 */
 	private void explainGeneralOrValueOperands(Expression[] operands) {
-		if (operands.length != 2)
+		if (operands.length != 2) {
+			logger
+					.debug(
+							"General/Value comparisons are limited to 2 operands only not [{}]",
+							operands.length);
 			throw new IrresoluteException(
 					String
 							.format(
 									"General/Value comparisons are limited to 2 operands only not [%d]",
 									operands.length));
+		}
 
 		Expression right = operands[0];
-		if (!(right.getClass().getName().equals(AxisExpression.class.getName())))
+		if (!(right.getClass().getName().equals(AxisExpression.class.getName()))) {
+			logger
+					.debug(
+							"General/Value comparisons require the right operand to be an axis not Saxon expression [{}]",
+							right.getClass().getName());
 			throw new IrresoluteException(
 					String
 							.format(
 									"General/Value comparisons require the right operand to be an axis not Saxon expression [%s]",
 									right.getClass().getName()));
+		}
 		addOperand(new StepExpr((AxisExpression) right, configuration));
 
 		Expression left = operands[1];
-		if (!(left instanceof Literal))
+		if (!(left instanceof Literal)) {
+			logger
+					.debug(
+							"General/Value comparisons require the left operand to be a literal not Saxon expression [{}]",
+							left.getClass().getName());
 			throw new IrresoluteException(
 					String
 							.format(
 									"General/Value comparisons require the left operand to be a literal not Saxon expression [%s]",
 									left.getClass().getName()));
+		}
 
 		if (left.getClass().getName().equals(Literal.class.getName()))
 			addOperand(new LiteralExpr((Literal) left, configuration));
@@ -243,20 +268,30 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * @param operands
 	 */
 	private void explainFunctionOperands(Expression[] operands) {
-		if (operands.length < 1)
+		if (operands.length < 1) {
+			logger
+					.debug(
+							"Functional comparisons must have at least one operand not [{}]",
+							operands.length);
 			throw new IrresoluteException(
 					String
 							.format(
 									"Functional comparisons must have at least one operand not [%d]",
 									operands.length));
+		}
 
 		Expression right = operands[0];
-		if (!(right.getClass().getName().equals(AxisExpression.class.getName())))
+		if (!(right.getClass().getName().equals(AxisExpression.class.getName()))) {
+			logger
+					.error(
+							"Function comparisons require the right most operand to be an axis not Saxon expression [{}]",
+							right.getClass().getName());
 			throw new IrresoluteException(
 					String
 							.format(
 									"Function comparisons require the right most operand to be an axis not Saxon expression [%s]",
 									right.getClass().getName()));
+		}
 		addOperand(new StepExpr((AxisExpression) right, configuration));
 
 		for (int index = 1; index < operands.length; index++) {
@@ -273,6 +308,9 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			}
 
 			else {
+				logger.debug(
+						"Functional comparison operand [{}] is unsupported",
+						operand);
 				throw new IrresoluteException(String.format(
 						"Functional comparison operand [%s] is unsupported",
 						operand));
@@ -280,15 +318,28 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		}
 	}
 
+	/**
+	 * Get the expression type
+	 */
 	@Override
 	public Type getType() {
 		return Type.Comparison;
 	}
 
+	/**
+	 * Get the operator this comparison performs
+	 * 
+	 * @return
+	 */
 	public Operator getOperator() {
 		return operator;
 	}
 
+	/**
+	 * Is this a functional operation
+	 * 
+	 * @return Boolean
+	 */
 	public Boolean isFunctional() {
 		return functional;
 	}
