@@ -84,13 +84,14 @@ public abstract class Step extends Expr {
 	}
 
 	/**
-	 * Concatenation of self and descending XPaths
+	 * Concatenation descending XPaths
 	 * 
 	 * @return
 	 */
 	public String getRemainingXPath() {
-		return next == null || next.getRemainingXPath() == null ? getXPath()
-				: getXPath().concat("/").concat(next.getRemainingXPath());
+		return next == null ? null : next.getRemainingXPath() == null ? next
+				.getXPath() : next.getXPath().concat("/").concat(
+				next.getRemainingXPath());
 	}
 
 	/**

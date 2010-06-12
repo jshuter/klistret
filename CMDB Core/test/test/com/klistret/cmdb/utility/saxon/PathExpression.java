@@ -29,13 +29,14 @@ import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
 import com.klistret.cmdb.utility.saxon.StepExpr;
+import com.klistret.cmdb.utility.saxon.Step;
 
 public class PathExpression {
 	static final String validXPathWithoutDeclares = "/a:google/a:without/b:microsoft";
 
 	static final String validXPathWithoutDeclaresOrRoot = "a:google/a:without/b:microsoft";
 
-	static final String validXPathStepsOnly = "a:google[@id = 'hello']/a:without[@xsi:type='b:Type' and exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
+	static final String validXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
 
 	static final String invalidXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[contains(@name,'yes')]";
 
@@ -46,7 +47,7 @@ public class PathExpression {
 
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Valid namespace declarations
 	 */
@@ -68,7 +69,7 @@ public class PathExpression {
 		assertNotNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
@@ -90,7 +91,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Missing namespace declaration for prefix a
 	 */
@@ -111,7 +112,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Missing semicolon between prefix a and prefix b
 	 */
@@ -133,7 +134,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that a root exists
 	 */
@@ -155,7 +156,7 @@ public class PathExpression {
 		assertTrue(pathExpression.hasRoot());
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that a root does not exist
 	 */
@@ -184,12 +185,13 @@ public class PathExpression {
 	public void typeValidation3() {
 		String xpath = String
 				.format(
-						"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+						"declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathStepsOnly);
 
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
+			System.out.println(String.format("%s/%s/%s", "yes", "no", null));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -202,7 +204,7 @@ public class PathExpression {
 		}
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions
