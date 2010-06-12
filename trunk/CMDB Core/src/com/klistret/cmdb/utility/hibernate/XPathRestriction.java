@@ -25,6 +25,7 @@ import org.hibernate.engine.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.saxon.Step;
 
 /**
@@ -122,20 +123,60 @@ public class XPathRestriction implements Criterion {
 					"XMLEXISTS may only be used with single-column properties");
 		}
 
-		String xpath = String.format("$%s/%s", variableReference, step
-				.getRemainingXPath());
+		String xpath = String.format("$%s", variableReference);
+
+		/**
+		 * Relative path ('//') if no mapping information is present and
+		 * consideration is taken to whether or not remaining XPaths exists or
+		 * not
+		 */
+		String key = String.format("%s:%s", step.getQName().getPrefix(), step
+				.getQName().getLocalPart());
+		String value = step.getPathExpression().getTypeMappings().get(key);
+
+		if (value == null) {
+			if (step.getRemainingXPath() != null)
+				xpath = String
+						.format("%s//%s", xpath, step.getRemainingXPath());
+			else
+				throw new ApplicationException(
+						String
+								.format(
+										"Without type mapping for property [%s] and remaining xpath steps a blank relative path '//' only isn't valid",
+										key));
+		}
+
+		if (value != null) {
+			if (step.getRemainingXPath() != null)
+				xpath = String.format("%s/%s/%s", xpath, step.getXPath()
+						.replaceFirst(key, value), step.getRemainingXPath());
+			else
+				xpath = String.format("%s/%s", xpath, step.getXPath()
+						.replaceFirst(key, value));
+		}
+
 		logger
 				.debug(
 						"XPath [{}] prior prefixing default function declaration and namespace declarations",
 						xpath);
 
+		/**
+		 * Concatenate namespace declarations
+		 */
 		for (String namespace : step.getPathExpression().getNamespaces())
 			xpath = namespace.concat(xpath);
 
+		/**
+		 * Concatenate default element namespace declaration
+		 */
 		if (step.getPathExpression().getDefaultElementNamespace() != null)
 			xpath = step.getPathExpression().getDefaultElementNamespace()
 					.concat(xpath);
 
+		/**
+		 * Depending on the database dialect concatenate the specific default
+		 * funtion namespace
+		 */
 		if (dialect instanceof DB2Dialect) {
 			xpath = String.format("declare default function namespace \"%s\";",
 					DB2DefaultFunctionNamespace).concat(xpath);

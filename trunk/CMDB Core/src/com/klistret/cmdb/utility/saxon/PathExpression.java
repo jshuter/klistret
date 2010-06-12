@@ -15,8 +15,10 @@
 package com.klistret.cmdb.utility.saxon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,19 +100,32 @@ public class PathExpression {
 	private List<String> namespaces = new ArrayList<String>();
 
 	/**
-	 * Statics expressions are formed after the semantics defined at the
+	 * Place holder for type mappings
+	 */
+	private Map<String, String> typeMappings = new HashMap<String, String>();
+
+	/**
+	 * Static expressions are formed after the semantics defined at the
 	 * following site http://www.w3.org/TR/xquery-semantics and the URI literal
 	 * is intentionally left as a wild-card because end-users will likely
 	 * defined invalid URIs.
 	 */
 	static final Pattern defaultElementNamespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+default\\s+element\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s?;");
+			.compile("\\s*declare\\s+default\\s+element\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s*;");
 
 	static final Pattern defaultFunctionNamespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s?;");
+			.compile("\\s*declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s*;");
 
 	static final Pattern namespaceDeclaration = Pattern
-			.compile("\\s?declare\\s+namespace\\s+(((?!\\s*=\\s*).)*)\\s?=\\s?(\'|\")(((?!\\3).)*)\\3\\s?;");
+			.compile("\\s*declare\\s+namespace\\s+(((?!\\s*=\\s*).)*)\\s?=\\s?(\'|\")(((?!\\3).)*)\\3\\s*;");
+
+	/**
+	 * Mapping between XML columns (qname) and actual XML documents (type) is
+	 * easier to handle as a declaration than adding xsi:type filters to the
+	 * XPath.
+	 */
+	static final Pattern mappingDeclaration = Pattern
+			.compile("\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;");
 
 	/**
 	 * Regular expression for delimiting path (slash) expressions (look ahead
@@ -136,6 +151,12 @@ public class PathExpression {
 			throw new ApplicationException("Unable to resolve xpath as null");
 
 		/**
+		 * Length of captured XPath statement (known declarations and data after
+		 * the prolog)
+		 */
+		int xpathLength = 0;
+
+		/**
 		 * Handle default element name space declarations
 		 */
 		Matcher demd = defaultElementNamespaceDeclaration.matcher(xpath);
@@ -146,6 +167,9 @@ public class PathExpression {
 
 			if (demd.end() > prologOffset)
 				prologOffset = demd.end();
+
+			xpathLength = xpathLength + (demd.end() - demd.start());
+
 			staticContext.setDefaultElementNamespace(demd.group(2));
 		}
 
@@ -160,6 +184,9 @@ public class PathExpression {
 
 			if (dfmd.end() > prologOffset)
 				prologOffset = dfmd.end();
+
+			xpathLength = xpathLength + (dfmd.end() - dfmd.start());
+
 			staticContext.setDefaultFunctionNamespace(dfmd.group(2));
 		}
 
@@ -174,10 +201,56 @@ public class PathExpression {
 
 			if (nd.end() > prologOffset)
 				prologOffset = nd.end();
-			staticContext.declareNamespace(nd.group(1), nd.group(4));
 
+			xpathLength = xpathLength + (nd.end() - nd.start());
+
+			staticContext.declareNamespace(nd.group(1), nd.group(4));
 			namespaces.add(xpath.substring(nd.start(), nd.end()).trim());
 		}
+
+		/**
+		 * Handle mapping declarations
+		 */
+		Matcher md = mappingDeclaration.matcher(xpath);
+		while (md.find()) {
+			String key = String.format("%s:%s", md.group(1), md.group(2));
+			String value = String.format("%s:%s", md.group(3), md.group(4));
+
+			logger
+					.debug(
+							"Identified mapping declaration JTA property [{}], document type [{}]",
+							key, value);
+
+			if (md.end() > prologOffset)
+				prologOffset = md.end();
+
+			xpathLength = xpathLength + (md.end() - md.start());
+
+			if (getNamespace(md.group(1)) == null)
+				throw new ApplicationException(
+						String
+								.format(
+										"JTA property prefix [%s] has no cooresponding namespace declaration",
+										md.group(1)));
+
+			if (getNamespace(md.group(3)) == null)
+				throw new ApplicationException(
+						String
+								.format(
+										"Document type prefix [%s] has no cooresponding namespace declaration",
+										md.group(3)));
+
+			typeMappings.put(key, value);
+		}
+
+		/**
+		 * Capture information
+		 */
+		xpathLength = xpathLength + getXPathWithoutProlog().length();
+		logger.debug("Captured length [{}] and actual XPath length [{}]",
+				xpathLength, xpath.length());
+		if (xpathLength < xpath.length())
+			logger.warn("Uncaptured text prior to declare statements");
 
 		/**
 		 * Divide the xpath into individual xpaths delimited by slash
@@ -359,6 +432,16 @@ public class PathExpression {
 	 */
 	public List<String> getNamespaces() {
 		return namespaces;
+	}
+
+	/**
+	 * Mapping between JTA property names and XML document types (key/value
+	 * composed of prefix:local name pairs)
+	 * 
+	 * @return Map
+	 */
+	public Map<String, String> getTypeMappings() {
+		return typeMappings;
 	}
 
 	/**
