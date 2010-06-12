@@ -19,6 +19,12 @@ import javax.xml.namespace.QName;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
+/**
+ * Bucket for any Saxon expression that is not a root or step Expr.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class IrresoluteExpr extends Step {
 
 	protected IrresoluteExpr(Expression expression, Configuration configuration) {

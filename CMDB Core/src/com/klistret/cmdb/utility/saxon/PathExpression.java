@@ -226,19 +226,29 @@ public class PathExpression {
 
 			xpathLength = xpathLength + (md.end() - md.start());
 
-			if (getNamespace(md.group(1)) == null)
+			if (getNamespace(md.group(1)) == null) {
+				logger
+						.error(
+								"JTA property prefix [{}] has no cooresponding namespace declaration",
+								md.group(1));
 				throw new ApplicationException(
 						String
 								.format(
 										"JTA property prefix [%s] has no cooresponding namespace declaration",
 										md.group(1)));
+			}
 
-			if (getNamespace(md.group(3)) == null)
+			if (getNamespace(md.group(3)) == null) {
+				logger
+						.error(
+								"Document type prefix [{}] has no cooresponding namespace declaration",
+								md.group(3));
 				throw new ApplicationException(
 						String
 								.format(
 										"Document type prefix [%s] has no cooresponding namespace declaration",
 										md.group(3)));
+			}
 
 			typeMappings.put(key, value);
 		}
@@ -346,7 +356,8 @@ public class PathExpression {
 			 * exception
 			 */
 			else {
-				throw new IrresoluteException();
+				logger.debug("Captured unresolved expression [{}]", expression);
+				throw new IrresoluteException("Captured unresolved expression");
 			}
 		} catch (IrresoluteException e) {
 			relativePath.add(new IrresoluteExpr(expression, staticContext

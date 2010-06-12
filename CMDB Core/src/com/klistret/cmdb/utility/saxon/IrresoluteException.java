@@ -14,6 +14,13 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+/**
+ * When Saxon expressions can not be captured as roots or steps rather than
+ * quitting a irresolute exception is thrown to build a irresolute Expr.
+ * 
+ * @author Matthew Young
+ * 
+ */
 @SuppressWarnings("serial")
 public class IrresoluteException extends RuntimeException {
 	public IrresoluteException() {
