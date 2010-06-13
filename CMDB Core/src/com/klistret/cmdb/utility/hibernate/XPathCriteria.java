@@ -55,19 +55,41 @@ public class XPathCriteria {
 	private static final Logger logger = LoggerFactory
 			.getLogger(XPathCriteria.class);
 
+	/**
+	 * XPaths inclusive prologs
+	 */
 	private String[] xpaths;
 
+	/**
+	 * Hibernate session
+	 */
 	private Session session;
 
+	/**
+	 * Constructor called by DAOs
+	 * 
+	 * @param xpaths
+	 * @param session
+	 */
 	public XPathCriteria(String[] xpaths, Session session) {
 		this.xpaths = xpaths;
 		this.session = session;
 	}
 
+	/**
+	 * Get XPaths sent to the constructor
+	 * 
+	 * @return XPaths (string array)
+	 */
 	public String[] getXPaths() {
 		return xpaths;
 	}
 
+	/**
+	 * Get Hibernate session sent to the constructor
+	 * 
+	 * @return Hibernate session
+	 */
 	public Session getSession() {
 		return session;
 	}
@@ -82,9 +104,14 @@ public class XPathCriteria {
 			PathExpression[] expressions = new PathExpression[xpaths.length];
 
 			/**
-			 * Top criteria is created here then handed over to the build calls
+			 * Top criteria is created based on the containing step then handed
+			 * over to the build calls
 			 */
 			QName container = getContainer(expressions);
+			logger
+					.debug(
+							"Containing step [{}] for the expressions which the Hibernate criteria is based upon",
+							container);
 			Criteria criteria = session
 					.createCriteria(container.getLocalPart());
 
@@ -96,6 +123,10 @@ public class XPathCriteria {
 
 			return criteria;
 		} catch (HibernateException e) {
+			logger
+					.error(
+							"Unexpected Hibernate expression while forming criteria from XPaths: {}",
+							e.getCause().getMessage());
 			throw new InfrastructureException(
 					"Unexpected Hibernate expression while forming criteria from XPaths",
 					e);
@@ -117,28 +148,42 @@ public class XPathCriteria {
 			PathExpression expression = new PathExpression(xpaths[index]);
 			expressions[index] = expression;
 
-			if (!expression.hasRoot())
+			if (!expression.hasRoot()) {
+				logger.error("XPath [{}] does not have a root expression",
+						expression.getXPath());
 				throw new ApplicationException(String.format(
 						"XPath [%s] does not have a root expression",
 						expression.getXPath()));
+			}
 
-			if (!(expression.getDepth() > 1))
+			if (!(expression.getDepth() > 1)) {
+				logger.error("XPath [{}] does not have at least one step",
+						expression.getXPath());
 				throw new ApplicationException(String.format(
 						"XPath [%s] does not have at least one step",
 						expression.getXPath()));
+			}
 
 			QName qname = expression.getQName(1);
-			if (qname == null)
+			if (qname == null) {
+				logger.error("Containg QName not defined for xpath [{}]",
+						expression.getXPath());
 				throw new ApplicationException(String.format(
 						"Containg QName not defined for xpath [%s]", expression
 								.getXPath()));
+			}
 
-			if (container != null && !container.equals(qname))
+			if (container != null && !container.equals(qname)) {
+				logger
+						.error(
+								"Leading QName [{}] not unique across xpath statements [{}]",
+								qname, xpaths);
 				throw new ApplicationException(
 						String
 								.format(
 										"Leading QName [%s] not unique across xpath statements [%s]",
 										qname, xpaths));
+			}
 
 			container = qname;
 		}
@@ -170,11 +215,14 @@ public class XPathCriteria {
 			 * to be built then iterate to the next step.
 			 */
 			if (step.getDepth() == 1) {
+				ClassMetadata hClassMetadata = session.getSessionFactory()
+						.getClassMetadata(step.getQName().getLocalPart());
+
 				logger
 						.debug("Containing step build only predicate then iterate");
 				if (((StepExpr) step).hasPredicate()) {
-					criteria.add(buildFromPredicate(((StepExpr) step)
-							.getPredicate()));
+					criteria.add(buildFromPredicate(hClassMetadata,
+							((StepExpr) step).getPredicate()));
 				}
 
 				buildFromExpression(criteria, step.getNext());
@@ -200,9 +248,13 @@ public class XPathCriteria {
 				 * Property name is the local part of the step's qname
 				 */
 				String propertyName = step.getQName().getLocalPart();
-				if (propertyName == null)
+				if (propertyName == null) {
+					logger
+							.error("QName local part for step [{}] is null",
+									step);
 					throw new ApplicationException(String.format(
 							"QName local part for step [%s] is null", step));
+				}
 
 				/**
 				 * Hibernate type needs to return the same underlying class as
@@ -210,13 +262,19 @@ public class XPathCriteria {
 				 */
 				Type propertyType = hClassMetadata
 						.getPropertyType(propertyName);
-				if (propertyType == null)
+				if (propertyType == null) {
+					logger
+							.error(
+									"Local part [{}] is not a property of the Hibernate entity [{}]",
+									propertyName, hClassMetadata
+											.getEntityName());
 					throw new ApplicationException(
 							String
 									.format(
 											"Local part [%s] is not a property of the Hibernate entity [%s]",
 											propertyName, hClassMetadata
 													.getEntityName()));
+				}
 
 				/**
 				 * Entities are candidates for criteria creation (based on the
@@ -228,8 +286,8 @@ public class XPathCriteria {
 					Criteria nextCriteria = criteria
 							.createCriteria(propertyName);
 					if (((StepExpr) step).hasPredicate()) {
-						nextCriteria.add(buildFromPredicate(((StepExpr) step)
-								.getPredicate()));
+						nextCriteria.add(buildFromPredicate(hClassMetadata,
+								((StepExpr) step).getPredicate()));
 					}
 
 					buildFromExpression(nextCriteria, step.getNext());
@@ -271,29 +329,61 @@ public class XPathCriteria {
 		}
 	}
 
-	private Criterion buildFromPredicate(Expr expr) {
+	/**
+	 * Build restrictions for each filter in the step
+	 * 
+	 * @param expr
+	 * @return
+	 */
+	private Criterion buildFromPredicate(ClassMetadata hClassMetadata, Expr expr) {
 		switch (expr.getType()) {
 		case Or:
-			if (((OrExpr) expr).getOperands().size() != 2)
+			if (((OrExpr) expr).getOperands().size() != 2) {
+				logger.error("OrExpr expression [{}] expects 2 operands", expr);
 				throw new ApplicationException(String.format(
 						"OrExpr expression [%s] expects 2 operands", expr));
+			}
 
-			return Restrictions.or(buildFromPredicate(((OrExpr) expr)
-					.getOperands().get(0)), buildFromPredicate(((OrExpr) expr)
-					.getOperands().get(1)));
+			return Restrictions.or(buildFromPredicate(hClassMetadata,
+					((OrExpr) expr).getOperands().get(0)), buildFromPredicate(
+					hClassMetadata, ((OrExpr) expr).getOperands().get(1)));
 		case And:
-			if (((AndExpr) expr).getOperands().size() != 2)
+			if (((AndExpr) expr).getOperands().size() != 2) {
+				logger
+						.error("AndExpr expression [{}] expects 2 operands",
+								expr);
 				throw new ApplicationException(String.format(
 						"AndExpr expression [%s] expects 2 operands", expr));
+			}
 
-			return Restrictions.and(buildFromPredicate(((AndExpr) expr)
-					.getOperands().get(0)), buildFromPredicate(((AndExpr) expr)
-					.getOperands().get(1)));
+			return Restrictions.and(buildFromPredicate(hClassMetadata,
+					((AndExpr) expr).getOperands().get(0)), buildFromPredicate(
+					hClassMetadata, ((AndExpr) expr).getOperands().get(1)));
 		case Comparison:
 			/**
 			 * Always at least one operand (step without predicates)
 			 */
-			Expr right = ((ComparisonExpr) expr).getOperands().get(0);
+			StepExpr right = (StepExpr) ((ComparisonExpr) expr).getOperands()
+					.get(0);
+
+			/**
+			 * Step must correspond to a Hibernate property
+			 */
+			Type propertyType = hClassMetadata.getPropertyType(right.getQName()
+					.getLocalPart());
+			if (propertyType == null) {
+				logger
+						.error(
+								"Local part [{}] is not a property of the Hibernate entity [{}]",
+								right.getQName().getLocalPart(), hClassMetadata
+										.getEntityName());
+				throw new ApplicationException(
+						String
+								.format(
+										"Local part [%s] is not a property of the Hibernate entity [%s]",
+										right.getQName().getLocalPart(),
+										hClassMetadata.getEntityName()));
+			}
 
 			/**
 			 * Value/General comparisons have only 2 operands whereas function
@@ -305,6 +395,21 @@ public class XPathCriteria {
 			switch (((ComparisonExpr) expr).getOperator()) {
 			case ValueEquals:
 				return Restrictions.eq(((StepExpr) right).getQName()
+						.getLocalPart(), ((LiteralExpr) left).getValue());
+			case ValueGreaterThan:
+				return Restrictions.gt(((StepExpr) right).getQName()
+						.getLocalPart(), ((LiteralExpr) left).getValue());
+			case ValueGreaterThanOrEquals:
+				return Restrictions.ge(((StepExpr) right).getQName()
+						.getLocalPart(), ((LiteralExpr) left).getValue());
+			case ValueLessThan:
+				return Restrictions.lt(((StepExpr) right).getQName()
+						.getLocalPart(), ((LiteralExpr) left).getValue());
+			case ValueLessThanOrEquals:
+				return Restrictions.le(((StepExpr) right).getQName()
+						.getLocalPart(), ((LiteralExpr) left).getValue());
+			case ValueNotEquals:
+				return Restrictions.ne(((StepExpr) right).getQName()
 						.getLocalPart(), ((LiteralExpr) left).getValue());
 			case GeneralEquals:
 				/**
@@ -320,15 +425,45 @@ public class XPathCriteria {
 						.in(((StepExpr) right).getQName().getLocalPart(),
 								((LiteralExpr) left).getValueAsArray());
 			case Matches:
-				if (((ComparisonExpr) expr).getOperands().size() != 2)
+				if (((ComparisonExpr) expr).getOperands().size() != 2) {
+					logger.error("Matches function [{}] expects 2 operands",
+							expr);
 					throw new ApplicationException(String.format(
 							"Matches function [%s] expects 2 operands", expr));
+				}
 
 				left = ((ComparisonExpr) expr).getOperands().get(1);
 				return Restrictions.ilike(((StepExpr) right).getQName()
 						.getLocalPart(), ((LiteralExpr) left)
 						.getValueAsString(), MatchMode.ANYWHERE);
+			case Exists:
+				if (((ComparisonExpr) expr).getOperands().size() != 1) {
+					logger.error("Exists function [{}] expects only 1 operand",
+							expr);
+					throw new ApplicationException(
+							String
+									.format(
+											"Exists function [%s] expects only 1 operand",
+											expr));
+				}
+
+				return Restrictions.isNotNull(((StepExpr) right).getQName()
+						.getLocalPart());
+			case Empty:
+				if (((ComparisonExpr) expr).getOperands().size() != 1) {
+					logger.error("Empty function [{}] expects only 1 operand",
+							expr);
+					throw new ApplicationException(String.format(
+							"Empty function [%s] expects only 1 operand", expr));
+				}
+
+				return Restrictions.isNull(((StepExpr) right).getQName()
+						.getLocalPart());
 			default:
+				logger
+						.error(
+								"Unexpected comparison operator [{}] handling predicates",
+								((ComparisonExpr) expr).getOperator());
 				throw new ApplicationException(
 						String
 								.format(
@@ -336,6 +471,7 @@ public class XPathCriteria {
 										((ComparisonExpr) expr).getOperator()));
 			}
 		default:
+			logger.error("Unexpected expr [{}] type for predicate", expr);
 			throw new ApplicationException(String.format(
 					"Unexpected expr [%s] type for predicate", expr));
 		}

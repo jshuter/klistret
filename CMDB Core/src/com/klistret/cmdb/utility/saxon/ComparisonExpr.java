@@ -49,7 +49,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			.getLogger(ComparisonExpr.class);
 
 	public enum Operator {
-		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, GeneralNotEquals, GeneralLessThan, GeneralLessThanOrEquals, GeneralGreaterThan, GeneralGreaterThanOrEquals, Empty, Exists, Matches
+		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, Empty, Exists, Matches
 	};
 
 	private Operator operator;
@@ -72,26 +72,6 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 
 		case (Token.EQUALS):
 			operator = Operator.GeneralEquals;
-			break;
-
-		case (Token.NE):
-			operator = Operator.GeneralNotEquals;
-			break;
-
-		case (Token.LT):
-			operator = Operator.GeneralLessThan;
-			break;
-
-		case (Token.LE):
-			operator = Operator.GeneralLessThanOrEquals;
-			break;
-
-		case (Token.GT):
-			operator = Operator.GeneralGreaterThan;
-			break;
-
-		case (Token.GE):
-			operator = Operator.GeneralGreaterThanOrEquals;
 			break;
 
 		default:
