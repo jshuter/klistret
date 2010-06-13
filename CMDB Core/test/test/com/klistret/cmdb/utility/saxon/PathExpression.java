@@ -29,7 +29,6 @@ import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
 import com.klistret.cmdb.utility.saxon.StepExpr;
-import com.klistret.cmdb.utility.saxon.Step;
 
 public class PathExpression {
 	static final String validXPathWithoutDeclares = "/a:google/a:without/b:microsoft";
@@ -47,7 +46,7 @@ public class PathExpression {
 
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Valid namespace declarations
 	 */
@@ -69,7 +68,7 @@ public class PathExpression {
 		assertNotNull(pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
@@ -91,7 +90,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Missing namespace declaration for prefix a
 	 */
@@ -112,7 +111,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Missing semicolon between prefix a and prefix b
 	 */
@@ -134,7 +133,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that a root exists
 	 */
@@ -156,7 +155,7 @@ public class PathExpression {
 		assertTrue(pathExpression.hasRoot());
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that a root does not exist
 	 */
@@ -180,7 +179,8 @@ public class PathExpression {
 
 	@Test
 	/**
-	 * Validate that only step expressions are present
+	 * Validate that only step expressions are present and that mappings
+	 * declarations are accepted.
 	 */
 	public void typeValidation3() {
 		String xpath = String
@@ -191,7 +191,6 @@ public class PathExpression {
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
-			System.out.println(String.format("%s/%s/%s", "yes", "no", null));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -204,7 +203,7 @@ public class PathExpression {
 		}
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions

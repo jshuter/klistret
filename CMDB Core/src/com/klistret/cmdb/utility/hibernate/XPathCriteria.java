@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.XMLBean;
-import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
 import com.klistret.cmdb.utility.saxon.AndExpr;
 import com.klistret.cmdb.utility.saxon.ComparisonExpr;
 import com.klistret.cmdb.utility.saxon.Expr;
@@ -59,23 +57,15 @@ public class XPathCriteria {
 
 	private String[] xpaths;
 
-	private JAXBContextHelper jaxbContextHelper;
-
 	private Session session;
 
-	public XPathCriteria(String[] xpaths, JAXBContextHelper jaxbContextHelper,
-			Session session) {
+	public XPathCriteria(String[] xpaths, Session session) {
 		this.xpaths = xpaths;
-		this.jaxbContextHelper = jaxbContextHelper;
 		this.session = session;
 	}
 
 	public String[] getXPaths() {
 		return xpaths;
-	}
-
-	public JAXBContextHelper getJAXBContextHelper() {
-		return jaxbContextHelper;
 	}
 
 	public Session getSession() {
@@ -92,20 +82,11 @@ public class XPathCriteria {
 			PathExpression[] expressions = new PathExpression[xpaths.length];
 
 			/**
-			 * Leading step as Hibernate class metadata common to all
-			 * expressions which the criteria is based on
-			 */
-			QName step = getContainer(expressions);
-			ClassMetadata hClassMetadata = getClassMetadata(getContainer(expressions));
-			if (hClassMetadata == null)
-				throw new ApplicationException(String.format(
-						"Hibernate class does not exist for qname [%s]", step));
-
-			/**
 			 * Top criteria is created here then handed over to the build calls
 			 */
-			Criteria criteria = session.createCriteria(hClassMetadata
-					.getEntityName());
+			QName container = getContainer(expressions);
+			Criteria criteria = session
+					.createCriteria(container.getLocalPart());
 
 			/**
 			 * Piece together criteria (iterative) from each expression
@@ -166,23 +147,6 @@ public class XPathCriteria {
 	}
 
 	/**
-	 * Based on the qname the JAXBContextHelper helps get the Hibernate entity
-	 * name and through the session factory the Hibernate class metadata
-	 * 
-	 * @param qname
-	 * @return Hibernate Class metadata
-	 * @throws HibernateException
-	 */
-	private ClassMetadata getClassMetadata(QName qname)
-			throws HibernateException {
-		XMLBean xmlBean = jaxbContextHelper.getXMLBean(qname);
-		ClassMetadata hClassMetadata = session.getSessionFactory()
-				.getClassMetadata(xmlBean.getType().getLocalPart());
-
-		return hClassMetadata;
-	}
-
-	/**
 	 * Build criteria iterative for each step in the relative path
 	 * 
 	 * @param criteria
@@ -229,8 +193,8 @@ public class XPathCriteria {
 				 * available properties (associations, collections, normal
 				 * attributes).
 				 */
-				ClassMetadata hClassMetadata = getClassMetadata(parent
-						.getQName());
+				ClassMetadata hClassMetadata = session.getSessionFactory()
+						.getClassMetadata(parent.getQName().getLocalPart());
 
 				/**
 				 * Property name is the local part of the step's qname
@@ -280,7 +244,7 @@ public class XPathCriteria {
 							.debug(
 									"Property [{}] is a non-entity and deemed XML column candidate by default",
 									propertyName);
-					
+
 					criteria.add(new XPathRestriction(propertyName, step));
 				}
 

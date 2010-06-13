@@ -19,8 +19,6 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
-
 /**
  * Every DAO needs a SessionFactory making this class perfect as a super class
  * for the rest of the classes in this package.
@@ -33,8 +31,6 @@ public class BaseImpl {
 			.getLogger(BaseImpl.class);
 
 	private SessionFactory sessionFactory;
-
-	private JAXBContextHelper jaxbContextHelper;
 
 	/**
 	 * Get Hibernate Session
@@ -59,13 +55,5 @@ public class BaseImpl {
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
-	}
-
-	protected JAXBContextHelper getJAXBContextHelper() {
-		return this.jaxbContextHelper;
-	}
-
-	public void setJAXBContextHelper(JAXBContextHelper jaxbContextHelper) {
-		this.jaxbContextHelper = jaxbContextHelper;
 	}
 }
