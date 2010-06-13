@@ -74,8 +74,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	@SuppressWarnings("unchecked")
 	public Collection<Element> findByExpressions(String[] expressions) {
 		try {
-			Criteria hcriteria = new XPathCriteria(expressions,
-					getJAXBContextHelper(), getSession()).getCriteria();
+			Criteria hcriteria = new XPathCriteria(expressions, getSession()).getCriteria();
 			String alias = hcriteria.getAlias();
 
 			hcriteria.setProjection(Projections.projectionList().add(
