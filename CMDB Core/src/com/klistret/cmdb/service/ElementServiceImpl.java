@@ -45,4 +45,10 @@ public class ElementServiceImpl implements ElementService {
 	public Element set(Element element) {
 		return elementDAO.set(element);
 	}
+
+	public void test(com.klistret.cmdb.pojo.Test expr) {
+		for (String expression : expr.getExpressions()) {
+			System.out.println(expression);
+		}
+	}
 }

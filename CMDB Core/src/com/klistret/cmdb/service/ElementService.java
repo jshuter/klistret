@@ -31,7 +31,7 @@ public interface ElementService {
 
 	@GET
 	@Path("/element/getById/{id}")
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces( {  MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
 	Element getById(@PathParam("id")
 	Long id);
 
@@ -41,6 +41,11 @@ public interface ElementService {
 
 	@POST
 	@Path("/element/set")
-	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Consumes( {  MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
 	Element set(Element element);
+
+	@POST
+	@Path("/element/test")
+	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	void test(com.klistret.cmdb.pojo.Test expr);
 }

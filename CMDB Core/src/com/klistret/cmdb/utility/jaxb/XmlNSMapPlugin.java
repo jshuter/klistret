@@ -89,7 +89,18 @@ public class XmlNSMapPlugin extends AbstractParameterizablePlugin {
 								.getMostUsedNamespaceURI());
 						xmlNsMapJAnnotation.param("jsonName", packageOutline
 								._package().name());
+
+						logger.debug("Added namespace [{}]/json [{}] mapping",
+								packageOutline.getMostUsedNamespaceURI(),
+								packageOutline._package().name());
 					}
+
+					JAnnotationUse xmlNsMapJAnnotation = namespaceMapParam
+							.annotate(XmlNsMap.class);
+					xmlNsMapJAnnotation.param("namespace",
+							"http://www.w3.org/2001/XMLSchema-instance");
+					xmlNsMapJAnnotation.param("jsonName",
+							"www.w3.org.2001.XMLSchema-instance");
 				}
 			}
 		}
