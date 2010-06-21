@@ -46,15 +46,7 @@ public interface ElementDAO {
 	 * @return Collection
 	 */
 	Collection<com.klistret.cmdb.pojo.Element> findByExpressions(
-			String[] expressions);
-
-	/**
-	 * CRUD count by criteria (under the hood the findByCriteria method)
-	 * 
-	 * @param criteria
-	 * @return Integer
-	 */
-	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
+			String[] expressions, Integer start, Integer limit);
 
 	/**
 	 * CRUD save/update

@@ -39,9 +39,7 @@
 				</prop>
 				<prop key="getByCompositeId">PROPAGATION_REQUIRED,timeout_20
 				</prop>
-				<prop key="findByCriteria">PROPAGATION_REQUIRED,timeout_20
-				</prop>
-				<prop key="countByCriteria">PROPAGATION_REQUIRED,timeout_20
+				<prop key="findByExpressions">PROPAGATION_REQUIRED,timeout_20
 				</prop>
 				<prop key="set">PROPAGATION_REQUIRED,timeout_20
 				</prop>
