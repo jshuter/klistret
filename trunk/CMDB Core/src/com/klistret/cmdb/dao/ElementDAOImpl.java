@@ -44,26 +44,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			.getLogger(ElementDAOImpl.class);
 
 	/**
-	 * @see com.klistret.cmdb.dao.ElementDAO.countByCriteria
-	 * @return Integer
-	 */
-	public Integer countByCriteria(
-			com.klistret.cmdb.pojo.PropertyCriteria criteria) {
-		try {
-			Criteria hcriteria = criteria.getCriteria(getSession());
-			hcriteria.setProjection(Projections.rowCount());
-
-			return (Integer) hcriteria.list().iterator().next();
-		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running count criteria [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
-			throw new InfrastructureException(he.getMessage(), he.getCause());
-		}
-	}
-
-	/**
 	 * Necessary to use the Projections to limit the selected columns to only
 	 * those defined to the Element tables (otherwise the returned columns
 	 * contains all columns for all associations).
@@ -72,9 +52,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<Element> findByExpressions(String[] expressions) {
+	public Collection<Element> findByExpressions(String[] expressions,
+			Integer start, Integer limit) {
 		try {
-			Criteria hcriteria = new XPathCriteria(expressions, getSession()).getCriteria();
+			Criteria hcriteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
 			String alias = hcriteria.getAlias();
 
 			hcriteria.setProjection(Projections.projectionList().add(
@@ -87,6 +69,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					Projections.property(alias + ".createTimeStamp")).add(
 					Projections.property(alias + ".updateTimeStamp")).add(
 					Projections.property(alias + ".configuration")));
+
+			hcriteria.setFirstResult(start);
+			hcriteria.setMaxResults(limit);
 
 			Object[] results = hcriteria.list().toArray();
 

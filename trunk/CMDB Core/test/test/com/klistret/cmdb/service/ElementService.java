@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.element.logical.collection.Environment;
 import com.klistret.cmdb.pojo.Element;
+import com.klistret.cmdb.pojo.FindQuery;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -70,10 +71,15 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions1 = { "declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; declare namespace col=\"http://www.klistret.com/cmdb/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/cmdb:Namespace[. = \"development\"]" };
+		String[] expressions = {
+				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; declare namespace col=\"http://www.klistret.com/cmdb/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/cmdb:Namespace[. = \"development\"]",
+				"declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; /pojo:Element/type[@name=\"com.klistret.cmdb.element.logical.collection.Environment\"]" };
 
-		String[] expressions2 = { "declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; /pojo:Element/type[@name=\"com.klistret.cmdb.element.logical.collection.Environment\"]" };
+		FindQuery findQuery = new FindQuery();
+		findQuery.setExpressions(expressions);
+		findQuery.setStart(0);
+		findQuery.setLimit(100);
 
-		elementService.findByExpressions(expressions1);
+		elementService.findByExpressions(findQuery);
 	}
 }

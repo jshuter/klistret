@@ -17,8 +17,9 @@ package com.klistret.cmdb.service;
 import java.util.Collection;
 
 import com.klistret.cmdb.pojo.Element;
+import com.klistret.cmdb.pojo.FindQuery;
+import com.klistret.cmdb.pojo.FindResults;
 import com.klistret.cmdb.dao.ElementDAO;
-import com.klistret.cmdb.pojo.PropertyCriteria;
 import com.klistret.cmdb.utility.annotations.Timer;
 
 public class ElementServiceImpl implements ElementService {
@@ -29,12 +30,22 @@ public class ElementServiceImpl implements ElementService {
 		this.elementDAO = elementDAO;
 	}
 
-	public Integer countByCriteria(PropertyCriteria criteria) {
-		return elementDAO.countByCriteria(criteria);
+	public Collection<Element> findByExpressions(String[] expressions,
+			Integer start, Integer limit) {
+		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public Collection<Element> findByExpressions(String[] expressions) {
-		return elementDAO.findByExpressions(expressions);
+	public FindResults findByExpressions(FindQuery findQuery) {
+		FindResults findResults = new FindResults();
+
+		Collection<Element> payload = findByExpressions(findQuery
+				.getExpressions(), findQuery.getStart(), findQuery.getLimit());
+
+		findResults.setPayload(payload);
+		findResults.setCount(payload.size());
+		findResults.setSuccessful(true);
+
+		return findResults;
 	}
 
 	public Element getById(Long id) {
@@ -44,11 +55,5 @@ public class ElementServiceImpl implements ElementService {
 	@Timer
 	public Element set(Element element) {
 		return elementDAO.set(element);
-	}
-
-	public void test(com.klistret.cmdb.pojo.Test expr) {
-		for (String expression : expr.getExpressions()) {
-			System.out.println(expression);
-		}
 	}
 }

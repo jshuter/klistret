@@ -25,27 +25,28 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.pojo.Element;
+import com.klistret.cmdb.pojo.FindQuery;
+import com.klistret.cmdb.pojo.FindResults;
 
 @Path("/resteasy")
 public interface ElementService {
 
 	@GET
-	@Path("/element/getById/{id}")
-	@Produces( {  MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
+	@Path("/element/get/{id}")
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	Element getById(@PathParam("id")
 	Long id);
 
-	Collection<Element> findByExpressions(String[] expressions);
+	Collection<Element> findByExpressions(String[] expressions, Integer start,
+			Integer limit);
 
-	Integer countByCriteria(com.klistret.cmdb.pojo.PropertyCriteria criteria);
+	@POST
+	@Path("/element/find")
+	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	FindResults findByExpressions(FindQuery findQuery);
 
 	@POST
 	@Path("/element/set")
-	@Consumes( {  MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
-	Element set(Element element);
-
-	@POST
-	@Path("/element/test")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	void test(com.klistret.cmdb.pojo.Test expr);
+	Element set(Element element);
 }

@@ -22,4 +22,10 @@
 	<bean id="elementTypeService" class="com.klistret.cmdb.service.ElementTypeServiceImpl">
 		<property name="elementTypeDAO" ref="elementTypeDAO" />
 	</bean>
+	<bean id="relationService" class="com.klistret.cmdb.service.RelationServiceImpl">
+		<property name="relationDAO" ref="relationDAO" />
+	</bean>
+	<bean id="relationTypeService" class="com.klistret.cmdb.service.RelationTypeServiceImpl">
+		<property name="relationTypeDAO" ref="relationTypeDAO" />
+	</bean>
 </beans>
