@@ -29,8 +29,8 @@ import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.Element;
-import com.klistret.cmdb.pojo.ElementType;
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 
 /**
@@ -80,7 +80,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
 
-				com.klistret.cmdb.pojo.Element element = new com.klistret.cmdb.pojo.Element();
+				com.klistret.cmdb.ci.pojo.Element element = new com.klistret.cmdb.ci.pojo.Element();
 				element.setId((Long) row[0]);
 				element.setType((ElementType) row[1]);
 				element.setName((String) row[2]);
@@ -89,7 +89,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateId((String) row[5]);
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
-				element.setConfiguration((com.klistret.cmdb.Element) row[8]);
+				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
 
 				elements.add(element);
 			}

@@ -29,7 +29,7 @@ public interface ElementTypeDAO {
 	 * @param name
 	 * @return ElementType
 	 */
-	com.klistret.cmdb.pojo.ElementType getByCompositeId(String name);
+	com.klistret.cmdb.ci.pojo.ElementType getByCompositeId(String name);
 
 	/**
 	 * CRUD find by name used in an ILike expression
@@ -37,7 +37,7 @@ public interface ElementTypeDAO {
 	 * @param name
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.pojo.ElementType> findByName(
+	Collection<com.klistret.cmdb.ci.pojo.ElementType> findByName(
 			String name);
 
 	/**

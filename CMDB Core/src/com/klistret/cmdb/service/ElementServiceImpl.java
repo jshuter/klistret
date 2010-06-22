@@ -16,11 +16,11 @@ package com.klistret.cmdb.service;
 
 import java.util.Collection;
 
-import com.klistret.cmdb.pojo.Element;
-import com.klistret.cmdb.pojo.FindQuery;
-import com.klistret.cmdb.pojo.FindResults;
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.utility.annotations.Timer;
+import com.klistret.cmdb.utility.resteasy.FindResults;
 
 public class ElementServiceImpl implements ElementService {
 
@@ -35,11 +35,12 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public FindResults findByExpressions(FindQuery findQuery) {
+	public FindResults findByExpressions(QueryRequest queryRequest) {
 		FindResults findResults = new FindResults();
 
-		Collection<Element> payload = findByExpressions(findQuery
-				.getExpressions(), findQuery.getStart(), findQuery.getLimit());
+		Collection<Element> payload = findByExpressions(queryRequest
+				.getExpressions().toArray(new String[0]), queryRequest
+				.getStart(), queryRequest.getLimit());
 
 		findResults.setPayload(payload);
 		findResults.setCount(payload.size());

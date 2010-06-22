@@ -10,6 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -22,18 +24,35 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.klistret.cmdb.ci.pojo.QueryRequest;
+
 public class Experimenting {
 
 	@Path("atom")
 	public static class MyResource {
+		@XmlAccessorType(XmlAccessType.FIELD)
 		@XmlRootElement(name = "test")
 		public static class Test {
 
 			@XmlElement
 			private String[] expressions;
 
+			@XmlElement
+			private Integer start;
+
+			@XmlElement
+			private Integer limit;
+
 			public String[] getExpressions() {
 				return expressions;
+			}
+
+			public Integer getStart() {
+				return start;
+			}
+
+			public Integer getLimit() {
+				return limit;
 			}
 		}
 
@@ -55,7 +74,20 @@ public class Experimenting {
 		@Consumes( { MediaType.APPLICATION_JSON })
 		public void find(Test test) {
 			for (String expression : test.getExpressions()) {
-				System.out.println(expression);
+				System.out.println(String.format(
+						"expresion [%s], start [%d], limit [%d]", expression,
+						test.getStart(), test.getLimit()));
+			}
+		}
+		
+		@POST
+		@Path("finding")
+		@Consumes( { MediaType.APPLICATION_JSON })
+		public void finding(QueryRequest queryRequest) {
+			for (String expression : queryRequest.getExpressions()) {
+				System.out.println(String.format(
+						"expresion [%s], start [%d], limit [%d]", expression,
+						queryRequest.getStart(), queryRequest.getLimit()));
 			}
 		}
 	}
@@ -85,15 +117,15 @@ public class Experimenting {
 
 	@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.post("/atom/find");
+		MockHttpRequest request = MockHttpRequest.post("/atom/finding");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"test\":{\"expressions\":[\"declare namespace pojo=\\\"http://www.klistret.com/cmdb/pojo\\\"; declare namespace cmdb=\\\"http://www.klistret.com/cmdb\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/cmdb:Namespace[. = \\\"development\\\"]\",\"yeah\"]}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.QueryRequest\":{\"com.klistret.cmdb.ci.pojo.start\":0,\"com.klistret.cmdb.ci.pojo.limit\":100,\"com.klistret.cmdb.ci.pojo.expressions\":[\"declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/commons:Namespace[. = \\\"development\\\"]\"]}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
-		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response.getStatus());
 	}
 }

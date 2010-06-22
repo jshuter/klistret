@@ -16,5 +16,5 @@ package com.klistret.cmdb.service;
 
 public interface RelationTypeService {
 
-	com.klistret.cmdb.pojo.RelationType getByCompositeId(String name);
+	com.klistret.cmdb.ci.pojo.RelationType getByCompositeId(String name);
 }

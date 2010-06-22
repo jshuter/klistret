@@ -26,9 +26,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.klistret.cmdb.element.logical.collection.Environment;
-import com.klistret.cmdb.pojo.Element;
-import com.klistret.cmdb.pojo.FindQuery;
+import com.klistret.cmdb.ci.element.logical.collection.Environment;
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
+import com.klistret.cmdb.utility.resteasy.FindQuery;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -43,24 +44,28 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void getById() throws JAXBException {
-		Element element = elementService.getById(new Long(44));
+		Element element = elementService.getById(new Long(81));
 		System.out
 				.println(((Environment) element.getConfiguration()).getName());
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void setElement() {
+		ElementType elementType = elementTypeService.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
+		
 		Element element = new Element();
+		element.setName("Saturnus");
+		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Environment environment = new Environment();
-		environment.setName("hello");
+		environment.setName("Saturnus");
 		environment.setWatermark("production");
 
 		element.setConfiguration(environment);
@@ -72,8 +77,8 @@ public class ElementService extends
 	@Rollback(value = false)
 	public void findByExpr() {
 		String[] expressions = {
-				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; declare namespace col=\"http://www.klistret.com/cmdb/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/cmdb:Namespace[. = \"development\"]",
-				"declare namespace pojo=\"http://www.klistret.com/cmdb/pojo\"; declare namespace cmdb=\"http://www.klistret.com/cmdb\"; /pojo:Element/type[@name=\"com.klistret.cmdb.element.logical.collection.Environment\"]" };
+				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/commons:Namespace[. = \"development\"]",
+				"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/type[@name=\"com.klistret.cmdb.ci.element.logical.collection.Environment\"]" };
 
 		FindQuery findQuery = new FindQuery();
 		findQuery.setExpressions(expressions);

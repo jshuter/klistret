@@ -41,18 +41,18 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 	 * @throws InfrastructureException
 	 *             when Hibernate criteria does not return a unique result
 	 */
-	public com.klistret.cmdb.pojo.RelationType getByCompositeId(
+	public com.klistret.cmdb.ci.pojo.RelationType getByCompositeId(
 			String name) {
 		logger.debug("getting relation type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
-				com.klistret.cmdb.pojo.RelationType.class);
+				com.klistret.cmdb.ci.pojo.RelationType.class);
 
 		criteria.add(Restrictions.isNull("toTimeStamp"));
 		criteria.add(Restrictions.eq("name", name));
 
 		try {
-			com.klistret.cmdb.pojo.RelationType relationType = (com.klistret.cmdb.pojo.RelationType) criteria
+			com.klistret.cmdb.ci.pojo.RelationType relationType = (com.klistret.cmdb.ci.pojo.RelationType) criteria
 					.uniqueResult();
 
 			if (relationType != null) {

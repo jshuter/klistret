@@ -16,7 +16,7 @@
  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="com.klistret.cmdb.pojo">
+<hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
 	<class name="Element" table="ELEMENT" entity-name="Element">
 
@@ -62,9 +62,9 @@
 			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
 			<type
 				name="com.klistret.cmdb.utility.hibernate.JAXBUserType">
-				<param name="baseTypes">com.klistret.cmdb.Base</param>
+				<param name="baseTypes">com.klistret.cmdb.ci.commons.Base</param>
 				<param name="assignablePackages">
-					com/klistret/cmdb
+					com/klistret/cmdb/ci
 				</param>
 			</type>
 		</property>

@@ -13,15 +13,15 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb/pojo"
-	xmlns:pojo="http://www.klistret.com/cmdb/pojo"
-	xmlns:cmdb="http://www.klistret.com/cmdb"
+	targetNamespace="http://www.klistret.com/cmdb/ci/pojo"
+	xmlns:pojo="http://www.klistret.com/cmdb/ci/pojo"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
 	xmlns:ci="http://jaxb.dev.java.net/plugin/code-injector"
 	jaxb:version="2.0" jaxb:extensionBindingPrefixes="ci">
-	<xs:import namespace="http://www.klistret.com/cmdb"
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="commons.xsd" />
 	<xs:simpleType name="id">
 		<xs:annotation>
@@ -123,7 +123,7 @@
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="configuration" type="cmdb:Element"
+			<xs:element name="configuration" type="commons:Element"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="sourceRelations" type="pojo:Relation"
 				maxOccurs="unbounded" minOccurs="0" />
@@ -183,7 +183,7 @@
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="configuration" type="cmdb:Relation"
+			<xs:element name="configuration" type="commons:Relation"
 				maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
@@ -281,6 +281,25 @@
 				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
 				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="QueryResponse">
+		<xs:sequence>
+			<xs:element name="successful" type="xs:boolean"
+				maxOccurs="1" minOccurs="1" />
+			<xs:element name="count" type="xs:int" maxOccurs="1"
+				minOccurs="1" />
+			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="QueryRequest">
+		<xs:sequence>
+			<xs:element name="start" type="xs:int" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="limit" type="xs:int" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="expressions" type="xs:string"
+				maxOccurs="unbounded" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 </schema>
