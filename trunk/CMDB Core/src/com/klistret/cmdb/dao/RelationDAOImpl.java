@@ -38,14 +38,14 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * @param id
 	 * @return Relation
 	 */
-	public com.klistret.cmdb.pojo.Relation getById(Long id) {
+	public com.klistret.cmdb.ci.pojo.Relation getById(Long id) {
 		try {
 			Criteria criteria = getSession().createCriteria("Relation");
 
 			criteria.add(Restrictions.idEq(id));
 
 			logger.debug("getting relation [id: {}] by id", id);
-			com.klistret.cmdb.pojo.Relation relation = (com.klistret.cmdb.pojo.Relation) criteria
+			com.klistret.cmdb.ci.pojo.Relation relation = (com.klistret.cmdb.ci.pojo.Relation) criteria
 					.uniqueResult();
 
 			if (relation == null) {

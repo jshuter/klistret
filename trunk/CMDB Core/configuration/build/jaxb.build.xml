@@ -95,9 +95,9 @@
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-XxmlRootElement" />
-			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.Base,com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.ElementType,com.klistret.cmdb.pojo.Relation,com.klistret.cmdb.pojo.RelationType" />
+			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.QueryResponse,com.klistret.cmdb.ci.pojo.QueryRequest" />
 			<arg value="-XxmlNSMap" />
-			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.pojo.Element,com.klistret.cmdb.pojo.Relation" />
+			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.QueryResponse" />
 			<classpath>
 				<path refid="jaxb.class.path" />
 				<path refid="jaxb2-commons.class.path" />
@@ -111,10 +111,7 @@
 		</java>
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
-			<include name="com/klistret/cmdb/pojo/*.java" />
-			<include name="com/klistret/cmdb/*.java" />
-			<include name="com/klistret/cmdb/element/**/*.java" />
-			<include name="com/klistret/cmdb/relation/**/*.java" />
+			<include name="com/klistret/cmdb/ci/**/*.java" />
 			<classpath>
 				<path refid="jaxb.class.path" />
 				<path refid="klistret.plugin.class.path" />
@@ -124,10 +121,7 @@
 		</javac>
 
 		<jar destfile="${dist-basedir}/klistret.jaxb.jar" basedir="${tmp-destdir}">
-			<include name="com/klistret/cmdb/pojo/*.class" />
-			<include name="com/klistret/cmdb/*.class" />
-			<include name="com/klistret/cmdb/element/**/*.class" />
-			<include name="com/klistret/cmdb/relation/**/*.class" />
+			<include name="com/klistret/cmdb/ci/**/*.class" />
 		</jar>
 	</target>
 </project>

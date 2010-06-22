@@ -16,7 +16,7 @@
 		"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 		"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="com.klistret.cmdb.pojo">
+<hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
 	<class name="RelationType" table="RELATIONTYPE" entity-name="RelationType">
 

@@ -13,8 +13,8 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb"
-	xmlns:cmdb="http://www.klistret.com/cmdb"
+	targetNamespace="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
@@ -92,11 +92,11 @@
 
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
-			<xs:element name="Name" type="cmdb:Name" maxOccurs="1"></xs:element>
-			<xs:element name="Namespace" type="cmdb:Namespace"
+			<xs:element name="Name" type="commons:Name" maxOccurs="1"></xs:element>
+			<xs:element name="Namespace" type="commons:Namespace"
 				maxOccurs="1">
 			</xs:element>
-			<xs:element name="Tag" type="cmdb:Tag" minOccurs="0"
+			<xs:element name="Tag" type="commons:Tag" minOccurs="0"
 				maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
@@ -110,9 +110,9 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="cmdb:Base">
+			<xs:extension base="commons:Base">
 				<xs:sequence>
-					<xs:element name="Ownership" type="cmdb:Ownership"
+					<xs:element name="Ownership" type="commons:Ownership"
 						maxOccurs="1">
 					</xs:element>
 				</xs:sequence>
@@ -120,7 +120,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Element" type="cmdb:Element"></xs:element>
+	<xs:element name="Element" type="commons:Element"></xs:element>
 
 	<xs:complexType name="Relation" abstract="true">
 		<xs:annotation>
@@ -129,9 +129,9 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="cmdb:Base" />
+			<xs:extension base="commons:Base" />
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Relation" type="cmdb:Relation"></xs:element>
+	<xs:element name="Relation" type="commons:Relation"></xs:element>
 </schema>

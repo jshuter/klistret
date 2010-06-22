@@ -28,11 +28,11 @@
 		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
 		<constructor-arg index="0">
 			<value type="java.lang.String[]">
-				com.klistret.cmdb.pojo.Element,com.klistret.cmdb.Base
+				com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.commons.Base
 			</value>
 		</constructor-arg>
 		<constructor-arg index="1">
-			<value type="java.lang.String[]">com/klistret/cmdb</value>
+			<value type="java.lang.String[]">com/klistret/cmdb/ci</value>
 		</constructor-arg>
 	</bean>
 </beans>

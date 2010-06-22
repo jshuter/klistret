@@ -1,4 +1,4 @@
-package com.klistret.cmdb.pojo;
+package com.klistret.cmdb.utility.resteasy;
 
 import java.util.Collection;
 
@@ -10,11 +10,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
 import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
 
+import com.klistret.cmdb.ci.pojo.Element;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "FindResults")
 @Mapped(namespaceMap = {
-    @XmlNsMap(namespace = "http://www.klistret.com/cmdb/pojo", jsonName = "com.klistret.cmdb.pojo")
-})
+		@XmlNsMap(namespace = "http://www.klistret.com/cmdb/pojo", jsonName = "com.klistret.cmdb.pojo"),
+		@XmlNsMap(namespace = "http://www.w3.org/2001/XMLSchema-instance", jsonName = "www.w3.org.2001.XMLSchema-instance") })
 public class FindResults {
 
 	@XmlElement
@@ -24,7 +26,7 @@ public class FindResults {
 	private Integer count;
 
 	@XmlElement
-	private Collection<?> payload;
+	private Collection<Element> payload;
 
 	public boolean isSuccessful() {
 		return successful;
@@ -42,11 +44,11 @@ public class FindResults {
 		this.count = count;
 	}
 
-	public Collection<?> getPayload() {
+	public Collection<Element> getPayload() {
 		return payload;
 	}
 
-	public void setPayload(Collection<?> payload) {
+	public void setPayload(Collection<Element> payload) {
 		this.payload = payload;
 	}
 }

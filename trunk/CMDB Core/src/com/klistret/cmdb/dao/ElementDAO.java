@@ -35,7 +35,7 @@ public interface ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	com.klistret.cmdb.pojo.Element getById(Long id);
+	com.klistret.cmdb.ci.pojo.Element getById(Long id);
 
 	/**
 	 * CRUD find by criteria where the criteria is a list of property
@@ -45,7 +45,7 @@ public interface ElementDAO {
 	 * @param expressions
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.pojo.Element> findByExpressions(
+	Collection<com.klistret.cmdb.ci.pojo.Element> findByExpressions(
 			String[] expressions, Integer start, Integer limit);
 
 	/**
@@ -54,5 +54,5 @@ public interface ElementDAO {
 	 * @param element
 	 * @return Element
 	 */
-	com.klistret.cmdb.pojo.Element set(com.klistret.cmdb.pojo.Element element);
+	com.klistret.cmdb.ci.pojo.Element set(com.klistret.cmdb.ci.pojo.Element element);
 }

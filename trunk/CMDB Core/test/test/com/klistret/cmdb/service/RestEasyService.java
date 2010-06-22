@@ -45,11 +45,11 @@ public class RestEasyService {
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
 	}
 
-	//@Test
+	@Test
 	public void getById() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/get/44");
+				.get("/resteasy/element/get/81");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -66,7 +66,7 @@ public class RestEasyService {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/set");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.pojo.Element\":{\"com.klistret.cmdb.pojo.id\":44,\"com.klistret.cmdb.pojo.name\":\"development\",\"com.klistret.cmdb.pojo.type\":{\"com.klistret.cmdb.pojo.id\":1,\"com.klistret.cmdb.pojo.name\":\"com.klistret.cmdb.element.logical.collection.Environment\",\"com.klistret.cmdb.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.pojo.fromTimeStamp\":\"2009-08-20T15:33:54.993+02:00\",\"com.klistret.cmdb.pojo.createTimeStamp\":\"2009-08-20T15:33:54.993+02:00\",\"com.klistret.cmdb.pojo.updateTimeStamp\":\"2009-09-15T15:34:19.769+02:00\",\"com.klistret.cmdb.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.element.logical.collection:Environment\",\"com.klistret.cmdb.Name\":\"something\",\"com.klistret.cmdb.Namespace\":\"test\"}}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.pojo.id\":44,\"com.klistret.cmdb.pojo.name\":\"development\",\"com.klistret.cmdb.pojo.type\":{\"com.klistret.cmdb.pojo.id\":1,\"com.klistret.cmdb.pojo.name\":\"com.klistret.cmdb.element.logical.collection.Environment\",\"com.klistret.cmdb.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.pojo.fromTimeStamp\":\"2009-08-20T15:33:54.993+02:00\",\"com.klistret.cmdb.pojo.createTimeStamp\":\"2009-08-20T15:33:54.993+02:00\",\"com.klistret.cmdb.pojo.updateTimeStamp\":\"2009-09-15T15:34:19.769+02:00\",\"com.klistret.cmdb.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.element.logical.collection:Environment\",\"com.klistret.cmdb.Name\":\"something\",\"com.klistret.cmdb.Namespace\":\"test\"}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -75,12 +75,12 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 	
-	@Test
+	//@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/find");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.pojo.FindQuery\":{\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/pojo\\\"; declare namespace cmdb=\\\"http://www.klistret.com/cmdb\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/cmdb:Namespace[. = \\\"development\\\"]\"], \"start\":0, \"limit\":100}}";
+		String requestBodyAsString = "{\"FindQuery\":{\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/pojo\\\"; declare namespace cmdb=\\\"http://www.klistret.com/cmdb\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/cmdb:Namespace[. = \\\"development\\\"]\"], \"start\":0, \"limit\":100}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));

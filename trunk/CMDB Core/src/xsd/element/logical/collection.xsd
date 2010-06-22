@@ -13,12 +13,12 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb/element/logical"
-	xmlns:logical="http://www.klistret.com/cmdb/element/logical"
-	xmlns:cmdb="http://www.klistret.com/cmdb"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical"
+	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-	<xs:import namespace="http://www.klistret.com/cmdb"
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../../commons.xsd" />
 
 	<xs:complexType name="Collection" abstract="true">
@@ -30,7 +30,7 @@
 			</documentation>
 		</annotation>
 		<xs:complexContent>
-			<xs:extension base="cmdb:Element" />
+			<xs:extension base="commons:Element" />
 		</xs:complexContent>
 	</xs:complexType>
 
