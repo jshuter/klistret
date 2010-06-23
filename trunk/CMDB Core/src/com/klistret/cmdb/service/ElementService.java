@@ -25,7 +25,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
+import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.utility.resteasy.FindResults;
 
 @Path("/resteasy")

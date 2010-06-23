@@ -17,7 +17,7 @@ package com.klistret.cmdb.service;
 import java.util.Collection;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
+import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.utility.annotations.Timer;
 import com.klistret.cmdb.utility.resteasy.FindResults;

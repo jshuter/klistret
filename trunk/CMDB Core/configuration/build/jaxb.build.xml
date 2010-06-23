@@ -37,8 +37,8 @@
 	</path>
 
 	<path id="resteasy.class.path">
-		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.1.GA/lib">
-			<include name="resteasy-jettison-provider-1.2.1.GA.jar" />
+		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-2.0-beta-4/lib">
+			<include name="resteasy-jettison-provider-2.0-beta-4.jar" />
 		</fileset>
 	</path>
 
@@ -95,7 +95,7 @@
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-XxmlRootElement" />
-			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.QueryResponse,com.klistret.cmdb.ci.pojo.QueryRequest" />
+			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.QueryResponse" />
 			<arg value="-XxmlNSMap" />
 			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.QueryResponse" />
 			<classpath>

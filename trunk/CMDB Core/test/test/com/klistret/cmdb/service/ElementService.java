@@ -14,6 +14,8 @@
 
 package test.com.klistret.cmdb.service;
 
+import java.util.Arrays;
+
 import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
@@ -29,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.utility.resteasy.FindQuery;
+import com.klistret.cmdb.pojo.QueryRequest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -44,19 +46,20 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(81));
 		System.out
 				.println(((Environment) element.getConfiguration()).getName());
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void setElement() {
-		ElementType elementType = elementTypeService.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
-		
+		ElementType elementType = elementTypeService
+				.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
+
 		Element element = new Element();
 		element.setName("Saturnus");
 		element.setType(elementType);
@@ -80,11 +83,11 @@ public class ElementService extends
 				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/commons:Namespace[. = \"development\"]",
 				"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/type[@name=\"com.klistret.cmdb.ci.element.logical.collection.Environment\"]" };
 
-		FindQuery findQuery = new FindQuery();
-		findQuery.setExpressions(expressions);
-		findQuery.setStart(0);
-		findQuery.setLimit(100);
+		QueryRequest queryRequest = new QueryRequest();
+		queryRequest.setExpressions(Arrays.asList(expressions));
+		queryRequest.setStart(0);
+		queryRequest.setLimit(100);
 
-		elementService.findByExpressions(findQuery);
+		elementService.findByExpressions(queryRequest);
 	}
 }
