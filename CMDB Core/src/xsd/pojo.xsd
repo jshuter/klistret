@@ -292,14 +292,4 @@
 			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="QueryRequest">
-		<xs:sequence>
-			<xs:element name="start" type="xs:int" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="limit" type="xs:int" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="expressions" type="xs:string"
-				maxOccurs="unbounded" minOccurs="1" />
-		</xs:sequence>
-	</xs:complexType>
 </schema>

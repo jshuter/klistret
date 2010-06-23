@@ -2,6 +2,8 @@ package test.com.klistret.cmdb.utility.resteasy;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -24,7 +26,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.ci.pojo.QueryRequest;
+import com.klistret.cmdb.pojo.QueryRequest;
+
 
 public class Experimenting {
 
@@ -34,24 +37,22 @@ public class Experimenting {
 		@XmlRootElement(name = "test")
 		public static class Test {
 
-			@XmlElement
-			private String[] expressions;
+			@XmlElement(required = true)
+			protected List<String> expressions;
 
-			@XmlElement
-			private Integer start;
+			protected int start;
 
-			@XmlElement
-			private Integer limit;
+			protected int limit;
 
-			public String[] getExpressions() {
+			public List<String> getExpressions() {
 				return expressions;
 			}
 
-			public Integer getStart() {
+			public int getStart() {
 				return start;
 			}
 
-			public Integer getLimit() {
+			public int getLimit() {
 				return limit;
 			}
 		}
@@ -64,7 +65,7 @@ public class Experimenting {
 			String[] whatever = { "hello", "yeah" };
 
 			Test test = new Test();
-			test.expressions = whatever;
+			test.expressions = Arrays.asList(whatever);
 
 			return test;
 		}
@@ -102,7 +103,7 @@ public class Experimenting {
 
 	}
 
-	@Test
+	//@Test
 	public void simpleGet() throws URISyntaxException {
 		MockHttpRequest request = MockHttpRequest.get("/atom/getById/44");
 
@@ -115,12 +116,26 @@ public class Experimenting {
 		System.out.println(responseBodyAsString);
 	}
 
-	@Test
+	//@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest.post("/atom/find");
+		MockHttpResponse response = new MockHttpResponse();
+
+		String requestBodyAsString = "{\"test\":{\"start\":0,\"limit\":50,\"expressions\":[\"hello\",\"yeah\"]}}";
+
+		request.contentType(MediaType.APPLICATION_JSON);
+		request.content(requestBodyAsString.getBytes("UTF-8"));
+
+		dispatcher.invoke(request, response);
+		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response.getStatus());
+	}
+	
+	@Test
+	public void finding() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/atom/finding");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.QueryRequest\":{\"com.klistret.cmdb.ci.pojo.start\":0,\"com.klistret.cmdb.ci.pojo.limit\":100,\"com.klistret.cmdb.ci.pojo.expressions\":[\"declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/commons:Namespace[. = \\\"development\\\"]\"]}}";
+		String requestBodyAsString = "{\"QueryRequest\":{\"expressions\":[\"hello\",\"yeah\"]}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));

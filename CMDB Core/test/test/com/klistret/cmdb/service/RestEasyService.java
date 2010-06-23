@@ -45,7 +45,7 @@ public class RestEasyService {
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
 	}
 
-	@Test
+	//@Test
 	public void getById() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -75,17 +75,19 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 	
-	//@Test
+	@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/find");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"FindQuery\":{\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/pojo\\\"; declare namespace cmdb=\\\"http://www.klistret.com/cmdb\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"dev\\\")]/pojo:configuration/cmdb:Namespace[. = \\\"development\\\"]\"], \"start\":0, \"limit\":100}}";
+		String requestBodyAsString = "{\"QueryRequest\":{\"start\":0,\"limit\":100,\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"Saturnus\\\")]\"]}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+		
+		System.out.println(response.getContentAsString());
 	}
 }
