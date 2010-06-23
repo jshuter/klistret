@@ -14,13 +14,16 @@
 
 package com.klistret.cmdb.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import com.klistret.cmdb.ci.pojo.Base;
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.utility.annotations.Timer;
-import com.klistret.cmdb.utility.resteasy.FindResults;
 
 public class ElementServiceImpl implements ElementService {
 
@@ -30,23 +33,23 @@ public class ElementServiceImpl implements ElementService {
 		this.elementDAO = elementDAO;
 	}
 
-	public Collection<Element> findByExpressions(String[] expressions,
+	public List<Element> findByExpressions(String[] expressions,
 			Integer start, Integer limit) {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public FindResults findByExpressions(QueryRequest queryRequest) {
-		FindResults findResults = new FindResults();
+	public QueryResponse findByExpressions(QueryRequest queryRequest) {
+		QueryResponse queryResponse = new QueryResponse();
 
-		Collection<Element> payload = findByExpressions(queryRequest
+		List<? extends Base> payload = findByExpressions(queryRequest
 				.getExpressions().toArray(new String[0]), queryRequest
 				.getStart(), queryRequest.getLimit());
 
-		findResults.setPayload(payload);
-		findResults.setCount(payload.size());
-		findResults.setSuccessful(true);
+		queryResponse.setPayload(payload);
+		queryResponse.setCount(payload.size());
+		queryResponse.setSuccessful(true);
 
-		return findResults;
+		return queryResponse;
 	}
 
 	public Element getById(Long id) {
