@@ -75,6 +75,24 @@
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
 	</xs:simpleType>
+	<xs:complexType name="Base" abstract="true">
+		<xs:sequence>
+			<xs:element name="id" type="pojo:id" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="name" type="pojo:name" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
+				maxOccurs="1" minOccurs="1" />
+			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
+				maxOccurs="1" minOccurs="0" />
+			<xs:element name="createId" type="pojo:createId"
+				maxOccurs="1" minOccurs="0" />
+			<xs:element name="createTimeStamp"
+				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
+			<xs:element name="updateTimeStamp"
+				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="Element">
 		<xs:annotation>
 			<xs:appinfo>
@@ -105,31 +123,20 @@
 				</ci:code>
 			</xs:appinfo>
 		</xs:annotation>
-
-		<xs:sequence>
-			<xs:element name="id" type="pojo:id" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="name" type="pojo:name" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="type" type="pojo:ElementType"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createTimeStamp"
-				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp"
-				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="configuration" type="commons:Element"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="sourceRelations" type="pojo:Relation"
-				maxOccurs="unbounded" minOccurs="0" />
-			<xs:element name="destinationRelations" type="pojo:Relation"
-				maxOccurs="unbounded" minOccurs="0" />
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="pojo:Base">
+				<xs:sequence>
+					<xs:element name="type" type="pojo:ElementType"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="configuration"
+						type="commons:Element" maxOccurs="1" minOccurs="1" />
+					<xs:element name="sourceRelations"
+						type="pojo:Relation" maxOccurs="unbounded" minOccurs="0" />
+					<xs:element name="destinationRelations"
+						type="pojo:Relation" maxOccurs="unbounded" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="Relation">
 		<xs:annotation>
@@ -162,30 +169,20 @@
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:sequence>
-			<xs:element name="id" type="pojo:id" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="name" type="pojo:name" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="type" type="pojo:RelationType"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="source" type="pojo:Element" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="destination" type="pojo:Element"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createTimeStamp"
-				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp"
-				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="configuration" type="commons:Relation"
-				maxOccurs="1" minOccurs="1" />
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="pojo:Base">
+				<xs:sequence>
+					<xs:element name="type" type="pojo:RelationType"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="source" type="pojo:Element"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="destination" type="pojo:Element"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="configuration"
+						type="commons:Relation" maxOccurs="1" minOccurs="1" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="ElementType">
 		<xs:annotation>
@@ -218,22 +215,9 @@
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:sequence>
-			<xs:element name="id" type="pojo:id" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="name" type="pojo:name" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createTimeStamp"
-				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp"
-				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="pojo:Base"></xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RelationType">
 		<xs:annotation>
@@ -266,22 +250,9 @@
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:sequence>
-			<xs:element name="id" type="pojo:id" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="name" type="pojo:name" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="pojo:createId"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createTimeStamp"
-				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp"
-				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
-		</xs:sequence>
+		<xs:complexContent>
+			<xs:extension base="pojo:Base"></xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="QueryResponse">
 		<xs:sequence>
@@ -289,7 +260,8 @@
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="count" type="xs:int" maxOccurs="1"
 				minOccurs="1" />
-			<xs:any processContents="lax" maxOccurs="1" minOccurs="1" />
+			<xs:element name="payload" type="pojo:Base" maxOccurs="unbounded"
+				minOccurs="0" />
 		</xs:sequence>
 	</xs:complexType>
 </schema>

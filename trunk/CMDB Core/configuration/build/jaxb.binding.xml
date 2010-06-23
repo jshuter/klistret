@@ -32,8 +32,4 @@
 		<jxb:javaType name="java.lang.Long" xmlType="xs:long" />
 	</jxb:globalBindings>
 
-    <jxb:bindings schemaLocation="../../src/xsd/pojo.xsd" node="/xs:schema/xs:complexType[@name='QueryResponse']/xs:sequence/xs:any">
-        <jxb:property name="payload"/>
-    </jxb:bindings>
-
 </jxb:bindings>

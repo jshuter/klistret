@@ -14,10 +14,9 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<Element> findByExpressions(String[] expressions,
+	public List<Element> findByExpressions(String[] expressions,
 			Integer start, Integer limit) {
 		try {
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
@@ -75,7 +74,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			Set<Element> elements = new LinkedHashSet(results.length);
+			List<Element> elements = new ArrayList(results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];

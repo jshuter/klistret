@@ -26,8 +26,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.klistret.cmdb.ci.element.logical.collection.Environment;
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
-
 
 public class Experimenting {
 
@@ -80,16 +83,34 @@ public class Experimenting {
 						test.getStart(), test.getLimit()));
 			}
 		}
-		
+
 		@POST
 		@Path("finding")
 		@Consumes( { MediaType.APPLICATION_JSON })
-		public void finding(QueryRequest queryRequest) {
+		public QueryResponse finding(QueryRequest queryRequest) {
 			for (String expression : queryRequest.getExpressions()) {
 				System.out.println(String.format(
 						"expresion [%s], start [%d], limit [%d]", expression,
 						queryRequest.getStart(), queryRequest.getLimit()));
 			}
+			Environment environment = new Environment();
+			environment.setName("hello");
+			environment.setWatermark("production");
+			
+			ElementType elementType = new ElementType();
+			elementType.setName("my type");
+			
+			Element element = new Element();
+			element.setName("hello");
+			element.setType(elementType);
+			element.setConfiguration(environment);
+
+			QueryResponse queryResponse = new QueryResponse();
+			queryResponse.setCount(1);
+			queryResponse.setSuccessful(true);
+			queryResponse.setPayload(element);
+
+			return queryResponse;
 		}
 	}
 
@@ -103,7 +124,7 @@ public class Experimenting {
 
 	}
 
-	//@Test
+	// @Test
 	public void simpleGet() throws URISyntaxException {
 		MockHttpRequest request = MockHttpRequest.get("/atom/getById/44");
 
@@ -116,7 +137,7 @@ public class Experimenting {
 		System.out.println(responseBodyAsString);
 	}
 
-	//@Test
+	// @Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/atom/find");
 		MockHttpResponse response = new MockHttpResponse();
@@ -127,11 +148,13 @@ public class Experimenting {
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
-		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response
+				.getStatus());
 	}
-	
+
 	@Test
-	public void finding() throws URISyntaxException, UnsupportedEncodingException {
+	public void finding() throws URISyntaxException,
+			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/atom/finding");
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -141,6 +164,8 @@ public class Experimenting {
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
-		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+
+		System.out.println(response.getContentAsString());
 	}
 }

@@ -14,7 +14,7 @@
 
 package com.klistret.cmdb.service;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,8 +25,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
-import com.klistret.cmdb.utility.resteasy.FindResults;
 
 @Path("/resteasy")
 public interface ElementService {
@@ -37,13 +37,13 @@ public interface ElementService {
 	Element getById(@PathParam("id")
 	Long id);
 
-	Collection<Element> findByExpressions(String[] expressions, Integer start,
+	List<Element> findByExpressions(String[] expressions, Integer start,
 			Integer limit);
 
 	@POST
 	@Path("/element/find")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	FindResults findByExpressions(QueryRequest queryRequest);
+	QueryResponse findByExpressions(QueryRequest queryRequest);
 
 	@POST
 	@Path("/element/set")

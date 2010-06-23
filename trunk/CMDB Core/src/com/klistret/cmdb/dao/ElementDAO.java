@@ -14,7 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Dealing with Elements is limited to CRUD methods while the business logic is
@@ -45,7 +45,7 @@ public interface ElementDAO {
 	 * @param expressions
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.ci.pojo.Element> findByExpressions(
+	List<com.klistret.cmdb.ci.pojo.Element> findByExpressions(
 			String[] expressions, Integer start, Integer limit);
 
 	/**
