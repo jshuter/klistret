@@ -13,21 +13,10 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb"
-	xmlns:cmdb="http://www.klistret.com/cmdb"
+	targetNamespace="http://www.klistret.com/cmdb/ci/persistence"
+	xmlns:persistence="http://www.klistret.com/cmdb/ci/persistence"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-
-	<xs:simpleType name="PropertyLocationPath">
-		<xs:annotation>
-			<xs:documentation>
-				Similar to XPath location path term
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string">
-			<xs:pattern value="(\w+)|(\w+[.]\w+)*"></xs:pattern>
-		</xs:restriction>
-	</xs:simpleType>
 
 	<xs:complexType name="PersistenceRules">
 		<xs:annotation>
@@ -37,47 +26,44 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="PropertyCriterion"
-				type="cmdb:PropertyCriterion" maxOccurs="unbounded">
+			<xs:element name="Criterion" type="persistence:Criterion"
+				maxOccurs="unbounded">
 			</xs:element>
-			<xs:element name="Binding" type="cmdb:Binding"
+			<xs:element name="Rule" type="persistence:Rule"
 				maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="PropertyCriterion">
+	<xs:complexType name="Criterion">
 		<xs:annotation>
-			<xs:documentation>Identification Criteria</xs:documentation>
+			<xs:documentation>Persistence criterion</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="PropertyLocationPath"
-				type="cmdb:PropertyLocationPath" minOccurs="1"
-				maxOccurs="unbounded">
+			<xs:element name="Expressions" type="xs:string"
+				minOccurs="1" maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Name" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 
-	<xs:complexType name="Binding">
+	<xs:complexType name="Rule">
 		<xs:annotation>
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ExclusionType" type="xs:string"
-				minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Exclusions" type="xs:string" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
-			<xs:element name="Type" type="xs:string" minOccurs="1"
+			<xs:element name="QName" type="xs:string" minOccurs="1"
 				maxOccurs="1">
 			</xs:element>
-			<xs:element name="PropertyCriterion" type="xs:string"
+			<xs:element name="Criterion" type="xs:string"
 				minOccurs="1" maxOccurs="1">
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Order" type="xs:int" use="optional"></xs:attribute>
 	</xs:complexType>
 
-	<xs:element name="PersistenceRules" type="cmdb:PersistenceRules">
-	</xs:element>
 </schema>

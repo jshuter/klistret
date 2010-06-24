@@ -16,9 +16,7 @@ package com.klistret.cmdb.rules;
 
 import java.util.List;
 
-import org.apache.xmlbeans.XmlObject;
-
-import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
+import javax.xml.namespace.QName;
 
 /**
  * Interface exists solely to allow for AOP proxy [see
@@ -43,17 +41,6 @@ public interface Persistence {
 	 * @param classname
 	 * @return Criteria List of criterion (PropertyExpression array)
 	 */
-	List<PropertyExpression[]> getCriteriaByType(String classname);
-
-	/**
-	 * Several criterion may be applicable for a specific XmlObject depending on
-	 * order and if the passed XmlObject fulfills each criterion.
-	 * 
-	 * @param xmlObject
-	 * @param propertyExpressionCriteria
-	 * @return Criterion PropertyExpression array
-	 */
-	PropertyExpression[] getCriterionByXmlObject(XmlObject xmlObject,
-			List<PropertyExpression[]> propertyExpressionCriteria);
+	List<String[]> getCriterionByQName(QName qname);
 
 }

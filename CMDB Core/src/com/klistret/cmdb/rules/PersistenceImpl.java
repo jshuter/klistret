@@ -19,20 +19,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 
+import org.jvnet.jaxb.reflection.util.QNameMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.pojo.PersistenceRules;
+import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.annotations.Timer;
-import com.klistret.cmdb.utility.xmlbeans.PropertyExpression;
-import com.klistret.cmdb.utility.xmlbeans.SchemaTypeHelper;
-import com.klistret.cmdb.xmlbeans.PersistenceRulesDocument;
-import com.klistret.cmdb.xmlbeans.PropertyCriterion;
+import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
 /**
  * Persistence Rules are located in an external XML document. They allow unique
@@ -50,21 +51,31 @@ public class PersistenceImpl implements Persistence {
 	private static final Logger logger = LoggerFactory
 			.getLogger(PersistenceImpl.class);
 
-	/**
-	 * XmlObject persistence rules document
-	 */
-	private PersistenceRulesDocument persistenceRulesDocument;
+	private PersistenceRules persistenceRules;
+
+	private CIContextHelper ciContextHelper;
+
+	public PersistenceRules getPersistenceRules() {
+		return persistenceRules;
+	}
+
+	public CIContextHelper getCIContextHelper() {
+		return ciContextHelper;
+	}
+
+	public void setCIContextHelper(CIContextHelper ciContextHelper) {
+		this.ciContextHelper = ciContextHelper;
+	}
 
 	public PersistenceImpl(URL url) {
 		try {
-			this.persistenceRulesDocument = (PersistenceRulesDocument) XmlObject.Factory
-					.parse(url);
-		} catch (XmlException e) {
-			logger.error("URL [{}] failed parsing; {}", url, e);
-			throw new InfrastructureException(e.getMessage());
-		} catch (IOException e) {
-			logger.error("URL [{}] failed parsing: {}", url, e);
-			throw new InfrastructureException(e.getMessage());
+			JAXBContext jaxbContext = JAXBContext
+					.newInstance(com.klistret.cmdb.pojo.PersistenceRules.class);
+
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			persistenceRules = (PersistenceRules) unmarshaller.unmarshal(url);
+		} catch (JAXBException e) {
+			throw new InfrastructureException("", e);
 		}
 	}
 
@@ -78,39 +89,28 @@ public class PersistenceImpl implements Persistence {
 	 * @return Criteria
 	 */
 	@Timer
-	public List<PropertyExpression[]> getCriteriaByType(String classname) {
-		/**
-		 * return ordered list of base types (ascending) based on fully
-		 * qualified class-name
-		 */
-		SchemaType[] baseSchemaTypes = SchemaTypeHelper
-				.getBaseSchemaTypes(classname);
+	public List<String[]> getCriterionByQName(QName qname) {
 
-		/**
-		 * construct schema type list for query
-		 */
-		String schemaTypesList = String.format("\'%s\'", classname);
-		for (SchemaType baseSchemaType : baseSchemaTypes)
-			schemaTypesList = schemaTypesList.concat(String.format(",\'%s\'",
-					baseSchemaType.getFullJavaName()));
+		String qnames = null;
+		for (QNameMap.Entry<XMLBean> entry : ciContextHelper.getXMLBeans()
+				.entrySet()) {
+			qnames = qnames == null ? String.format("\'%s\'", entry.getValue()
+					.getType()) : qnames.concat(String.format(",\'%s\'", entry
+					.getValue().getType()));
+		}
 
-		String namespaces = "declare namespace cmdb=\'http://www.klistret.com/cmdb\';";
+		String namespaces = "declare namespace persistence=\'http://www.klistret.com/cmdb/ci/persistence\';";
 
-		/**
-		 * positional variables only allowed for "for" clause and the order
-		 * should be ascending to the base class (type). Necessary to order the
-		 * returned property criterion by class then the order attribute.
-		 */
-		String xquery = "for $types at $typesIndex in ("
-				+ schemaTypesList
+		String xquery = "for $qnames at $qnameIndex in ("
+				+ qnames
 				+ ") "
-				+ "for $binding in $this/cmdb:PersistenceRules/cmdb:Binding[not(cmdb:ExclusionType = \'"
-				+ classname
+				+ "for $rule in $this/persistence:PersistenceRules/persistence:Rule[not(persistence:Exclusions = \'"
+				+ qname
 				+ "\')] "
-				+ "for $criterion in $this/cmdb:PersistenceRules/cmdb:PropertyCriterion "
-				+ "where $binding/cmdb:Type = $types "
-				+ "and $binding/cmdb:PropertyCriterion = $criterion/@Name "
-				+ "order by $typesIndex, $binding/@Order empty greatest "
+				+ "for $criterion in $this/persistence:PersistenceRules/persistence:Criterion "
+				+ "where $rule/persistence:QName = $qnames "
+				+ "and $rule/persistence:Criterion = $criterion/@Name "
+				+ "order by $qnameIndex, $rule/@Order empty greatest "
 				+ "return $criterion";
 
 		/**

@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.utility.jaxb.JAXBContextHelper;
+import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
 public class JAXBUserType implements UserType, ParameterizedType {
 
@@ -202,7 +202,7 @@ public class JAXBUserType implements UserType, ParameterizedType {
 			throw new InfrastructureException(
 					"Parameter assignablePackages note defined to user type");
 
-		jaxbContext = new JAXBContextHelper(baseTypesProperty.split(","),
+		jaxbContext = new CIContextHelper(baseTypesProperty.split(","),
 				assignablePackagesProperty.split(",")).getJAXBContext();
 	}
 }

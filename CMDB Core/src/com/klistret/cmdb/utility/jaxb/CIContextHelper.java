@@ -47,10 +47,10 @@ import com.klistret.cmdb.pojo.XMLProperty;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
-public class JAXBContextHelper {
+public class CIContextHelper {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(JAXBContextHelper.class);
+			.getLogger(CIContextHelper.class);
 
 	/**
 	 * Packages potentially containing beans assignable from the set of base
@@ -86,7 +86,7 @@ public class JAXBContextHelper {
 	 * @param baseTypes
 	 * @param assignablePackages
 	 */
-	public JAXBContextHelper(String[] baseTypes, String[] assignablePackages) {
+	public CIContextHelper(String[] baseTypes, String[] assignablePackages) {
 		this.baseTypes = baseTypes;
 		this.assignablePackages = assignablePackages;
 
