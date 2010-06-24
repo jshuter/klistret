@@ -51,9 +51,14 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Element> findByExpressions(String[] expressions,
-			Integer start, Integer limit) {
+	public List<Element> findByExpressions(String[] expressions, Integer start,
+			Integer limit) {
 		try {
+			if (expressions == null) {
+				logger.error("Expressions parameter is null");
+				throw new ApplicationException("Expressions parameter is null");
+			}
+
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
 			String alias = hcriteria.getAlias();
@@ -69,12 +74,17 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					Projections.property(alias + ".updateTimeStamp")).add(
 					Projections.property(alias + ".configuration")));
 
-			hcriteria.setFirstResult(start);
-			hcriteria.setMaxResults(limit);
+			hcriteria
+					.setFirstResult((start == null | start < 0 | start > limit) ? null
+							: start);
+			hcriteria
+					.setMaxResults((limit == null | limit < 0 | limit < start) ? null
+							: limit);
 
 			Object[] results = hcriteria.list().toArray();
 
 			List<Element> elements = new ArrayList(results.length);
+			logger.debug("Results length [{}]", elements.size());
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
@@ -88,7 +98,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateId((String) row[5]);
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
-				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
+				element
+						.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
 
 				elements.add(element);
 			}

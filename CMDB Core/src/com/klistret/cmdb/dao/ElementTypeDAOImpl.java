@@ -23,6 +23,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 /**
@@ -42,6 +43,11 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 * @return Integer
 	 */
 	public Integer countByName(String name) {
+		if (name == null) {
+			logger.error("Name parameter is null");
+			throw new ApplicationException("Name parameter is null");
+		}
+
 		try {
 			Criteria query = getSession().createCriteria("ElementType");
 
@@ -69,6 +75,11 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	@SuppressWarnings("unchecked")
 	public Collection<com.klistret.cmdb.ci.pojo.ElementType> findByName(
 			String name) {
+		if (name == null) {
+			logger.error("Name parameter is null");
+			throw new ApplicationException("Name parameter is null");
+		}
+
 		try {
 			Criteria query = getSession().createCriteria("ElementType");
 
@@ -90,8 +101,12 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 * @param name
 	 * @return ElementType
 	 */
-	public com.klistret.cmdb.ci.pojo.ElementType getByCompositeId(
-			String name) {
+	public com.klistret.cmdb.ci.pojo.ElementType getByCompositeId(String name) {
+		if (name == null) {
+			logger.error("Name parameter is null");
+			throw new ApplicationException("Name parameter is null");
+		}
+
 		logger.debug("getting element type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
