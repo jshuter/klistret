@@ -25,7 +25,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
+import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
 
 @Path("/resteasy")
@@ -43,7 +43,7 @@ public interface ElementService {
 	@POST
 	@Path("/element/find")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	QueryResponse findByExpressions(QueryRequest queryRequest);
+	ElementQueryResponse findByExpressions(QueryRequest queryRequest);
 
 	@POST
 	@Path("/element/set")

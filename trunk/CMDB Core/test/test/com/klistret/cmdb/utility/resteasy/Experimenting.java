@@ -2,6 +2,7 @@ package test.com.klistret.cmdb.utility.resteasy;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import org.junit.Test;
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
+import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
 
 public class Experimenting {
@@ -87,7 +88,7 @@ public class Experimenting {
 		@POST
 		@Path("finding")
 		@Consumes( { MediaType.APPLICATION_JSON })
-		public QueryResponse finding(QueryRequest queryRequest) {
+		public ElementQueryResponse finding(QueryRequest queryRequest) {
 			for (String expression : queryRequest.getExpressions()) {
 				System.out.println(String.format(
 						"expresion [%s], start [%d], limit [%d]", expression,
@@ -104,11 +105,14 @@ public class Experimenting {
 			element.setName("hello");
 			element.setType(elementType);
 			element.setConfiguration(environment);
+			
+			List<Element> payload = new ArrayList<Element>();
+			payload.add(element);
 
-			QueryResponse queryResponse = new QueryResponse();
+			ElementQueryResponse queryResponse = new ElementQueryResponse();
 			queryResponse.setCount(1);
 			queryResponse.setSuccessful(true);
-			queryResponse.setPayload(element);
+			queryResponse.setPayload(payload);
 
 			return queryResponse;
 		}
