@@ -23,9 +23,9 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<!-- jaxb context -->
-	<bean id="jaxbContextHelper"
-		class="com.klistret.cmdb.utility.jaxb.JAXBContextHelper">
+	<!-- CI JAXB context -->
+	<bean id="ciContextHelper"
+		class="com.klistret.cmdb.utility.jaxb.CIContextHelper">
 		<constructor-arg index="0">
 			<value type="java.lang.String[]">
 				com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.commons.Base
