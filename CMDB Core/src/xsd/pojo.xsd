@@ -254,14 +254,32 @@
 			<xs:extension base="pojo:Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:complexType name="QueryResponse">
+	<xs:complexType name="QueryResponse" abstract="true">
 		<xs:sequence>
 			<xs:element name="successful" type="xs:boolean"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="count" type="xs:int" maxOccurs="1"
 				minOccurs="1" />
-			<xs:element name="payload" type="pojo:Base" maxOccurs="unbounded"
-				minOccurs="0" />
 		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ElementQueryResponse">
+		<xs:complexContent>
+			<xs:extension base="pojo:QueryResponse">
+				<xs:sequence>
+					<xs:element name="payload" type="pojo:Element"
+						maxOccurs="unbounded" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RelationQueryResponse">
+		<xs:complexContent>
+			<xs:extension base="pojo:QueryResponse">
+				<xs:sequence>
+					<xs:element name="payload" type="pojo:Relation"
+						maxOccurs="unbounded" minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 </schema>
