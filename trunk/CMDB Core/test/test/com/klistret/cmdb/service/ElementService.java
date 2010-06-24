@@ -80,7 +80,7 @@ public class ElementService extends
 	@Rollback(value = false)
 	public void findByExpr() {
 		String[] expressions = {
-				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"dev\")]/pojo:configuration/commons:Namespace[. = \"development\"]",
+				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Name[. = \"Saturnus\"]",
 				"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/type[@name=\"com.klistret.cmdb.ci.element.logical.collection.Environment\"]" };
 
 		QueryRequest queryRequest = new QueryRequest();

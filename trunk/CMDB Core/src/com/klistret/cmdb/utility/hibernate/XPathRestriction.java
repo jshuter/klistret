@@ -14,6 +14,9 @@
 
 package com.klistret.cmdb.utility.hibernate;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
@@ -71,6 +74,12 @@ public class XPathRestriction implements Criterion {
 	 * Return value for criterion without types values
 	 */
 	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
+
+	/**
+	 * 
+	 */
+	private static final Pattern singleQuotes = Pattern
+			.compile("'((?:[^']+|'')*)'");
 
 	/**
 	 * Constructor transfers over arguments to properties (variable refenese
@@ -182,6 +191,19 @@ public class XPathRestriction implements Criterion {
 					DB2DefaultFunctionNamespace).concat(xpath);
 			logger.debug("XPath [{}] prior to returning XMLEXISTS clause",
 					xpath);
+
+			Matcher sq = singleQuotes.matcher(xpath);
+			if (sq.find()) {
+				logger
+						.error(
+								"XPath [{}] contains surrounding single quotes which DB2 does not allow",
+								xpath);
+				throw new ApplicationException(
+						String
+								.format(
+										"XPath [%s] contains surrounding single quotes which DB2 does not allow",
+										xpath));
+			}
 
 			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",
 					xpath, columns[0], variableReference);

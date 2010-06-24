@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -97,15 +99,15 @@ public class Experimenting {
 			Environment environment = new Environment();
 			environment.setName("hello");
 			environment.setWatermark("production");
-			
+
 			ElementType elementType = new ElementType();
 			elementType.setName("my type");
-			
+
 			Element element = new Element();
 			element.setName("hello");
 			element.setType(elementType);
 			element.setConfiguration(environment);
-			
+
 			List<Element> payload = new ArrayList<Element>();
 			payload.add(element);
 
@@ -156,7 +158,7 @@ public class Experimenting {
 				.getStatus());
 	}
 
-	@Test
+	// @Test
 	public void finding() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/atom/finding");
@@ -171,5 +173,16 @@ public class Experimenting {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 
 		System.out.println(response.getContentAsString());
+	}
+
+	@Test
+	public void re() {
+		final Pattern singleQuotes = Pattern
+				.compile("'((?:[^']+|'')*)'");
+
+		String text = "whatever=\"''\"";
+
+		Matcher sq = singleQuotes.matcher(text);
+		Assert.assertTrue(sq.find());
 	}
 }
