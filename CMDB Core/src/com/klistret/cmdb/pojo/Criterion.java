@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Rule", propOrder = { "expressions" })
+@XmlType(name = "Criterion", propOrder = { "expressions" })
 public class Criterion {
 
 	@XmlElement(name = "Expressions", required = true)
