@@ -24,6 +24,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 
+import net.sf.saxon.Configuration;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.XQueryCompiler;
+import net.sf.saxon.sxpath.IndependentContext;
+
 import org.jvnet.jaxb.reflection.util.QNameMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,15 +73,9 @@ public class PersistenceImpl implements Persistence {
 	}
 
 	public PersistenceImpl(URL url) {
-		try {
-			JAXBContext jaxbContext = JAXBContext
-					.newInstance(com.klistret.cmdb.pojo.PersistenceRules.class);
-
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			persistenceRules = (PersistenceRules) unmarshaller.unmarshal(url);
-		} catch (JAXBException e) {
-			throw new InfrastructureException("", e);
-		}
+		Processor processor = new Processor(false);
+		XQueryCompiler xqc = processor.newXQueryCompiler();
+		xqc.compile("");
 	}
 
 	/**
@@ -91,27 +90,27 @@ public class PersistenceImpl implements Persistence {
 	@Timer
 	public List<String[]> getCriterionByQName(QName qname) {
 
-		String qnames = null;
-		for (QNameMap.Entry<XMLBean> entry : ciContextHelper.getXMLBeans()
-				.entrySet()) {
-			qnames = qnames == null ? String.format("\'%s\'", entry.getValue()
-					.getType()) : qnames.concat(String.format(",\'%s\'", entry
-					.getValue().getType()));
+		String qnames = String.format("\'%s\'", qname);
+		
+		XMLBean xmlBean = ciContextHelper.getXMLBean(qname);
+		while (xmlBean.getExtended() != null) {
+			qnames = qnames.concat(String.format(",\'%s\'", xmlBean
+					.getExtended()));
+			xmlBean = ciContextHelper.getXMLBean(xmlBean.getExtended());
 		}
 
 		String namespaces = "declare namespace persistence=\'http://www.klistret.com/cmdb/ci/persistence\';";
 
-		String xquery = "for $qnames at $qnameIndex in ("
-				+ qnames
-				+ ") "
+		String xquery = String.format("for $qnames at $qnameIndex in (%s) "
 				+ "for $rule in $this/persistence:PersistenceRules/persistence:Rule[not(persistence:Exclusions = \'"
-				+ qname
-				+ "\')] "
+				+ "%s\')] "
 				+ "for $criterion in $this/persistence:PersistenceRules/persistence:Criterion "
 				+ "where $rule/persistence:QName = $qnames "
 				+ "and $rule/persistence:Criterion = $criterion/@Name "
 				+ "order by $qnameIndex, $rule/@Order empty greatest "
-				+ "return $criterion";
+				+ "return $criterion", qnames, qname);
+		
+		ciContextHelper.getJAXBContext().createBinder().getXMLNode(persistenceRules);
 
 		/**
 		 * validate (by order) each property criteria against the passed

@@ -14,58 +14,94 @@
 
 package test.com.klistret.cmdb.rules;
 
-import java.io.File;
-import java.io.IOException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.util.JAXBSource;
+import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.XmlOptions;
+import net.sf.saxon.s9api.Processor;
+import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XQueryCompiler;
+import net.sf.saxon.s9api.XQueryEvaluator;
+import net.sf.saxon.s9api.XQueryExecutable;
+import net.sf.saxon.s9api.XdmValue;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.xmlbeans.element.logical.collection.Environment;
-import com.klistret.cmdb.xmlbeans.element.logical.collection.EnvironmentDocument;
+import com.klistret.cmdb.pojo.Criterion;
+import com.klistret.cmdb.pojo.PersistenceRules;
+import com.klistret.cmdb.pojo.Rule;
 
 public class Persistence {
 
-	private EnvironmentDocument document;
-	private Environment target;
+	private PersistenceRules persistenceRules;
 
 	@Before
 	public void setUp() throws Exception {
-		document = EnvironmentDocument.Factory.newInstance();
+		persistenceRules = new PersistenceRules();
 
-		target = document.addNewEnvironment();
-		target.setName("Saturnus");
-		target.setNamespace("Production");
+		Criterion cName = new Criterion();
+		cName.setName("Name");
+		cName
+				.getExpressions()
+				.add(
+						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Name[. = \"Saturnus\"]");
+
+		persistenceRules.getCriterion().add(cName);
+
+		Rule rEnvironment = new Rule();
+		rEnvironment.setCriterion(cName.getName());
+		rEnvironment.setQName("com.klistret.cmdb.ci.element.logical.collection.Environment");
+
+		persistenceRules.getRule().add(rEnvironment);
 	}
 
 	@Test
-	public void createIdentificationDocument() throws IOException {
-		XmlOptions opts = new XmlOptions();
-		opts.setSavePrettyPrint();
-		opts.setSavePrettyPrintIndent(4);
+	public void xquery() {
+		String xquery = String
+				.format(
+						"declare namespace persistence=\'http://www.klistret.com/cmdb/ci/persistence\'; declare variable $this external; for $qnames at $qnameIndex in (%s) "
+								+ "for $rule in $this/persistence:PersistenceRules/persistence:Rule[not(persistence:Exclusions = \'"
+								+ "%s\')] "
+								+ "for $criterion in $this/persistence:PersistenceRules/persistence:Criterion "
+								+ "where $rule/persistence:QName = $qnames "
+								+ "and $rule/persistence:Criterion = $criterion/@Name "
+								+ "order by $qnameIndex, $rule/@Order empty greatest "
+								+ "return $criterion",
+						"com.klistret.cmdb.ci.element.logical.collection.Environment",
+						"");
 
-		// construct document
-		com.klistret.cmdb.xmlbeans.PersistenceRulesDocument document = com.klistret.cmdb.xmlbeans.PersistenceRulesDocument.Factory
-				.newInstance();
-		com.klistret.cmdb.xmlbeans.PersistenceRules rules = document
-				.addNewPersistenceRules();
+		Processor processor = new Processor(false);
+		XQueryCompiler xqc = processor.newXQueryCompiler();
 
-		// add a property criterion
-		com.klistret.cmdb.xmlbeans.PropertyCriterion cNameAndNamespace = rules
-				.addNewPropertyCriterion();
-		cNameAndNamespace.setName("NameAndNamespace");
-		cNameAndNamespace.addPropertyLocationPath("Name");
-		cNameAndNamespace.addPropertyLocationPath("Namespace");
+		try {
+			XQueryExecutable xqexec = xqc.compile(xquery);
+			XQueryEvaluator xqeval = xqexec.load();
 
-		// add a binding
-		com.klistret.cmdb.xmlbeans.Binding bNameAndNamespace = rules
-				.addNewBinding();
-		bNameAndNamespace
-				.setType("com.klistret.cmdb.xmlbeans.element.logical.collection.Environment");
-		bNameAndNamespace.setPropertyCriterion("NameAndNamespace");
-		bNameAndNamespace.setOrder(3);
+			JAXBContext jc = JAXBContext
+					.newInstance(com.klistret.cmdb.pojo.PersistenceRules.class);
+			JAXBSource source = new JAXBSource(jc, persistenceRules);
 
-		document.save(new File("C:\\temp\\persistenceRules.xml"), opts);
+			xqeval.setSource(source);
+			XdmValue results = xqeval.evaluate();
+			
+			results.size();
+		} catch (SaxonApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
+	@Test
+	public void dummy() {
+		QName qname = new QName(
+				"http://www.klistret.com/cmdb/ci/element/logical/collection",
+				"Environment");
+
+		System.out.println(qname);
+	}
 }
