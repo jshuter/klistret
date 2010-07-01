@@ -16,8 +16,8 @@ package test.com.klistret.cmdb.rules;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.util.JAXBSource;
-import javax.xml.namespace.QName;
 
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
@@ -39,6 +39,8 @@ public class Persistence {
 
 	@Before
 	public void setUp() throws Exception {
+		String selection = "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Name[. = \"Saturnus\"]";
+
 		persistenceRules = new PersistenceRules();
 
 		Criterion cName = new Criterion();
@@ -52,7 +54,8 @@ public class Persistence {
 
 		Rule rEnvironment = new Rule();
 		rEnvironment.setCriterion(cName.getName());
-		rEnvironment.setQName("com.klistret.cmdb.ci.element.logical.collection.Environment");
+		rEnvironment
+				.setQName("com.klistret.cmdb.ci.element.logical.collection.Environment");
 
 		persistenceRules.getRule().add(rEnvironment);
 	}
@@ -60,17 +63,12 @@ public class Persistence {
 	@Test
 	public void xquery() {
 		String xquery = String
-				.format(
-						"declare namespace persistence=\'http://www.klistret.com/cmdb/ci/persistence\'; declare variable $this external; for $qnames at $qnameIndex in (%s) "
-								+ "for $rule in $this/persistence:PersistenceRules/persistence:Rule[not(persistence:Exclusions = \'"
-								+ "%s\')] "
-								+ "for $criterion in $this/persistence:PersistenceRules/persistence:Criterion "
-								+ "where $rule/persistence:QName = $qnames "
-								+ "and $rule/persistence:Criterion = $criterion/@Name "
-								+ "order by $qnameIndex, $rule/@Order empty greatest "
-								+ "return $criterion",
-						"com.klistret.cmdb.ci.element.logical.collection.Environment",
-						"");
+				.format("declare default element namespace \'http://www.klistret.com/cmdb/ci/persistence\'; "
+						+ "for $rule in /PersistenceRules/Rule "
+						+ "for $criterion in /PersistenceRules/Criterion "
+						+ "where $rule/QName = 'com.klistret.cmdb.ci.element.logical.collection.Environment' "
+						+ "and $rule/Criterion = $criterion/@Name "
+						+ "return $criterion");
 
 		Processor processor = new Processor(false);
 		XQueryCompiler xqc = processor.newXQueryCompiler();
@@ -85,7 +83,7 @@ public class Persistence {
 
 			xqeval.setSource(source);
 			XdmValue results = xqeval.evaluate();
-			
+
 			results.size();
 		} catch (SaxonApiException e) {
 			// TODO Auto-generated catch block
@@ -98,10 +96,15 @@ public class Persistence {
 
 	@Test
 	public void dummy() {
-		QName qname = new QName(
-				"http://www.klistret.com/cmdb/ci/element/logical/collection",
-				"Environment");
+		try {
+			JAXBContext jc = JAXBContext
+					.newInstance(com.klistret.cmdb.pojo.PersistenceRules.class);
+			Marshaller m = jc.createMarshaller();
 
-		System.out.println(qname);
+			m.marshal(persistenceRules, System.out);
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

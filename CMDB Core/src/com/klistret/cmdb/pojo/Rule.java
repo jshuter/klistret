@@ -13,11 +13,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "Rule", propOrder = { "exclusions", "qName", "criterion" })
 public class Rule {
 
-	@XmlElement(name = "Exclusions")
+	@XmlElement(name = "Exclusions", namespace = "http://www.klistret.com/cmdb/ci/persistence")
     protected List<String> exclusions;
-    @XmlElement(name = "QName", required = true)
+    @XmlElement(name = "QName", namespace = "http://www.klistret.com/cmdb/ci/persistence", required = true)
     protected String qName;
-    @XmlElement(name = "Criterion", required = true)
+    @XmlElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/ci/persistence", required = true)
     protected String criterion;
     @XmlAttribute(name = "Order")
     protected Integer order;
