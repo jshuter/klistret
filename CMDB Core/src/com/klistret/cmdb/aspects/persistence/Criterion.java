@@ -1,4 +1,4 @@
-package com.klistret.cmdb.pojo;
+package com.klistret.cmdb.aspects.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,15 +7,17 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Criterion", propOrder = { "expressions" })
+@XmlRootElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/aspects/persistence")
 public class Criterion {
 
-	@XmlElement(name = "Expressions", namespace = "http://www.klistret.com/cmdb/ci/persistence", required = true)
+	@XmlElement(name = "Expressions", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
 	protected List<String> expressions;
-	@XmlAttribute(name = "Name")
+	@XmlAttribute(name = "Name", required = true)
 	protected String name;
 
 	/**

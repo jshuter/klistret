@@ -175,11 +175,10 @@ public class XMLBean {
 	public void setExtended(QName extended) {
 		this.extended = extended;
 	}
-
-	public List<XMLBean> getDescendents() {
-		return null;
-	}
-
+	
+	/**
+	 * 
+	 */
 	public String toString() {
 		return String
 				.format(
