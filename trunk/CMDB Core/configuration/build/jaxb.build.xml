@@ -1,4 +1,4 @@
-<project default="generate">
+<project default="ci">
 	<!-- Windows -->
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
@@ -79,7 +79,7 @@
 		</fileset>
 	</path>
 
-	<target name="generate">
+	<target name="ci">
 
 		<java classname="com.sun.tools.xjc.XJCFacade">
 			<arg value="-extension" />

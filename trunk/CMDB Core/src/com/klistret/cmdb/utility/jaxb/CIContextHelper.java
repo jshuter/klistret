@@ -14,7 +14,9 @@
 
 package com.klistret.cmdb.utility.jaxb;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -324,6 +326,42 @@ public class CIContextHelper {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param classname
+	 * @return
+	 */
+	public XMLBean getXMLBean(String classname) {
+		for (QNameMap.Entry<XMLBean> entry : xmlBeans.entrySet()) {
+			if (entry.getValue().getClazz().getName().equals(classname))
+				return entry.getValue();
+		}
+
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param xmlBean
+	 * @return
+	 */
+	public List<XMLBean> getAncestors(XMLBean xmlBean) {
+		List<XMLBean> ancestors = new ArrayList<XMLBean>();
+		
+		while (xmlBean.getExtended() != null) {
+			xmlBean = getXMLBean(xmlBean.getExtended());
+			ancestors.add(xmlBean);
+		}
+
+		return ancestors;
+	}
+
+	/**
+	 * 
+	 * @param propertyOwner
+	 * @param propertyType
+	 * @return
+	 */
 	public String suggestPropertyName(QName propertyOwner, QName propertyType) {
 		XMLBean xmlBeanOwner = getXMLBean(propertyOwner);
 		if (xmlBeanOwner == null)

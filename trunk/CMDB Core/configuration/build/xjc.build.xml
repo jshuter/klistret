@@ -36,8 +36,8 @@
 	</path>
 
 	<path id="resteasy.class.path">
-		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-1.2.1.GA/lib">
-			<include name="resteasy-jettison-provider-1.2.1.GA.jar" />
+		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-2.0-beta-4/lib">
+			<include name="resteasy-jettison-provider-2.0-beta-4.jar" />
 		</fileset>
 	</path>
 

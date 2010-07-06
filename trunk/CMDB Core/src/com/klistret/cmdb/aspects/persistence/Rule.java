@@ -1,4 +1,4 @@
-package com.klistret.cmdb.pojo;
+package com.klistret.cmdb.aspects.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +10,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Rule", propOrder = { "exclusions", "qName", "criterion" })
+@XmlType(name = "Rule", propOrder = { "exclusions", "classname", "criterion" })
 public class Rule {
 
-	@XmlElement(name = "Exclusions", namespace = "http://www.klistret.com/cmdb/ci/persistence")
+	@XmlElement(name = "Exclusions", namespace = "http://www.klistret.com/cmdb/aspects/persistence")
     protected List<String> exclusions;
-    @XmlElement(name = "QName", namespace = "http://www.klistret.com/cmdb/ci/persistence", required = true)
-    protected String qName;
-    @XmlElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/ci/persistence", required = true)
+    @XmlElement(name = "Classname", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
+    protected String classname;
+    @XmlElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
     protected String criterion;
     @XmlAttribute(name = "Order")
     protected Integer order;
@@ -59,8 +59,8 @@ public class Rule {
      *     {@link String }
      *     
      */
-    public String getQName() {
-        return qName;
+    public String getClassname() {
+        return classname;
     }
 
     /**
@@ -71,8 +71,8 @@ public class Rule {
      *     {@link String }
      *     
      */
-    public void setQName(String value) {
-        this.qName = value;
+    public void setClassname(String classname) {
+        this.classname = classname;
     }
 
     /**
