@@ -37,7 +37,9 @@ import net.sf.saxon.expr.FilterExpression;
 import net.sf.saxon.expr.RootExpression;
 import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.sxpath.IndependentContext;
+import net.sf.saxon.sxpath.XPathExpression;
 import net.sf.saxon.trans.XPathException;
+import net.sf.saxon.sxpath.XPathEvaluator;
 
 /**
  * The basic idea is to only handle relative path expressions as defined by the
@@ -124,8 +126,9 @@ public class PathExpression {
 	 * easier to handle as a declaration than adding xsi:type filters to the
 	 * XPath.
 	 */
-	static final Pattern mappingDeclaration = Pattern
-			.compile("\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;");
+	static final String mappingStatement = "\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;";
+
+	static final Pattern mappingDeclaration = Pattern.compile(mappingStatement);
 
 	/**
 	 * Regular expression for delimiting path (slash) expressions (look ahead
@@ -134,10 +137,26 @@ public class PathExpression {
 	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))";
 
 	/**
+	 * Compiled xpath expression
+	 */
+	private XPathExpression xpathExpression;
+
+	/**
 	 * Constructor finds through regular expressions the default
 	 * element/function namespaces as well all declared namespaces then creates
 	 * a Saxon expression with the ExpressionTool and evaluates the expression
-	 * will explain calls.
+	 * will explain calls. The ExpressionTool code does not perform any
+	 * optimizing or type checking with the ExpressionVisitor as is done in the
+	 * XPathEvaluator. So instead of PathExpressions the made expression is
+	 * always a SlashExpression which is easier to recursively "explain" without
+	 * knowing the underlying expression type. For example, the "explain" method
+	 * is going to the recursively iterate backwards until getting the first
+	 * step. Thereafter the steps are popped off in order. This is easier code
+	 * to maintain than receiving a PathExpression and handling it in sequence.
+	 * The major drawback with the ExpressionTool is that the expression isn't
+	 * reusable as encapsulated inside the XPathExpression. There is room for
+	 * performance improvement to create the XPathExpression from the expression
+	 * made by the ExpressionTool.
 	 * 
 	 * @param xpath
 	 */
@@ -272,11 +291,26 @@ public class PathExpression {
 		 * after the last declaration.
 		 */
 		try {
-			expression = ExpressionTool.make(xpath, staticContext,
+			/**
+			 * Reusable XPathExpression (needed by plugins) means an extra
+			 * compilation along side the ExpressionTool (generates a
+			 * PathExpression)
+			 */
+			XPathEvaluator evaluator = new XPathEvaluator();
+			evaluator.setStaticContext(staticContext);
+			this.xpathExpression = evaluator
+					.createExpression(getXPathWithoutProlog());
+
+			/**
+			 * Generates a SlashExpression
+			 */
+			this.expression = ExpressionTool.make(xpath, staticContext,
 					prologOffset, -1, 1, true);
+			this.relativePath = new ArrayList<Expr>();
 
-			relativePath = new ArrayList<Expr>();
-
+			/**
+			 * Start recursive explains (modeled after Saxon explain methods)
+			 */
 			explain(expression);
 		} catch (XPathException e) {
 			logger
@@ -301,6 +335,10 @@ public class PathExpression {
 		}
 	}
 
+	public XPathExpression getXPathExpression() {
+		return this.xpathExpression;
+	}
+
 	/**
 	 * Nearly identical logic defined in the explain methods of the individual
 	 * Saxon expression class extensions
@@ -315,10 +353,12 @@ public class PathExpression {
 			 */
 			if (expression.getClass().getName().equals(
 					SlashExpression.class.getName())) {
-				explain(((SlashExpression) expression)
-						.getControllingExpression());
-				explain(((SlashExpression) expression)
-						.getControlledExpression());
+				Expression controlling = ((SlashExpression) expression)
+						.getControllingExpression();
+				Expression controlled = ((SlashExpression) expression)
+						.getControlledExpression();
+				explain(controlling);
+				explain(controlled);
 			}
 
 			/**

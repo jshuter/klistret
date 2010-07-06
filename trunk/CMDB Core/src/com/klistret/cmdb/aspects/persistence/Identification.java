@@ -35,6 +35,8 @@ import net.sf.saxon.s9api.XdmItem;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmSequenceIterator;
 import net.sf.saxon.s9api.XdmValue;
+import net.sf.saxon.sxpath.XPathExpression;
+import net.sf.saxon.trans.XPathException;
 
 import org.jvnet.jaxb.reflection.util.QNameMap;
 import org.slf4j.Logger;
@@ -142,9 +144,6 @@ public class Identification {
 	 * @return
 	 */
 	public List<PathExpression[]> getCriteriaByQName(QName qname) {
-		if (ciContextHelper == null)
-			throw new ApplicationException("CIContextHelper is null");
-
 		if (!cache.containsKey(qname.getNamespaceURI(), qname.getLocalPart()))
 			cache.put(qname, getCriteriaByXMLBean(ciContextHelper
 					.getXMLBean(qname)));
@@ -158,9 +157,6 @@ public class Identification {
 	 * @return
 	 */
 	public List<PathExpression[]> getCriteriaByClassname(String classname) {
-		if (ciContextHelper == null)
-			throw new ApplicationException("CIContextHelper is null");
-
 		XMLBean xmlBean = ciContextHelper.getXMLBean(classname);
 		if (!cache.containsKey(xmlBean.getType().getNamespaceURI(), xmlBean
 				.getType().getLocalPart()))
@@ -185,6 +181,34 @@ public class Identification {
 					.getClazz().getName()));
 
 		return getCriteriaByXQuery(fClassname, fAncestors);
+	}
+
+	/**
+	 * 
+	 * @param criteria
+	 * @param object
+	 * @return
+	 */
+	public PathExpression[] getCriterionByObject(
+			List<PathExpression[]> criteria, Object object) {
+		try {
+			JAXBSource jaxbSource = new JAXBSource(ciContextHelper
+					.getJAXBContext(), object);
+
+			for (PathExpression[] criterion : criteria) {
+
+				for (PathExpression expression : criterion) {
+					XPathExpression xexpr = expression.getXPathExpression();
+
+					List<?> results = xexpr.evaluate(jaxbSource);
+					results.size();
+				}
+			}
+		} catch (JAXBException e) {
+		} catch (XPathException e) {
+		}
+
+		return null;
 	}
 
 	/**

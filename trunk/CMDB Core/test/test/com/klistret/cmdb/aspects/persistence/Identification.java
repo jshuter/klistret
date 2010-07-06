@@ -14,6 +14,9 @@
 
 package test.com.klistret.cmdb.aspects.persistence;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
@@ -22,13 +25,19 @@ import org.junit.Test;
 import com.klistret.cmdb.aspects.persistence.Criterion;
 import com.klistret.cmdb.aspects.persistence.PersistenceRules;
 import com.klistret.cmdb.aspects.persistence.Rule;
+import com.klistret.cmdb.ci.element.logical.collection.Environment;
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.utility.jaxb.CIContextHelper;
+import com.klistret.cmdb.utility.saxon.PathExpression;
 
 public class Identification {
 
 	private PersistenceRules persistenceRules;
 
 	private CIContextHelper ciContextHelper;
+
+	private Element element;
 
 	@Before
 	public void setUp() throws Exception {
@@ -42,7 +51,7 @@ public class Identification {
 		cName
 				.getExpressions()
 				.add(
-						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Name[. = \"Saturnus\"]");
+						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[@name = \"Saturnus\"]");
 
 		persistenceRules.getCriterion().add(cName);
 
@@ -79,6 +88,26 @@ public class Identification {
 		String[] assignablePackages = { "com/klistret/cmdb/ci" };
 
 		ciContextHelper = new CIContextHelper(baseTypes, assignablePackages);
+
+		/**
+		 * element
+		 */
+		ElementType elementType = new ElementType();
+		elementType.setId(new Long(1));
+		elementType
+				.setName("com.klistret.cmdb.ci.element.logical.collection.Environment");
+		elementType.setCreateTimeStamp(new Date());
+
+
+		Environment environment = new Environment();
+		environment.setName("Saturnus");
+		environment.setNamespace("whatever");
+
+		element = new Element();
+		element.setId(new Long(1));
+		element.setName("Saturnus");
+		element.setType(elementType);
+		element.setConfiguration(environment);
 	}
 
 	@Test
@@ -91,6 +120,9 @@ public class Identification {
 		identification.setCiContextHelper(ciContextHelper);
 		identification.setPersistenceRules(persistenceRules);
 
-		identification.getCriteriaByQName(qname);
+		List<PathExpression[]> criteria = identification
+				.getCriteriaByQName(qname);
+
+		identification.getCriterionByObject(criteria, element);
 	}
 }

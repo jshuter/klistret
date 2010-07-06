@@ -10,9 +10,9 @@ import org.junit.Test;
 
 public class CIContextHelper {
 
-	String[] baseTypes = { "com.klistret.cmdb.Base",
-			"com.klistret.cmdb.pojo.Element" };
-	String[] assignablePackages = { "com/klistret/cmdb" };
+	String[] baseTypes = { "com.klistret.cmdb.ci.commons.Base",
+			"com.klistret.cmdb.ci.pojo.Element" };
+	String[] assignablePackages = { "com/klistret/cmdb/ci" };
 
 	com.klistret.cmdb.utility.jaxb.CIContextHelper helper;
 
@@ -24,8 +24,8 @@ public class CIContextHelper {
 
 	@Before
 	public void setUp() throws Exception {
-		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper(
-				baseTypes, assignablePackages);
+		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper(baseTypes,
+				assignablePackages);
 
 		elementType = new com.klistret.cmdb.ci.pojo.ElementType();
 		elementType.setId(new Long(1));
@@ -37,7 +37,7 @@ public class CIContextHelper {
 
 		element = new com.klistret.cmdb.ci.pojo.Element();
 		element.setId(new Long(1));
-		element.setName("a element");
+		element.setName("mine");
 		element.setType(elementType);
 		element.setConfiguration(environment);
 	}
@@ -51,10 +51,7 @@ public class CIContextHelper {
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			m.marshal(element, stringWriter);
 
-			System.out.println(String.format("Element [%s]",stringWriter));
-			
-			m.marshal(environment, stringWriter);
-			System.out.println(String.format("Environment [%s]", stringWriter));
+			System.out.println(String.format("Element [%s]", stringWriter));
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
