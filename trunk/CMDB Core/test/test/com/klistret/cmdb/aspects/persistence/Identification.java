@@ -51,7 +51,7 @@ public class Identification {
 		cName
 				.getExpressions()
 				.add(
-						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[@name = \"Saturnus\"]");
+						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[pojo:name = \"Saturnus\"]");
 
 		persistenceRules.getCriterion().add(cName);
 
@@ -60,7 +60,7 @@ public class Identification {
 		cNamespace
 				.getExpressions()
 				.add(
-						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Namespace[. = \"whatever\"]");
+						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[pojo:name = \"Saturnus\"]/pojo:configuration/commons:Namespace[. = \"whatever\"]");
 
 		persistenceRules.getCriterion().add(cNamespace);
 
@@ -98,7 +98,6 @@ public class Identification {
 				.setName("com.klistret.cmdb.ci.element.logical.collection.Environment");
 		elementType.setCreateTimeStamp(new Date());
 
-
 		Environment environment = new Environment();
 		environment.setName("Saturnus");
 		environment.setNamespace("whatever");
@@ -123,6 +122,9 @@ public class Identification {
 		List<PathExpression[]> criteria = identification
 				.getCriteriaByQName(qname);
 
-		identification.getCriterionByObject(criteria, element);
+		PathExpression[] criterion = identification.getCriterionByObject(
+				criteria, element);
+		for (PathExpression expr : criterion)
+			System.out.println(expr.getXPath());
 	}
 }

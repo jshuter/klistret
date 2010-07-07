@@ -80,7 +80,7 @@ public class RestEasyService {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/find");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"QueryRequest\":{\"start\":0,\"limit\":100,\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[matches(@name,\\\"Saturnus\\\")]\"]}}";
+		String requestBodyAsString = "{\"QueryRequest\":{\"start\":0,\"limit\":100,\"expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[pojo:name=\\\"Saturnus\\\"]\"]}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
