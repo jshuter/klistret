@@ -1,9 +1,13 @@
 package test.com.klistret.cmdb.utility.saxon;
 
 import java.io.File;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.util.JAXBSource;
 import javax.xml.transform.Source;
 
@@ -13,10 +17,14 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
+import net.sf.saxon.s9api.XPathCompiler;
+import net.sf.saxon.s9api.XPathExecutable;
+import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XQueryCompiler;
 import net.sf.saxon.s9api.XQueryEvaluator;
 import net.sf.saxon.s9api.XQueryExecutable;
 import net.sf.saxon.s9api.XdmNode;
+import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.sxpath.XPathEvaluator;
 import net.sf.saxon.sxpath.XPathExpression;
@@ -86,7 +94,7 @@ public class Experimenting {
 
 	@Test
 	public void xpath() {
-		String xpath = "/pojo:Element[@name='mine']";
+		String xpath = "/pojo:Element[pojo:name=\"mine\"]";
 
 		XPathEvaluator xeval = new XPathEvaluator();
 
@@ -94,16 +102,15 @@ public class Experimenting {
 				new Configuration());
 		staticContext.declareNamespace("pojo",
 				"http://www.klistret.com/cmdb/ci/pojo");
+		staticContext.declareNamespace("commons",
+		"http://www.klistret.com/cmdb/ci/commons");
 
 		xeval.setStaticContext(staticContext);
 
 		try {
 			XPathExpression xpathExpression = xeval.createExpression(xpath);
 
-			Processor processor = new Processor(false);
-			DocumentBuilder db = processor.newDocumentBuilder();
-
-			Source source = db.build(new File("C:\\temp\\test.xml")).asSource();
+			JAXBSource source = new JAXBSource(helper.getJAXBContext(), element);
 			List<?> results = xpathExpression.evaluate(source);
 
 			if (results.size() == 1) {
@@ -114,7 +121,49 @@ public class Experimenting {
 
 		} catch (XPathException e) {
 			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	}
+
+	//@Test
+	public void third() {
+		Processor processor = new Processor(false);
+
+		DocumentBuilder db = processor.newDocumentBuilder();
+		XPathCompiler xcompiler = processor.newXPathCompiler();
+
+		try {
+			xcompiler.declareNamespace("pojo",
+					"http://www.klistret.com/cmdb/ci/pojo");
+			XPathExecutable xexecutable = xcompiler
+					.compile("/pojo:Element/pojo:type[name=\"a type\"]");
+			XPathSelector xselector = xexecutable.load();
+
+			JAXBSource source = new JAXBSource(helper.getJAXBContext(), element);
+
+			xselector.setContextItem(db.build(source));
+			XdmValue results = xselector.evaluate();
+
+			results.size();
 		} catch (SaxonApiException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		} 
+	}
+
+	//@Test
+	public void unmarshaller() {
+		StringWriter stringWriter = new StringWriter();
+
+		try {
+			Marshaller m = helper.getJAXBContext().createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			m.marshal(element, stringWriter);
+
+			System.out.println(String.format("Element [%s]", stringWriter));
+		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
 	}

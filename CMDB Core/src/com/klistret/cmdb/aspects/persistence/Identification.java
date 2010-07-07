@@ -196,21 +196,36 @@ public class Identification {
 					.getJAXBContext(), object);
 
 			for (PathExpression[] criterion : criteria) {
+				boolean valid = true;
 
 				for (PathExpression expression : criterion) {
 					XPathExpression xexpr = expression.getXPathExpression();
 
-					List<?> results = xexpr.evaluate(jaxbSource);
-					results.size();
+					if (xexpr.evaluate(jaxbSource).size() == 0)
+						valid = false;
 				}
+
+				if (valid)
+					return criterion;
 			}
 		} catch (JAXBException e) {
+			logger.error(
+					"JAXB exception generating source from object [{}]: {}",
+					object, e);
+			throw new ApplicationException("JAXB exception generating source",
+					e);
 		} catch (XPathException e) {
+			logger.error(
+					"XPath exception evaluating xpath against JAXB source: {}",
+					e);
+			throw new ApplicationException(
+					"XPath exception evaluating xpath against JAXB source", e);
 		}
 
+		logger.debug("No criterion found for object [{}]", object);
 		return null;
 	}
-
+	
 	/**
 	 * 
 	 * @param fClassname
@@ -222,6 +237,7 @@ public class Identification {
 		List<PathExpression[]> criteria = new ArrayList<PathExpression[]>();
 
 		String xquery = String.format(criterionQuery, fAncestors, fClassname);
+		logger.debug("Evaluating xquery [{}]", xquery);
 
 		Processor processor = new Processor(false);
 		XQueryCompiler xqc = processor.newXQueryCompiler();
@@ -230,11 +246,6 @@ public class Identification {
 			XQueryExecutable xqexec = xqc.compile(xquery);
 			XQueryEvaluator xqeval = xqexec.load();
 
-			if (persistenceRules == null) {
-				logger.error("Persitence rules (document) is null");
-				throw new ApplicationException(
-						"Persitence rules (document) is null");
-			}
 			JAXBSource jaxbSource = new JAXBSource(jaxbContext,
 					persistenceRules);
 
@@ -245,6 +256,8 @@ public class Identification {
 
 			// single value
 			if (results instanceof XdmItem && results.size() == 1) {
+				logger.debug("Single xquery result");
+
 				PathExpression[] pathExpressions = getPathExpressions(
 						(XdmNode) results, unmarshaller);
 				if (pathExpressions != null)
@@ -253,6 +266,7 @@ public class Identification {
 
 			// sequence
 			if (results.size() > 1) {
+				logger.debug("Multiple xquery results");
 				XdmSequenceIterator resultsIterator = results.iterator();
 
 				while (resultsIterator.hasNext()) {
@@ -300,6 +314,7 @@ public class Identification {
 
 		Criterion criterion = (Criterion) unmarshaller
 				.unmarshal(NodeOverNodeInfo.wrap(nodeInfo));
+		logger.debug("Returning criterion [{}]", criterion.getName());
 
 		try {
 			List<PathExpression> pathExpressions = new ArrayList<PathExpression>();
@@ -315,6 +330,7 @@ public class Identification {
 							criterion.getName(), e);
 		}
 
+		logger.debug("Unable to return path expressions for criterion");
 		return null;
 	}
 }
