@@ -69,10 +69,14 @@ public class ElementIdentification {
 			return;
 		}
 
-		List<Element> results = elementService.findByExpressions(criterion,
-				0, 1);
+		List<Element> results = elementService.findByExpressions(criterion, 0,
+				1);
 
 		if (element.getId() == null && !results.isEmpty()) {
+			logger
+					.debug(
+							"Non-persistence element is identical to other elements [count: {}] according to persistence rules ",
+							results.size());
 			throw new ApplicationException(
 					String
 							.format(
@@ -82,14 +86,20 @@ public class ElementIdentification {
 
 		if (element.getId() != null && !results.isEmpty()) {
 			for (Element other : results) {
-				if (!element.equals(other))
+				if (!element.equals(other)) {
+					logger
+							.debug(
+									"Element [{}] is identical to other [{}] according to persistence rules ",
+									element.getId(), other.getId());
 					throw new ApplicationException(
 							String
 									.format(
-											"Element [%s] is identical to other [%s] according to persistence rules ",
-											element.toString(), other
-													.toString()));
+											"Element [%d] is identical to other [%d] according to persistence rules ",
+											element.getId(), other.getId()));
+				}
 			}
 		}
+
+		logger.debug("Identification allowing set to proceed");
 	}
 }

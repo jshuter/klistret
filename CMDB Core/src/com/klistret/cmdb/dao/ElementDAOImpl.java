@@ -80,7 +80,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			Object[] results = hcriteria.list().toArray();
 
 			List<Element> elements = new ArrayList(results.length);
-			logger.debug("Results length [{}]", elements.size());
+			logger.debug("Results length [{}]", results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
