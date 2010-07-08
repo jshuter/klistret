@@ -14,21 +14,16 @@
 
 package test.com.klistret.cmdb.aspects.persistence;
 
-import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.aspects.persistence.Criterion;
-import com.klistret.cmdb.aspects.persistence.PersistenceRules;
-import com.klistret.cmdb.aspects.persistence.Rule;
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
@@ -37,53 +32,12 @@ import com.klistret.cmdb.utility.saxon.PathExpression;
 
 public class Identification {
 
-	private PersistenceRules persistenceRules;
-
 	private CIContextHelper ciContextHelper;
 
 	private Element element;
 
 	@Before
 	public void setUp() throws Exception {
-		/**
-		 * persistence rules
-		 */
-		persistenceRules = new PersistenceRules();
-
-		Criterion cName = new Criterion();
-		cName.setName("Name");
-		cName
-				.getExpressions()
-				.add(
-						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element/pojo:configuration/commons:Name");
-
-		persistenceRules.getCriterion().add(cName);
-
-		Criterion cNamespace = new Criterion();
-		cNamespace.setName("Namespace");
-		cNamespace
-				.getExpressions()
-				.add(
-						"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[pojo:name = \"Saturnus\"]/pojo:configuration/commons:Namespace[. = \"whatever\"]");
-
-		persistenceRules.getCriterion().add(cNamespace);
-
-		Rule rEnvironmentName = new Rule();
-		rEnvironmentName.setCriterion(cName.getName());
-		rEnvironmentName
-				.setClassname("com.klistret.cmdb.ci.element.logical.collection.Environment");
-		rEnvironmentName.setOrder(2);
-
-		persistenceRules.getRule().add(rEnvironmentName);
-
-		Rule rEnvironmentNamespace = new Rule();
-		rEnvironmentNamespace.setCriterion(cNamespace.getName());
-		rEnvironmentNamespace
-				.setClassname("com.klistret.cmdb.ci.element.logical.Collection");
-		rEnvironmentNamespace.setOrder(1);
-
-		persistenceRules.getRule().add(rEnvironmentNamespace);
-
 		/**
 		 * context helper
 		 */
@@ -113,15 +67,15 @@ public class Identification {
 		element.setConfiguration(environment);
 	}
 
-	// @Test
-	public void execute() {
+	@Test
+	public void execute() throws MalformedURLException {
 		QName qname = new QName(
 				"http://www.klistret.com/cmdb/ci/element/logical/collection",
 				"Environment");
 
 		com.klistret.cmdb.aspects.persistence.Identification identification = new com.klistret.cmdb.aspects.persistence.Identification();
 		identification.setCiContextHelper(ciContextHelper);
-		identification.setPersistenceRules(persistenceRules);
+		identification.setPersistenceRules(new URL("classpath:persistence.rules.xml"));
 
 		List<PathExpression[]> criteria = identification
 				.getCriteriaByQName(qname);
@@ -131,25 +85,6 @@ public class Identification {
 		if (criterion != null) {
 			for (String xpath : criterion)
 				System.out.println(xpath);
-		}
-	}
-
-	@Test
-	public void unmarshaller() {
-		StringWriter stringWriter = new StringWriter();
-
-		try {
-			JAXBContext jc = JAXBContext
-					.newInstance(
-							com.klistret.cmdb.aspects.persistence.PersistenceRules.class,
-							com.klistret.cmdb.aspects.persistence.Criterion.class);
-			Marshaller m = jc.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			m.marshal(persistenceRules, stringWriter);
-
-			System.out.println(String.format("Element [%s]", stringWriter));
-		} catch (JAXBException e) {
-			e.printStackTrace();
 		}
 	}
 }
