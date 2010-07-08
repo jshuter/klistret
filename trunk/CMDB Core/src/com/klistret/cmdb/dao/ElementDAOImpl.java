@@ -51,8 +51,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Element> findByExpressions(String[] expressions, Integer start,
-			Integer limit) {
+	public List<Element> findByExpressions(String[] expressions, int start,
+			int limit) {
 		try {
 			if (expressions == null) {
 				logger.error("Expressions parameter is null");
@@ -74,12 +74,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					Projections.property(alias + ".updateTimeStamp")).add(
 					Projections.property(alias + ".configuration")));
 
-			hcriteria
-					.setFirstResult((start == null | start < 0 | start > limit) ? null
-							: start);
-			hcriteria
-					.setMaxResults((limit == null | limit < 0 | limit < start) ? null
-							: limit);
+			hcriteria.setFirstResult(start);
+			hcriteria.setMaxResults(limit);
 
 			Object[] results = hcriteria.list().toArray();
 

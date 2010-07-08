@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import net.sf.saxon.dom.NodeOverNodeInfo;
 import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.om.ValueRepresentation;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XQueryCompiler;
@@ -46,7 +47,9 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
+import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class Identification {
 
@@ -189,24 +192,55 @@ public class Identification {
 	 * @param object
 	 * @return
 	 */
-	public PathExpression[] getCriterionByObject(
-			List<PathExpression[]> criteria, Object object) {
+	public String[] getCriterionByObject(List<PathExpression[]> criteria,
+			Object object) {
 		try {
 			JAXBSource jaxbSource = new JAXBSource(ciContextHelper
 					.getJAXBContext(), object);
 
+			/**
+			 * Loop through the criterion
+			 */
 			for (PathExpression[] criterion : criteria) {
-				boolean valid = true;
+				try {
+					/**
+					 * Validate each expression and discard the entire criterion
+					 * if an expression has no singular value
+					 */
+					String[] expressions = new String[criterion.length];
+					for (int index = 0; index < criterion.length; index++) {
+						XPathExpression xexpr = criterion[index]
+								.getXPathExpression();
 
-				for (PathExpression expression : criterion) {
-					XPathExpression xexpr = expression.getXPathExpression();
+						List<?> results = xexpr.evaluate(jaxbSource);
+						if (results.size() != 1) {
+							logger
+									.error(
+											"Expression [{}] either returned nothing or multiple against the passed object [{}]",
+											criterion[index].getXPath(), object);
+							throw new ApplicationException(
+									String
+											.format(
+													"Expression [%s] either returned nothing or multiple against the passed object [%s]",
+													criterion[index].getXPath(),
+													object));
+						}
 
-					if (xexpr.evaluate(jaxbSource).size() == 0)
-						valid = false;
+						ValueRepresentation valueRep = (ValueRepresentation) results
+								.get(0);
+
+						String expression = String.format("%s[.=\"%s\"]",
+								criterion[index].getXPath(), valueRep
+										.getStringValue());
+						expressions[index] = expression;
+					}
+
+					logger.debug("Returning valid expressions [{}] for object",
+							expressions);
+					return expressions;
+				} catch (ApplicationException e) {
+					// ingore the criterion
 				}
-
-				if (valid)
-					return criterion;
 			}
 		} catch (JAXBException e) {
 			logger.error(
@@ -225,7 +259,7 @@ public class Identification {
 		logger.debug("No criterion found for object [{}]", object);
 		return null;
 	}
-	
+
 	/**
 	 * 
 	 * @param fClassname
@@ -319,18 +353,68 @@ public class Identification {
 		try {
 			List<PathExpression> pathExpressions = new ArrayList<PathExpression>();
 
-			for (String expression : criterion.getExpressions())
-				pathExpressions.add(new PathExpression(expression));
+			for (String expression : criterion.getExpressions()) {
+				PathExpression pathExpr = new PathExpression(expression);
+
+				if (pathExpr.hasIrresolute()) {
+					logger
+							.debug(
+									"Criterion expression [{}] must be completely resolute (ie. only steps with/without comparison filters)",
+									pathExpr.getXPath());
+					throw new ApplicationException(
+							String
+									.format(
+											"Criterion expression [%s] must be completely resolute (ie. only steps with/without comparison filters)",
+											pathExpr.getXPath()));
+				}
+
+				if (!pathExpr.hasRoot()) {
+					logger.debug("Criterion expression [{}] must have a root",
+							pathExpr.getXPath());
+					throw new ApplicationException(String.format(
+							"Criterion expression [%s] must have a root",
+							pathExpr.getXPath()));
+				}
+
+				if (pathExpr.getDepth() == 1) {
+					logger
+							.debug(
+									"Criterion expression [{}] must contain more than root",
+									pathExpr.getXPath());
+					throw new ApplicationException(
+							String
+									.format(
+											"Criterion expression [%s] must contain more than root",
+											pathExpr.getXPath()));
+				}
+
+				Expr last = pathExpr.getLastExpr();
+				if (last instanceof StepExpr
+						&& ((StepExpr) last).hasPredicate()) {
+					logger
+							.debug(
+									"Criterion expression's [{}] last step must not have a predicate/filter",
+									pathExpr.getXPath());
+					throw new ApplicationException(
+							String
+									.format(
+											"Criterion expression's [%s] last step must not have a predicate/filter",
+											pathExpr.getXPath()));
+				}
+
+				pathExpressions.add(pathExpr);
+			}
 
 			return pathExpressions.toArray(new PathExpression[0]);
 		} catch (ApplicationException e) {
 			logger
 					.debug(
-							"Ignoring criterion [{}] because failure to create path expression [{}]",
+							"Ignoring criterion [{}] because failure to get a valid path expression [{}]",
 							criterion.getName(), e);
 		}
 
-		logger.debug("Unable to return path expressions for criterion");
+		logger.debug("Unable to return path expressions for criterion [{}]",
+				criterion.getName());
 		return null;
 	}
 }

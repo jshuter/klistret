@@ -46,8 +46,8 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(81));
 		System.out
@@ -79,14 +79,10 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = {
-				"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[matches(@name,\"Saturnus\")]/pojo:configuration/commons:Name[. = \"Saturnus\"]",
-				"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/type[@name=\"com.klistret.cmdb.ci.element.logical.collection.Environment\"]" };
+		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
 
 		QueryRequest queryRequest = new QueryRequest();
 		queryRequest.setExpressions(Arrays.asList(expressions));
-		queryRequest.setStart(0);
-		queryRequest.setLimit(100);
 
 		elementService.findByExpressions(queryRequest);
 	}

@@ -46,7 +46,7 @@ public interface ElementDAO {
 	 * @return Collection
 	 */
 	List<com.klistret.cmdb.ci.pojo.Element> findByExpressions(
-			String[] expressions, Integer start, Integer limit);
+			String[] expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update
