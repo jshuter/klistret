@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.pojo.QueryRequest;
 
@@ -54,13 +55,14 @@ public class ElementService extends
 				.println(((Environment) element.getConfiguration()).getName());
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
 				.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
 
 		Element element = new Element();
+		element.setId(new Long(81));
 		element.setName("Saturnus");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
@@ -76,14 +78,19 @@ public class ElementService extends
 		elementService.set(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void findByExpr() {
 		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
 
 		QueryRequest queryRequest = new QueryRequest();
 		queryRequest.setExpressions(Arrays.asList(expressions));
+		queryRequest.setStart(0);
+		queryRequest.setLimit(100);
 
-		elementService.findByExpressions(queryRequest);
+		ElementQueryResponse response = elementService
+				.findByExpressions(queryRequest);
+		for (Element element : response.getPayload())
+			System.out.println(element.getName());
 	}
 }

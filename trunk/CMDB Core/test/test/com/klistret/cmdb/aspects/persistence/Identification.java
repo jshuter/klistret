@@ -14,9 +14,13 @@
 
 package test.com.klistret.cmdb.aspects.persistence;
 
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.junit.Before;
@@ -109,7 +113,7 @@ public class Identification {
 		element.setConfiguration(environment);
 	}
 
-	@Test
+	// @Test
 	public void execute() {
 		QName qname = new QName(
 				"http://www.klistret.com/cmdb/ci/element/logical/collection",
@@ -127,6 +131,25 @@ public class Identification {
 		if (criterion != null) {
 			for (String xpath : criterion)
 				System.out.println(xpath);
+		}
+	}
+
+	@Test
+	public void unmarshaller() {
+		StringWriter stringWriter = new StringWriter();
+
+		try {
+			JAXBContext jc = JAXBContext
+					.newInstance(
+							com.klistret.cmdb.aspects.persistence.PersistenceRules.class,
+							com.klistret.cmdb.aspects.persistence.Criterion.class);
+			Marshaller m = jc.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			m.marshal(persistenceRules, stringWriter);
+
+			System.out.println(String.format("Element [%s]", stringWriter));
+		} catch (JAXBException e) {
+			e.printStackTrace();
 		}
 	}
 }

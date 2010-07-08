@@ -103,16 +103,8 @@ public class Identification {
 		}
 	}
 
-	public CIContextHelper getCiContextHelper() {
-		return ciContextHelper;
-	}
-
 	public void setCiContextHelper(CIContextHelper ciContextHelper) {
 		this.ciContextHelper = ciContextHelper;
-	}
-
-	public PersistenceRules getPersistenceRules() {
-		return this.persistenceRules;
 	}
 
 	/**
@@ -135,10 +127,6 @@ public class Identification {
 									"Unable to unmarshal URL [%s] into persistence rules object: ",
 									url), e);
 		}
-	}
-
-	public void setPersistenceRules(PersistenceRules persistenceRules) {
-		this.persistenceRules = persistenceRules;
 	}
 
 	/**
