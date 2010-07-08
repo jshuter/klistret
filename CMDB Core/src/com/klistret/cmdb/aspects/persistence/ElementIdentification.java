@@ -1,3 +1,17 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package com.klistret.cmdb.aspects.persistence;
 
 import java.util.List;
@@ -6,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.service.ElementService;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 
@@ -15,7 +30,7 @@ public class ElementIdentification {
 			.getLogger(ElementIdentification.class);
 
 	private Identification identification;
-	
+
 	private ElementService elementService;
 
 	public void setIdentification(Identification identification) {
@@ -25,11 +40,11 @@ public class ElementIdentification {
 	public Identification getIdentification() {
 		return this.identification;
 	}
-	
+
 	public void setElementService(ElementService elementService) {
 		this.elementService = elementService;
 	}
-	
+
 	public ElementService getElementService() {
 		return this.elementService;
 	}
@@ -47,15 +62,34 @@ public class ElementIdentification {
 			return;
 		}
 
-		PathExpression[] criterion = identification.getCriterionByObject(
-				criteria, element);
+		String[] criterion = identification.getCriterionByObject(criteria,
+				element);
 		if (criterion == null) {
 			logger.debug("No valid xpath expressions for the criteria list");
+			return;
 		}
-		
-		String[] expressions = new String[criterion.length];
-		for (PathExpression pathExpression : criterion)
-			expressions[expressions.length]
-		elementService.findByExpressions(criterion, null, null);
+
+		List<Element> results = elementService.findByExpressions(criterion,
+				0, 1);
+
+		if (element.getId() == null && !results.isEmpty()) {
+			throw new ApplicationException(
+					String
+							.format(
+									"Non-persistence element is identical to other elements [count: %d] according to persistence rules ",
+									results.size()));
+		}
+
+		if (element.getId() != null && !results.isEmpty()) {
+			for (Element other : results) {
+				if (!element.equals(other))
+					throw new ApplicationException(
+							String
+									.format(
+											"Element [%s] is identical to other [%s] according to persistence rules ",
+											element.toString(), other
+													.toString()));
+			}
+		}
 	}
 }

@@ -37,8 +37,8 @@ public interface ElementService {
 	Element getById(@PathParam("id")
 	Long id);
 
-	List<Element> findByExpressions(String[] expressions, Integer start,
-			Integer limit);
+	List<Element> findByExpressions(String[] expressions, int start,
+			int limit);
 
 	@POST
 	@Path("/element/find")

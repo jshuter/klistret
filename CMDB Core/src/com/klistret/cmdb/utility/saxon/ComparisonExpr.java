@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
+import net.sf.saxon.expr.ContextItemExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison;
@@ -207,38 +208,44 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 									operands.length));
 		}
 
-		Expression right = operands[0];
-		if (!(right.getClass().getName().equals(AxisExpression.class.getName()))) {
+		Expression left = operands[0];
+		if (!(left.getClass().getName().equals(AxisExpression.class.getName()))) {
 			logger
 					.debug(
-							"General/Value comparisons require the right operand to be an axis not Saxon expression [{}]",
+							"General/Value comparisons require the left operand to be an axis not Saxon expression [{}]",
+							left.getClass().getName());
+
+			if (left.getClass().getName().equals(
+					ContextItemExpression.class.getName()))
+				logger
+						.debug("Context [.] not supported, incomplete JTA resolution");
+
+			throw new IrresoluteException(
+					String
+							.format(
+									"General/Value comparisons require the left operand to be an axis not Saxon expression [%s]",
+									left.getClass().getName()));
+		}
+		addOperand(new StepExpr((AxisExpression) left, configuration));
+
+		Expression right = operands[1];
+		if (!(right instanceof Literal)) {
+			logger
+					.debug(
+							"General/Value comparisons require the right operand to be a literal not Saxon expression [{}]",
 							right.getClass().getName());
 			throw new IrresoluteException(
 					String
 							.format(
-									"General/Value comparisons require the right operand to be an axis not Saxon expression [%s]",
+									"General/Value comparisons require the right operand to be a literal not Saxon expression [%s]",
 									right.getClass().getName()));
 		}
-		addOperand(new StepExpr((AxisExpression) right, configuration));
 
-		Expression left = operands[1];
-		if (!(left instanceof Literal)) {
-			logger
-					.debug(
-							"General/Value comparisons require the left operand to be a literal not Saxon expression [{}]",
-							left.getClass().getName());
-			throw new IrresoluteException(
-					String
-							.format(
-									"General/Value comparisons require the left operand to be a literal not Saxon expression [%s]",
-									left.getClass().getName()));
-		}
+		if (right.getClass().getName().equals(Literal.class.getName()))
+			addOperand(new LiteralExpr((Literal) right, configuration));
 
-		if (left.getClass().getName().equals(Literal.class.getName()))
-			addOperand(new LiteralExpr((Literal) left, configuration));
-
-		if (left.getClass().getName().equals(StringLiteral.class.getName()))
-			addOperand(new LiteralExpr((StringLiteral) left, configuration));
+		if (right.getClass().getName().equals(StringLiteral.class.getName()))
+			addOperand(new LiteralExpr((StringLiteral) right, configuration));
 	}
 
 	/**

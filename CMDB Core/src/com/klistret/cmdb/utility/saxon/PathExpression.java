@@ -97,6 +97,11 @@ public class PathExpression {
 	private boolean hasRoot = false;
 
 	/**
+	 * Denotes presence of irresolute steps
+	 */
+	private boolean hasIrresolute = false;
+
+	/**
 	 * Place holder for namespaces
 	 */
 	private List<String> namespaces = new ArrayList<String>();
@@ -402,6 +407,7 @@ public class PathExpression {
 		} catch (IrresoluteException e) {
 			relativePath.add(new IrresoluteExpr(expression, staticContext
 					.getConfiguration()));
+			hasIrresolute = true;
 		}
 
 		/**
@@ -515,6 +521,16 @@ public class PathExpression {
 	}
 
 	/**
+	 * Get last step
+	 * 
+	 * @return Expression
+	 */
+	public Expr getLastExpr() {
+		return relativePath.size() > 0 ? relativePath
+				.get(relativePath.size() - 1) : null;
+	}
+
+	/**
 	 * Get QName for a particular step expression in the relative path (null for
 	 * root or irresolute)
 	 * 
@@ -545,6 +561,10 @@ public class PathExpression {
 	 */
 	public boolean hasRoot() {
 		return this.hasRoot;
+	}
+
+	public boolean hasIrresolute() {
+		return this.hasIrresolute;
 	}
 
 	/**

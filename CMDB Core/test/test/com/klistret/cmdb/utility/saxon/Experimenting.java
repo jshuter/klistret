@@ -14,6 +14,7 @@ import javax.xml.transform.Source;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.om.NodeInfo;
+import net.sf.saxon.om.ValueRepresentation;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
@@ -94,7 +95,7 @@ public class Experimenting {
 
 	@Test
 	public void xpath() {
-		String xpath = "/pojo:Element[pojo:name=\"mine\"]";
+		String xpath = "/pojo:Element/pojo:configuration/@Watermark[. = \"1234\"]";
 
 		XPathEvaluator xeval = new XPathEvaluator();
 
@@ -114,9 +115,9 @@ public class Experimenting {
 			List<?> results = xpathExpression.evaluate(source);
 
 			if (results.size() == 1) {
-				NodeInfo nodeInfo = (NodeInfo) results.get(0);
+				ValueRepresentation valueR = (ValueRepresentation) results.get(0);
 
-				nodeInfo.toString();
+				System.out.println(valueR.getStringValue());
 			}
 
 		} catch (XPathException e) {

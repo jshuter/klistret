@@ -31,7 +31,7 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	public List<Element> findByExpressions(String[] expressions,
-			Integer start, Integer limit) {
+			int start, int limit) {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
