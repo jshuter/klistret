@@ -20,7 +20,6 @@ import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
-import com.klistret.cmdb.utility.annotations.Timer;
 
 public class ElementServiceImpl implements ElementService {
 
@@ -53,7 +52,6 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.getById(id);
 	}
 
-	@Timer
 	public Element set(Element element) {
 		return elementDAO.set(element);
 	}

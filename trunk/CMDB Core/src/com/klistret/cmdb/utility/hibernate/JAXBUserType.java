@@ -190,6 +190,9 @@ public class JAXBUserType implements UserType, ParameterizedType {
 	 * 
 	 */
 	public void setParameterValues(Properties parameters) {
+		if (parameters == null)
+			return;
+
 		String baseTypesProperty = parameters.getProperty("baseTypes");
 		String assignablePackagesProperty = parameters
 				.getProperty("assignablePackages");

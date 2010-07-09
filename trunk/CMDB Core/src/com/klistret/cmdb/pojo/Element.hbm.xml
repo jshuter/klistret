@@ -61,12 +61,7 @@
 		<property name="configuration">
 			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
 			<type
-				name="com.klistret.cmdb.utility.hibernate.JAXBUserType">
-				<param name="baseTypes">com.klistret.cmdb.ci.commons.Base</param>
-				<param name="assignablePackages">
-					com/klistret/cmdb/ci
-				</param>
-			</type>
+				name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
 		</property>
 
 		<list name="sourceRelations" lazy="true" inverse="true"
