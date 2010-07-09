@@ -14,6 +14,37 @@
 
 package com.klistret.cmdb.service;
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.klistret.cmdb.ci.pojo.RelationQueryResponse;
+import com.klistret.cmdb.ci.pojo.Relation;
+import com.klistret.cmdb.pojo.QueryRequest;
+
+@Path("/resteasy")
 public interface RelationService {
-	com.klistret.cmdb.ci.pojo.Relation getById(Long id);
+	@GET
+	@Path("/relation/get/{id}")
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	Relation getById(@PathParam("id")
+	Long id);
+
+	List<Relation> findByExpressions(String[] expressions, int start, int limit);
+
+	@POST
+	@Path("/relation/find")
+	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	RelationQueryResponse findByExpressions(QueryRequest queryRequest);
+
+	@POST
+	@Path("/relation/set")
+	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	Relation set(Relation relation);
 }

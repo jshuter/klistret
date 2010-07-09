@@ -51,6 +51,16 @@ import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * Identification first executes a XQuery to get an ordered list of criterion
+ * for either a class name or QName (i.e. so called criteria). The XPath
+ * expressions in that list are transformed into PathExpression (resolute only)
+ * and added to an internal cache. This class then provides based on an object
+ * valid XPath expressions to find similar persistent objects.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class Identification {
 
 	private static final Logger logger = LoggerFactory
@@ -83,7 +93,7 @@ public class Identification {
 	private JAXBContext jaxbContext;
 
 	/**
-	 * 
+	 * Internal cache (qname keyed)
 	 */
 	private QNameMap<List<PathExpression[]>> cache = new QNameMap<List<PathExpression[]>>();
 
@@ -92,6 +102,8 @@ public class Identification {
 	 */
 	public Identification() {
 		try {
+			logger
+					.debug("Creating a JAXContext containing the PersistenceRules and Criterion classes");
 			jaxbContext = JAXBContext
 					.newInstance(
 							com.klistret.cmdb.aspects.persistence.PersistenceRules.class,
@@ -103,11 +115,17 @@ public class Identification {
 		}
 	}
 
+	/**
+	 * CIContextHelper (necessary to locate CIs)
+	 * 
+	 * @param ciContextHelper
+	 */
 	public void setCiContextHelper(CIContextHelper ciContextHelper) {
 		this.ciContextHelper = ciContextHelper;
 	}
 
 	/**
+	 * Persistence rules document
 	 * 
 	 * @param url
 	 */
@@ -130,9 +148,10 @@ public class Identification {
 	}
 
 	/**
+	 * Criteria by QName
 	 * 
 	 * @param qname
-	 * @return
+	 * @return List
 	 */
 	public List<PathExpression[]> getCriteriaByQName(QName qname) {
 		if (!cache.containsKey(qname.getNamespaceURI(), qname.getLocalPart()))
@@ -143,9 +162,10 @@ public class Identification {
 	}
 
 	/**
+	 * Criteria by class name
 	 * 
 	 * @param classname
-	 * @return
+	 * @return List
 	 */
 	public List<PathExpression[]> getCriteriaByClassname(String classname) {
 		XMLBean xmlBean = ciContextHelper.getXMLBean(classname);
@@ -157,6 +177,7 @@ public class Identification {
 	}
 
 	/**
+	 * Criteria by XMLBean (CI representation from CIContextHelper)
 	 * 
 	 * @param xmlBean
 	 * @return
@@ -175,10 +196,13 @@ public class Identification {
 	}
 
 	/**
+	 * PathExpressions passed are executed against the object and if they are
+	 * valid (for the entire criterion) then those XPath statements are modified
+	 * to filter off the object's values.
 	 * 
 	 * @param criteria
 	 * @param object
-	 * @return
+	 * @return String[]
 	 */
 	public String[] getCriterionByObject(List<PathExpression[]> criteria,
 			Object object) {
@@ -249,6 +273,9 @@ public class Identification {
 	}
 
 	/**
+	 * Each criterion for a class plus the extended classes (ancestors) is
+	 * listed in order then within these criterion each XPath statement is
+	 * transformed into a PathExpression.
 	 * 
 	 * @param fClassname
 	 * @param fAncestors
@@ -324,6 +351,9 @@ public class Identification {
 	}
 
 	/**
+	 * Places restrictions on the types of path expressions allowed (namely,
+	 * resolute with root and at least one step with the final step not
+	 * containing a filter).
 	 * 
 	 * @param xdmNode
 	 * @param unmarshaller

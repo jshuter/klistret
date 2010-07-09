@@ -16,12 +16,20 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
 import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
+import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.exception.InfrastructureException;
 
 public class ElementServiceImpl implements ElementService {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(ElementServiceImpl.class);
 
 	private ElementDAO elementDAO;
 
@@ -29,21 +37,30 @@ public class ElementServiceImpl implements ElementService {
 		this.elementDAO = elementDAO;
 	}
 
-	public List<Element> findByExpressions(String[] expressions,
-			int start, int limit) {
+	public List<Element> findByExpressions(String[] expressions, int start,
+			int limit) {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
 	public ElementQueryResponse findByExpressions(QueryRequest queryRequest) {
 		ElementQueryResponse queryResponse = new ElementQueryResponse();
 
-		List<Element> payload = findByExpressions(queryRequest
-				.getExpressions().toArray(new String[0]), queryRequest
-				.getStart(), queryRequest.getLimit());
-
-		queryResponse.setPayload(payload);
-		queryResponse.setCount(payload.size());
-		queryResponse.setSuccessful(true);
+		try {
+			List<Element> payload = findByExpressions(queryRequest
+					.getExpressions().toArray(new String[0]), queryRequest
+					.getStart(), queryRequest.getLimit());
+			queryResponse.setPayload(payload);
+			queryResponse.setCount(payload.size());
+			queryResponse.setSuccessful(true);
+		} catch (ApplicationException e) {
+			logger.error("Error executing query: {}", e);
+			queryResponse.setCount(0);
+			queryResponse.setSuccessful(false);
+		} catch (InfrastructureException e) {
+			logger.error("Error executing query: {}", e);
+			queryResponse.setCount(0);
+			queryResponse.setSuccessful(false);
+		} 
 
 		return queryResponse;
 	}

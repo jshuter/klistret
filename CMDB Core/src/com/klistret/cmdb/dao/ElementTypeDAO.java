@@ -16,6 +16,8 @@ package com.klistret.cmdb.dao;
 
 import java.util.Collection;
 
+import com.klistret.cmdb.ci.pojo.ElementType;
+
 /**
  * 
  * @author Matthew Young
@@ -29,7 +31,7 @@ public interface ElementTypeDAO {
 	 * @param name
 	 * @return ElementType
 	 */
-	com.klistret.cmdb.ci.pojo.ElementType getByCompositeId(String name);
+	ElementType getByCompositeId(String name);
 
 	/**
 	 * CRUD find by name used in an ILike expression
@@ -37,7 +39,7 @@ public interface ElementTypeDAO {
 	 * @param name
 	 * @return Collection
 	 */
-	Collection<com.klistret.cmdb.ci.pojo.ElementType> findByName(
+	Collection<ElementType> findByName(
 			String name);
 
 	/**

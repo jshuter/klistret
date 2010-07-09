@@ -20,6 +20,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 /**
@@ -33,16 +34,16 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 			.getLogger(RelationTypeDAOImpl.class);
 
 	/**
-	 * Get relation type by composite ID (name)
+	 * Get relation type by composite ID (name) and the to-timestamp is forced
+	 * to be null.
 	 * 
 	 * @param name
 	 *            relation type
-	 * @return com.klistret.cmdb.pojo.RelationType
+	 * @return RelationType
 	 * @throws InfrastructureException
 	 *             when Hibernate criteria does not return a unique result
 	 */
-	public com.klistret.cmdb.ci.pojo.RelationType getByCompositeId(
-			String name) {
+	public RelationType getByCompositeId(String name) {
 		logger.debug("getting relation type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
@@ -52,8 +53,7 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 		criteria.add(Restrictions.eq("name", name));
 
 		try {
-			com.klistret.cmdb.ci.pojo.RelationType relationType = (com.klistret.cmdb.ci.pojo.RelationType) criteria
-					.uniqueResult();
+			RelationType relationType = (RelationType) criteria.uniqueResult();
 
 			if (relationType != null) {
 				logger.debug("found relation type [{}]", relationType

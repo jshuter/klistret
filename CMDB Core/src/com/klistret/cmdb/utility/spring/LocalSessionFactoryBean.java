@@ -27,6 +27,14 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.utility.hibernate.JAXBUserType;
 
+/**
+ * Extension to the Spring LocalSessionFactoryBean to send parameters to the
+ * JAXBUserType from the Spring configuration (avoids having to use the Spring
+ * AOP Configuration or building a home grown singleton).
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class LocalSessionFactoryBean extends
 		org.springframework.orm.hibernate3.LocalSessionFactoryBean {
 
@@ -48,6 +56,8 @@ public class LocalSessionFactoryBean extends
 	@SuppressWarnings("unchecked")
 	protected void postProcessMappings(Configuration config)
 			throws HibernateException {
+		logger
+				.debug("Overriding the postProcessMappings method in the Spring LocalSessionFactoryBean");
 
 		/**
 		 * http://stackoverflow.com/questions/672063/creating-a-custom-hibernate-usertype-find-out-the-current-entity-table-name

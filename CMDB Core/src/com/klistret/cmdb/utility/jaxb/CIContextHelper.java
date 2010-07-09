@@ -49,6 +49,17 @@ import com.klistret.cmdb.pojo.XMLProperty;
 import com.klistret.cmdb.pojo.XMLBean;
 import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
+/**
+ * 
+ * Utilizes the Spring class scanning module to filter on the supplied base
+ * types against the assignable packages (thereby limiting the search to a
+ * reasonable load) to get a list of CIs as POJOs (including the POJO transport
+ * objects).  A hierarchy of these CIs is then built up using the JAXB2 reflection 
+ * project.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class CIContextHelper {
 
 	private static final Logger logger = LoggerFactory
@@ -347,7 +358,7 @@ public class CIContextHelper {
 	 */
 	public List<XMLBean> getAncestors(XMLBean xmlBean) {
 		List<XMLBean> ancestors = new ArrayList<XMLBean>();
-		
+
 		while (xmlBean.getExtended() != null) {
 			xmlBean = getXMLBean(xmlBean.getExtended());
 			ancestors.add(xmlBean);

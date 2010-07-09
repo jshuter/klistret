@@ -16,6 +16,8 @@ package com.klistret.cmdb.dao;
 
 import java.util.List;
 
+import com.klistret.cmdb.ci.pojo.Element;
+
 /**
  * Dealing with Elements is limited to CRUD methods while the business logic is
  * applied through AOP (like persistence rules for uniqueness)
@@ -35,18 +37,18 @@ public interface ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	com.klistret.cmdb.ci.pojo.Element getById(Long id);
+	Element getById(Long id);
 
 	/**
-	 * CRUD find by criteria where the criteria is a list of property
-	 * expressions, operators, and values to be applied into the passed
-	 * operation.
+	 * CRUD find by criteria where the criteria is a list of XPath expressions
+	 * and start/limit parameters.
 	 * 
-	 * @param expressions
-	 * @return Collection
+	 * @param XPath[]
+	 * @param start
+	 * @param limit
+	 * @return List
 	 */
-	List<com.klistret.cmdb.ci.pojo.Element> findByExpressions(
-			String[] expressions, int start, int limit);
+	List<Element> findByExpressions(String[] expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update
@@ -54,5 +56,5 @@ public interface ElementDAO {
 	 * @param element
 	 * @return Element
 	 */
-	com.klistret.cmdb.ci.pojo.Element set(com.klistret.cmdb.ci.pojo.Element element);
+	Element set(Element element);
 }

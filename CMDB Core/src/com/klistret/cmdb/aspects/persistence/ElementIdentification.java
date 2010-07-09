@@ -24,6 +24,12 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.service.ElementService;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 
+/**
+ * AOP invocation to identify elements prior to set calls
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class ElementIdentification {
 
 	private static final Logger logger = LoggerFactory
@@ -49,6 +55,12 @@ public class ElementIdentification {
 		return this.elementService;
 	}
 
+	/**
+	 * Applies persistence rules against the passed element to determine if a
+	 * criterion for the element has results against the database (i.e. uniqueness).
+	 * 
+	 * @param element
+	 */
 	public void identify(Element element) {
 		logger
 				.debug("Applying persistence rules against element [{}]",
@@ -58,14 +70,14 @@ public class ElementIdentification {
 				.getCriteriaByClassname(element.getType().getName());
 		if (criteria == null) {
 			logger
-					.debug("No persistence rules defined to element nor the element's ancestors");
+					.debug("Exiting method because no persistence rules defined to element nor the element's ancestors");
 			return;
 		}
 
 		String[] criterion = identification.getCriterionByObject(criteria,
 				element);
 		if (criterion == null) {
-			logger.debug("No valid xpath expressions for the criteria list");
+			logger.debug("Exiting method because no valid xpath expressions for the criteria list");
 			return;
 		}
 
