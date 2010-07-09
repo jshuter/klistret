@@ -14,19 +14,62 @@
 
 package com.klistret.cmdb.service;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.dao.RelationDAO;
+import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.pojo.QueryRequest;
 import com.klistret.cmdb.ci.pojo.Relation;
+import com.klistret.cmdb.ci.pojo.RelationQueryResponse;
 
 public class RelationServiceImpl implements RelationService {
+	private static final Logger logger = LoggerFactory
+			.getLogger(RelationServiceImpl.class);
 
 	private RelationDAO relationDAO;
-	
+
 	public void setRelationDAO(RelationDAO relationDAO) {
-		this.relationDAO = relationDAO;		
+		this.relationDAO = relationDAO;
 	}
-	
+
 	public Relation getById(Long id) {
 		return relationDAO.getById(id);
+	}
+
+	public List<Relation> findByExpressions(String[] expressions, int start,
+			int limit) {
+		return relationDAO.findByExpressions(expressions, start, limit);
+	}
+
+	public RelationQueryResponse findByExpressions(QueryRequest queryRequest) {
+		RelationQueryResponse queryResponse = new RelationQueryResponse();
+
+		try {
+			List<Relation> payload = findByExpressions(queryRequest
+					.getExpressions().toArray(new String[0]), queryRequest
+					.getStart(), queryRequest.getLimit());
+			queryResponse.setPayload(payload);
+			queryResponse.setCount(payload.size());
+			queryResponse.setSuccessful(true);
+		} catch (ApplicationException e) {
+			logger.error("Error executing query: {}", e);
+			queryResponse.setCount(0);
+			queryResponse.setSuccessful(false);
+		} catch (InfrastructureException e) {
+			logger.error("Error executing query: {}", e);
+			queryResponse.setCount(0);
+			queryResponse.setSuccessful(false);
+		}
+
+		return queryResponse;
+	}
+
+	public Relation set(Relation relation) {
+		return relationDAO.set(relation);
 	}
 
 }

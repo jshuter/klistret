@@ -50,7 +50,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @see com.klistret.cmdb.dao.ElementDAO.findByCriteria
 	 * @return Collection
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Element> findByExpressions(String[] expressions, int start,
 			int limit) {
 		try {
@@ -79,13 +78,13 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Object[] results = hcriteria.list().toArray();
 
-			List<Element> elements = new ArrayList(results.length);
+			List<Element> elements = new ArrayList<Element>(results.length);
 			logger.debug("Results length [{}]", results.length);
 
 			for (int index = 0; index < results.length; index++) {
 				Object[] row = (Object[]) results[index];
 
-				com.klistret.cmdb.ci.pojo.Element element = new com.klistret.cmdb.ci.pojo.Element();
+				Element element = new Element();
 				element.setId((Long) row[0]);
 				element.setType((ElementType) row[1]);
 				element.setName((String) row[2]);
@@ -113,6 +112,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	}
 
 	/**
+	 * Another proxy (shallow copy of the object) is returned to avoid Hibernate
+	 * lazy exceptions in the RestEasy layer. A generic approach to transferring
+	 * properties would be better/safer to mapping/POJO changes.
 	 * 
 	 * @param id
 	 * @return Element
@@ -158,6 +160,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	}
 
 	/**
+	 * Set is a save/update call to Hibernate which only looks at the ID to
+	 * determine if the object is currently persisted or not.
+	 * 
 	 * @param Element
 	 * @return Element
 	 */

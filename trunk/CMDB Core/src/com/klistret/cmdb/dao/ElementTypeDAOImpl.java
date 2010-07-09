@@ -23,6 +23,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
@@ -37,7 +38,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 			.getLogger(ElementTypeDAOImpl.class);
 
 	/**
-	 * Uses ILike expression to match by name
+	 * Uses ILike expression to match by name and the to-timestamp is forced to
+	 * be null.
 	 * 
 	 * @param name
 	 * @return Integer
@@ -67,13 +69,14 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	}
 
 	/**
-	 * Uses ILike expression to match by name
+	 * Uses ILike expression to match by name and the to-timestamp is forced to
+	 * be null.
 	 * 
 	 * @param name
 	 * @return Collection
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<com.klistret.cmdb.ci.pojo.ElementType> findByName(
+	public Collection<ElementType> findByName(
 			String name) {
 		if (name == null) {
 			logger.error("Name parameter is null");
@@ -101,7 +104,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 * @param name
 	 * @return ElementType
 	 */
-	public com.klistret.cmdb.ci.pojo.ElementType getByCompositeId(String name) {
+	public ElementType getByCompositeId(String name) {
 		if (name == null) {
 			logger.error("Name parameter is null");
 			throw new ApplicationException("Name parameter is null");
@@ -116,7 +119,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 		criteria.add(Restrictions.eq("name", name));
 
 		try {
-			com.klistret.cmdb.ci.pojo.ElementType elementType = (com.klistret.cmdb.ci.pojo.ElementType) criteria
+			ElementType elementType = (ElementType) criteria
 					.uniqueResult();
 
 			if (elementType != null) {

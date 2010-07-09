@@ -20,6 +20,12 @@ import java.util.GregorianCalendar;
 
 import javax.xml.bind.DatatypeConverter;
 
+/**
+ * Simple date converter for JAXB to Hibernate
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class DateConverter {
 
 	public static Date parseDate(String s) {

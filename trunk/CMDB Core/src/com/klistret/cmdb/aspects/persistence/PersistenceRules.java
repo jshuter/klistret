@@ -23,7 +23,19 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
+/**
+ * Persistence rules are fairly simple. To enforce uniqueness criterion housing
+ * XPath statements (expressions) identify persisted objects as unique
+ * (criterion are atomic). Each criterion has a name. The rule elements connect
+ * CI classes (not the POJO transport layer) to criterion and within a class the
+ * criterion may be ordered (descending). Criterion may be associated to
+ * abstract/parent CIs that are extended by concrete classes. Even these are
+ * selected for concrete classes but ordered by ancestry. Exclusions for
+ * abstract/parent rules eliminate criterion for concrete classes.
+ * 
+ * @author Matthew Young
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PersistenceRules", propOrder = { "criterion", "rule" })
 @XmlRootElement(name = "PersistenceRules", namespace = "http://www.klistret.com/cmdb/aspects/persistence")
@@ -31,32 +43,10 @@ public class PersistenceRules {
 
 	@XmlElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
 	protected List<Criterion> criterion;
+
 	@XmlElement(name = "Rule", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
 	protected List<Rule> rule;
 
-	/**
-	 * Gets the value of the criterion property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the criterion property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getCriterion().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list
-	 * {@link Criterion }
-	 * 
-	 * 
-	 */
 	public List<Criterion> getCriterion() {
 		if (criterion == null) {
 			criterion = new ArrayList<Criterion>();
@@ -64,28 +54,10 @@ public class PersistenceRules {
 		return this.criterion;
 	}
 
-	/**
-	 * Gets the value of the rule property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the rule property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getRule().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link Rule }
-	 * 
-	 * 
-	 */
+	public void setCriterion(List<Criterion> criterion) {
+		this.criterion = criterion;
+	}
+
 	public List<Rule> getRule() {
 		if (rule == null) {
 			rule = new ArrayList<Rule>();
@@ -93,24 +65,6 @@ public class PersistenceRules {
 		return this.rule;
 	}
 
-	/**
-	 * Sets the value of the criterion property.
-	 * 
-	 * @param criterion
-	 *            allowed object is {@link Criterion }
-	 * 
-	 */
-	public void setCriterion(List<Criterion> criterion) {
-		this.criterion = criterion;
-	}
-
-	/**
-	 * Sets the value of the rule property.
-	 * 
-	 * @param rule
-	 *            allowed object is {@link Rule }
-	 * 
-	 */
 	public void setRule(List<Rule> rule) {
 		this.rule = rule;
 	}

@@ -14,10 +14,14 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.List;
+
+import com.klistret.cmdb.ci.pojo.Relation;
+
 /**
  * 
  * @author Matthew Young
- *
+ * 
  */
 public interface RelationDAO {
 	/**
@@ -26,5 +30,24 @@ public interface RelationDAO {
 	 * @param id
 	 * @return Relation
 	 */
-	com.klistret.cmdb.ci.pojo.Relation getById(Long id);
+	Relation getById(Long id);
+
+	/**
+	 * CRUD find by criteria where the criteria is a list of XPath expressions
+	 * and start/limit parameters.
+	 * 
+	 * @param XPath[]
+	 * @param start
+	 * @param limit
+	 * @return List
+	 */
+	List<Relation> findByExpressions(String[] expressions, int start, int limit);
+
+	/**
+	 * CRUD save/update
+	 * 
+	 * @param relation
+	 * @return Relation
+	 */
+	Relation set(Relation relation);
 }

@@ -47,6 +47,9 @@ import com.klistret.cmdb.utility.saxon.StepExpr;
  * JAXBContextHelper is used to extract metadata and relationships between XML
  * beans, elements and attributes.
  * 
+ * TO-DO: Check if the Hibernate property in a filter is an XML attribute or
+ * element to see if the XPath statement is correct.
+ * 
  * @author Matthew Young
  * 
  */

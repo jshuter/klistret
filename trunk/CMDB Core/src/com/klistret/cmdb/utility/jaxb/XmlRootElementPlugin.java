@@ -29,8 +29,14 @@ import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
 
 /**
+ * Also uses the Spring class scanner to filter off the supplied base types
+ * against the assignable packages to find CIs. If the class is not abstract the
+ * XmlRootElement annotation is added to the class definition.
  * 
+ * TODO: Check if added the same name to the XmlRootElement disrupts RestEasy or
+ * JAXB operations.
  * 
+ * @author Matthew Young
  */
 public class XmlRootElementPlugin extends AbstractParameterizablePlugin {
 

@@ -24,6 +24,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Criterion has a unique (currently no constraint as available with XSD
+ * http://msdn.microsoft.com/en-us/library/ms256146.aspx) name over a group of
+ * XPath expressions (which do not need to utilize the mapping declaration).
+ * 
+ * @author Matthew Young
+ * 
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Criterion", propOrder = { "expressions" })
 @XmlRootElement(name = "Criterion", namespace = "http://www.klistret.com/cmdb/aspects/persistence")
@@ -31,31 +39,10 @@ public class Criterion {
 
 	@XmlElement(name = "Expressions", namespace = "http://www.klistret.com/cmdb/aspects/persistence", required = true)
 	protected List<String> expressions;
+
 	@XmlAttribute(name = "Name", required = true)
 	protected String name;
 
-	/**
-	 * Gets the value of the expressions property.
-	 * 
-	 * <p>
-	 * This accessor method returns a reference to the live list, not a
-	 * snapshot. Therefore any modification you make to the returned list will
-	 * be present inside the JAXB object. This is why there is not a
-	 * <CODE>set</CODE> method for the expressions property.
-	 * 
-	 * <p>
-	 * For example, to add a new item, do as follows:
-	 * 
-	 * <pre>
-	 * getExpressions().add(newItem);
-	 * </pre>
-	 * 
-	 * 
-	 * <p>
-	 * Objects of the following type(s) are allowed in the list {@link String }
-	 * 
-	 * 
-	 */
 	public List<String> getExpressions() {
 		if (expressions == null) {
 			expressions = new ArrayList<String>();
@@ -63,35 +50,16 @@ public class Criterion {
 		return this.expressions;
 	}
 
-	/**
-	 * Gets the value of the name property.
-	 * 
-	 * @return possible object is {@link String }
-	 * 
-	 */
+	public void setExpressions(List<String> expressions) {
+		this.expressions = expressions;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * Sets the value of the name property.
-	 * 
-	 * @param value
-	 *            allowed object is {@link String }
-	 * 
-	 */
 	public void setName(String value) {
 		this.name = value;
 	}
 
-	/**
-	 * Sets the value of the expressions property.
-	 * 
-	 * @param expressions
-	 *            allowed object is {@link String }
-	 * 
-	 */
-	public void setExpressions(List<String> expressions) {
-		this.expressions = expressions;
-	}
 }

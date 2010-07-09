@@ -39,17 +39,39 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
+/**
+ * Hibernate User type which marshals/unmarshals XML columns (string data) into
+ * POJO. The JAXBContext is constructed every time the type parameters are set
+ * and these are pulled from the Spring configuration (properties) into an
+ * extension of the Spring LocalSessionFactoryBean. This is done to bypass using
+ * the Hibernate mapping documents (ie. no hard coding) plus also for potential
+ * Spring refreshing of the session factory if the CI hierarchy should
+ * dynamically change.
+ * 
+ */
 public class JAXBUserType implements UserType, ParameterizedType {
 
+	/**
+	 * JAXB marshaller
+	 */
 	private Marshaller marshaller;
 
+	/**
+	 * JAXB unmarshaller
+	 */
 	private Unmarshaller unmarshaller;
 
+	/**
+	 * JAXB context derived from the CIContextHelper
+	 */
 	private JAXBContext jaxbContext;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(JAXBUserType.class);
 
+	/**
+	 * Static SQL type definition (string data)
+	 */
 	private static final int[] SQL_TYPES = { Types.VARCHAR };
 
 	public Object assemble(Serializable cached, Object owner)
@@ -123,37 +145,50 @@ public class JAXBUserType implements UserType, ParameterizedType {
 		return SQL_TYPES;
 	}
 
+	/**
+	 * Cache unmarshaller during get
+	 * 
+	 * @return Unmarshaller
+	 */
 	protected Unmarshaller getUnmarshaller() {
 		if (unmarshaller == null) {
 
 			try {
 				unmarshaller = jaxbContext.createUnmarshaller();
 			} catch (JAXBException e) {
-				IllegalArgumentException ex = new IllegalArgumentException(
-						"Cannot instantiate unmarshaller");
-				ex.setStackTrace(e.getStackTrace());
-				throw ex;
+				logger.error("Unable to create JAXB ummarshaller: {}", e);
+				throw new InfrastructureException(String.format(
+						"Unable to create JAXB ummarshaller: %s", e));
 			}
 		}
 		return unmarshaller;
 	}
 
+	/**
+	 * Cache marshaller during get
+	 * 
+	 * @return Marshaller
+	 */
 	protected Marshaller getMarshaller() {
 		if (marshaller == null) {
 
 			try {
 				marshaller = jaxbContext.createMarshaller();
 			} catch (JAXBException e) {
-				IllegalArgumentException ex = new IllegalArgumentException(
-						"Cannot instantiate marshaller");
-				ex.setStackTrace(e.getStackTrace());
-				throw ex;
+				logger.error("Unable to create JAXB marshaller: {}", e);
+				throw new InfrastructureException(String.format(
+						"Unable to create JAXB marshaller: %s", e));
 			}
 		}
 		return marshaller;
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Marshals the object into XML
+	 * 
+	 * @param value
+	 * @return
+	 */
 	protected String toXMLString(Object value) {
 		StringWriter stringWriter = new StringWriter();
 		try {
@@ -165,11 +200,18 @@ public class JAXBUserType implements UserType, ParameterizedType {
 
 			return result;
 		} catch (Exception e) {
+			logger.error("Unable to disassemble object: {}", e);
 			throw new InfrastructureException(String.format(
 					"Unable to disassemble object: %s", e.getMessage()));
 		}
 	}
 
+	/**
+	 * Unmarshals the XML into a POJO
+	 * 
+	 * @param xmlString
+	 * @return
+	 */
 	protected Object fromXMLString(String xmlString) {
 		logger.debug("unmarshalling xml [{}]", xmlString);
 
@@ -181,30 +223,42 @@ public class JAXBUserType implements UserType, ParameterizedType {
 					xmlString, result.getClass().getName());
 			return result;
 		} catch (JAXBException e) {
+			logger.error("Unable to assemble object: {}", e);
 			throw new InfrastructureException(String.format(
 					"Unable to assemble object: %s", e.getMessage()));
 		}
 	}
 
 	/**
-	 * 
+	 * Method from ParameterizedType allowing properties to be passed to this
+	 * class (at any time)
 	 */
 	public void setParameterValues(Properties parameters) {
-		if (parameters == null)
+		if (parameters == null) {
+			logger
+					.debug("Exiting method setParameterValues since parameters argument is null (likely blank definition in the mapping document)");
 			return;
+		}
 
 		String baseTypesProperty = parameters.getProperty("baseTypes");
 		String assignablePackagesProperty = parameters
 				.getProperty("assignablePackages");
 
-		if (baseTypesProperty == null)
+		if (baseTypesProperty == null) {
+			logger.error("Parameter baseTypes not defined to user type");
 			throw new InfrastructureException(
-					"Parameter baseTypes note defined to user type");
+					"Parameter baseTypes not defined to user type");
+		}
 
-		if (assignablePackagesProperty == null)
+		if (assignablePackagesProperty == null) {
+			logger
+					.error("Parameter assignablePackages not defined to user type");
 			throw new InfrastructureException(
-					"Parameter assignablePackages note defined to user type");
+					"Parameter assignablePackages not defined to user type");
+		}
 
+		logger
+				.debug("Constructing CIContextHelper with base types [{}] on packages [{}]");
 		jaxbContext = new CIContextHelper(baseTypesProperty.split(","),
 				assignablePackagesProperty.split(",")).getJAXBContext();
 	}
