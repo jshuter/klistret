@@ -1,19 +1,13 @@
 package test.com.klistret.cmdb.utility.saxon;
 
-import java.io.File;
 import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.util.JAXBSource;
-import javax.xml.transform.Source;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.Expression;
-import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.ValueRepresentation;
 import net.sf.saxon.s9api.DocumentBuilder;
 import net.sf.saxon.s9api.Processor;
@@ -22,9 +16,7 @@ import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathExecutable;
 import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XQueryCompiler;
-import net.sf.saxon.s9api.XQueryEvaluator;
 import net.sf.saxon.s9api.XQueryExecutable;
-import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.sxpath.XPathEvaluator;
@@ -87,8 +79,8 @@ public class Experimenting {
 
 		try {
 			XQueryExecutable xqexec = xqc.compile(xquery);
+			xqexec.getClass();
 		} catch (SaxonApiException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -14,7 +14,20 @@
 
 package com.klistret.cmdb.service;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.klistret.cmdb.ci.pojo.RelationType;
+
+@Path("/resteasy")
 public interface RelationTypeService {
 
-	com.klistret.cmdb.ci.pojo.RelationType getByCompositeId(String name);
+	@GET
+	@Path("/relationType/get/{name}")
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	RelationType getByCompositeId(@PathParam("name")
+	String name);
 }

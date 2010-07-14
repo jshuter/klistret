@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one
+   or more contributor license agreements.  See the NOTICE file
+   distributed with this work for additional information
+   regarding copyright ownership.  The ASF licenses this file
+   to you under the Apache License, Version 2.0 (the
+   "License"); you may not use this file except in compliance
+   with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing,
+   software distributed under the License is distributed on an
+   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+   specific language governing permissions and limitations
+   under the License.    
+-->
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info
+        organisation="com.klistret.cmdb"
+        module="core"
+        status="integration">
+	</info>
+	<dependencies>
+		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
+		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02">
+			<exclude module="com.springsource.org.apache.commons.collections"/>
+			<exclude module="com.springsource.org.apache.commons.attributes"/>
+			<exclude module="com.springsource.edu.emory.mathcs.backport"/>
+			<exclude module="com.springsource.org.apache.log4j"/>
+		</dependency>
+		
+		<!-- Spring context (4): context, aopalliance, aop, beans -->
+		<dependency org="org.springframework" name="org.springframework.context" rev="2.5.6.SEC02">
+			<exclude module="com.springsource.org.objectweb.*" matcher="regexp" />
+			<exclude module="com.springsource.org.codehaus.*" matcher="regexp" />
+			<exclude module="com.springsource.org.jruby" />
+			<exclude module="com.springsource.oracle.*" matcher="regexp" />
+			<exclude module="com.springsource.edu.*" matcher="regexp" />
+			<exclude module="com.springsource.net.*" matcher="regexp" />
+			<exclude module="com.springsource.javax.*" matcher="regexp" />
+			<exclude module="com.springsource.com.*" matcher="regexp" />
+			<exclude module="com.springsource.bsh" />
+			
+			<exclude module="org.springframework.instrument" />
+		</dependency>
+		
+		<!-- Spring transaction (1): transaction -->
+		<dependency org="org.springframework" name="org.springframework.transaction" rev="2.5.6.SEC02">
+			<exclude module="com.springsource.*" matcher="regexp" />
+		</dependency>
+		
+		<!-- Spring orm (2): orm, jdbc -->
+		<dependency org="org.springframework" name="org.springframework.orm" rev="2.5.6.SEC02">
+			<exclude module="com.springsource.*" matcher="regexp" />
+			
+			<exclude module="org.springframework.web.*" matcher="regexp" />
+			<exclude module="org.springframework.instrument.*" matcher="regexp" />
+		</dependency>
+		
+		<!-- Spring test (1): test -->
+		<dependency org="org.springframework" name="org.springframework.test" rev="2.5.6.SEC02">
+			<exclude module="com.springsource.*" matcher="regexp" />
+			
+			<exclude module="org.springframework.web.*" matcher="regexp" />
+			<exclude module="org.springframework.instrument.*" matcher="regexp" />
+		</dependency>
+		
+		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, jta, jaas, javaassist -->
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.3.2.GA">
+			<exclude module="xml-apis"/>
+			<exclude module="slf4j-api"/>
+			<exclude module="jass"/>
+			<exclude module="jacc"/>
+			<exclude module="ant"/>
+			<exclude module="cglib"/>
+			<exclude module="asm"/>
+		</dependency>
+		
+		<!-- Saxon -->
+		<dependency org="net.sf.saxon" name="saxon" rev="9.2.0.3j"/>
+		
+		<!-- SLF4J (1): slf4j-api -->
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"/>
+		
+		<!-- SLF4J (1): slf4j-log4j -->
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"/>
+		
+		<!-- Apache Log4j (1): log4j -->
+		<dependency org="apache-log4j" name="log4j" rev="1.2.15"/>
+		
+		<!-- DB2 local repo (2): db2jcc, db2jcc_license -->
+		<dependency org="org.ibm" name="db2" rev="9.5"/>
+		
+		<!-- JAXB API (1): jaxb-api -->
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2">
+			<exclude module="stax-api" />
+		</dependency>
+		
+		<!-- JAXB IMPL (1): jaxb-impl -->
+		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2"/>
+		
+		<!-- JAXB XJC (1): jaxb-xjc -->
+		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2"/>
+		
+		<!-- JSR 173 -->
+		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0"/>
+		
+		<!-- JAXB2 reflection local repo (1): jaxb2-reflection -->
+		<dependency org="org.jvnet.jaxb.reflection" name="jaxb2-reflection" rev="unknown"/>
+		
+		<!-- JAXB2 commons local repo (1): collection-setter-injector -->
+		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown"/>
+		
+		<!-- JAXB2 basics (2): jaxb2-basics-tools, commons-beanutils -->
+		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2">
+			<exclude module="commons-logging"/>
+		</dependency>
+		
+		<!-- Resteasy local repo (6): -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4"/>
+			
+		<!-- JUnit (1): junit -->
+		<dependency org="junit" name="junit" rev="4.4"/>
+		
+	</dependencies>
+</ivy-module>
