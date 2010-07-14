@@ -52,7 +52,7 @@ public class ElementService extends
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(81));
 		System.out
-				.println(((Environment) element.getConfiguration()).getName());
+				.println(element.getName());
 	}
 
 	//@Test

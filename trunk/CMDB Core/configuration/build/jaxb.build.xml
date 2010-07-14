@@ -95,9 +95,9 @@
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-XxmlRootElement" />
-			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
+			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.QueryRequest,com.klistret.cmdb.ci.pojo.ElementQueryResponse,com.klistret.cmdb.ci.pojo.RelationQueryResponse" />
 			<arg value="-XxmlNSMap" />
-			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
+			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.QueryRequest,com.klistret.cmdb.ci.pojo.ElementQueryResponse,com.klistret.cmdb.ci.pojo.RelationQueryResponse" />
 			<classpath>
 				<path refid="jaxb.class.path" />
 				<path refid="jaxb2-commons.class.path" />
