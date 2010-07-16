@@ -96,5 +96,7 @@
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
 
+		<!-- CI -->
+		<dependency org="com.klistret.cmdb" name="ci" rev="latest.integration"/>
 	</dependencies>
 </ivy-module>
