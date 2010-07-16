@@ -33,9 +33,9 @@
 			<fileset dir="${project-basedir}/configuration/build/META-INF" />
 		</copy>
 
-		<jar destfile="${dist-basedir}/klistret.xjc.jar">
+		<jar destfile="${dist-basedir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
-				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.class" />
 				<include name="com/klistret/cmdb/utility/jaxb/*Plugin.class" />
 			</fileset>
 			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/spring/ClassPathScanningCandidateDefinitionProvider.class" />
@@ -43,6 +43,7 @@
 		</jar>
 	</target>
 
+	<!-- Creates the CI hierarchy -->
 	<target name="ci:create" depends="xjc:plugin">
 		<!-- Capture the path as a delimited property using the refid attribute -->
 		<property name="myclasspath" refid="classpath.XJC" />
@@ -69,7 +70,7 @@
 
 			<classpath>
 				<path refid="classpath.XJC" />
-				<pathelement location="${dist-basedir}/klistret.xjc.jar" />
+				<pathelement location="${dist-basedir}/klistret.xjc-${ivy.revision}.jar" />
 			</classpath>
 		</java>
 
@@ -84,12 +85,5 @@
 			<include name="com/klistret/cmdb/ci/**/*.class" />
 		</jar>
 
-	</target>
-
-	<target name="ci:publish" depends="ci:create">
-		<ivy:retrieve />
-		<ivy:publish deliverivypattern="${project-basedir}/ivy.xml" resolver="localrepo" pubrevision="0.1" status="integration" update="true" overwrite="true">
-			<artifacts pattern="${dist-basedir}/klistret.ci-[revision].[ext]" />
-		</ivy:publish>
 	</target>
 </project>

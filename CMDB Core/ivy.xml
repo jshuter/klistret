@@ -34,9 +34,6 @@
 		<conf name="default" extends="master, runtime" />
 		<conf name="xjc" description="running the xjc tool" /> 
 	</configurations>
-	<publications>
-		<artifact name="klistret.ci" type="jar" ext="jar"/>
-	</publications>
 	<dependencies>
 		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
 		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="xjc->runtime;compile->compile;runtime->aspectj"/>
