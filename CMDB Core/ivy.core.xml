@@ -31,12 +31,11 @@
 		<conf name="test" extends="compile" description="used for testing" />  
 		<conf name="runtime" description="used for running" />  
 		<conf name="master" description="used for publishing" />  
-		<conf name="default" extends="master, runtime" />
-		<conf name="xjc" description="running the xjc tool" /> 
+		<conf name="default" extends="master, runtime" /> 
 	</configurations>
 	<dependencies>
 		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
-		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="xjc->runtime;compile->compile;runtime->aspectj"/>
+		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="compile->compile;runtime->aspectj"/>
 		
 		<!-- Spring context (4): context, aopalliance, aop, beans -->
 		<dependency org="org.springframework" name="org.springframework.context" rev="2.5.6.SEC02" conf="compile->compile;runtime->runtime"/>
@@ -62,46 +61,40 @@
 		<dependency org="net.sf.saxon" name="saxon" rev="9.2.0.3j" conf="compile->master;runtime->master"/>
 		
 		<!-- SLF4J (1): slf4j-api -->
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="xjc->master;compile->master;runtime->master"/>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
 		
 		<!-- SLF4J (1): slf4j-log4j -->
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="xjc->master;runtime->master"/>
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="runtime->master"/>
 		
 		<!-- Apache Log4j (1): log4j -->
-		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="xjc->master;runtime->master"/>
+		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="runtime->master"/>
 		
 		<!-- DB2 local repo (2): db2jcc, db2jcc_license -->
 		<dependency org="com.ibm" name="db2" rev="9.5" conf="runtime->master"/>
 		
 		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
-		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="xjc->master;compile->master;runtime->master"/>
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="compile->master;runtime->master"/>
 	 
 		<!-- JAXB IMPL (1): jaxb-impl -->
-		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="xjc->master;compile->master;runtime->master"/>
+		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="compile->master;runtime->master"/>
 		
 		<!-- JAXB XJC (1): jaxb-xjc -->
-		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="xjc->master;compile->master;runtime->master"/>
+		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="compile->master;runtime->master"/>
 		
 		<!-- JSR 173 -->
-		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="xjc->master;runtime->*"/>
+		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="runtime->*"/>
 		
 		<!-- JAXB2 reflection local repo (1): jaxb2-reflection -->
 		<dependency org="org.jvnet.jaxb.reflection" name="jaxb2-reflection" rev="unknown" conf="runtime->*"/>
 		
-		<!-- JAXB2 commons local repo (1): collection-setter-injector -->
-		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown" conf="xjc->*;runtime->*"/>
-		
 		<!-- JAXB2 basics local rep (2): jaxb2-basics-tools, commons-beanutils -->
-		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2" conf="xjc->*;compile->*"/>
+		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2" conf="compile->*"/>
 		
 		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="xjc->*;runtime->*"/>
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="runtime->*"/>
 		 
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
-
-		<!-- Ant contrib only for xjc (1) -->
-		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" conf="xjc->*"/>
 
 	</dependencies>
 </ivy-module>

@@ -12,7 +12,7 @@
 
 
 	<ivy:settings file="${project-basedir}/ivysettings.xml" />
-	<ivy:cachepath pathid="classpath.XJC" conf="xjc" file="${project-basedir}/ivy.xml" type="jar" />
+	<ivy:cachepath pathid="classpath.XJC" conf="master" file="${project-basedir}/ivy.ci.xml" type="jar" />
 
 	<path id="klistret.plugin.class.path">
 		<fileset dir="${dist-basedir}">
@@ -85,5 +85,11 @@
 			<include name="com/klistret/cmdb/ci/**/*.class" />
 		</jar>
 
+	</target>
+
+	<target name="ci:publish" depends="ci:create">
+		<ivy:publish revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+			<artifacts pattern="${dist-basedir}/[artifact]-[revision].[ext]" />
+		</ivy:publish>
 	</target>
 </project>
