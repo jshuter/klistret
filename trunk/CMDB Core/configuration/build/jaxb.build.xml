@@ -1,77 +1,18 @@
-<project default="ci">
-	<!-- Windows -->
+<project default="ci:create" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" />
+
+	<!-- edit: properties are specific to local environment -->
 	<property name="tmp-destdir" location="C:/temp" />
-	<property name="thirdparty-basedir" location="C:/workshop/downloads" />
+	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
 	<property name="dist-basedir" location="C:/workshop/downloads/klistret" />
-	<property name="schema-basedir" location="C:/workshop/klistret/CMDB Core/src/xsd" />
-	<property name="config-basedir" location="C:/workshop/klistret/CMDB Core/configuration" />
-	<property name="bin-basedir" location="C:\workshop\klistret\CMDB Core\bin" />
 
-	<!-- Linux -->
-	<!--
-	<property name="schema-basedir" location="/home/matthew/Documents/workspace/klistret/CMDB Core/src/xsd" />
-	<property name="tmp-destdir" location="/tmp" />
-	<property name="thirdparty-basedir" location="/home/matthew/Documents/software" />
-	<property name="dist-basedir" location="/home/matthew/Documents/workspace/klistret/distribution/lib" />
-	-->
+	<property name="schema-basedir" location="${project-basedir}/src/xsd" />
+	<property name="config-basedir" location="${project-basedir}/configuration" />
+	<property name="bin-basedir" location="${project-basedir}/bin" />
 
-	<path id="jaxb.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb-ri-20091104/lib">
-			<include name="jaxb-api.jar" />
-			<include name="jaxb-impl.jar" />
-			<include name="jaxb-xjc.jar" />
-		</fileset>
-	</path>
 
-	<path id="jaxb2-commons.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb2-commons">
-			<include name="collection-setter-injector.jar" />
-		</fileset>
-	</path>
-
-	<path id="jaxb2-basics.class.path">
-		<fileset dir="${thirdparty-basedir}/jaxb2-basics-dist-0.5.2/dist">
-			<include name="jaxb2-basics-ant-*.jar" />
-			<include name="jaxb2-basics-tools-*.jar" />
-		</fileset>
-	</path>
-
-	<path id="resteasy.class.path">
-		<fileset dir="${thirdparty-basedir}/resteasy-jaxrs-2.0-beta-4/lib">
-			<include name="resteasy-jettison-provider-2.0-beta-4.jar" />
-		</fileset>
-	</path>
-
-	<path id="spring.class.path">
-		<fileset dir="${thirdparty-basedir}/spring-framework-2.5.6.SEC01/dist">
-			<include name="spring.jar" />
-		</fileset>
-	</path>
-
-	<path id="jakarta-commons.class.path">
-		<fileset dir="${thirdparty-basedir}/spring-framework-2.5.6.SEC01/lib/jakarta-commons">
-			<include name="commons-beanutils.jar" />
-			<include name="commons-lang.jar" />
-			<include name="commons-logging.jar" />
-		</fileset>
-	</path>
-
-	<path id="logging.class.path">
-		<fileset dir="${thirdparty-basedir}/slf4j-1.5.10">
-			<include name="slf4j-api-1.5.10.jar" />
-			<include name="slf4j-log4j12-1.5.10.jar" />
-		</fileset>
-		<fileset dir="${thirdparty-basedir}/apache-log4j-1.2.15">
-			<include name="log4j-1.2.15.jar" />
-		</fileset>
-		<pathelement location="C:/workshop/klistret/CMDB Core/configuration/runtime" />
-	</path>
-
-	<path id="ant-contrib.class.path">
-		<fileset dir="${thirdparty-basedir}/ant-contrib">
-			<include name="ant-contrib-1.0b3.jar" />
-		</fileset>
-	</path>
+	<ivy:settings file="${project-basedir}/ivysettings.xml" />
+	<ivy:cachepath pathid="classpath.XJC" conf="xjc" file="${project-basedir}/ivy.xml" type="jar" />
 
 	<path id="klistret.plugin.class.path">
 		<fileset dir="${dist-basedir}">
@@ -79,7 +20,34 @@
 		</fileset>
 	</path>
 
-	<target name="ci">
+	<target name="xjc:plugin" description="Generate XJC extensions">
+		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
+			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+			<include name="com/klistret/cmdb/utility/jaxb/*Plugin.java" />
+			<classpath>
+				<path refid="classpath.XJC" />
+			</classpath>
+		</javac>
+
+		<copy todir="${tmp-destdir}/META-INF">
+			<fileset dir="${project-basedir}/configuration/build/META-INF" />
+		</copy>
+
+		<jar destfile="${dist-basedir}/klistret.xjc.jar">
+			<fileset dir="${tmp-destdir}">
+				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+				<include name="com/klistret/cmdb/utility/jaxb/*Plugin.class" />
+			</fileset>
+			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/spring/ClassPathScanningCandidateDefinitionProvider.class" />
+			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
+		</jar>
+	</target>
+
+	<target name="ci:create" depends="xjc:plugin">
+		<!-- Capture the path as a delimited property using the refid attribute -->
+		<property name="myclasspath" refid="classpath.XJC" />
+		<!-- Emit the property to the ant console -->
+		<echo message="Classpath = ${myclasspath}" />
 
 		<java classname="com.sun.tools.xjc.XJCFacade">
 			<arg value="-extension" />
@@ -95,33 +63,33 @@
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-XxmlRootElement" />
-			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.QueryRequest,com.klistret.cmdb.ci.pojo.ElementQueryResponse,com.klistret.cmdb.ci.pojo.RelationQueryResponse" />
+			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
 			<arg value="-XxmlNSMap" />
-			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.QueryRequest,com.klistret.cmdb.ci.pojo.ElementQueryResponse,com.klistret.cmdb.ci.pojo.RelationQueryResponse" />
+			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
+
 			<classpath>
-				<path refid="jaxb.class.path" />
-				<path refid="jaxb2-commons.class.path" />
-				<path refid="jaxb2-basics.class.path" />
-				<path refid="resteasy.class.path" />
-				<path refid="spring.class.path" />
-				<path refid="jakarta-commons.class.path" />
-				<path refid="logging.class.path" />
-				<path refid="klistret.plugin.class.path" />
+				<path refid="classpath.XJC" />
+				<pathelement location="${dist-basedir}/klistret.xjc.jar" />
 			</classpath>
 		</java>
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/ci/**/*.java" />
 			<classpath>
-				<path refid="jaxb.class.path" />
-				<path refid="klistret.plugin.class.path" />
-				<path refid="resteasy.class.path" />
-				<path location="${bin-basedir}" />
+				<path refid="classpath.XJC" />
 			</classpath>
 		</javac>
 
-		<jar destfile="${dist-basedir}/klistret.jaxb.jar" basedir="${tmp-destdir}">
+		<jar destfile="${dist-basedir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
 			<include name="com/klistret/cmdb/ci/**/*.class" />
 		</jar>
+
+	</target>
+
+	<target name="ci:publish" depends="ci:create">
+		<ivy:retrieve />
+		<ivy:publish deliverivypattern="${project-basedir}/ivy.xml" resolver="localrepo" pubrevision="0.1" status="integration" update="true" overwrite="true">
+			<artifacts pattern="${dist-basedir}/klistret.ci-[revision].[ext]" />
+		</ivy:publish>
 	</target>
 </project>
