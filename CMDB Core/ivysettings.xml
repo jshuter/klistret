@@ -33,16 +33,6 @@
 			
 			<!-- official maven2 repo -->
          	<ibiblio name="maven2" m2compatible="true" usepoms="true" />
-			
-			<!-- ivyroundup -->
-			<!--
-			<packager name="ivyroundup"
-         		buildRoot="${user.home}/.ivy2/packager/build"
-         		resourceCache="${user.home}/.ivy2/packager/cache">
-    			<ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
-    			<artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
-			</packager>
-			-->
  		</chain>
  	</resolvers>
  	
