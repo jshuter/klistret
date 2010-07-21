@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one
+   or more contributor license agreements.  See the NOTICE file
+   distributed with this work for additional information
+   regarding copyright ownership.  The ASF licenses this file
+   to you under the Apache License, Version 2.0 (the
+   "License"); you may not use this file except in compliance
+   with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing,
+   software distributed under the License is distributed on an
+   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+   specific language governing permissions and limitations
+   under the License.    
+-->
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info
+        organisation="com.klistret.cmdb"
+        module="ci"
+        revision="0.1"
+        status="integration">
+	</info>
+	<configurations>  
+		<conf name="local" visibility="private" />  
+		<conf name="compile" description="used for building" />  
+		<conf name="test" extends="compile" description="used for testing" />  
+		<conf name="runtime" description="used for running" />  
+		<conf name="master" description="used for publishing" />  
+		<conf name="default" extends="master, runtime" /> 
+	</configurations>
+	<publications>
+		<artifact name="klistret.ci" type="jar" ext="jar" conf="master"/>
+	</publications>
+	<dependencies>
+		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
+		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="compile->runtime;runtime->runtime"/>
+		
+		<!-- SLF4J (1): slf4j-api -->
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
+		
+		<!-- SLF4J (1): slf4j-log4j -->
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="compile->master;runtime->master"/>
+		
+		<!-- Apache Log4j (1): log4j -->
+		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="compile->master;runtime->master"/>
+		
+		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="compile->master;runtime->master"/>
+	 
+		<!-- JAXB IMPL (1): jaxb-impl -->
+		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="compile->master;runtime->master"/>
+		
+		<!-- JAXB XJC (1): jaxb-xjc -->
+		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="compile->master;runtime->master"/>
+		
+		<!-- JSR 173 -->
+		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="compile->master;runtime->master"/>
+		
+		<!-- JAXB2 commons local repo (1): collection-setter-injector -->
+		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown" conf="compile,runtime->*"/>
+		
+		<!-- JAXB2 basics local rep (2): jaxb2-basics-tools, commons-beanutils -->
+		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2" conf="compile,runtime->*"/>
+		
+		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="compile,runtime->*"/>
+		
+		<!-- Ant contrib only for xjc (1) -->
+		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" conf="compile,runtime->*"/>
+		
+	</dependencies>
+</ivy-module>
