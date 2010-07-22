@@ -254,7 +254,6 @@
 			<xs:extension base="pojo:Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<!-- 
 	<xs:complexType name="QueryRequest">
 		<xs:sequence>
 			<xs:element name="expressions" type="xs:string"
@@ -265,7 +264,6 @@
 				minOccurs="0" default="10" />
 		</xs:sequence>
 	</xs:complexType>
-	-->
 	<xs:complexType name="QueryResponse" abstract="true">
 		<xs:sequence>
 			<xs:element name="successful" type="xs:boolean"
