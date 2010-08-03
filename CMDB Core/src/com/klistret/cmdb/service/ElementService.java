@@ -43,10 +43,12 @@ public interface ElementService {
 	@POST
 	@Path("/element/find")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	ElementQueryResponse findByExpressions(QueryRequest queryRequest);
 
 	@POST
 	@Path("/element/set")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	Element set(Element element);
 }

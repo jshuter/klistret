@@ -7,6 +7,11 @@ import javax.xml.bind.Marshaller;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ConfigurationBuilder;
+
+import javax.ws.rs.Produces;
 
 public class CIContextHelper {
 
@@ -42,7 +47,7 @@ public class CIContextHelper {
 		element.setConfiguration(environment);
 	}
 
-	@Test
+	// @Test
 	public void unmarshaller() {
 		StringWriter stringWriter = new StringWriter();
 
@@ -55,5 +60,12 @@ public class CIContextHelper {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void dummy() {
+		Reflections reflections = new Reflections(new ConfigurationBuilder()
+				.setScanners(new TypeAnnotationsScanner()));
+		reflections.getTypesAnnotatedWith(Produces.class);
 	}
 }

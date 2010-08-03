@@ -31,6 +31,12 @@
 				<artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
 			</url>
 			
+			<!-- individual google repo -->
+			<url name="reflections">
+				<ivy pattern="http://reflections.googlecode.com/svn/repo/org/reflections/[module]/[revision]/[artifact]-[revision].[ext]"/>  
+				<artifact pattern="http://reflections.googlecode.com/svn/repo/org/reflections/[module]/[revision]/[artifact]-[revision].[ext]" /> 
+			</url>
+			
 			<!-- official maven2 repo -->
          	<ibiblio name="maven2" m2compatible="true" usepoms="true" />
  		</chain>
