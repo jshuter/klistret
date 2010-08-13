@@ -15,6 +15,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
@@ -112,8 +113,8 @@
 		<xs:complexContent>
 			<xs:extension base="commons:Base">
 				<xs:sequence>
-					<xs:element name="Ownership" type="commons:Ownership"
-						maxOccurs="1">
+					<xs:element name="Ownership"
+						type="commons:Ownership" maxOccurs="1">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>

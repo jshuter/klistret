@@ -19,8 +19,9 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://jaxb.dev.java.net/plugin/code-injector"
-	jaxb:version="2.0" jaxb:extensionBindingPrefixes="ci">
+	xmlns:codeInjector="http://jaxb.dev.java.net/plugin/code-injector"
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="codeInjector ci">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="commons.xsd" />
 	<xs:simpleType name="id">
@@ -96,7 +97,7 @@
 	<xs:complexType name="Element">
 		<xs:annotation>
 			<xs:appinfo>
-				<ci:code><![CDATA[
+				<codeInjector:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -120,7 +121,8 @@
         				}
     				}
 					]]>
-				</ci:code>
+				</codeInjector:code>
+				<ci:proxy />
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
@@ -141,7 +143,7 @@
 	<xs:complexType name="Relation">
 		<xs:annotation>
 			<xs:appinfo>
-				<ci:code><![CDATA[
+				<codeInjector:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -165,7 +167,7 @@
         				}
     				}
 					]]>
-				</ci:code>
+				</codeInjector:code>
 			</xs:appinfo>
 		</xs:annotation>
 
@@ -187,7 +189,7 @@
 	<xs:complexType name="ElementType">
 		<xs:annotation>
 			<xs:appinfo>
-				<ci:code><![CDATA[
+				<codeInjector:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -211,7 +213,7 @@
         				}
     				}
 					]]>
-				</ci:code>
+				</codeInjector:code>
 			</xs:appinfo>
 		</xs:annotation>
 
@@ -222,7 +224,7 @@
 	<xs:complexType name="RelationType">
 		<xs:annotation>
 			<xs:appinfo>
-				<ci:code><![CDATA[
+				<codeInjector:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -246,7 +248,7 @@
         				}
     				}
 					]]>
-				</ci:code>
+				</codeInjector:code>
 			</xs:appinfo>
 		</xs:annotation>
 
@@ -254,16 +256,18 @@
 			<xs:extension base="pojo:Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:complexType name="QueryRequest">
+	<!-- 
+		<xs:complexType name="QueryRequest">
 		<xs:sequence>
-			<xs:element name="expressions" type="xs:string"
-				maxOccurs="unbounded" minOccurs="1" />
-			<xs:element name="start" type="xs:int" maxOccurs="1"
-				minOccurs="0" default="0" />
-			<xs:element name="limit" type="xs:int" maxOccurs="1"
-				minOccurs="0" default="10" />
+		<xs:element name="expressions" type="xs:string"
+		maxOccurs="unbounded" minOccurs="1" />
+		<xs:element name="start" type="xs:int" maxOccurs="1"
+		minOccurs="0" default="0" />
+		<xs:element name="limit" type="xs:int" maxOccurs="1"
+		minOccurs="0" default="10" />
 		</xs:sequence>
-	</xs:complexType>
+		</xs:complexType>
+	-->
 	<xs:complexType name="QueryResponse" abstract="true">
 		<xs:sequence>
 			<xs:element name="successful" type="xs:boolean"

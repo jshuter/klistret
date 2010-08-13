@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<!--
-		This file is part of Klistret. Klistret is free software: you can
-		redistribute it and/or modify it under the terms of the GNU General
-		Public License as published by the Free Software Foundation, either
-		version 3 of the License, or (at your option) any later version.
-
-		Klistret is distributed in the hope that it will be useful, but
-		WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-		General Public License for more details. You should have received a
-		copy of the GNU General Public License along with Klistret. If not,
-		see <http://www.gnu.org/licenses/>
-	-->
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical/collection"
 	xmlns:collection="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified">
-	<xs:import namespace="http://www.klistret.com/cmdb/ci/element/logical"
+	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified"
+	jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="ci">
+	<xs:import
+		namespace="http://www.klistret.com/cmdb/ci/element/logical"
 		schemaLocation="../collection.xsd" />
 
 	<xs:complexType name="Environment">
-		<annotation>
-			<documentation></documentation>
-		</annotation>
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+			<xs:appinfo>
+				<ci:element />
+			</xs:appinfo>
+		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="logical:Collection" />
 		</xs:complexContent>

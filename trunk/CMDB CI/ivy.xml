@@ -68,10 +68,12 @@
 		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2" conf="compile,runtime->*"/>
 		
 		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0.0.GA" conf="compile,runtime->*"/>
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="compile,runtime->*"/>
 		
 		<!-- Ant contrib only for xjc (1) -->
 		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" conf="compile,runtime->*"/>
 		
+		<!-- JUnit (1): junit -->
+		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
 	</dependencies>
 </ivy-module>
