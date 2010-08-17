@@ -16,9 +16,10 @@
 
 	<target name="xjc:plugin" description="Generate XJC extensions">
 		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
+			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
 			<include name="com/klistret/cmdb/utility/jaxb/*Plugin.java" />
-			<include name="com/klistret/cmdb/utility/xjc/ci/PluginImpl.java" />
+			<include name="com/klistret/cmdb/utility/xjc/ci/*.java" />
 			<classpath>
 				<path refid="classpath.IVY" />
 			</classpath>
@@ -30,9 +31,10 @@
 
 		<jar destfile="${dist-basedir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
+				<include name="com/klistret/cmdb/annotations/ci/*.class" />
 				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.class" />
 				<include name="com/klistret/cmdb/utility/jaxb/*Plugin.class" />
-				<include name="com/klistret/cmdb/utility/xjc/ci/PluginImpl.class" />
+				<include name="com/klistret/cmdb/utility/xjc/ci/*.class" />
 			</fileset>
 			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/spring/ClassPathScanningCandidateDefinitionProvider.class" />
 			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
@@ -60,10 +62,6 @@
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-Xci" />
-			<arg value="-XxmlRootElement" />
-			<arg value="-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
-			<arg value="-XxmlNSMap" />
-			<arg value="-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.ElementQueryResponse" />
 
 			<classpath>
 				<path refid="classpath.IVY" />

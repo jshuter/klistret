@@ -17,7 +17,11 @@
 	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified">
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
+	elementFormDefault="qualified"
+	jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="ci">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../../commons.xsd" />
 
@@ -28,6 +32,9 @@
 				configuration items (CIs), such as end-points, roles,
 				organizations, subnets, systems, and users.
 			</documentation>
+			<xs:appinfo>
+				<ci:Element />
+			</xs:appinfo>
 		</annotation>
 		<xs:complexContent>
 			<xs:extension base="commons:Element" />

@@ -13,30 +13,38 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:collection="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation/association"
+	xmlns:association="http://www.klistret.com/cmdb/ci/relation/association"
+	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
 	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified"
-	jaxb:version="2.0"
+	elementFormDefault="qualified" jaxb:version="2.0"
 	jaxb:extensionBindingPrefixes="ci">
-	<xs:import
-		namespace="http://www.klistret.com/cmdb/ci/element/logical"
-		schemaLocation="../collection.xsd" />
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/relation"
+		schemaLocation="../association.xsd" />
 
-	<xs:complexType name="Environment">
+	<xs:complexType name="Dependency">
 		<xs:annotation>
 			<xs:documentation></xs:documentation>
 			<xs:appinfo>
-				<ci:Element />
+				<ci:Relation>
+					<ci:Connection>
+						<ci:Source
+							Namespace="http://www.klistret.com/cmdb/ci/commons"
+							LocalName="Element" />
+						<ci:Target
+							Namespace="http://www.klistret.com/cmdb/ci/commons"
+							LocalName="Element" />
+					</ci:Connection>
+				</ci:Relation>
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="logical:Collection" />
+			<xs:extension base="relation:Association"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Environment" type="collection:Environment"></xs:element>
+	<xs:element name="Dependency" type="association:Dependency">
+	</xs:element>
 </schema>
