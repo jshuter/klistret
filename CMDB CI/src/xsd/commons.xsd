@@ -15,9 +15,11 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified">
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
+	elementFormDefault="qualified" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="ci">
 
 	<xs:simpleType name="Name">
 		<xs:annotation>
@@ -109,6 +111,9 @@
 			<xs:documentation>
 				Root CI (abstract) defining common CI characteristics
 			</xs:documentation>
+			<xs:appinfo>
+				<ci:Element />
+			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="commons:Base">
@@ -123,14 +128,51 @@
 
 	<xs:element name="Element" type="commons:Element"></xs:element>
 
+	<xs:complexType name="Reference" abstract="true">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:long" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="Namespace" type="xs:string" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="LocalName" type="xs:string" maxOccurs="1"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="SourceReference">
+		<xs:complexContent>
+			<xs:extension base="commons:Reference">
+				<xs:sequence></xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="TargetReference">
+		<xs:complexContent>
+			<xs:extension base="commons:Reference">
+				<xs:sequence></xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
 	<xs:complexType name="Relation" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
 				Root association (abstract) between only two CIs
 			</xs:documentation>
+			<xs:appinfo>
+				<ci:Relation />
+			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Base" />
+			<xs:extension base="commons:Base">
+				<xs:sequence>
+					<xs:element name="Source"
+						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
+					<xs:element name="Target"
+						type="commons:TargetReference" maxOccurs="1" minOccurs="1" />
+				</xs:sequence>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 

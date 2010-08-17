@@ -122,7 +122,7 @@
     				}
 					]]>
 				</codeInjector:code>
-				<ci:proxy />
+				<ci:Proxy />
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
@@ -168,6 +168,7 @@
     				}
 					]]>
 				</codeInjector:code>
+				<ci:Proxy />
 			</xs:appinfo>
 		</xs:annotation>
 
@@ -277,6 +278,11 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="ElementQueryResponse">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:Proxy />
+			</xs:appinfo>
+		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="pojo:QueryResponse">
 				<xs:sequence>
@@ -287,6 +293,11 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RelationQueryResponse">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:Proxy />
+			</xs:appinfo>
+		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="pojo:QueryResponse">
 				<xs:sequence>

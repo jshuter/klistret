@@ -27,11 +27,7 @@ public class Plugins {
 				"C:/workshop/klistret/CMDB CI/src/xsd/relation",
 				"-Xcollection-setter-injector",
 				"-Xinject-code",
-				"-Xci",
-				"-XxmlRootElement",
-				"-XxmlRootElement-bases=com.klistret.cmdb.ci.commons.Base,com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.ElementType,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.RelationType,com.klistret.cmdb.ci.pojo.ElementQueryResponse",
-				"-XxmlNSMap",
-				"-XxmlNSMap-targets=com.klistret.cmdb.ci.pojo.Element,com.klistret.cmdb.ci.pojo.Relation,com.klistret.cmdb.ci.pojo.ElementQueryResponse" };
+				"-Xci"};
 
 		XJCFacade.main(args);
 

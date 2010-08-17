@@ -13,30 +13,36 @@
 	see <http://www.gnu.org/licenses/>
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:collection="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation"
+	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
 	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified"
 	jaxb:version="2.0"
 	jaxb:extensionBindingPrefixes="ci">
-	<xs:import
-		namespace="http://www.klistret.com/cmdb/ci/element/logical"
-		schemaLocation="../collection.xsd" />
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../commons.xsd" />
 
-	<xs:complexType name="Environment">
-		<xs:annotation>
-			<xs:documentation></xs:documentation>
+	<xs:complexType name="Association" abstract="true">
+		<annotation>
+			<documentation>
+				Association denotes a permanent relationship between two
+				items
+			</documentation>
 			<xs:appinfo>
-				<ci:Element />
+				<ci:Relation />
 			</xs:appinfo>
-		</xs:annotation>
+		</annotation>
 		<xs:complexContent>
-			<xs:extension base="logical:Collection" />
+			<xs:extension base="commons:Relation">
+				<xs:attribute name="Weak" type="xs:boolean"
+					default="false" use="optional" />
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Environment" type="collection:Environment"></xs:element>
+	<xs:element name="Association" type="relation:Association">
+	</xs:element>
 </schema>
