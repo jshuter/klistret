@@ -61,15 +61,12 @@
 		<!-- JAXB2 commons local repo (1): collection-setter-injector -->
 		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown" conf="compile,runtime->*"/>
 		
-		<!-- JAXB2 basics local rep (2): jaxb2-basics-tools, commons-beanutils -->
-		<dependency org="org.jvnet.jaxb2_commons" name="jaxb2-basics" rev="0.5.2" conf="compile,runtime->*"/>
+		<!-- Activation (1): activation -->
+		<dependency org="javax.activation" name="activation" rev="1.0.2" conf="compile,runtime->*"/>
 		
 		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="compile,runtime->*"/>
-		
-		<!-- Ant contrib only for xjc (1) -->
-		<dependency org="ant-contrib" name="ant-contrib" rev="1.0b3" conf="compile,runtime->*"/>
-		
+			
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
 	</dependencies>
