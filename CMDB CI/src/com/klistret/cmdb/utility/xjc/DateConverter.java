@@ -12,7 +12,7 @@
  ** see <http://www.gnu.org/licenses/>
  */
 
-package com.klistret.cmdb.utility.jaxb;
+package com.klistret.cmdb.utility.xjc;
 
 import java.util.Calendar;
 import java.util.Date;

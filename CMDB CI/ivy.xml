@@ -37,9 +37,6 @@
 		<artifact name="klistret.ci" type="jar" ext="jar" conf="master"/>
 	</publications>
 	<dependencies>
-		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
-		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="compile->runtime;runtime->runtime"/>
-		
 		<!-- SLF4J (1): slf4j-api -->
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
 		

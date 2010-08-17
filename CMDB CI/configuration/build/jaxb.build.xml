@@ -17,8 +17,7 @@
 	<target name="xjc:plugin" description="Generate XJC extensions">
 		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/annotations/ci/*.java" />
-			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
-			<include name="com/klistret/cmdb/utility/jaxb/*Plugin.java" />
+			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 			<include name="com/klistret/cmdb/utility/xjc/ci/*.java" />
 			<classpath>
 				<path refid="classpath.IVY" />
@@ -32,11 +31,9 @@
 		<jar destfile="${dist-basedir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
 				<include name="com/klistret/cmdb/annotations/ci/*.class" />
-				<include name="com/klistret/cmdb/utility/jaxb/DateConverter.class" />
-				<include name="com/klistret/cmdb/utility/jaxb/*Plugin.class" />
+				<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 				<include name="com/klistret/cmdb/utility/xjc/ci/*.class" />
 			</fileset>
-			<fileset dir="${tmp-destdir}" includes="com/klistret/cmdb/utility/spring/ClassPathScanningCandidateDefinitionProvider.class" />
 			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
 		</jar>
 	</target>
