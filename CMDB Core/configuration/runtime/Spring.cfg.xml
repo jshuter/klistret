@@ -31,6 +31,7 @@
 	<import resource="Manager.cfg.xml" />
 	<import resource="Service.cfg.xml" />
 	<import resource="Utility.cfg.xml" />
+	<!-- 
 	<import resource="Plugins.cfg.xml" />
-
+	-->
 </beans>

@@ -15,17 +15,13 @@
 package com.klistret.cmdb.utility.jaxb;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 
-import org.jvnet.jaxb.reflection.JAXBModelFactory;
 import org.jvnet.jaxb.reflection.model.core.BuiltinLeafInfo;
 import org.jvnet.jaxb.reflection.model.core.PropertyKind;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeAttributePropertyInfo;
@@ -34,28 +30,23 @@ import org.jvnet.jaxb.reflection.model.runtime.RuntimeElementPropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimePropertyInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfo;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfoSet;
-import org.jvnet.jaxb.reflection.runtime.IllegalAnnotationsException;
 import org.jvnet.jaxb.reflection.util.QNameMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.pojo.XMLAttributeProperty;
 import com.klistret.cmdb.pojo.XMLElementProperty;
 import com.klistret.cmdb.pojo.XMLProperty;
 import com.klistret.cmdb.pojo.XMLBean;
-import com.klistret.cmdb.utility.spring.ClassPathScanningCandidateDefinitionProvider;
 
 /**
  * 
  * Utilizes the Spring class scanning module to filter on the supplied base
  * types against the assignable packages (thereby limiting the search to a
  * reasonable load) to get a list of CIs as POJOs (including the POJO transport
- * objects).  A hierarchy of these CIs is then built up using the JAXB2 reflection 
- * project.
+ * objects). A hierarchy of these CIs is then built up using the JAXB2
+ * reflection project.
  * 
  * @author Matthew Young
  * 
@@ -64,27 +55,6 @@ public class CIContextHelper {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(CIContextHelper.class);
-
-	/**
-	 * Packages potentially containing beans assignable from the set of base
-	 * types
-	 */
-	private String[] assignablePackages;
-
-	/**
-	 * Base types are roots of XML hierarchy
-	 */
-	private String[] baseTypes;
-
-	/**
-	 * Context path comprised of classes found by the Spring Bean scanner
-	 */
-	private Set<Class<?>> contextPath = new HashSet<Class<?>>();
-
-	/**
-	 * JAXB context (expensive to build)
-	 */
-	private JAXBContext jaxbContext;
 
 	/**
 	 * Map keyed off qname rather than class names since the primary method for
@@ -99,88 +69,13 @@ public class CIContextHelper {
 	 * @param baseTypes
 	 * @param assignablePackages
 	 */
-	public CIContextHelper(String[] baseTypes, String[] assignablePackages) {
-		this.baseTypes = baseTypes;
-		this.assignablePackages = assignablePackages;
+	public CIContextHelper() {
+		RuntimeTypeInfoSet runtimeTypeInfoSet = CIContext.getCIContext()
+				.getRuntimeTypeInfoSet();
 
-		ClassPathScanningCandidateDefinitionProvider provider = new ClassPathScanningCandidateDefinitionProvider(
-				false);
-
-		for (String baseType : baseTypes) {
-			baseType = baseType.trim();
-			logger.debug("assigning type filter for base type [{}]", baseType);
-			try {
-				provider.addIncludeFilter(new AssignableTypeFilter(Class
-						.forName(baseType)));
-			} catch (ClassNotFoundException e) {
-				logger.debug("base type [{}] class not present to classloader",
-						baseType);
-			}
-		}
-
-		/**
-		 * Set is used since the number of identifiable beans is unknown and
-		 * user specific
-		 */
-		Set<BeanDefinition> candidateBeans = new HashSet<BeanDefinition>();
-		for (String assignablePackage : assignablePackages) {
-			logger.debug(
-					"adding beans from package [{}] to a context collection",
-					assignablePackage);
-			candidateBeans.addAll(provider
-					.findCandidateComponents(assignablePackage));
-		}
-
-		/**
-		 * Add all beans into the context path (which essentially build on the
-		 * package name of the class so all class in the package are captured)
-		 */
-		for (BeanDefinition beanDefinition : candidateBeans) {
-			logger.debug("adding bean [{}] to context path", beanDefinition
-					.getBeanClassName());
-			try {
-				contextPath.add(Class
-						.forName(beanDefinition.getBeanClassName()));
-			} catch (ClassNotFoundException e) {
-				throw new InfrastructureException(String.format(
-						"Class unloadable [%s] into the context path",
-						beanDefinition.getBeanClassName()), e);
-			}
-		}
-
-		/**
-		 * Define XML beans
-		 */
-		try {
-			xmlBeans = new QNameMap<XMLBean>();
-
-			RuntimeTypeInfoSet runtimeTypeInfoSet = JAXBModelFactory
-					.create(contextPath.toArray(new Class[0]));
-
-			translateBeans(runtimeTypeInfoSet, xmlBeans);
-		} catch (IllegalAnnotationsException e) {
-			throw new InfrastructureException(
-					String
-							.format(
-									"Unable instantiate JAXBModelFactory with context path [%s]",
-									contextPath), e);
-		}
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String[] getAssignablePackages() {
-		return this.assignablePackages;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public String[] getBaseTypes() {
-		return this.baseTypes;
+		logger.debug("Translating runtime type info into XML beans");
+		xmlBeans = new QNameMap<XMLBean>();
+		translateBeans(runtimeTypeInfoSet, xmlBeans);
 	}
 
 	/**
@@ -188,20 +83,7 @@ public class CIContextHelper {
 	 * @return
 	 */
 	public JAXBContext getJAXBContext() {
-		if (jaxbContext == null) {
-			try {
-				jaxbContext = JAXBContext.newInstance(contextPath
-						.toArray(new Class[0]));
-			} catch (JAXBException e) {
-				throw new InfrastructureException(
-						String
-								.format(
-										"Unable instantiate JAXBContext with context path [%s]",
-										contextPath), e);
-			}
-		}
-
-		return jaxbContext;
+		return CIContext.getCIContext().getJAXBContext();
 	}
 
 	/**

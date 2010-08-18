@@ -21,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Properties;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -31,13 +30,12 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.utility.jaxb.CIContextHelper;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 
 /**
  * Hibernate User type which marshals/unmarshals XML columns (string data) into
@@ -49,7 +47,7 @@ import com.klistret.cmdb.utility.jaxb.CIContextHelper;
  * dynamically change.
  * 
  */
-public class JAXBUserType implements UserType, ParameterizedType {
+public class JAXBUserType implements UserType {
 
 	/**
 	 * JAXB marshaller
@@ -61,10 +59,6 @@ public class JAXBUserType implements UserType, ParameterizedType {
 	 */
 	private Unmarshaller unmarshaller;
 
-	/**
-	 * JAXB context derived from the CIContextHelper
-	 */
-	private JAXBContext jaxbContext;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(JAXBUserType.class);
@@ -154,6 +148,7 @@ public class JAXBUserType implements UserType, ParameterizedType {
 		if (unmarshaller == null) {
 
 			try {
+				JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
 				unmarshaller = jaxbContext.createUnmarshaller();
 			} catch (JAXBException e) {
 				logger.error("Unable to create JAXB ummarshaller: {}", e);
@@ -173,6 +168,7 @@ public class JAXBUserType implements UserType, ParameterizedType {
 		if (marshaller == null) {
 
 			try {
+				JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
 				marshaller = jaxbContext.createMarshaller();
 			} catch (JAXBException e) {
 				logger.error("Unable to create JAXB marshaller: {}", e);
@@ -227,39 +223,5 @@ public class JAXBUserType implements UserType, ParameterizedType {
 			throw new InfrastructureException(String.format(
 					"Unable to assemble object: %s", e.getMessage()));
 		}
-	}
-
-	/**
-	 * Method from ParameterizedType allowing properties to be passed to this
-	 * class (at any time)
-	 */
-	public void setParameterValues(Properties parameters) {
-		if (parameters == null) {
-			logger
-					.debug("Exiting method setParameterValues since parameters argument is null (likely blank definition in the mapping document)");
-			return;
-		}
-
-		String baseTypesProperty = parameters.getProperty("baseTypes");
-		String assignablePackagesProperty = parameters
-				.getProperty("assignablePackages");
-
-		if (baseTypesProperty == null) {
-			logger.error("Parameter baseTypes not defined to user type");
-			throw new InfrastructureException(
-					"Parameter baseTypes not defined to user type");
-		}
-
-		if (assignablePackagesProperty == null) {
-			logger
-					.error("Parameter assignablePackages not defined to user type");
-			throw new InfrastructureException(
-					"Parameter assignablePackages not defined to user type");
-		}
-
-		logger
-				.debug("Constructing CIContextHelper with base types [{}] on packages [{}]");
-		jaxbContext = new CIContextHelper(baseTypesProperty.split(","),
-				assignablePackagesProperty.split(",")).getJAXBContext();
 	}
 }

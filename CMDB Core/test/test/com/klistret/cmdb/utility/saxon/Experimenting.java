@@ -31,9 +31,6 @@ import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 
 public class Experimenting {
-	String[] baseTypes = { "com.klistret.cmdb.ci.commons.Base",
-			"com.klistret.cmdb.ci.pojo.Element" };
-	String[] assignablePackages = { "com/klistret/cmdb/ci" };
 
 	com.klistret.cmdb.utility.jaxb.CIContextHelper helper;
 
@@ -41,8 +38,7 @@ public class Experimenting {
 
 	@Before
 	public void setUp() throws Exception {
-		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper(baseTypes,
-				assignablePackages);
+		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper();
 
 		ElementType elementType = new ElementType();
 		elementType.setId(new Long(1));

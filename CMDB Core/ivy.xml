@@ -88,7 +88,10 @@
 		
 		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="runtime->*"/>
-		 
+		
+		<!-- Scannotation (2): scannotation, servlet-api -->
+		<dependency org="org.scannotation" name="scannotation" rev="latest.integration"/>
+		
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
 

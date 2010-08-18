@@ -25,16 +25,5 @@
 
 	<!-- CI JAXB context -->
 	<bean id="ciContextHelper"
-		class="com.klistret.cmdb.utility.jaxb.CIContextHelper">
-		<constructor-arg index="0">
-			<value type="java.lang.String[]">
-				${cmdb.ci.baseTypes}
-			</value>
-		</constructor-arg>
-		<constructor-arg index="1">
-			<value type="java.lang.String[]">
-				${cmdb.ci.assignablePackages}
-			</value>
-		</constructor-arg>
-	</bean>
+		class="com.klistret.cmdb.utility.jaxb.CIContextHelper"/>
 </beans>
