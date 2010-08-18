@@ -67,7 +67,8 @@
 		</java>
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
-			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.java" />
+			<include name="com/klistret/cmdb/annotations/ci/*.java" />
+			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 			<include name="com/klistret/cmdb/ci/**/*.java" />
 			<classpath>
 				<path refid="classpath.IVY" />
@@ -75,7 +76,8 @@
 		</javac>
 
 		<jar destfile="${dist-basedir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
-			<include name="com/klistret/cmdb/utility/jaxb/DateConverter.class" />
+			<include name="com/klistret/cmdb/annotations/ci/*.class" />
+			<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 			<include name="com/klistret/cmdb/ci/**/*.class" />
 		</jar>
 
