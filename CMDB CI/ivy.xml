@@ -62,7 +62,7 @@
 		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown" conf="compile,runtime->*"/>
 		
 		<!-- Activation (1): activation -->
-		<dependency org="javax.activation" name="activation" rev="1.0.2" conf="compile,runtime->*"/>
+		<dependency org="javax.activation" name="activation" rev="1.1" conf="compile,runtime->*"/>
 		
 		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="compile,runtime->*"/>
