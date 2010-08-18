@@ -38,14 +38,7 @@ public class Identification {
 
 	@Before
 	public void setUp() throws Exception {
-		/**
-		 * context helper
-		 */
-		String[] baseTypes = { "com.klistret.cmdb.ci.commons.Base",
-				"com.klistret.cmdb.ci.pojo.Element" };
-		String[] assignablePackages = { "com/klistret/cmdb/ci" };
-
-		ciContextHelper = new CIContextHelper(baseTypes, assignablePackages);
+		ciContextHelper = new CIContextHelper();
 
 		/**
 		 * element

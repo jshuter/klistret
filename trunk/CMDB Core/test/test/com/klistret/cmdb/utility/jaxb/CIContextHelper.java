@@ -15,10 +15,6 @@ import javax.ws.rs.Produces;
 
 public class CIContextHelper {
 
-	String[] baseTypes = { "com.klistret.cmdb.ci.commons.Base",
-			"com.klistret.cmdb.ci.pojo.Element" };
-	String[] assignablePackages = { "com/klistret/cmdb/ci" };
-
 	com.klistret.cmdb.utility.jaxb.CIContextHelper helper;
 
 	com.klistret.cmdb.ci.pojo.Element element;
@@ -29,8 +25,7 @@ public class CIContextHelper {
 
 	@Before
 	public void setUp() throws Exception {
-		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper(baseTypes,
-				assignablePackages);
+		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper();
 
 		elementType = new com.klistret.cmdb.ci.pojo.ElementType();
 		elementType.setId(new Long(1));
