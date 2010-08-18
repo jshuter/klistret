@@ -1,17 +1,9 @@
 package test.com.klistret.cmdb.utility.jaxb;
 
-import java.io.StringWriter;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.reflections.Reflections;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ConfigurationBuilder;
 
-import javax.ws.rs.Produces;
 
 public class CIContextHelper {
 
@@ -41,26 +33,9 @@ public class CIContextHelper {
 		element.setType(elementType);
 		element.setConfiguration(environment);
 	}
-
-	// @Test
-	public void unmarshaller() {
-		StringWriter stringWriter = new StringWriter();
-
-		try {
-			Marshaller m = helper.getJAXBContext().createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			m.marshal(element, stringWriter);
-
-			System.out.println(String.format("Element [%s]", stringWriter));
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-	}
-
+	
 	@Test
 	public void dummy() {
-		Reflections reflections = new Reflections(new ConfigurationBuilder()
-				.setScanners(new TypeAnnotationsScanner()));
-		reflections.getTypesAnnotatedWith(Produces.class);
+		
 	}
 }

@@ -1,0 +1,19 @@
+<project default="core:publish" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="tmp-destdir" location="C:/temp/cmdb-core" />
+	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
+
+	<target name="core:resolve">
+		<ivy:configure file="${project-basedir}/ivysettings.xml" />
+
+		<ivy:resolve file="${project-basedir}/ivy.xml" conf="master" />
+	</target>
+
+	<!-- Creates the Core package -->
+	<target name="core:publish" depends="core:resolve">
+		<copy file="${tmp-destdir}/klistret.core.jar" tofile="${tmp-destdir}/klistret.core-${ivy.revision}.jar" />
+
+		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+			<artifacts pattern="${tmp-destdir}/klistret.core-[revision].[ext]" />
+		</ivy:publish>
+	</target>
+</project>
