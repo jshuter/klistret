@@ -2,9 +2,8 @@
 	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" />
 
 	<!-- edit: properties are specific to local environment -->
-	<property name="tmp-destdir" location="C:/temp" />
+	<property name="tmp-destdir" location="C:/temp/cmdb-ci" />
 	<property name="project-basedir" location="C:/workshop/klistret/CMDB CI" />
-	<property name="dist-basedir" location="C:/workshop/downloads/klistret" />
 
 	<property name="schema-basedir" location="${project-basedir}/src/xsd" />
 	<property name="config-basedir" location="${project-basedir}/configuration" />
@@ -15,6 +14,9 @@
 	<ivy:cachepath pathid="classpath.IVY" conf="compile" file="${project-basedir}/ivy.xml" type="jar" />
 
 	<target name="xjc:plugin" description="Generate XJC extensions">
+		<delete dir="${tmp-destdir}" failonerror="false" />
+		<mkdir dir="${tmp-destdir}" />
+
 		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
@@ -28,7 +30,7 @@
 			<fileset dir="${project-basedir}/src/META-INF" />
 		</copy>
 
-		<jar destfile="${dist-basedir}/klistret.xjc-${ivy.revision}.jar">
+		<jar destfile="${tmp-destdir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
 				<include name="com/klistret/cmdb/annotations/ci/*.class" />
 				<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
@@ -62,7 +64,7 @@
 
 			<classpath>
 				<path refid="classpath.IVY" />
-				<pathelement location="${dist-basedir}/klistret.xjc-${ivy.revision}.jar" />
+				<pathelement location="${tmp-destdir}/klistret.xjc-${ivy.revision}.jar" />
 			</classpath>
 		</java>
 
@@ -75,7 +77,7 @@
 			</classpath>
 		</javac>
 
-		<jar destfile="${dist-basedir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
+		<jar destfile="${tmp-destdir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
 			<include name="com/klistret/cmdb/annotations/ci/*.class" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 			<include name="com/klistret/cmdb/ci/**/*.class" />
@@ -85,7 +87,7 @@
 
 	<target name="ci:publish" depends="ci:create">
 		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
-			<artifacts pattern="${dist-basedir}/klistret.ci-[revision].[ext]" />
+			<artifacts pattern="${tmp-destdir}/klistret.ci-[revision].[ext]" />
 		</ivy:publish>
 	</target>
 </project>
