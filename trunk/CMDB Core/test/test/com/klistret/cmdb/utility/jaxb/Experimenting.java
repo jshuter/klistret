@@ -6,10 +6,10 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
-
-import com.klistret.cmdb.utility.jaxb.CIContext;
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 public class Experimenting {
 
@@ -18,30 +18,16 @@ public class Experimenting {
 
 	}
 
-	//@Test
-	public void scanning() {
-		URL[] urls = ClasspathUrlFinder.findClassPaths();
-		AnnotationDB db = new AnnotationDB();
-
-		try {
-			db.scanArchives(urls);
-			Set<String> entries = db.getAnnotationIndex().get(
-					com.klistret.cmdb.annotations.ci.Proxy.class.getName());
-
-			System.out.println(String
-					.format("Found %d entries", entries.size()));
-			for (String name : entries)
-				System.out.println(name);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	@Test
-	public void anotherContext() {
-		CIContext ciContext = CIContext.getCIContext();
+	public void reflections() {
+		Reflections reflections = new Reflections(new ConfigurationBuilder()
+				.setUrls(ClasspathHelper.getUrlsForCurrentClasspath())
+				.setScanners(new TypeAnnotationsScanner()));
 
-		ciContext.getJAXBContext();
+		Set<Class<?>> entries = reflections
+				.getTypesAnnotatedWith(com.klistret.cmdb.annotations.ci.Proxy.class);
+
+		System.out.println(String.format("Found %d entries", entries.size()));
 	}
+
 }

@@ -48,10 +48,13 @@
 		<!-- Spring orm (3): orm, jdbc, transaction -->
 		<dependency org="org.springframework" name="org.springframework.orm" rev="2.5.6.SEC02" conf="compile->compile;runtime->compile"/>
 		
+		<!-- Spring web (1): web -->
+		<dependency org="org.springframework" name="org.springframework.web" rev="2.5.6.SEC02" conf="runtime->compile"/>
+		
 		<!-- Spring test (1): test -->
 		<dependency org="org.springframework" name="org.springframework.test" rev="2.5.6.SEC02" conf="compile->compile;runtime->compile"/>
 		
-		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, jta, jaas, javaassist -->
+		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, jta, javaassist -->
 		<dependency org="org.hibernate" name="hibernate-core" rev="3.3.2.GA" conf="compile->runtime,master,optional;runtime->runtime,master,optional">
 			<exclude module="xml-apis"/>
             <exclude module="slf4j-api"/>
@@ -93,12 +96,19 @@
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="runtime->*"/>
 		
 		<!-- Scannotation (1): scannotation -->
-		<dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="compile->master;runtime->master"/>
+		<dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="runtime->master"/>
+		
+		<!-- Reflections -->
+		<dependency org="org.reflections" name="reflections" rev="0.9.5-RC2" conf="compile->*"/>
+		
+		<!-- Google collections (used by Reflections but not in the Maven pom) -->
+		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc3" conf="runtime->*"/>
 		
 		<!-- JUnit (1): junit -->
-		<dependency org="junit" name="junit" rev="4.4" conf="compile->master;test->master"/>
+		<dependency org="junit" name="junit" rev="4.4" conf="test->master"/>
 
 		<!-- CI -->
 		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->master;runtime->master"/>
+	
 	</dependencies>
 </ivy-module>
