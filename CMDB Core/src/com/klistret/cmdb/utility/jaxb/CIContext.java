@@ -1,7 +1,5 @@
 package com.klistret.cmdb.utility.jaxb;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,8 +9,10 @@ import javax.xml.bind.JAXBException;
 import org.jvnet.jaxb.reflection.JAXBModelFactory;
 import org.jvnet.jaxb.reflection.model.runtime.RuntimeTypeInfoSet;
 import org.jvnet.jaxb.reflection.runtime.IllegalAnnotationsException;
-import org.scannotation.AnnotationDB;
-import org.scannotation.ClasspathUrlFinder;
+import org.reflections.Reflections;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +30,9 @@ public class CIContext {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CIContext.class);
 
-	private AnnotationDB annotationDB;
+	private Set<Class<?>> elements;
 
-	private Set<String> elementNames;
-
-	private Set<String> relationNames;
+	private Set<Class<?>> relations;
 
 	private JAXBContext jaxbContext;
 
@@ -47,20 +45,9 @@ public class CIContext {
 		/**
 		 * Using scannotation model to find classes with particular annotations
 		 */
-		URL[] urls = ClasspathUrlFinder.findClassPaths();
-		annotationDB = new AnnotationDB();
-
-		try {
-			annotationDB.scanArchives(urls);
-		} catch (IOException e) {
-			logger
-					.error(
-							"Unable to scan classpath to build an annotation database: {}",
-							e.getMessage());
-			throw new InfrastructureException(
-					"Unable to scan classpath to build an annotation database",
-					e);
-		}
+		Reflections reflections = new Reflections(new ConfigurationBuilder()
+				.setUrls(ClasspathHelper.getUrlsForCurrentClasspath())
+				.setScanners(new TypeAnnotationsScanner()));
 
 		/**
 		 * JAXB context path
@@ -70,35 +57,21 @@ public class CIContext {
 		/**
 		 * Find all of the CI elements
 		 */
-		elementNames = annotationDB.getAnnotationIndex().get(
-				Element.class.getName());
-		for (String name : elementNames) {
-			try {
-				contextPath.add(Class.forName(name));
-				logger.debug("Adding element {} to JAXB context path", name);
-			} catch (ClassNotFoundException e) {
-				logger
-						.error(
-								"Element {} class could not be loaded by Class.forName",
-								name);
-			}
+		elements = reflections.getTypesAnnotatedWith(Element.class);
+		for (Class<?> element : elements) {
+			contextPath.add(element);
+			logger.debug("Adding element {} to JAXB context path", element
+					.getName());
 		}
 
 		/**
 		 * Find all of the CI relations
 		 */
-		relationNames = annotationDB.getAnnotationIndex().get(
-				Relation.class.getName());
-		for (String name : relationNames) {
-			try {
-				contextPath.add(Class.forName(name));
-				logger.debug("Adding relation {} to JAXB context path", name);
-			} catch (ClassNotFoundException e) {
-				logger
-						.error(
-								"Relation {} class could not be loaded by Class.forName",
-								name);
-			}
+		relations = reflections.getTypesAnnotatedWith(Relation.class);
+		for (Class<?> relation : relations) {
+			contextPath.add(relation);
+			logger.debug("Adding relation {} to JAXB context path", relation
+					.getName());
 		}
 
 		/**
@@ -107,6 +80,7 @@ public class CIContext {
 		try {
 			jaxbContext = JAXBContext.newInstance(contextPath
 					.toArray(new Class[0]));
+			logger.debug("Created JAXB context");
 		} catch (JAXBException e) {
 			logger.error("Unable to create JAXBContext: {}", e.getMessage());
 			throw new InfrastructureException("Unable to create JAXBContext", e);
@@ -115,6 +89,7 @@ public class CIContext {
 		try {
 			runtimeTypeInfoSet = JAXBModelFactory.create(contextPath
 					.toArray(new Class[0]));
+			logger.debug("Created JAXB runtime type info set");
 		} catch (IllegalAnnotationsException e) {
 			logger.error("Unable to create JAXB reflection info set: {}", e
 					.getMessage());
