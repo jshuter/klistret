@@ -1,4 +1,4 @@
-package com.klistret.cmdb.utility.xjc.ci;
+package com.sun.tools.xjc.addon.ci;
 
 public class Const {
     /**

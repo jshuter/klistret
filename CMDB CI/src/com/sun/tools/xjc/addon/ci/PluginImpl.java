@@ -1,4 +1,4 @@
-package com.klistret.cmdb.utility.xjc.ci;
+package com.sun.tools.xjc.addon.ci;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +26,13 @@ import com.sun.tools.xjc.model.CPluginCustomization;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
 
+/**
+ * See
+ * http://metro.1045641.n5.nabble.com/XJC-Plugin-Custom-plugin-causes-ClassCastException-td1061066.html
+ * 
+ * @author 40042466
+ * 
+ */
 public class PluginImpl extends Plugin {
 
 	private static final Logger logger = LoggerFactory
