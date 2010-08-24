@@ -20,7 +20,7 @@
 		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
 			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
-			<include name="com/klistret/cmdb/utility/xjc/ci/*.java" />
+			<include name="com/sun/tools/xjc/addon/ci/*.java" />
 			<classpath>
 				<path refid="classpath.IVY" />
 			</classpath>
@@ -34,7 +34,7 @@
 			<fileset dir="${tmp-destdir}">
 				<include name="com/klistret/cmdb/annotations/ci/*.class" />
 				<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
-				<include name="com/klistret/cmdb/utility/xjc/ci/*.class" />
+				<include name="com/sun/tools/xjc/addon/ci/*.class" />
 			</fileset>
 			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
 		</jar>
@@ -78,10 +78,13 @@
 		</javac>
 
 		<copy todir="${tmp-destdir}/xsd">
-			<fileset dir="${schema-basedir}">
+			<fileset id="schema-fileset" dir="${schema-basedir}">
 				<include name="**/*.xsd" />
 			</fileset>
 		</copy>
+
+		<pathconvert pathsep="${line.separator}" property="list-schemas" refid="schema-fileset" />
+		<echo>${list-schemas}</echo>
 
 		<jar destfile="${tmp-destdir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
 			<include name="com/klistret/cmdb/annotations/ci/*.class" />
