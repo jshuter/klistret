@@ -12,14 +12,12 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/commons"
 	targetNamespace="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	elementFormDefault="qualified" jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="ci">
+	xmlns:ci="http://www.klistret.com/xjc/plugin/ci" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="ci" elementFormDefault="qualified">
 
 	<xs:simpleType name="Name">
 		<xs:annotation>
@@ -53,21 +51,21 @@
 	</xs:simpleType>
 
 	<xs:simpleType name="Version">
-		<annotation>
-			<documentation>
+		<xs:annotation>
+			<xs:documentation>
 				Keeps track of incrementally different versions of base
 				instances
-			</documentation>
-		</annotation>
+			</xs:documentation>
+		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
 	<xs:simpleType name="Description">
-		<annotation>
-			<documentation>
+		<xs:annotation>
+			<xs:documentation>
 				Description of the base instance (human readable)
-			</documentation>
-		</annotation>
+			</xs:documentation>
+		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
@@ -95,11 +93,11 @@
 
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
-			<xs:element name="Name" type="commons:Name" maxOccurs="1"></xs:element>
-			<xs:element name="Namespace" type="commons:Namespace"
+			<xs:element name="Name" type="Name" maxOccurs="1"></xs:element>
+			<xs:element name="Namespace" type="Namespace"
 				maxOccurs="1">
 			</xs:element>
-			<xs:element name="Tag" type="commons:Tag" minOccurs="0"
+			<xs:element name="Tag" type="Tag" minOccurs="0"
 				maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
@@ -116,17 +114,17 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Base">
+			<xs:extension base="Base">
 				<xs:sequence>
-					<xs:element name="Ownership"
-						type="commons:Ownership" maxOccurs="1">
+					<xs:element name="Ownership" type="Ownership"
+						maxOccurs="1">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Element" type="commons:Element"></xs:element>
+	<xs:element name="Element" type="Element"></xs:element>
 
 	<xs:complexType name="Reference" abstract="true">
 		<xs:sequence>
@@ -141,7 +139,7 @@
 
 	<xs:complexType name="SourceReference">
 		<xs:complexContent>
-			<xs:extension base="commons:Reference">
+			<xs:extension base="Reference">
 				<xs:sequence></xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -149,7 +147,7 @@
 
 	<xs:complexType name="TargetReference">
 		<xs:complexContent>
-			<xs:extension base="commons:Reference">
+			<xs:extension base="Reference">
 				<xs:sequence></xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -165,16 +163,17 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Base">
+			<xs:extension base="Base">
 				<xs:sequence>
-					<xs:element name="Source"
-						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
-					<xs:element name="Target"
-						type="commons:TargetReference" maxOccurs="1" minOccurs="1" />
+					<xs:element name="Source" type="SourceReference"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Target" type="TargetReference"
+						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Relation" type="commons:Relation"></xs:element>
-</schema>
+	<xs:element name="Relation" type="Relation"></xs:element>
+
+</xs:schema>

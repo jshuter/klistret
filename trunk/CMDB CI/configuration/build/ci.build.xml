@@ -77,10 +77,17 @@
 			</classpath>
 		</javac>
 
+		<copy todir="${tmp-destdir}/xsd">
+			<fileset dir="${schema-basedir}">
+				<include name="**/*.xsd" />
+			</fileset>
+		</copy>
+
 		<jar destfile="${tmp-destdir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
 			<include name="com/klistret/cmdb/annotations/ci/*.class" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 			<include name="com/klistret/cmdb/ci/**/*.class" />
+			<include name="xsd/**/*.xsd" />
 		</jar>
 
 	</target>

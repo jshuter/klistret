@@ -22,6 +22,10 @@
 		<jxb:javaType name="java.util.Date" xmlType="xs:dateTime" parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseDateTime" printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printDateTime" />
 	
 		<jxb:javaType name="java.lang.Long" xmlType="xs:long" />
+		
+		<jxb:javaType name="java.lang.Boolean" xmlType="xs:boolean" />
+		
+		<jxb:javaType name="java.lang.Integer" xmlType="xs:int" />
 	</jxb:globalBindings>
 
 </jxb:bindings>

@@ -12,39 +12,22 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation/association"
 	targetNamespace="http://www.klistret.com/cmdb/ci/relation/association"
-	xmlns:association="http://www.klistret.com/cmdb/ci/relation/association"
 	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	elementFormDefault="qualified" jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="ci">
+	elementFormDefault="qualified">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/relation"
 		schemaLocation="../association.xsd" />
 
 	<xs:complexType name="Dependency">
 		<xs:annotation>
 			<xs:documentation></xs:documentation>
-			<xs:appinfo>
-				<ci:Relation>
-					<ci:Connection>
-						<ci:Source
-							Namespace="http://www.klistret.com/cmdb/ci/commons"
-							LocalName="Element" />
-						<ci:Target
-							Namespace="http://www.klistret.com/cmdb/ci/commons"
-							LocalName="Element" />
-					</ci:Connection>
-				</ci:Relation>
-			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="relation:Association"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Dependency" type="association:Dependency">
-	</xs:element>
-</schema>
+	<xs:element name="Dependency" type="Dependency" />
+</xs:schema>

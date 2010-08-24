@@ -12,9 +12,8 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/pojo"
 	targetNamespace="http://www.klistret.com/cmdb/ci/pojo"
-	xmlns:pojo="http://www.klistret.com/cmdb/ci/pojo"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified"
@@ -78,20 +77,20 @@
 	</xs:simpleType>
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
-			<xs:element name="id" type="pojo:id" maxOccurs="1"
+			<xs:element name="id" type="id" maxOccurs="1"
 				minOccurs="1" />
-			<xs:element name="name" type="pojo:name" maxOccurs="1"
+			<xs:element name="name" type="name" maxOccurs="1"
 				minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="pojo:fromTimeStamp"
+			<xs:element name="fromTimeStamp" type="fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="pojo:toTimeStamp"
+			<xs:element name="toTimeStamp" type="toTimeStamp"
 				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="pojo:createId"
+			<xs:element name="createId" type="createId"
 				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createTimeStamp"
-				type="pojo:createTimeStamp" maxOccurs="1" minOccurs="1" />
+				type="createTimeStamp" maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp"
-				type="pojo:updateTimeStamp" maxOccurs="1" minOccurs="1" />
+				type="updateTimeStamp" maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="Element">
@@ -126,16 +125,16 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="pojo:Base">
+			<xs:extension base="Base">
 				<xs:sequence>
-					<xs:element name="type" type="pojo:ElementType"
+					<xs:element name="type" type="ElementType"
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="configuration"
 						type="commons:Element" maxOccurs="1" minOccurs="1" />
 					<xs:element name="sourceRelations"
-						type="pojo:Relation" maxOccurs="unbounded" minOccurs="0" />
+						type="Relation" maxOccurs="unbounded" minOccurs="0" />
 					<xs:element name="destinationRelations"
-						type="pojo:Relation" maxOccurs="unbounded" minOccurs="0" />
+						type="Relation" maxOccurs="unbounded" minOccurs="0" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -173,13 +172,13 @@
 		</xs:annotation>
 
 		<xs:complexContent>
-			<xs:extension base="pojo:Base">
+			<xs:extension base="Base">
 				<xs:sequence>
-					<xs:element name="type" type="pojo:RelationType"
+					<xs:element name="type" type="RelationType"
 						maxOccurs="1" minOccurs="1" />
-					<xs:element name="source" type="pojo:Element"
+					<xs:element name="source" type="Element"
 						maxOccurs="1" minOccurs="1" />
-					<xs:element name="destination" type="pojo:Element"
+					<xs:element name="destination" type="Element"
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="configuration"
 						type="commons:Relation" maxOccurs="1" minOccurs="1" />
@@ -219,7 +218,7 @@
 		</xs:annotation>
 
 		<xs:complexContent>
-			<xs:extension base="pojo:Base"></xs:extension>
+			<xs:extension base="Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RelationType">
@@ -254,57 +253,51 @@
 		</xs:annotation>
 
 		<xs:complexContent>
-			<xs:extension base="pojo:Base"></xs:extension>
+			<xs:extension base="Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<!-- 
-		<xs:complexType name="QueryRequest">
+	<xs:complexType name="QueryRequest">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:Proxy />
+			</xs:appinfo>
+		</xs:annotation>
 		<xs:sequence>
-		<xs:element name="expressions" type="xs:string"
-		maxOccurs="unbounded" minOccurs="1" />
-		<xs:element name="start" type="xs:int" maxOccurs="1"
-		minOccurs="0" default="0" />
-		<xs:element name="limit" type="xs:int" maxOccurs="1"
-		minOccurs="0" default="10" />
+			<xs:element name="expressions" type="xs:string"
+				maxOccurs="unbounded" minOccurs="1" />
+			<xs:element name="start" type="xs:int" maxOccurs="1"
+				minOccurs="0" default="0" />
+			<xs:element name="limit" type="xs:int" maxOccurs="1"
+				minOccurs="0" default="10" />
 		</xs:sequence>
-		</xs:complexType>
-	-->
-	<xs:complexType name="QueryResponse" abstract="true">
+	</xs:complexType>
+	<xs:simpleType name="ResponseSuccessful">
+		<xs:annotation>
+			<xs:documentation>Object name</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:boolean" />
+	</xs:simpleType>
+	<xs:complexType name="QueryResponse">
+		<xs:annotation>
+			<xs:appinfo>
+				<ci:Proxy />
+			</xs:appinfo>
+		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="successful" type="xs:boolean"
+			<xs:element name="successful" type="ResponseSuccessful"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="count" type="xs:int" maxOccurs="1"
 				minOccurs="1" />
+			<xs:element name="message" type="xs:string" maxOccurs="1"
+				minOccurs="1" />
+			<xs:choice maxOccurs="1">
+				<xs:element name="elements" type="Element"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xs:element name="relations" type="Relation"
+					maxOccurs="unbounded" minOccurs="0" />
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="ElementQueryResponse">
-		<xs:annotation>
-			<xs:appinfo>
-				<ci:Proxy />
-			</xs:appinfo>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:extension base="pojo:QueryResponse">
-				<xs:sequence>
-					<xs:element name="payload" type="pojo:Element"
-						maxOccurs="unbounded" minOccurs="0" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-	<xs:complexType name="RelationQueryResponse">
-		<xs:annotation>
-			<xs:appinfo>
-				<ci:Proxy />
-			</xs:appinfo>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:extension base="pojo:QueryResponse">
-				<xs:sequence>
-					<xs:element name="payload" type="pojo:Relation"
-						maxOccurs="unbounded" minOccurs="0" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-</schema>
+	
+	<xs:element name="QueryResponse" type="QueryResponse"></xs:element>
+</xs:schema>

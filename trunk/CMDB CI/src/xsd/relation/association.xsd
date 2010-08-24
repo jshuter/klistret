@@ -12,29 +12,21 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation"
 	targetNamespace="http://www.klistret.com/cmdb/ci/relation"
-	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	elementFormDefault="qualified"
-	jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="ci">
+	elementFormDefault="qualified">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.xsd" />
 
 	<xs:complexType name="Association" abstract="true">
-		<annotation>
-			<documentation>
+		<xs:annotation>
+			<xs:documentation>
 				Association denotes a permanent relationship between two
 				items
-			</documentation>
-			<xs:appinfo>
-				<ci:Relation />
-			</xs:appinfo>
-		</annotation>
+			</xs:documentation>
+		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="commons:Relation">
 				<xs:attribute name="Weak" type="xs:boolean"
@@ -43,6 +35,6 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Association" type="relation:Association">
+	<xs:element name="Association" type="Association">
 	</xs:element>
-</schema>
+</xs:schema>

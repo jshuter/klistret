@@ -12,16 +12,11 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/logical/collection"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:collection="http://www.klistret.com/cmdb/ci/element/logical/collection"
 	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified"
-	jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="ci">
+	elementFormDefault="qualified">
 	<xs:import
 		namespace="http://www.klistret.com/cmdb/ci/element/logical"
 		schemaLocation="../collection.xsd" />
@@ -29,14 +24,11 @@
 	<xs:complexType name="Environment">
 		<xs:annotation>
 			<xs:documentation></xs:documentation>
-			<xs:appinfo>
-				<ci:Element />
-			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="logical:Collection" />
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Environment" type="collection:Environment"></xs:element>
-</schema>
+	<xs:element name="Environment" type="Environment"></xs:element>
+</xs:schema>
