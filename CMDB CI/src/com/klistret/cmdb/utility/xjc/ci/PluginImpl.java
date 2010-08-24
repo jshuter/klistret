@@ -1,23 +1,25 @@
 package com.klistret.cmdb.utility.xjc.ci;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 
 import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
 import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JDefinedClass;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.model.CPluginCustomization;
@@ -26,11 +28,16 @@ import com.sun.tools.xjc.outline.Outline;
 
 public class PluginImpl extends Plugin {
 
+	private static final Logger logger = LoggerFactory
+			.getLogger(PluginImpl.class);
+
 	private Map<String, String> namespaceJSONMapping = new HashMap<String, String>();
 
-	private Map<QName, Object> appInfoMapping = new HashMap<QName, Object>();
+	private ClassOutline element;
 
-	private Unmarshaller unmarshaller;
+	private ClassOutline relation;
+
+	private List<ClassOutline> proxies = new ArrayList<ClassOutline>();
 
 	@Override
 	public String getOptionName() {
@@ -42,7 +49,27 @@ public class PluginImpl extends Plugin {
 	}
 
 	public boolean isCustomizationTagName(String nsUri, String localName) {
-		return nsUri.equals(Const.NS);
+		return nsUri.equals(Const.NS)
+				&& localName.matches("Proxy|Element|Relation");
+	}
+
+	private boolean isAssignable(JDefinedClass other, JDefinedClass base) {
+		if (base.isAssignableFrom(other))
+			return true;
+
+		if (other._extends() != null
+				&& other._extends() instanceof JDefinedClass)
+			return isAssignable((JDefinedClass) other._extends(), base);
+
+		return false;
+	}
+
+	private boolean isXmlRootElementCandidate(JDefinedClass other,
+			JDefinedClass base) {
+		if (isAssignable(other, base) && !other.isAbstract())
+			return true;
+
+		return false;
 	}
 
 	@Override
@@ -53,170 +80,208 @@ public class PluginImpl extends Plugin {
 	@Override
 	public boolean run(Outline model, Options opt, ErrorHandler errorHandler)
 			throws SAXException {
+
 		/**
-		 * JAXB context to unmarshall appinfo directives
+		 * Identify schemas
 		 */
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(Relation.class,
-					Element.class, Proxy.class);
-			unmarshaller = jaxbContext.createUnmarshaller();
-		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		InputSource[] grammers = opt.getGrammars();
+		for (InputSource grammer : grammers) {
+			logger.debug("Grammer (schema) {}", grammer.getSystemId());
 		}
 
 		/**
-		 * First pass through to build up a namespace/json mapping bank and
-		 * unmarshall appinfo per ClassOutline object
+		 * First pass to associate namespaces with packages for JSON mappings
+		 * plus store proxy, element, and relation classes.
 		 */
 		for (ClassOutline co : model.getClasses()) {
 			/**
-			 * Associate namespace (from the classes QName) to the package to
-			 * make an easy JSON mapping
+			 * Associate namespace to package name
 			 */
 			QName key = co.target.getTypeName();
-			if (!namespaceJSONMapping.containsKey(key.getNamespaceURI()))
+			if (!namespaceJSONMapping.containsKey(key.getNamespaceURI())) {
+				logger.debug("Mapping namescape [{}] to package [{}]", key
+						.getNamespaceURI(), co.implClass.getPackage().name());
 				namespaceJSONMapping.put(key.getNamespaceURI(), co.target
 						.getOwnerPackage().name());
+			}
 
+			/**
+			 * Proxy information (multiple)
+			 */
 			CPluginCustomization ciProxy = co.target.getCustomizations().find(
-					Const.NS, Const.LN_Proxy);
+					Const.NS, "Proxy");
 			if (ciProxy != null) {
-				try {
-					Proxy proxy = (Proxy) unmarshaller
-							.unmarshal(ciProxy.element);
-					if (!appInfoMapping.containsKey(key))
-						appInfoMapping.put(key, proxy);
-				} catch (JAXBException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				ciProxy.markAsAcknowledged();
-			}
-
-			CPluginCustomization ciElement = co.target.getCustomizations()
-					.find(Const.NS, Const.LN_Element);
-			if (ciElement != null) {
-				try {
-					Element element = (Element) unmarshaller
-							.unmarshal(ciElement.element);
-					if (!appInfoMapping.containsKey(key))
-						appInfoMapping.put(key, element);
-				} catch (JAXBException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				ciElement.markAsAcknowledged();
-			}
-
-			CPluginCustomization ciRelation = co.target.getCustomizations()
-					.find(Const.NS, Const.LN_Relation);
-			if (ciRelation != null) {
-				try {
-					Relation relation = (Relation) unmarshaller
-							.unmarshal(ciRelation.element);
-					if (!appInfoMapping.containsKey(key))
-						appInfoMapping.put(key, relation);
-				} catch (JAXBException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				ciRelation.markAsAcknowledged();
-			}
-		}
-
-		/**
-		 * Second pass adds necessary annotations
-		 */
-		for (ClassOutline co : model.getClasses()) {
-			QName key = co.target.getTypeName();
-
-			Object appInfo = appInfoMapping.get(key);
-			if (appInfo == null)
-				continue;
-
-			if (appInfo instanceof Proxy) {
-				/**
-				 * Construct the Mapped annotation (RestEasy/Jettison
-				 * requirement)
-				 */
-				JAnnotationUse mapped = co.implClass.annotate(Mapped.class);
-				JAnnotationArrayMember namespaceMap = mapped
-						.paramArray("namespaceMap");
-
-				/**
-				 * Add every package as a potential namespace
-				 */
-				for (Map.Entry<String, String> entry : namespaceJSONMapping
-						.entrySet()) {
-					JAnnotationUse xmlNsMapJAnnotation = namespaceMap
-							.annotate(XmlNsMap.class);
-					xmlNsMapJAnnotation.param("namespace", entry.getKey());
-					xmlNsMapJAnnotation.param("jsonName", entry.getValue());
+				if (co.implClass.isAbstract()) {
+					logger
+							.error(
+									"Proxy annotation applicable only for concrete classes [target class: {}]",
+									co.implClass.name());
+					throw new SAXException(
+							String
+									.format(
+											"Proxy annotation applicable only for concrete classes [target class: %s]",
+											co.implClass.name()));
 				}
 
-				/**
-				 * Add general XML schema mappings
-				 */
-				JAnnotationUse xmlNsMapJAnnotation = namespaceMap
-						.annotate(XmlNsMap.class);
-				xmlNsMapJAnnotation.param("namespace",
-						"http://www.w3.org/2001/XMLSchema-instance");
-				xmlNsMapJAnnotation.param("jsonName",
-						"www.w3.org.2001.XMLSchema-instance");
-
-				/**
-				 * Add CI proxy annotation
-				 */
+				logger.debug("Annotating class [{}] with Proxy", co.target
+						.getName());
 				co.implClass
 						.annotate(com.klistret.cmdb.annotations.ci.Proxy.class);
 
-				/**
-				 * Add XmlRootElement to allow unraveling
-				 */
-				if (!co.implClass.isAbstract()) {
-					JAnnotationUse xmlRootElement = co.implClass
-							.annotate(XmlRootElement.class);
-					xmlRootElement.param("name", co.implClass.name());
-				}
+				proxies.add(co);
+				ciProxy.markAsAcknowledged();
+				continue;
 			}
 
-			if (appInfo instanceof Element) {
-				/**
-				 * Add CI element annotation
-				 */
+			/**
+			 * Element information (unique)
+			 */
+			CPluginCustomization ciElement = co.target.getCustomizations()
+					.find(Const.NS, "Element");
+			if (ciElement != null) {
+				if (element != null) {
+					logger
+							.error(
+									"Multiple Element annotations [current element class: {}, this class: {}]",
+									element.implClass.name(), co.implClass
+											.name());
+					throw new SAXException(
+							String
+									.format(
+											"Multiple Element annotations [current element class: %s, this class: %s]",
+											element.implClass.name(),
+											co.implClass.name()));
+				}
+
+				if (!co.implClass.isAbstract()) {
+					logger
+							.error(
+									"Element annotation applicable only for abstract classes [target class: {}]",
+									co.implClass.name());
+					throw new SAXException(
+							String
+									.format(
+											"Element annotation applicable only for abstract classes [target class: %s]",
+											co.implClass.name()));
+				}
+
+				logger.debug("Annotating class [{}] with Element", co.implClass
+						.name());
 				co.implClass
 						.annotate(com.klistret.cmdb.annotations.ci.Element.class);
-				
-				/**
-				 * Add XmlRootElement to allow unraveling
-				 */
-				if (!co.implClass.isAbstract()) {
-					JAnnotationUse xmlRootElement = co.implClass
-							.annotate(XmlRootElement.class);
-					xmlRootElement.param("name", co.implClass.name());
-				}
+
+				element = co;
+				ciElement.markAsAcknowledged();
+				continue;
 			}
 
-			if (appInfo instanceof Relation) {
-				/**
-				 * Add CI element annotation
-				 */
+			/**
+			 * Relation information (unique)
+			 */
+			CPluginCustomization ciRelation = co.target.getCustomizations()
+					.find(Const.NS, "Relation");
+			if (ciRelation != null) {
+				if (relation != null) {
+					logger
+							.error(
+									"Multiple Relation annotations [current relation class: {}, this class: {}]",
+									relation.implClass.name(), co.implClass
+											.name());
+					throw new SAXException(
+							String
+									.format(
+											"Multiple Relation annotations [current relation class: %s, this class: %s]",
+											relation.implClass.name(),
+											co.implClass.name()));
+				}
+
+				if (!co.implClass.isAbstract()) {
+					logger
+							.error(
+									"Relation annotation applicable only for abstract classes [target class: {}]",
+									co.implClass.name());
+					throw new SAXException(
+							String
+									.format(
+											"Relation annotation applicable only for abstract classes [target class: %s]",
+											co.implClass.name()));
+				}
+
+				logger.debug("Annotating class [{}] with Relation",
+						co.implClass.name());
 				co.implClass
 						.annotate(com.klistret.cmdb.annotations.ci.Relation.class);
-				
-				/**
-				 * Add XmlRootElement to allow unraveling
-				 */
-				if (!co.implClass.isAbstract()) {
-					JAnnotationUse xmlRootElement = co.implClass
-							.annotate(XmlRootElement.class);
-					xmlRootElement.param("name", co.implClass.name());
-				}
+
+				relation = co;
+				ciRelation.markAsAcknowledged();
+				continue;
+			}
+		}
+
+		if (element == null) {
+			logger.error("Element root is not defined by CI extension");
+			throw new SAXException(String
+					.format("Element root is not defined by CI extension"));
+		}
+
+		if (relation == null) {
+			logger.error("Relation root is not defined by CI extension");
+			throw new SAXException(String
+					.format("Relation root is not defined by CI extension"));
+		}
+
+		/**
+		 * Add JSON XmlNSMap annotations (necessary for Jettison/Jackson)
+		 */
+		for (ClassOutline co : proxies) {
+			/**
+			 * Construct the Mapped annotation (RestEasy/Jettison requirement)
+			 */
+			JAnnotationUse mapped = co.implClass.annotate(Mapped.class);
+			JAnnotationArrayMember namespaceMap = mapped
+					.paramArray("namespaceMap");
+
+			/**
+			 * Add every package as a potential namespace
+			 */
+			for (Map.Entry<String, String> entry : namespaceJSONMapping
+					.entrySet()) {
+				JAnnotationUse xmlNsMapJAnnotation = namespaceMap
+						.annotate(XmlNsMap.class);
+				xmlNsMapJAnnotation.param("namespace", entry.getKey());
+				xmlNsMapJAnnotation.param("jsonName", entry.getValue());
+			}
+
+			/**
+			 * Add general XML schema mappings
+			 */
+			JAnnotationUse xmlNsMapJAnnotation = namespaceMap
+					.annotate(XmlNsMap.class);
+			xmlNsMapJAnnotation.param("namespace",
+					"http://www.w3.org/2001/XMLSchema-instance");
+			xmlNsMapJAnnotation.param("jsonName",
+					"www.w3.org.2001.XMLSchema-instance");
+
+			/**
+			 * XmlRootElement
+			 */
+			JAnnotationUse xmlRootElement = co.implClass
+					.annotate(XmlRootElement.class);
+			xmlRootElement.param("name", co.implClass.name());
+		}
+
+		/**
+		 * Add XmlRootElement annotations to concrete element/relation classes
+		 */
+		for (ClassOutline co : model.getClasses()) {
+			if ((isXmlRootElementCandidate(co.implClass, element.implClass) || isXmlRootElementCandidate(
+					co.implClass, relation.implClass))) {
+				JAnnotationUse xmlRootElement = co.implClass
+						.annotate(XmlRootElement.class);
+				xmlRootElement.param("name", co.implClass.name());
 			}
 		}
 
 		return true;
 	}
-
 }
