@@ -1,12 +1,11 @@
 package test.com.klistret.cmdb.utility.resteasy;
 
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -15,6 +14,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -29,11 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.ci.element.logical.collection.Environment;
-import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
-import com.klistret.cmdb.pojo.QueryRequest;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 public class Experimenting {
 
@@ -51,7 +49,14 @@ public class Experimenting {
 			protected int limit;
 
 			public List<String> getExpressions() {
-				return expressions;
+				if (expressions == null) {
+					expressions = new ArrayList<String>();
+				}
+				return this.expressions;
+			}
+
+			public void setExpressions(List<String> expressions) {
+				this.expressions = expressions;
 			}
 
 			public int getStart() {
@@ -77,9 +82,12 @@ public class Experimenting {
 		}
 
 		@POST
-		@Path("find")
+		@Path("simplePost")
 		@Consumes( { MediaType.APPLICATION_JSON })
 		public void find(Test test) {
+			if (test.getExpressions() == null)
+				return;
+
 			for (String expression : test.getExpressions()) {
 				System.out.println(String.format(
 						"expresion [%s], start [%d], limit [%d]", expression,
@@ -88,35 +96,17 @@ public class Experimenting {
 		}
 
 		@POST
-		@Path("finding")
-		@Consumes( { MediaType.APPLICATION_JSON })
-		public ElementQueryResponse finding(QueryRequest queryRequest) {
+		@Path("weirdPost")
+		@Consumes( { MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML })
+		public void finding(QueryRequest queryRequest) {
+			if (queryRequest.getExpressions() == null)
+				return;
+
 			for (String expression : queryRequest.getExpressions()) {
 				System.out.println(String.format(
 						"expresion [%s], start [%d], limit [%d]", expression,
 						queryRequest.getStart(), queryRequest.getLimit()));
 			}
-			Environment environment = new Environment();
-			environment.setName("hello");
-			environment.setWatermark("production");
-
-			ElementType elementType = new ElementType();
-			elementType.setName("my type");
-
-			Element element = new Element();
-			element.setName("hello");
-			element.setType(elementType);
-			element.setConfiguration(environment);
-
-			List<Element> payload = new ArrayList<Element>();
-			payload.add(element);
-
-			ElementQueryResponse queryResponse = new ElementQueryResponse();
-			queryResponse.setCount(1);
-			queryResponse.setSuccessful(true);
-			queryResponse.setPayload(payload);
-
-			return queryResponse;
 		}
 	}
 
@@ -143,9 +133,9 @@ public class Experimenting {
 		System.out.println(responseBodyAsString);
 	}
 
-	// @Test
-	public void find() throws URISyntaxException, UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.post("/atom/find");
+	@Test
+	public void simplePost() throws URISyntaxException, UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest.post("/atom/simplePost");
 		MockHttpResponse response = new MockHttpResponse();
 
 		String requestBodyAsString = "{\"test\":{\"start\":0,\"limit\":50,\"expressions\":[\"hello\",\"yeah\"]}}";
@@ -158,13 +148,13 @@ public class Experimenting {
 				.getStatus());
 	}
 
-	// @Test
-	public void finding() throws URISyntaxException,
+	@Test
+	public void findingJSON() throws URISyntaxException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.post("/atom/finding");
+		MockHttpRequest request = MockHttpRequest.post("/atom/weirdPost");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"QueryRequest\":{\"expressions\":[\"hello\",\"yeah\"]}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.QueryRequest\":{\"com.klistret.cmdb.ci.pojo.start\":0,\"com.klistret.cmdb.ci.pojo.limit\":10,\"com.klistret.cmdb.ci.pojo.expressions\":[\"hello\",\"yeah\"]}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -174,15 +164,36 @@ public class Experimenting {
 
 		System.out.println(response.getContentAsString());
 	}
-
+	
 	@Test
-	public void re() {
-		final Pattern singleQuotes = Pattern
-				.compile("'((?:[^']+|'')*)'");
+	public void findingXML() throws URISyntaxException,
+	UnsupportedEncodingException, JAXBException {
+		String[] expressions = {"hello", "whatever"};
+		
+		JAXBContext jaxbContext = JAXBContext.newInstance(QueryRequest.class);
+		
+		QueryRequest query = new QueryRequest();
+		query.setExpressions(Arrays.asList(expressions));
+		query.setLimit(10);
+		query.setStart(1);
+		
+		StringWriter sw = new StringWriter();
+		
+		Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+        marshaller.marshal(query, sw);
+        
+        System.out.println(sw.toString());
+		
+		MockHttpRequest request = MockHttpRequest.post("/atom/weirdPost");
+		MockHttpResponse response = new MockHttpResponse();
+		
+		request.contentType(MediaType.APPLICATION_XML);
+		request.content(sw.toString().getBytes("UTF-8"));
 
-		String text = "whatever=\"''\"";
-
-		Matcher sq = singleQuotes.matcher(text);
-		Assert.assertTrue(sq.find());
+		dispatcher.invoke(request, response);
+		Assert.assertEquals(HttpResponseCodes.SC_NO_CONTENT, response
+				.getStatus());
 	}
+
 }

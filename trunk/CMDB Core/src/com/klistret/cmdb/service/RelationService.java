@@ -24,9 +24,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.klistret.cmdb.ci.pojo.RelationQueryResponse;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.pojo.QueryRequest;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 @Path("/resteasy")
 public interface RelationService {
@@ -41,7 +41,7 @@ public interface RelationService {
 	@POST
 	@Path("/relation/find")
 	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	RelationQueryResponse findByExpressions(QueryRequest queryRequest);
+	QueryResponse findByExpressions(QueryRequest queryRequest);
 
 	@POST
 	@Path("/relation/set")
