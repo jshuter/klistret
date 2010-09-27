@@ -20,8 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
-import com.klistret.cmdb.pojo.QueryRequest;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
@@ -42,25 +42,27 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public ElementQueryResponse findByExpressions(QueryRequest queryRequest) {
-		ElementQueryResponse queryResponse = new ElementQueryResponse();
+	public QueryResponse findByExpressions(QueryRequest queryRequest) {
+		QueryResponse queryResponse = new QueryResponse();
 
 		try {
-			List<Element> payload = findByExpressions(queryRequest
+			List<Element> elements = findByExpressions(queryRequest
 					.getExpressions().toArray(new String[0]), queryRequest
 					.getStart(), queryRequest.getLimit());
-			queryResponse.setPayload(payload);
-			queryResponse.setCount(payload.size());
+			queryResponse.setElements(elements);
+			queryResponse.setCount(elements.size());
 			queryResponse.setSuccessful(true);
 		} catch (ApplicationException e) {
 			logger.error("Error executing query: {}", e);
 			queryResponse.setCount(0);
 			queryResponse.setSuccessful(false);
+			queryResponse.setMessage(e.getMessage());
 		} catch (InfrastructureException e) {
 			logger.error("Error executing query: {}", e);
 			queryResponse.setCount(0);
 			queryResponse.setSuccessful(false);
-		} 
+			queryResponse.setMessage(e.getMessage());
+		}
 
 		return queryResponse;
 	}

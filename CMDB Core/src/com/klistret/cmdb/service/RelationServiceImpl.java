@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.dao.RelationDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.pojo.QueryRequest;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.RelationQueryResponse;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 
 public class RelationServiceImpl implements RelationService {
 	private static final Logger logger = LoggerFactory
@@ -45,15 +45,15 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public RelationQueryResponse findByExpressions(QueryRequest queryRequest) {
-		RelationQueryResponse queryResponse = new RelationQueryResponse();
+	public QueryResponse findByExpressions(QueryRequest queryRequest) {
+		QueryResponse queryResponse = new QueryResponse();
 
 		try {
-			List<Relation> payload = findByExpressions(queryRequest
+			List<Relation> relations = findByExpressions(queryRequest
 					.getExpressions().toArray(new String[0]), queryRequest
 					.getStart(), queryRequest.getLimit());
-			queryResponse.setPayload(payload);
-			queryResponse.setCount(payload.size());
+			queryResponse.setRelations(relations);
+			queryResponse.setCount(relations.size());
 			queryResponse.setSuccessful(true);
 		} catch (ApplicationException e) {
 			logger.error("Error executing query: {}", e);

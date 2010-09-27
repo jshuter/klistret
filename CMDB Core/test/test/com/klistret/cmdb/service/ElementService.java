@@ -30,9 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.ElementQueryResponse;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.pojo.QueryRequest;
+import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -47,8 +47,8 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(81));
 		System.out
@@ -78,8 +78,8 @@ public class ElementService extends
 		elementService.set(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void findByExpr() {
 		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
 
@@ -88,9 +88,9 @@ public class ElementService extends
 		queryRequest.setStart(0);
 		queryRequest.setLimit(100);
 
-		ElementQueryResponse response = elementService
+		QueryResponse response = elementService
 				.findByExpressions(queryRequest);
-		for (Element element : response.getPayload())
+		for (Element element : response.getElements())
 			System.out.println(element.getName());
 	}
 }

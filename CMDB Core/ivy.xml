@@ -65,8 +65,8 @@
             <exclude module="asm"/>
 		</dependency>
 		
-		<!-- Saxon local repo (1): saxon-->
-		<dependency org="net.sf.saxon" name="saxon" rev="9.2.0.3j" conf="compile->master;runtime->master"/>
+		<!-- Saxon (1): saxon-->
+		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*;"/>
 		
 		<!-- SLF4J (1): slf4j-api -->
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
@@ -77,7 +77,7 @@
 		<!-- Apache Log4j (1): log4j -->
 		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="runtime->master"/>
 		
-		<!-- DB2 local repo (2): db2jcc, db2jcc_license -->
+		<!-- DB2 LOCAL REPO (2): db2jcc, db2jcc_license -->
 		<dependency org="com.ibm" name="db2" rev="9.5" conf="runtime->master"/>
 		
 		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
@@ -89,13 +89,31 @@
 		<!-- JSR 173 -->
 		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="runtime->*"/>
 		
-		<!-- JAXB2 reflection local repo (1): jaxb2-reflection -->
+		<!-- JAXB2 reflection LOCAL REPO (1): jaxb2-reflection -->
 		<dependency org="org.jvnet.jaxb.reflection" name="jaxb2-reflection" rev="unknown" conf="runtime->*"/>
 		
-		<!-- Resteasy local repo (6): resteasy-jettison-provider, resteasy-spring, resteasy-jaxb-provider, resteasy-jaxrs, jaxrs-api, jettison -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0-beta-4" conf="runtime->*"/>
+		<!-- Resteasy restasy-jaxrs (1): -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0.1.GA" conf="compile,runtime->master"/>
 		
-		<!-- Scannotation (1): scannotation -->
+		<!-- Resteasy jaxrs-api (1): jaxrs-api -->
+		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.0.1.GA" conf="compile,runtime->master"/>
+		
+		<!-- Resteasy resteasy-jaxb-provider (1): resteasy-jaxb-provider -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxb-provider" rev="2.0.1.GA" conf="compile,runtime->master"/>
+		
+		<!-- Resteasy resteasy-jettison-provider (1): resteasy-jettison-provider -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider" rev="2.0.1.GA" conf="compile,runtime->master"/>
+		
+		<!-- Resteasy resteasy-spring (1): resteasy-spring -->
+		<dependency org="org.jboss.resteasy" name="resteasy-spring" rev="2.0.1.GA" conf="compile,runtime->master"/>
+
+		<!-- Resteasy resteasy-jsapi (1): resteasy-jsapi -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jsapi" rev="2.0.1.GA" conf="runtime->master"/>
+
+		<!-- Jettison LOCAL REPO (1) which is a dependency of RestEASY jettison provider -->
+		<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="runtime->*"/>
+
+		<!-- Scannotation (1) which is a dependency of RestEASY Servlet: scannotation -->
 		<dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="runtime->master"/>
 		
 		<!-- Reflections -->

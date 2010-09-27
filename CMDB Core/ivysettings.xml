@@ -13,8 +13,14 @@
      		</filesystem>
 
 			<!-- jboss maven2 repo, used for jbpm -->
-			<ibiblio name="jboss" m2compatible="true" root="http://repository.jboss.org/maven2/" />
-
+			<!--
+			<ibiblio name="jboss" m2compatible="true" root="http://repository.jboss.org/maven2" />
+			-->
+			<!--
+			<ibiblio name="jboss" m2compatible="true" root="https://repository.jboss.org/nexus/content/groups/public/"/>	
+			-->
+			<ibiblio name="jboss" m2compatible="true" root="http://repository.jboss.org/nexus/content/groups/public-jboss/"/>
+			
 			<!-- java.net repo, containing useful java apis -->
          	<ibiblio name="java.net" root="http://download.java.net/maven/2/" pattern="[organisation]/[type]s/[artifact]-[revision].[ext]"/>
          				 	
@@ -39,6 +45,12 @@
 			
 			<!-- official maven2 repo -->
          	<ibiblio name="maven2" m2compatible="true" usepoms="true" />
+         
+         	<!-- Ivy roundup -->
+         	<packager name="roundup" buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
+        		<ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
+        		<artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
+    		</packager>
  		</chain>
  	</resolvers>
  	
