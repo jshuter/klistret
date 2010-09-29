@@ -1,7 +1,9 @@
 package com.klistret.cmdb.utility.jaxb;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -32,6 +34,7 @@ import org.xml.sax.SAXException;
 
 import com.klistret.cmdb.annotations.ci.Element;
 import com.klistret.cmdb.annotations.ci.Relation;
+import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 public class CIContext {
@@ -50,6 +53,8 @@ public class CIContext {
 	private Set<Class<?>> elements;
 
 	private Set<Class<?>> relations;
+
+	private Set<Class<?>> proxies;
 
 	private Set<String> schemaLocations;
 
@@ -88,8 +93,10 @@ public class CIContext {
 								"Resolved systemid [{}] with namespace [{}]",
 								schema.getResourceName(systemId), namespaceURI);
 
-						ret.setByteStream(new FileInputStream(schema
-								.getSystemId()));
+						URL url = new URL(schema.getSystemId());
+						URLConnection uc = url.openConnection();
+
+						ret.setByteStream(uc.getInputStream());
 						ret.setSystemId(systemId);
 						return ret;
 					}
@@ -105,8 +112,11 @@ public class CIContext {
 				logger.error(e.getMessage());
 			} catch (FileNotFoundException e) {
 				logger.error(e.getMessage());
+			} catch (IOException e) {
+				logger.error(e.getMessage());
 			}
 
+			logger.error("No stream found for system id [{}]", systemId);
 			return null;
 		}
 
@@ -149,6 +159,16 @@ public class CIContext {
 			if (contextPath.add(relation))
 				logger.debug("Adding relation {} to JAXB context path",
 						relation.getName());
+		}
+
+		/**
+		 * Find all of the CI proxies
+		 */
+		proxies = reflections.getTypesAnnotatedWith(Proxy.class);
+		for (Class<?> proxy : proxies) {
+			if (contextPath.add(proxy))
+				logger.debug("Adding proxy {} to JAXB context path", proxy
+						.getName());
 		}
 
 		/**
@@ -232,4 +252,5 @@ public class CIContext {
 	public Schema getSchemaGrammers() {
 		return schemaGrammers;
 	}
+
 }

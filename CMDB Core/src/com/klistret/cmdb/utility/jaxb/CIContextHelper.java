@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import javax.xml.validation.Schema;
 
 import org.jvnet.jaxb.reflection.model.core.BuiltinLeafInfo;
 import org.jvnet.jaxb.reflection.model.core.PropertyKind;
@@ -84,6 +85,10 @@ public class CIContextHelper {
 	 */
 	public JAXBContext getJAXBContext() {
 		return CIContext.getCIContext().getJAXBContext();
+	}
+	
+	public Schema getSchemaGrammers() {
+		return CIContext.getCIContext().getSchemaGrammers();
 	}
 
 	/**
