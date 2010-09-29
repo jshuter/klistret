@@ -12,27 +12,22 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/logical"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation/association"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation/association"
+	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="../../commons.xsd" />
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/relation"
+		schemaLocation="../association.cmdb.xsd" />
 
-	<xs:complexType name="Collection" abstract="true">
+	<xs:complexType name="Dependency">
 		<xs:annotation>
-			<xs:documentation>
-				Abstract schema used to classify collections of
-				configuration items (CIs), such as end-points, roles,
-				organizations, subnets, systems, and users.
-			</xs:documentation>
+			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element" />
+			<xs:extension base="relation:Association"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Collection" type="Collection">
-	</xs:element>
+	<xs:element name="Dependency" type="Dependency" />
 </xs:schema>

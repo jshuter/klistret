@@ -22,7 +22,7 @@
 	xmlns:ci="http://www.klistret.com/xjc/plugin/ci" jaxb:version="2.0"
 	jaxb:extensionBindingPrefixes="codeInjector ci">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="commons.xsd" />
+		schemaLocation="commons.cmdb.xsd" />
 	<xs:simpleType name="id">
 		<xs:annotation>
 			<xs:documentation>
