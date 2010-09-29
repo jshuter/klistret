@@ -12,23 +12,27 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical/collection"
-	xmlns:logical="http://www.klistret.com/cmdb/ci/element/logical"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/logical"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/logical"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-	<xs:import
-		namespace="http://www.klistret.com/cmdb/ci/element/logical"
-		schemaLocation="../collection.xsd" />
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../../commons.cmdb.xsd" />
 
-	<xs:complexType name="Environment">
+	<xs:complexType name="Collection" abstract="true">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>
+				Abstract schema used to classify collections of
+				configuration items (CIs), such as end-points, roles,
+				organizations, subnets, systems, and users.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="logical:Collection" />
+			<xs:extension base="commons:Element" />
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Environment" type="Environment"></xs:element>
+	<xs:element name="Collection" type="Collection">
+	</xs:element>
 </xs:schema>

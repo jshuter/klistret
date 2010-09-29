@@ -18,7 +18,7 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="../commons.xsd" />
+		schemaLocation="../commons.cmdb.xsd" />
 
 	<xs:complexType name="Association" abstract="true">
 		<xs:annotation>

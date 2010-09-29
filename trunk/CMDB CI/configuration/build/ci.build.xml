@@ -53,8 +53,8 @@
 			<arg value="${tmp-destdir}" />
 			<arg value="-b" />
 			<arg value="${config-basedir}/build/jaxb.binding.xml" />
-			<arg value="${schema-basedir}/pojo.xsd" />
-			<arg value="${schema-basedir}/commons.xsd" />
+			<arg value="${schema-basedir}/pojo.cmdb.xsd" />
+			<arg value="${schema-basedir}/commons.cmdb.xsd" />
 			<arg value="${schema-basedir}/xmlschemaNamespace.xsd" />
 			<arg value="${schema-basedir}/element" />
 			<arg value="${schema-basedir}/relation" />
@@ -79,7 +79,7 @@
 
 		<copy todir="${tmp-destdir}/xsd">
 			<fileset id="schema-fileset" dir="${schema-basedir}">
-				<include name="**/*.xsd" />
+				<include name="**/*cmdb.xsd" />
 			</fileset>
 		</copy>
 
