@@ -90,6 +90,10 @@
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
+	
+	<xs:simpleType name="BusinessCategory">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
 
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
