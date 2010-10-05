@@ -88,7 +88,7 @@ public class CIContextHelper {
 	}
 	
 	public Schema getSchemaGrammers() {
-		return CIContext.getCIContext().getSchemaGrammers();
+		return CIContext.getCIContext().getSchema();
 	}
 
 	/**
