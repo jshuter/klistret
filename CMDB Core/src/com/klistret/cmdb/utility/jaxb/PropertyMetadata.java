@@ -1,12 +1,17 @@
 package com.klistret.cmdb.utility.jaxb;
 
 public class PropertyMetadata {
+	public enum TypeCategory { Element , Attribute };
 
 	protected String namespace;
 
 	protected String localName;
 
-	protected Boolean elementType;
+	protected TypeCategory typeCategory;
+	
+	protected Boolean referencing;
+	
+	protected Boolean required;
 
 	public String getNamespace() {
 		return namespace;
@@ -16,7 +21,15 @@ public class PropertyMetadata {
 		return localName;
 	}
 
-	public Boolean isElementType() {
-		return elementType;
+	public TypeCategory getTypeCategory() {
+		return typeCategory;
+	}
+	
+	public Boolean isReferencing() {
+		return referencing;
+	}
+	
+	public Boolean isRequired() {
+		return required;
 	}
 }

@@ -354,13 +354,26 @@ public class CIContext {
 			elementMetadata.namespace = elementDeclaration.getNamespace();
 			elementMetadata.localName = elementDeclaration.getName();
 
-			elementMetadata.elementType = true;
+			elementMetadata.typeCategory = PropertyMetadata.TypeCategory.Element;
+
+			XSTypeDefinition xstd = elementDeclaration.getTypeDefinition();
+			if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+				elementMetadata.referencing = true;
+			}
+			if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				elementMetadata.referencing = false;
+			}
 
 			beanMetadata.properties.add(elementMetadata);
 			break;
 		case XSConstants.ATTRIBUTE_USE:
-			makePropertyMetadata(((XSAttributeUse) xsObject)
-					.getAttrDeclaration(), beanMetadata);
+			XSAttributeUse attributeUse = (XSAttributeUse) xsObject;
+
+			makePropertyMetadata((attributeUse).getAttrDeclaration(),
+					beanMetadata);
+
+			beanMetadata.properties.get(beanMetadata.properties.size() - 1).required = attributeUse
+					.getRequired();
 			break;
 		case XSConstants.ATTRIBUTE_DECLARATION:
 			XSAttributeDeclaration attributeDeclaration = ((XSAttributeDeclaration) xsObject);
@@ -369,7 +382,7 @@ public class CIContext {
 			attributeMetadata.localName = attributeDeclaration.getName();
 			attributeMetadata.namespace = attributeDeclaration.getNamespace();
 
-			attributeMetadata.elementType = false;
+			attributeMetadata.typeCategory = PropertyMetadata.TypeCategory.Attribute;
 
 			beanMetadata.properties.add(attributeMetadata);
 			break;
@@ -391,6 +404,7 @@ public class CIContext {
 	 */
 	private BeanMetadata makeBeanMetadata(Class<?> javaClass) {
 		BeanMetadata beanMetadata = new BeanMetadata();
+		beanMetadata.javaClass = javaClass;
 
 		beanMetadata.namespace = findBeanNamespace(javaClass);
 		beanMetadata.localName = findBeanLocalName(javaClass);
@@ -405,11 +419,11 @@ public class CIContext {
 									beanMetadata.namespace,
 									beanMetadata.localName));
 
-		/**
-		 * Construct property metadata (from attributes/elements), XmlType only
-		 * gives the property order for elements without regard to attributes
-		 */
 		if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+			beanMetadata.typeCategory = BeanMetadata.TypeCategory.Complex;
+			beanMetadata.abstraction = ((XSComplexTypeDefinition) xstd)
+					.getAbstract();
+
 			/**
 			 * Element are wrapped in a tree of XSParticle types (model group,
 			 * element declaration and wildcards) and the recursive code drills
@@ -427,6 +441,12 @@ public class CIContext {
 				makePropertyMetadata(attributes.item(index), beanMetadata);
 		}
 
+		if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+			beanMetadata.typeCategory = BeanMetadata.TypeCategory.Simple;
+		}
+
+		logger.debug("Created bean metadata for class [{}]",
+				beanMetadata.javaClass.getName());
 		return beanMetadata;
 	}
 
@@ -525,9 +545,9 @@ public class CIContext {
 		/**
 		 * Create metadata
 		 */
-		for (Class<?> javaClass : contextPath) {
-			makeBeanMetadata(javaClass);
-		}
+		metadata = new HashSet<BeanMetadata>();
+		for (Class<?> javaClass : contextPath)
+			metadata.add(makeBeanMetadata(javaClass));
 	}
 
 	/**

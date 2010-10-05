@@ -23,13 +23,25 @@ import java.util.List;
  */
 public class BeanMetadata {
 
+	public enum TypeCategory {
+		Complex, Simple
+	};
+
+	protected Class<?> javaClass;
+
 	protected String namespace;
 
 	protected String localName;
 
-	protected Boolean simpleType;
+	protected TypeCategory typeCategory;
+
+	protected Boolean abstraction;
 
 	protected List<PropertyMetadata> properties = new ArrayList<PropertyMetadata>();
+
+	public Class<?> getJavaClass() {
+		return javaClass;
+	}
 
 	public String getNamespace() {
 		return namespace;
@@ -39,11 +51,30 @@ public class BeanMetadata {
 		return localName;
 	}
 
-	public Boolean isSimpleType() {
-		return simpleType;
+	public TypeCategory getTypeCategory() {
+		return typeCategory;
+	}
+
+	public Boolean isAbstraction() {
+		return abstraction;
 	}
 
 	public List<PropertyMetadata> getProperties() {
 		return properties;
+	}
+
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+
+		if (this.javaClass == null)
+			return false;
+
+		if (!(other instanceof BeanMetadata))
+			return false;
+
+		final BeanMetadata that = (BeanMetadata) other;
+
+		return this.javaClass.equals(that.getJavaClass());
 	}
 }
