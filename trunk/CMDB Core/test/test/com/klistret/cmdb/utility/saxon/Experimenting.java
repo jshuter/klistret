@@ -32,13 +32,13 @@ import com.klistret.cmdb.ci.element.logical.collection.Environment;
 
 public class Experimenting {
 
-	com.klistret.cmdb.utility.jaxb.CIContextHelper helper;
+	com.klistret.cmdb.utility.jaxb.CIContext ciContext;
 
 	private Element element;
 
 	@Before
 	public void setUp() throws Exception {
-		helper = new com.klistret.cmdb.utility.jaxb.CIContextHelper();
+		ciContext = com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
 
 		ElementType elementType = new ElementType();
 		elementType.setId(new Long(1));
@@ -92,18 +92,20 @@ public class Experimenting {
 		staticContext.declareNamespace("pojo",
 				"http://www.klistret.com/cmdb/ci/pojo");
 		staticContext.declareNamespace("commons",
-		"http://www.klistret.com/cmdb/ci/commons");
+				"http://www.klistret.com/cmdb/ci/commons");
 
 		xeval.setStaticContext(staticContext);
 
 		try {
 			XPathExpression xpathExpression = xeval.createExpression(xpath);
 
-			JAXBSource source = new JAXBSource(helper.getJAXBContext(), element);
+			JAXBSource source = new JAXBSource(ciContext.getJAXBContext(),
+					element);
 			List<?> results = xpathExpression.evaluate(source);
 
 			if (results.size() == 1) {
-				ValueRepresentation valueR = (ValueRepresentation) results.get(0);
+				ValueRepresentation valueR = (ValueRepresentation) results
+						.get(0);
 
 				System.out.println(valueR.getStringValue());
 			}
@@ -115,7 +117,7 @@ public class Experimenting {
 		}
 	}
 
-	//@Test
+	// @Test
 	public void third() {
 		Processor processor = new Processor(false);
 
@@ -129,7 +131,8 @@ public class Experimenting {
 					.compile("/pojo:Element/pojo:type[name=\"a type\"]");
 			XPathSelector xselector = xexecutable.load();
 
-			JAXBSource source = new JAXBSource(helper.getJAXBContext(), element);
+			JAXBSource source = new JAXBSource(ciContext.getJAXBContext(),
+					element);
 
 			xselector.setContextItem(db.build(source));
 			XdmValue results = xselector.evaluate();
@@ -139,15 +142,15 @@ public class Experimenting {
 			e.printStackTrace();
 		} catch (JAXBException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 
-	//@Test
+	// @Test
 	public void unmarshaller() {
 		StringWriter stringWriter = new StringWriter();
 
 		try {
-			Marshaller m = helper.getJAXBContext().createMarshaller();
+			Marshaller m = ciContext.getJAXBContext().createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			m.marshal(element, stringWriter);
 

@@ -26,6 +26,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
 import javax.xml.transform.stream.StreamSource;
 
 import org.hibernate.Hibernate;
@@ -58,7 +60,6 @@ public class JAXBUserType implements UserType {
 	 * JAXB unmarshaller
 	 */
 	private Unmarshaller unmarshaller;
-
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(JAXBUserType.class);
@@ -148,8 +149,17 @@ public class JAXBUserType implements UserType {
 		if (unmarshaller == null) {
 
 			try {
-				JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
+				JAXBContext jaxbContext = CIContext.getCIContext()
+						.getJAXBContext();
 				unmarshaller = jaxbContext.createUnmarshaller();
+
+				unmarshaller.setSchema(CIContext.getCIContext().getSchema());
+				unmarshaller.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent event) {
+						logger.debug("Validation error: {}", event);
+						return false;
+					}
+				});
 			} catch (JAXBException e) {
 				logger.error("Unable to create JAXB ummarshaller: {}", e);
 				throw new InfrastructureException(String.format(
@@ -168,8 +178,17 @@ public class JAXBUserType implements UserType {
 		if (marshaller == null) {
 
 			try {
-				JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
+				JAXBContext jaxbContext = CIContext.getCIContext()
+						.getJAXBContext();
 				marshaller = jaxbContext.createMarshaller();
+
+				marshaller.setSchema(CIContext.getCIContext().getSchema());
+				marshaller.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent event) {
+						logger.debug("Validation error: {}", event);
+						return false;
+					}
+				});
 			} catch (JAXBException e) {
 				logger.error("Unable to create JAXB marshaller: {}", e);
 				throw new InfrastructureException(String.format(

@@ -18,7 +18,6 @@ import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.service.ElementService;
-import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -52,16 +51,12 @@ public class ElementIdentification {
 	@Autowired
 	protected ElementService elementService;
 
-	@Autowired
-	protected CIContextHelper ciContextHelper;
-
 	@Test
 	@Rollback(value = false)
 	public void identify() throws MalformedURLException {
 		com.klistret.cmdb.aspects.persistence.ElementIdentification aop = new com.klistret.cmdb.aspects.persistence.ElementIdentification();
 		com.klistret.cmdb.aspects.persistence.Identification identification = new com.klistret.cmdb.aspects.persistence.Identification();
 
-		identification.setCiContextHelper(ciContextHelper);
 		identification.setPersistenceRules(new URL("classpath:persistence.rules.xml"));
 
 		aop.setElementService(elementService);

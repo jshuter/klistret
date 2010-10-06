@@ -27,18 +27,18 @@ import org.junit.Test;
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.utility.jaxb.CIContextHelper;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 
 public class Identification {
 
-	private CIContextHelper ciContextHelper;
+	private CIContext ciContext;
 
 	private Element element;
 
 	@Before
 	public void setUp() throws Exception {
-		ciContextHelper = new CIContextHelper();
+		ciContext = CIContext.getCIContext();
 
 		/**
 		 * element
@@ -67,7 +67,6 @@ public class Identification {
 				"Environment");
 
 		com.klistret.cmdb.aspects.persistence.Identification identification = new com.klistret.cmdb.aspects.persistence.Identification();
-		identification.setCiContextHelper(ciContextHelper);
 		identification.setPersistenceRules(new URL("classpath:persistence.rules.xml"));
 
 		List<PathExpression[]> criteria = identification

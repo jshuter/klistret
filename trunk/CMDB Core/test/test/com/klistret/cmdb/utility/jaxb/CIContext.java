@@ -1,6 +1,7 @@
 package test.com.klistret.cmdb.utility.jaxb;
 
 import java.io.StringWriter;
+import java.util.Set;
 
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.ValidationEvent;
@@ -8,6 +9,8 @@ import javax.xml.bind.ValidationEventHandler;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.klistret.cmdb.utility.jaxb.BeanMetadata;
 
 public class CIContext {
 	com.klistret.cmdb.ci.pojo.Element element;
@@ -42,7 +45,7 @@ public class CIContext {
 		helper = com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
 	}
 
-	@Test
+	// @Test
 	public void marshallAndValidate() throws Exception {
 		Marshaller m = helper.getJAXBContext().createMarshaller();
 
@@ -59,5 +62,16 @@ public class CIContext {
 		sw.close();
 
 		System.out.println(sw.toString());
+	}
+
+	@Test
+	public void checkBeans() {
+		Set<BeanMetadata> beans = helper.getBeans();
+		for (BeanMetadata bean : beans) {
+			System.out.println(String.format(
+					"Bean [class: %s, namespace: %s, name: %s]", bean
+							.getJavaClass().getName(), bean.getNamespace(),
+					bean.getLocalName()));
+		}
 	}
 }
