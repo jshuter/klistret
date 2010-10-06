@@ -27,6 +27,10 @@ public class BeanMetadata {
 		Complex, Simple
 	};
 
+	public enum CMDBCategory {
+		Proxy, Element, Relation
+	};
+
 	protected Class<?> javaClass;
 
 	protected String namespace;
@@ -34,6 +38,12 @@ public class BeanMetadata {
 	protected String localName;
 
 	protected TypeCategory typeCategory;
+
+	protected CMDBCategory cmdbCategory;
+
+	protected String baseNamespace;
+
+	protected String baseLocalName;
 
 	protected Boolean abstraction;
 
@@ -55,26 +65,23 @@ public class BeanMetadata {
 		return typeCategory;
 	}
 
+	public CMDBCategory getCMDBCategory() {
+		return cmdbCategory;
+	}
+
+	public String getBaseNamespace() {
+		return baseNamespace;
+	}
+
+	public String getBaseLocalName() {
+		return baseLocalName;
+	}
+
 	public Boolean isAbstraction() {
 		return abstraction;
 	}
 
 	public List<PropertyMetadata> getProperties() {
 		return properties;
-	}
-
-	public boolean equals(Object other) {
-		if (this == other)
-			return true;
-
-		if (this.javaClass == null)
-			return false;
-
-		if (!(other instanceof BeanMetadata))
-			return false;
-
-		final BeanMetadata that = (BeanMetadata) other;
-
-		return this.javaClass.equals(that.getJavaClass());
 	}
 }

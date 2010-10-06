@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.pojo.XMLBean;
+import com.klistret.cmdb.utility.jaxb.BeanMetadata;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.jaxb.CIContextHelper;
 
 import com.klistret.cmdb.utility.saxon.Expr;
@@ -78,14 +80,14 @@ public class Identification {
 			+ "return $criterion";
 
 	/**
-	 * CI Context helper (CI hierarchy)
-	 */
-	private CIContextHelper ciContextHelper;
-
-	/**
 	 * Persitence rules document
 	 */
 	private PersistenceRules persistenceRules;
+	
+	/**
+	 * 
+	 */
+	private CIContext ciContext = CIContext.getCIContext();
 
 	/**
 	 * Internal JAXB context (persistence rules/criterion)
@@ -113,15 +115,6 @@ public class Identification {
 			throw new ApplicationException(
 					"Unable to create JAXBContext instance", e);
 		}
-	}
-
-	/**
-	 * CIContextHelper (necessary to locate CIs)
-	 * 
-	 * @param ciContextHelper
-	 */
-	public void setCiContextHelper(CIContextHelper ciContextHelper) {
-		this.ciContextHelper = ciContextHelper;
 	}
 
 	/**
@@ -155,8 +148,8 @@ public class Identification {
 	 */
 	public List<PathExpression[]> getCriteriaByQName(QName qname) {
 		if (!cache.containsKey(qname.getNamespaceURI(), qname.getLocalPart()))
-			cache.put(qname, getCriteriaByXMLBean(ciContextHelper
-					.getXMLBean(qname)));
+			cache.put(qname, getCriteriaByXMLBean(ciContext
+					.getBean(qname)));
 
 		return cache.get(qname);
 	}
@@ -167,13 +160,12 @@ public class Identification {
 	 * @param classname
 	 * @return List
 	 */
-	public List<PathExpression[]> getCriteriaByClassname(String classname) {
-		XMLBean xmlBean = ciContextHelper.getXMLBean(classname);
-		if (!cache.containsKey(xmlBean.getType().getNamespaceURI(), xmlBean
-				.getType().getLocalPart()))
-			cache.put(xmlBean.getType(), getCriteriaByXMLBean(xmlBean));
+	public List<PathExpression[]> getCriteriaByClassname(String className) {
+		BeanMetadata bean = ciContext.getBean(className);
+		if (!cache.containsKey(bean.getNamespace(), bean.getLocalName()))
+			cache.put(xmlBean.getType(), getCriteriaByXMLBean(bean));
 
-		return getCriteriaByXMLBean(ciContextHelper.getXMLBean(classname));
+		return getCriteriaByXMLBean(ciContext.getBean(className));
 	}
 
 	/**
@@ -188,7 +180,7 @@ public class Identification {
 
 		String fAncestors = String.format("\'%s\'", xmlBean.getClazz()
 				.getName());
-		for (XMLBean ancestor : ciContextHelper.getAncestors(xmlBean))
+		for (XMLBean ancestor : ciContext.getAncestors(xmlBean))
 			fAncestors = fAncestors.concat(String.format(",\'%s\'", ancestor
 					.getClazz().getName()));
 

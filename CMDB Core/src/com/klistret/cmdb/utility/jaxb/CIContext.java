@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchema;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -46,12 +47,14 @@ import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.SAXException;
 
+import com.klistret.cmdb.annotations.ci.Bean;
 import com.klistret.cmdb.annotations.ci.Element;
 import com.klistret.cmdb.annotations.ci.Relation;
 import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaLoader;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeDeclaration;
+import com.sun.org.apache.xerces.internal.xs.XSAttributeGroupDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
 import com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSConstants;
@@ -61,6 +64,7 @@ import com.sun.org.apache.xerces.internal.xs.XSModelGroup;
 import com.sun.org.apache.xerces.internal.xs.XSObject;
 import com.sun.org.apache.xerces.internal.xs.XSObjectList;
 import com.sun.org.apache.xerces.internal.xs.XSParticle;
+import com.sun.org.apache.xerces.internal.xs.XSSimpleTypeDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
 public class CIContext {
@@ -112,7 +116,7 @@ public class CIContext {
 	/**
 	 * 
 	 */
-	private Set<BeanMetadata> metadata;
+	private Set<BeanMetadata> beans;
 
 	/**
 	 * JABContext
@@ -328,6 +332,51 @@ public class CIContext {
 	}
 
 	/**
+	 * Is the class a CMDB element
+	 * 
+	 * @param javaClass
+	 * @return
+	 */
+	private boolean isElement(Class<?> javaClass) {
+		for (Class<?> other : elements)
+			if (other.getName().equals(javaClass.getName()))
+				return true;
+
+		return false;
+	}
+
+	/**
+	 * Is the class a CMDB relation
+	 * 
+	 * @param javaClass
+	 * @return
+	 */
+	private boolean isRelation(Class<?> javaClass) {
+		for (Class<?> other : relations)
+			if (other.getName().equals(javaClass.getName()))
+				return true;
+
+		return false;
+	}
+
+	/**
+	 * Is the class a CMDB proxy
+	 * 
+	 * @param javaClass
+	 * @return
+	 */
+	private boolean isProxy(Class<?> javaClass) {
+		for (Class<?> other : proxies)
+			if (other.getName().equals(javaClass.getName()))
+				return true;
+
+		return false;
+	}
+
+	/**
+	 * Based on the XSObject passed the different types of element/attribute
+	 * models are traversed to finally create a Java property and add it to the
+	 * passed bean definition.
 	 * 
 	 * @param xsObject
 	 * @param beanMetadata
@@ -337,35 +386,78 @@ public class CIContext {
 		short objectType = xsObject.getType();
 
 		switch (xsObject.getType()) {
+		/**
+		 * Schema particle is the entry-point for element definitions with a
+		 * schema term that is either a model group, element declaration or
+		 * wildcard.
+		 */
 		case XSConstants.PARTICLE:
 			makePropertyMetadata(((XSParticle) xsObject).getTerm(),
 					beanMetadata);
 			break;
+		/**
+		 * Model groups are element groupings like sequences or choice
+		 * constructs. With extensions multiple groups can co-exist.
+		 */
 		case XSConstants.MODEL_GROUP:
 			XSObjectList particles = ((XSModelGroup) xsObject).getParticles();
-			for (int index = 0; index < particles.getLength(); index++) {
-				makePropertyMetadata(particles.item(index), beanMetadata);
+			for (int pIndex = 0; pIndex < particles.getLength(); pIndex++) {
+				makePropertyMetadata(particles.item(pIndex), beanMetadata);
 			}
 			break;
+		/**
+		 * Singular element declaration which is either a simple or complex
+		 * type. The QName keys for identification within the context of the
+		 * bean and the type are the essentials.
+		 */
 		case XSConstants.ELEMENT_DECLARATION:
 			XSElementDeclaration elementDeclaration = ((XSElementDeclaration) xsObject);
 
+			// QName keys
 			PropertyMetadata elementMetadata = new PropertyMetadata();
 			elementMetadata.namespace = elementDeclaration.getNamespace();
 			elementMetadata.localName = elementDeclaration.getName();
 
-			elementMetadata.typeCategory = PropertyMetadata.TypeCategory.Element;
+			/**
+			 * Element type (simple/complex) as QName keys with simple elements
+			 * associated to their primitives (like strings/int so forth).
+			 */
+			XSTypeDefinition elementTypeDefinition = elementDeclaration
+					.getTypeDefinition();
+			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.ComplexElement;
+				elementMetadata.typeNamespace = elementTypeDefinition
+						.getNamespace();
+				elementMetadata.typeLocalName = elementTypeDefinition.getName();
+			}
+			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.SimpleElement;
 
-			XSTypeDefinition xstd = elementDeclaration.getTypeDefinition();
-			if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-				elementMetadata.referencing = true;
+				XSTypeDefinition primitiveElementTypeDefinition = ((XSSimpleTypeDefinition) elementTypeDefinition)
+						.getPrimitiveType();
+				elementMetadata.typeNamespace = primitiveElementTypeDefinition
+						.getNamespace();
+				elementMetadata.typeLocalName = primitiveElementTypeDefinition
+						.getName();
 			}
-			if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-				elementMetadata.referencing = false;
-			}
+
+			elementMetadata.nillable = elementDeclaration.getNillable();
 
 			beanMetadata.properties.add(elementMetadata);
 			break;
+		/**
+		 * Groups of attributes
+		 */
+		case XSConstants.ATTRIBUTE_GROUP:
+			XSObjectList attributes = ((XSAttributeGroupDefinition) xsObject)
+					.getAttributeUses();
+			for (int aIndex = 0; aIndex < attributes.getLength(); aIndex++) {
+				makePropertyMetadata(attributes.item(aIndex), beanMetadata);
+			}
+			break;
+		/**
+		 * Usage information surrounding an attribute
+		 */
 		case XSConstants.ATTRIBUTE_USE:
 			XSAttributeUse attributeUse = (XSAttributeUse) xsObject;
 
@@ -375,6 +467,10 @@ public class CIContext {
 			beanMetadata.properties.get(beanMetadata.properties.size() - 1).required = attributeUse
 					.getRequired();
 			break;
+		/**
+		 * Singular attibute declaration which is processed just like simple
+		 * elements.
+		 */
 		case XSConstants.ATTRIBUTE_DECLARATION:
 			XSAttributeDeclaration attributeDeclaration = ((XSAttributeDeclaration) xsObject);
 
@@ -384,8 +480,21 @@ public class CIContext {
 
 			attributeMetadata.typeCategory = PropertyMetadata.TypeCategory.Attribute;
 
+			XSSimpleTypeDefinition attributeTypeDefinition = attributeDeclaration
+					.getTypeDefinition();
+
+			XSTypeDefinition primativeAttributeTypeDefinition = attributeTypeDefinition
+					.getPrimitiveType();
+			attributeMetadata.namespace = primativeAttributeTypeDefinition
+					.getNamespace();
+			attributeMetadata.localName = primativeAttributeTypeDefinition
+					.getName();
+
 			beanMetadata.properties.add(attributeMetadata);
 			break;
+		/**
+		 * Wildcards are not handled at the moment
+		 */
 		case XSConstants.WILDCARD:
 			break;
 		default:
@@ -398,11 +507,12 @@ public class CIContext {
 	}
 
 	/**
+	 * Beans are any class generated from schema grammers
 	 * 
 	 * @param javaClass
 	 * @return
 	 */
-	private BeanMetadata makeBeanMetadata(Class<?> javaClass) {
+	private void makeBeanMetadata(Class<?> javaClass) {
 		BeanMetadata beanMetadata = new BeanMetadata();
 		beanMetadata.javaClass = javaClass;
 
@@ -419,6 +529,9 @@ public class CIContext {
 									beanMetadata.namespace,
 									beanMetadata.localName));
 
+		/**
+		 * Complex types
+		 */
 		if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 			beanMetadata.typeCategory = BeanMetadata.TypeCategory.Complex;
 			beanMetadata.abstraction = ((XSComplexTypeDefinition) xstd)
@@ -441,13 +554,37 @@ public class CIContext {
 				makePropertyMetadata(attributes.item(index), beanMetadata);
 		}
 
-		if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-			beanMetadata.typeCategory = BeanMetadata.TypeCategory.Simple;
-		}
+		/**
+		 * Simple types
+		 */
+		if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE)
+			throw new InfrastructureException(String.format(
+					"Bean [%s] can not be a simple element", javaClass
+							.getName()));
 
-		logger.debug("Created bean metadata for class [{}]",
-				beanMetadata.javaClass.getName());
-		return beanMetadata;
+		/**
+		 * CMDB category (Element, Proxy, Relation)
+		 */
+		if (isElement(javaClass))
+			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Element;
+		if (isRelation(javaClass))
+			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Relation;
+		if (isProxy(javaClass))
+			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Proxy;
+
+		/**
+		 * Base
+		 */
+		XSTypeDefinition baseTypeDefinition = xstd.getBaseType();
+		beanMetadata.baseLocalName = baseTypeDefinition.getName();
+		beanMetadata.baseNamespace = baseTypeDefinition.getNamespace();
+
+		logger
+				.debug(
+						"Created bean metadata [class: {}, local name: {}, namespace: {}]",
+						new Object[] { beanMetadata.javaClass.getName(),
+								beanMetadata.localName, beanMetadata.namespace });
+		beans.add(beanMetadata);
 	}
 
 	/**
@@ -543,11 +680,13 @@ public class CIContext {
 		}
 
 		/**
-		 * Create metadata
+		 * Create metadata for all generated classes
 		 */
-		metadata = new HashSet<BeanMetadata>();
-		for (Class<?> javaClass : contextPath)
-			metadata.add(makeBeanMetadata(javaClass));
+		Set<Class<?>> beanClasses = reflections
+				.getTypesAnnotatedWith(Bean.class);
+		beans = new HashSet<BeanMetadata>(beanClasses.size());
+		for (Class<?> javaClass : beanClasses)
+			makeBeanMetadata(javaClass);
 	}
 
 	/**
@@ -586,7 +725,34 @@ public class CIContext {
 	 * 
 	 * @return
 	 */
-	public Set<BeanMetadata> getBeanMetadata() {
-		return metadata;
+	public Set<BeanMetadata> getBeans() {
+		return beans;
+	}
+
+	/**
+	 * 
+	 * @param qname
+	 * @return
+	 */
+	public BeanMetadata getBean(QName qname) {
+		for (BeanMetadata bean : beans)
+			if (bean.getLocalName().equals(qname.getLocalPart())
+					&& bean.getNamespace().equals(qname.getNamespaceURI()))
+				return bean;
+
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public BeanMetadata getBean(String className) {
+		for (BeanMetadata bean : beans)
+			if (bean.getJavaClass().getName().equals(className))
+				return bean;
+
+		return null;
 	}
 }

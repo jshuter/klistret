@@ -23,7 +23,4 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd">
 
-	<!-- CI JAXB context -->
-	<bean id="ciContextHelper"
-		class="com.klistret.cmdb.utility.jaxb.CIContextHelper"/>
 </beans>

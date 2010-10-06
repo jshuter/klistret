@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.StringWriter;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
@@ -20,7 +18,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
@@ -43,14 +40,12 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 
-import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaLoader;
 import com.sun.org.apache.xerces.internal.xs.StringList;
 import com.sun.org.apache.xerces.internal.xs.XSLoader;
 import com.sun.org.apache.xerces.internal.xs.XSModel;
 
 import org.reflections.util.Utils;
-import org.springframework.beans.BeanUtils;
 
 public class Experimenting {
 
@@ -307,7 +302,7 @@ public class Experimenting {
 		}
 	}
 
-	// @Test
+	@Test
 	public void stringTest() {
 		String example = "xsd/commons.xsd";
 
@@ -315,46 +310,4 @@ public class Experimenting {
 				example.length()));
 	}
 
-	@Test
-	public void lookingATCIs() {
-		CIContext helper = CIContext.getCIContext();
-
-		Set<Class<?>> contextPath = helper.getContextPath();
-		for (Class<?> cmdbClass : contextPath) {
-			javax.xml.bind.annotation.XmlType xmlType = cmdbClass
-					.getAnnotation(javax.xml.bind.annotation.XmlType.class);
-			String[] properties = xmlType.propOrder();
-
-			for (String property : properties) {
-				System.out.print(String.format("Class [%s], property [%s]",
-						cmdbClass.getName(), property));
-
-				if (property == null || property.trim().equals("")) {
-					System.out.println();
-					continue;
-				}
-
-				java.beans.PropertyDescriptor propertyDescriptor = BeanUtils
-						.getPropertyDescriptor(cmdbClass, property);
-				System.out.println(String
-						.format(" primitive [%s]", BeanUtils
-								.isSimpleProperty(propertyDescriptor
-										.getPropertyType())));
-
-				try {
-					Field field = cmdbClass.getDeclaredField(property);
-					XmlElement xmlElement = field
-							.getAnnotation(XmlElement.class);
-
-					if (xmlElement != null)
-						System.out.println(String.format(
-								"\tis element [name: %s, namespace: %s",
-								xmlElement.name(), xmlElement.namespace()));
-				} catch (SecurityException e) {
-				} catch (NoSuchFieldException e) {
-					System.out.println("no such field");
-				}
-			}
-		}
-	}
 }
