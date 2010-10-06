@@ -11,7 +11,6 @@
  ** copy of the GNU General Public License along with Klistret. If not,
  ** see <http://www.gnu.org/licenses/>
  */
-
 package com.klistret.cmdb.utility.xjc;
 
 import java.util.Calendar;
