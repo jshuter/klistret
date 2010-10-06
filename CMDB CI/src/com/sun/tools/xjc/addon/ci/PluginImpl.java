@@ -1,3 +1,16 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
 package com.sun.tools.xjc.addon.ci;
 
 import java.util.ArrayList;
@@ -17,6 +30,10 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.klistret.cmdb.annotations.ci.Bean;
+import com.klistret.cmdb.annotations.ci.Element;
+import com.klistret.cmdb.annotations.ci.Proxy;
+import com.klistret.cmdb.annotations.ci.Relation;
 import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JDefinedClass;
@@ -30,7 +47,7 @@ import com.sun.tools.xjc.outline.Outline;
  * See
  * http://metro.1045641.n5.nabble.com/XJC-Plugin-Custom-plugin-causes-ClassCastException-td1061066.html
  * 
- * @author 40042466
+ * @author Matthew Young
  * 
  */
 public class PluginImpl extends Plugin {
@@ -38,12 +55,24 @@ public class PluginImpl extends Plugin {
 	private static final Logger logger = LoggerFactory
 			.getLogger(PluginImpl.class);
 
+	/**
+	 * Namespace URI to JSON mappings
+	 */
 	private Map<String, String> namespaceJSONMapping = new HashMap<String, String>();
 
+	/**
+	 * Only one root element
+	 */
 	private ClassOutline element;
 
+	/**
+	 * Only one root relation
+	 */
 	private ClassOutline relation;
 
+	/**
+	 * Proxies for element/relation extensions
+	 */
 	private List<ClassOutline> proxies = new ArrayList<ClassOutline>();
 
 	@Override
@@ -51,15 +80,28 @@ public class PluginImpl extends Plugin {
 		return "Xci";
 	}
 
+	/**
+	 * Necessary method to be an extension binding prefix
+	 */
 	public List<String> getCustomizationURIs() {
 		return Collections.singletonList(Const.NS);
 	}
 
+	/**
+	 * Identifies appInfo annotations specific to this plugin.
+	 */
 	public boolean isCustomizationTagName(String nsUri, String localName) {
 		return nsUri.equals(Const.NS)
 				&& localName.matches("Proxy|Element|Relation");
 	}
 
+	/**
+	 * Determine if a class extends a base class
+	 * 
+	 * @param other
+	 * @param base
+	 * @return
+	 */
 	private boolean isAssignable(JDefinedClass other, JDefinedClass base) {
 		if (base.isAssignableFrom(other))
 			return true;
@@ -71,6 +113,13 @@ public class PluginImpl extends Plugin {
 		return false;
 	}
 
+	/**
+	 * Determine if the class is concrete and extends a element/relation/proxy
+	 * 
+	 * @param other
+	 * @param base
+	 * @return
+	 */
 	private boolean isXmlRootElementCandidate(JDefinedClass other,
 			JDefinedClass base) {
 		if (isAssignable(other, base) && !other.isAbstract())
@@ -92,9 +141,8 @@ public class PluginImpl extends Plugin {
 		 * Identify schemas
 		 */
 		InputSource[] grammers = opt.getGrammars();
-		for (InputSource grammer : grammers) {
+		for (InputSource grammer : grammers)
 			logger.debug("Grammer (schema) {}", grammer.getSystemId());
-		}
 
 		/**
 		 * First pass to associate namespaces with packages for JSON mappings
@@ -132,8 +180,7 @@ public class PluginImpl extends Plugin {
 
 				logger.debug("Annotating class [{}] with Proxy", co.target
 						.getName());
-				co.implClass
-						.annotate(com.klistret.cmdb.annotations.ci.Proxy.class);
+				co.implClass.annotate(Proxy.class);
 
 				proxies.add(co);
 				ciProxy.markAsAcknowledged();
@@ -174,8 +221,7 @@ public class PluginImpl extends Plugin {
 
 				logger.debug("Annotating class [{}] with Element", co.implClass
 						.name());
-				co.implClass
-						.annotate(com.klistret.cmdb.annotations.ci.Element.class);
+				co.implClass.annotate(Element.class);
 
 				element = co;
 				ciElement.markAsAcknowledged();
@@ -216,8 +262,7 @@ public class PluginImpl extends Plugin {
 
 				logger.debug("Annotating class [{}] with Relation",
 						co.implClass.name());
-				co.implClass
-						.annotate(com.klistret.cmdb.annotations.ci.Relation.class);
+				co.implClass.annotate(Relation.class);
 
 				relation = co;
 				ciRelation.markAsAcknowledged();
@@ -238,7 +283,8 @@ public class PluginImpl extends Plugin {
 		}
 
 		/**
-		 * Add JSON XmlNSMap annotations (necessary for Jettison/Jackson)
+		 * Add JSON XmlNSMap annotations (necessary for Jettison/Jackson) to the
+		 * proxy classes
 		 */
 		for (ClassOutline co : proxies) {
 			/**
@@ -279,6 +325,8 @@ public class PluginImpl extends Plugin {
 
 		/**
 		 * Add XmlRootElement annotations to concrete element/relation classes
+		 * then for every bean add the Bean annotation to denote classes as
+		 * generated for CMDB usage.
 		 */
 		for (ClassOutline co : model.getClasses()) {
 			if ((isXmlRootElementCandidate(co.implClass, element.implClass) || isXmlRootElementCandidate(
@@ -287,6 +335,8 @@ public class PluginImpl extends Plugin {
 						.annotate(XmlRootElement.class);
 				xmlRootElement.param("name", co.implClass.name());
 			}
+
+			co.implClass.annotate(Bean.class);
 		}
 
 		return true;
