@@ -70,8 +70,8 @@ public class CIContext {
 		for (BeanMetadata bean : beans) {
 			System.out.println(String.format(
 					"Bean [class: %s, namespace: %s, name: %s]", bean
-							.getJavaClass().getName(), bean.getNamespace(),
-					bean.getLocalName()));
+							.getJavaClass().getName(), bean.getType()
+							.getNamespaceURI(), bean.getType().getLocalPart()));
 		}
 	}
 }

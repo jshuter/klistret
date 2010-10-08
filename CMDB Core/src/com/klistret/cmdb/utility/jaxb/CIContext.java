@@ -415,8 +415,8 @@ public class CIContext {
 
 			// QName keys
 			PropertyMetadata elementMetadata = new PropertyMetadata();
-			elementMetadata.namespace = elementDeclaration.getNamespace();
-			elementMetadata.localName = elementDeclaration.getName();
+			elementMetadata.name = new QName(elementDeclaration.getNamespace(),
+					elementDeclaration.getName());
 
 			/**
 			 * Element type (simple/complex) as QName keys with simple elements
@@ -426,19 +426,19 @@ public class CIContext {
 					.getTypeDefinition();
 			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
 				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.ComplexElement;
-				elementMetadata.typeNamespace = elementTypeDefinition
-						.getNamespace();
-				elementMetadata.typeLocalName = elementTypeDefinition.getName();
+
+				elementMetadata.type = new QName(elementTypeDefinition
+						.getNamespace(), elementTypeDefinition.getName());
 			}
 			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
 				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.SimpleElement;
 
 				XSTypeDefinition primitiveElementTypeDefinition = ((XSSimpleTypeDefinition) elementTypeDefinition)
 						.getPrimitiveType();
-				elementMetadata.typeNamespace = primitiveElementTypeDefinition
-						.getNamespace();
-				elementMetadata.typeLocalName = primitiveElementTypeDefinition
-						.getName();
+
+				elementMetadata.type = new QName(primitiveElementTypeDefinition
+						.getNamespace(), primitiveElementTypeDefinition
+						.getName());
 			}
 
 			elementMetadata.nillable = elementDeclaration.getNillable();
@@ -475,8 +475,8 @@ public class CIContext {
 			XSAttributeDeclaration attributeDeclaration = ((XSAttributeDeclaration) xsObject);
 
 			PropertyMetadata attributeMetadata = new PropertyMetadata();
-			attributeMetadata.localName = attributeDeclaration.getName();
-			attributeMetadata.namespace = attributeDeclaration.getNamespace();
+			attributeMetadata.name = new QName(attributeDeclaration
+					.getNamespace(), attributeDeclaration.getName());
 
 			attributeMetadata.typeCategory = PropertyMetadata.TypeCategory.Attribute;
 
@@ -485,10 +485,8 @@ public class CIContext {
 
 			XSTypeDefinition primativeAttributeTypeDefinition = attributeTypeDefinition
 					.getPrimitiveType();
-			attributeMetadata.namespace = primativeAttributeTypeDefinition
-					.getNamespace();
-			attributeMetadata.localName = primativeAttributeTypeDefinition
-					.getName();
+			attributeMetadata.type = new QName(primativeAttributeTypeDefinition
+					.getNamespace(), primativeAttributeTypeDefinition.getName());
 
 			beanMetadata.properties.add(attributeMetadata);
 			break;
@@ -516,18 +514,18 @@ public class CIContext {
 		BeanMetadata beanMetadata = new BeanMetadata();
 		beanMetadata.javaClass = javaClass;
 
-		beanMetadata.namespace = findBeanNamespace(javaClass);
-		beanMetadata.localName = findBeanLocalName(javaClass);
+		String typeNamespace = findBeanNamespace(javaClass);
+		String typeLocalName = findBeanLocalName(javaClass);
+		beanMetadata.type = new QName(typeNamespace, typeLocalName);
 
-		XSTypeDefinition xstd = getXSTypeDefinition(beanMetadata.localName,
-				beanMetadata.namespace);
+		XSTypeDefinition xstd = getXSTypeDefinition(typeLocalName,
+				typeNamespace);
 		if (xstd == null)
 			throw new InfrastructureException(
 					String
 							.format(
 									"Schema type definition not found by namespace [%s] and local name [%s]",
-									beanMetadata.namespace,
-									beanMetadata.localName));
+									typeNamespace, typeLocalName));
 
 		/**
 		 * Complex types
@@ -576,14 +574,15 @@ public class CIContext {
 		 * Base
 		 */
 		XSTypeDefinition baseTypeDefinition = xstd.getBaseType();
-		beanMetadata.baseLocalName = baseTypeDefinition.getName();
-		beanMetadata.baseNamespace = baseTypeDefinition.getNamespace();
+		String baseNamespace = baseTypeDefinition.getNamespace();
+		String baseLocalName = baseTypeDefinition.getName();
+		beanMetadata.base = new QName(baseNamespace, baseLocalName);
 
 		logger
 				.debug(
 						"Created bean metadata [class: {}, local name: {}, namespace: {}]",
-						new Object[] { beanMetadata.javaClass.getName(),
-								beanMetadata.localName, beanMetadata.namespace });
+						new Object[] { javaClass.getName(), typeLocalName,
+								typeNamespace });
 		beans.add(beanMetadata);
 	}
 
@@ -734,10 +733,9 @@ public class CIContext {
 	 * @param qname
 	 * @return
 	 */
-	public BeanMetadata getBean(QName qname) {
+	public BeanMetadata getBean(QName type) {
 		for (BeanMetadata bean : beans)
-			if (bean.getLocalName().equals(qname.getLocalPart())
-					&& bean.getNamespace().equals(qname.getNamespaceURI()))
+			if (bean.type.equals(type))
 				return bean;
 
 		return null;

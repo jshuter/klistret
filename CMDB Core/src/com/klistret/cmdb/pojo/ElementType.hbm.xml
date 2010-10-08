@@ -18,7 +18,7 @@
 
 <hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
-	<class name="ElementType" table="ELEMENTTYPE" entity-name="ElementType">
+	<class name="ElementType" table="ELEMENTTYPE">
 
 		<id name="id" type="long">
 			<column name="ELEMENTTYPEID" sql-type="INTEGER" />

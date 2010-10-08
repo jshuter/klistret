@@ -47,16 +47,15 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.getById(new Long(81));
-		System.out
-				.println(element.getName());
+		System.out.println(element.getName());
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
 				.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
@@ -81,16 +80,16 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
+		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
 
 		QueryRequest queryRequest = new QueryRequest();
 		queryRequest.setExpressions(Arrays.asList(expressions));
 		queryRequest.setStart(0);
 		queryRequest.setLimit(100);
 
-		QueryResponse response = elementService
-				.findByExpressions(queryRequest);
+		QueryResponse response = elementService.findByExpressions(queryRequest);
 		for (Element element : response.getElements())
-			System.out.println(element.getName());
+			System.out.println(String.format("Element id: %s, name: %s",
+					element.getId(), element.getName()));
 	}
 }

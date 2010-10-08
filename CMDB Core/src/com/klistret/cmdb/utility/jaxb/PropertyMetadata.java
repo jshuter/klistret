@@ -1,13 +1,13 @@
 package com.klistret.cmdb.utility.jaxb;
 
+import javax.xml.namespace.QName;
+
 public class PropertyMetadata {
 	public enum TypeCategory {
 		SimpleElement, ComplexElement, Attribute
 	};
 
-	protected String namespace;
-
-	protected String localName;
+	protected QName name;
 
 	protected TypeCategory typeCategory;
 
@@ -15,16 +15,10 @@ public class PropertyMetadata {
 
 	protected Boolean nillable;
 
-	protected String typeNamespace;
+	protected QName type;
 
-	protected String typeLocalName;
-
-	public String getNamespace() {
-		return namespace;
-	}
-
-	public String getLocalName() {
-		return localName;
+	public QName getName() {
+		return name;
 	}
 
 	public TypeCategory getTypeCategory() {
@@ -39,11 +33,7 @@ public class PropertyMetadata {
 		return nillable;
 	}
 
-	public String getTypeNamespace() {
-		return typeNamespace;
-	}
-
-	public String getTypeLocalName() {
-		return typeLocalName;
+	public QName getType() {
+		return type;
 	}
 }
