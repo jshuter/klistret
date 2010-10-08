@@ -16,6 +16,8 @@ package com.klistret.cmdb.utility.jaxb;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.namespace.QName;
+
 /**
  * 
  * @author Matthew Young
@@ -33,17 +35,13 @@ public class BeanMetadata {
 
 	protected Class<?> javaClass;
 
-	protected String namespace;
-
-	protected String localName;
+	protected QName type;
 
 	protected TypeCategory typeCategory;
 
 	protected CMDBCategory cmdbCategory;
 
-	protected String baseNamespace;
-
-	protected String baseLocalName;
+	protected QName base;
 
 	protected Boolean abstraction;
 
@@ -53,12 +51,8 @@ public class BeanMetadata {
 		return javaClass;
 	}
 
-	public String getNamespace() {
-		return namespace;
-	}
-
-	public String getLocalName() {
-		return localName;
+	public QName getType() {
+		return type;
 	}
 
 	public TypeCategory getTypeCategory() {
@@ -69,12 +63,8 @@ public class BeanMetadata {
 		return cmdbCategory;
 	}
 
-	public String getBaseNamespace() {
-		return baseNamespace;
-	}
-
-	public String getBaseLocalName() {
-		return baseLocalName;
+	public QName getBase() {
+		return base;
 	}
 
 	public Boolean isAbstraction() {
@@ -83,5 +73,42 @@ public class BeanMetadata {
 
 	public List<PropertyMetadata> getProperties() {
 		return properties;
+	}
+
+	public boolean hasPropertyByName(QName name) {
+		for (PropertyMetadata property : properties)
+			if (property.name.equals(name))
+				return true;
+
+		return false;
+	}
+
+	public boolean hasPropertyByType(QName type) {
+		for (PropertyMetadata property : properties)
+			if (property.type.equals(type))
+				return true;
+
+		return false;
+	}
+
+	public boolean equals(Object other) {
+		if (this == other)
+			return true;
+
+		if (this.javaClass == null)
+			return false;
+
+		if (!(other instanceof BeanMetadata))
+			return false;
+
+		final BeanMetadata that = (BeanMetadata) other;
+
+		return this.javaClass.getName().equals(that.javaClass.getName());
+	}
+
+	public String toString() {
+		return String.format("class: %s, localName: %s, namespace: %s",
+				javaClass.getName(), type.getLocalPart(), type
+						.getNamespaceURI());
 	}
 }

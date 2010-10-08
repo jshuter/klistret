@@ -18,14 +18,14 @@
 
 <hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
-	<class name="Element" table="ELEMENT" entity-name="Element">
+	<class name="Element" table="ELEMENT">
 
 		<id name="id" type="long">
 			<column name="ELEMENTID" sql-type="INTEGER" />
 			<generator class="identity"></generator>
 		</id>
 
-		<many-to-one name="type" entity-name="ElementType" lazy="false"
+		<many-to-one name="type" class="com.klistret.cmdb.ci.pojo.ElementType" lazy="false"
 			foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
 			<column name="ELEMENTTYPEID" sql-type="INTEGER"
 				not-null="true" />
@@ -68,7 +68,7 @@
 			cascade="save-update" where="TOTIMESTAMP is null">
 			<key column="SOURCEID" on-delete="noaction" not-null="true" />
 			<index column="RELATIONID" />
-			<one-to-many entity-name="Relation" />
+			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
 		</list>
 
 		<list name="destinationRelations" lazy="true" inverse="true"
@@ -76,7 +76,7 @@
 			<key column="DESTINATIONID" on-delete="noaction"
 				not-null="true" />
 			<index column="RELATIONID" />
-			<one-to-many entity-name="Relation" />
+			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
 		</list>
 	</class>
 
