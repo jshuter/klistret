@@ -212,25 +212,6 @@ public class XPathCriteria {
 					.getClassMetadata(pBean.getJavaClass());
 
 			/**
-			 * Does step have corresponding bean Metadata?
-			 */
-			BeanMetadata sBean = ciContext.getBean(step.getQName());
-			if (sBean == null) {
-				logger.error("Step [{}] has no corresponding bean metadata",
-						step);
-			}
-
-			/**
-			 * Step as a bean must be a defined property to the parent bean
-			 */
-			if (!pBean.hasPropertyByName(step.getQName())) {
-				logger
-						.error(
-								"Step [{}] is not defined as a property to the parent bean metadata [{}]",
-								step, pBean);
-			}
-
-			/**
 			 * Step must be a defined property ot the parent Hibernate entity
 			 */
 			Type propertyType = pHClassMetadata.getPropertyType(step.getQName()
@@ -240,6 +221,11 @@ public class XPathCriteria {
 						.error(
 								"Step [{}] is not defined as a property to the parent Hibernate entity [{}]",
 								step, pHClassMetadata.getEntityName());
+				throw new ApplicationException(
+						String
+								.format(
+										"Step [%s] is not defined as a property to the parent Hibernate entity [%s]",
+										step, pHClassMetadata.getEntityName()));
 			}
 
 			/**
@@ -248,6 +234,19 @@ public class XPathCriteria {
 			 * deemed as a XML column
 			 */
 			if (propertyType.isEntityType()) {
+				/**
+				 * Does step have corresponding bean Metadata?
+				 */
+				BeanMetadata sBean = ciContext.getBean(step.getQName());
+				if (sBean == null) {
+					logger.error(
+							"Step [{}] has no corresponding bean metadata",
+							step);
+					throw new ApplicationException(String.format(
+							"Step [%s] has no corresponding bean metadata",
+							step));
+				}
+
 				Criteria nextCriteria = criteria.createCriteria(propertyType
 						.getName());
 
@@ -258,11 +257,11 @@ public class XPathCriteria {
 
 				if (step.getNext() != null)
 					translateStep(nextCriteria, step.getNext());
-			} else {
-				logger
-						.debug(
-								"Property [{}] is a non-entity and deemed XML column candidate by default",
-								propertyType.getName());
+			}
+
+			if (propertyType.getName().equals(JAXBUserType.class.getName())) {
+				logger.debug("Property [{}] is a JAXBUserType type", step
+						.getQName().getLocalPart());
 
 				criteria.add(new XPathRestriction(step.getQName()
 						.getLocalPart(), step));

@@ -16,6 +16,14 @@ public class PropertyMetadata {
 	protected Boolean nillable;
 
 	protected QName type;
+	
+	protected Integer maxOccurs;
+	
+	protected Integer minOccurs;
+	
+	protected Boolean maxOccursUnbounded;
+	
+	protected String annotation;
 
 	public QName getName() {
 		return name;
@@ -35,5 +43,9 @@ public class PropertyMetadata {
 
 	public QName getType() {
 		return type;
+	}
+	
+	public String getAnnotation() {
+		return annotation;
 	}
 }
