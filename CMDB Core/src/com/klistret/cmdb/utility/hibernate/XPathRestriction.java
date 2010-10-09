@@ -132,37 +132,23 @@ public class XPathRestriction implements Criterion {
 					"XMLEXISTS may only be used with single-column properties");
 		}
 
+		/**
+		 * A variable reference from SQL into XQuery is necessary
+		 */
 		String xpath = String.format("$%s", variableReference);
 
 		/**
-		 * Relative path ('//') if no mapping information is present and
-		 * consideration is taken to whether or not remaining XPaths exists or
-		 * not
+		 * Property type is generalized to a "*" and the user is left to add
+		 * type attributes to the predicate
 		 */
-		String key = String.format("%s:%s", step.getQName().getPrefix(), step
+		String axis = String.format("%s:%s", step.getQName().getPrefix(), step
 				.getQName().getLocalPart());
-		String value = step.getPathExpression().getTypeMappings().get(key);
-
-		if (value == null) {
-			if (step.getRemainingXPath() != null)
-				xpath = String
-						.format("%s//%s", xpath, step.getRemainingXPath());
-			else
-				throw new ApplicationException(
-						String
-								.format(
-										"Without type mapping for property [%s] and remaining xpath steps a blank relative path '//' only isn't valid",
-										key));
-		}
-
-		if (value != null) {
-			if (step.getRemainingXPath() != null)
-				xpath = String.format("%s/%s/%s", xpath, step.getXPath()
-						.replaceFirst(key, value), step.getRemainingXPath());
-			else
-				xpath = String.format("%s/%s", xpath, step.getXPath()
-						.replaceFirst(key, value));
-		}
+		if (step.getRemainingXPath() != null)
+			xpath = String.format("%s/%s/%s", xpath, step.getXPath()
+					.replaceFirst(axis, "*"), step.getRemainingXPath());
+		else
+			xpath = String.format("%s/%s", xpath, step.getXPath().replaceFirst(
+					axis, "*"));
 
 		logger
 				.debug(

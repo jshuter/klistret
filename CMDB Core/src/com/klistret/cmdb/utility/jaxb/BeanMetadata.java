@@ -45,6 +45,8 @@ public class BeanMetadata {
 
 	protected Boolean abstraction;
 
+	protected List<String> annotations = new ArrayList<String>();
+
 	protected List<PropertyMetadata> properties = new ArrayList<PropertyMetadata>();
 
 	public Class<?> getJavaClass() {
@@ -69,6 +71,10 @@ public class BeanMetadata {
 
 	public Boolean isAbstraction() {
 		return abstraction;
+	}
+
+	public List<String> getAnnotations() {
+		return annotations;
 	}
 
 	public List<PropertyMetadata> getProperties() {

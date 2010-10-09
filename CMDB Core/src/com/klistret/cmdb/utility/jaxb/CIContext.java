@@ -53,6 +53,7 @@ import com.klistret.cmdb.annotations.ci.Relation;
 import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaLoader;
+import com.sun.org.apache.xerces.internal.xs.XSAnnotation;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeDeclaration;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeGroupDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
@@ -397,12 +398,23 @@ public class CIContext {
 			break;
 		/**
 		 * Model groups are element groupings like sequences or choice
-		 * constructs. With extensions multiple groups can co-exist.
+		 * constructs. The grouping is a list of particles where the min/max
+		 * constraints are located. What is left here to-do is capture
+		 * sequence/choice groupings.
 		 */
 		case XSConstants.MODEL_GROUP:
 			XSObjectList particles = ((XSModelGroup) xsObject).getParticles();
 			for (int pIndex = 0; pIndex < particles.getLength(); pIndex++) {
-				makePropertyMetadata(particles.item(pIndex), beanMetadata);
+				XSParticle elementParticle = (XSParticle) particles
+						.item(pIndex);
+				makePropertyMetadata(elementParticle, beanMetadata);
+
+				PropertyMetadata last = beanMetadata.properties
+						.get(beanMetadata.properties.size() - 1);
+				last.maxOccurs = elementParticle.getMaxOccurs();
+				last.minOccurs = elementParticle.getMinOccurs();
+				last.maxOccursUnbounded = elementParticle
+						.getMaxOccursUnbounded();
 			}
 			break;
 		/**
@@ -443,6 +455,9 @@ public class CIContext {
 
 			elementMetadata.nillable = elementDeclaration.getNillable();
 
+			elementMetadata.annotation = elementDeclaration.getAnnotation() == null ? null
+					: elementDeclaration.getAnnotation().getAnnotationString();
+
 			beanMetadata.properties.add(elementMetadata);
 			break;
 		/**
@@ -464,8 +479,10 @@ public class CIContext {
 			makePropertyMetadata((attributeUse).getAttrDeclaration(),
 					beanMetadata);
 
-			beanMetadata.properties.get(beanMetadata.properties.size() - 1).required = attributeUse
-					.getRequired();
+			PropertyMetadata last = beanMetadata.properties
+					.get(beanMetadata.properties.size() - 1);
+			last.required = attributeUse.getRequired();
+
 			break;
 		/**
 		 * Singular attibute declaration which is processed just like simple
@@ -487,6 +504,10 @@ public class CIContext {
 					.getPrimitiveType();
 			attributeMetadata.type = new QName(primativeAttributeTypeDefinition
 					.getNamespace(), primativeAttributeTypeDefinition.getName());
+
+			attributeMetadata.annotation = attributeDeclaration.getAnnotation() == null ? null
+					: attributeDeclaration.getAnnotation()
+							.getAnnotationString();
 
 			beanMetadata.properties.add(attributeMetadata);
 			break;
@@ -548,8 +569,24 @@ public class CIContext {
 			 */
 			XSObjectList attributes = ((XSComplexTypeDefinition) xstd)
 					.getAttributeUses();
-			for (int index = 0; index < attributes.getLength(); index++)
-				makePropertyMetadata(attributes.item(index), beanMetadata);
+			for (int attributesIndex = 0; attributesIndex < attributes
+					.getLength(); attributesIndex++)
+				makePropertyMetadata(attributes.item(attributesIndex),
+						beanMetadata);
+
+			/**
+			 * Annotations
+			 */
+			XSObjectList annotations = ((XSComplexTypeDefinition) xstd)
+					.getAnnotations();
+			for (int annotationsIndex = 0; annotationsIndex < annotations
+					.getLength(); annotationsIndex++) {
+				XSAnnotation annotation = (XSAnnotation) annotations
+						.item(annotationsIndex);
+
+				beanMetadata.annotations.add(annotation.getAnnotationString());
+			}
+
 		}
 
 		/**
