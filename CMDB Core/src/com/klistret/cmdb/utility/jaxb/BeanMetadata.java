@@ -81,6 +81,22 @@ public class BeanMetadata {
 		return properties;
 	}
 
+	public PropertyMetadata getPropertyByName(QName name) {
+		for (PropertyMetadata property : properties)
+			if (property.name.equals(name))
+				return property;
+
+		return null;
+	}
+
+	public PropertyMetadata getPropertyByType(QName type) {
+		for (PropertyMetadata property : properties)
+			if (property.type.equals(type))
+				return property;
+
+		return null;
+	}
+
 	public boolean hasPropertyByName(QName name) {
 		for (PropertyMetadata property : properties)
 			if (property.name.equals(name))

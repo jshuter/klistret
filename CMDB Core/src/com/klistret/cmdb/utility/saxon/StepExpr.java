@@ -14,6 +14,9 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
@@ -36,13 +39,7 @@ public class StepExpr extends Step {
 	private static final Logger logger = LoggerFactory
 			.getLogger(StepExpr.class);
 
-	/**
-	 * Steps should declare a predicate list rather than a single predicate
-	 * however the implementation would be treated as an AND operator thereby
-	 * making it easier to ask end-users to distill multiple predicates into a
-	 * single.
-	 */
-	private Expr predicate;
+	private List<Expr> predicates = new ArrayList<Expr>();
 
 	/**
 	 * Underlying Axis expression
@@ -77,6 +74,15 @@ public class StepExpr extends Step {
 		 * predicate.
 		 */
 		Expression controlling = expression.getControllingExpression();
+		while (controlling.getClass().getName().equals(
+				FilterExpression.class.getName())) {
+			predicates.add(0, explainPredicate(((FilterExpression) controlling)
+					.getFilter()));
+			
+			controlling = ((FilterExpression) controlling)
+					.getControllingExpression();
+		}
+
 		if (!controlling.getClass().getName().equals(
 				AxisExpression.class.getName())) {
 			logger
@@ -91,12 +97,7 @@ public class StepExpr extends Step {
 		}
 
 		setAxisExpression((AxisExpression) controlling);
-
-		/**
-		 * Establish predicates looking for Saxon boolean, general, and value
-		 * expressions
-		 */
-		predicate = explainPredicate(expression.getFilter());
+		predicates.add(0, explainPredicate(expression.getFilter()));
 	}
 
 	/**
@@ -118,13 +119,17 @@ public class StepExpr extends Step {
 		// Finger print = -1 if the node test matches nodes of more than one
 		// name
 		if (fingerprint == -1)
-			qname = null;
+			throw new IrresoluteException(String
+					.format("Axis expression [%s] has wildcard fingerprint",
+							expression));
 
 		String clarkName = configuration.getNamePool()
 				.getClarkName(fingerprint);
 
 		if (clarkName == null)
-			qname = null;
+			throw new IrresoluteException(String
+					.format("Axis expression [%s] has an unknown clarkname",
+							expression));
 
 		// URI, local name (suggested prefix is really saved internally)
 		String[] parsedClarkName = NamePool.parseClarkName(clarkName);
@@ -255,8 +260,8 @@ public class StepExpr extends Step {
 	 * 
 	 * @return Expr
 	 */
-	public Expr getPredicate() {
-		return predicate;
+	public List<Expr> getPredicates() {
+		return predicates;
 	}
 
 	/**
@@ -264,8 +269,8 @@ public class StepExpr extends Step {
 	 * 
 	 * @return boolean
 	 */
-	public boolean hasPredicate() {
-		if (predicate == null)
+	public boolean hasPredicates() {
+		if (predicates.size() == 0)
 			return false;
 
 		return true;
@@ -360,8 +365,9 @@ public class StepExpr extends Step {
 	public String toString() {
 		return String
 				.format(
-						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate [%s]",
+						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], number of predicates [%d]",
 						getType(), expression, getPrimaryNodeKind(),
-						getQName(), isForward(), isAbsolute(), predicate);
+						getQName(), isForward(), isAbsolute(), predicates
+								.size());
 	}
 }

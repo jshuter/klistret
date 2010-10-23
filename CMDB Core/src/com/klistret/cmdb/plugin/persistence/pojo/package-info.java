@@ -1,0 +1,2 @@
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.klistret.com/cmdb/plugin/persistence", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package com.klistret.cmdb.plugin.persistence.pojo;

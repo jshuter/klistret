@@ -89,7 +89,7 @@ public class PathExpression {
 	 * Project specific representation of relative paths [StepExpr (("/" | "//")
 	 * StepExpr)*]
 	 */
-	private List<Expr> relativePath;
+	private List<Expr> relativePath = new ArrayList<Expr>();
 
 	/**
 	 * Root expressions are optional to relative expressions
@@ -311,7 +311,6 @@ public class PathExpression {
 			 */
 			this.expression = ExpressionTool.make(xpath, staticContext,
 					prologOffset, -1, 1, true);
-			this.relativePath = new ArrayList<Expr>();
 
 			/**
 			 * Start recursive explains (modeled after Saxon explain methods)
@@ -445,6 +444,15 @@ public class PathExpression {
 	}
 
 	/**
+	 * Get prolog without XPath directive
+	 * 
+	 * @return Prolog
+	 */
+	public String getProlog() {
+		return this.xpath.substring(0, prologOffset);
+	}
+
+	/**
 	 * Get default element namespace
 	 * 
 	 * @return Default element namespace
@@ -511,13 +519,13 @@ public class PathExpression {
 	}
 
 	/**
-	 * Get a step by index within the relative path
+	 * Get a step by depth within the relative path
 	 * 
 	 * @param index
 	 * @return Expression
 	 */
-	public Expr getExpr(int index) {
-		return relativePath.get(index);
+	public Expr getExpr(int depth) {
+		return relativePath.get(depth);
 	}
 
 	/**
@@ -534,24 +542,39 @@ public class PathExpression {
 	 * Get QName for a particular step expression in the relative path (null for
 	 * root or irresolute)
 	 * 
-	 * @param index
+	 * @param depth
 	 * @return QName
 	 */
-	public QName getQName(int index) {
-		if (getExpr(index).getType() == Expr.Type.Step)
-			return ((StepExpr) getExpr(index)).getQName();
+	public QName getQName(int depth) {
+		if (getExpr(depth).getType() == Expr.Type.Step)
+			return ((StepExpr) getExpr(depth)).getQName();
 
 		return null;
 	}
 
 	/**
-	 * Get xpath for a particular expression
+	 * Get XPath for a particular expression
 	 * 
-	 * @param index
+	 * @param depth
 	 * @return XPath
 	 */
-	public String getXPath(int index) {
-		return xpathSplit[index];
+	public String getXPath(int depth) {
+		return xpathSplit[depth];
+	}
+
+	/**
+	 * Get a substring of XPath inclusive prolog to a particular depth
+	 * 
+	 * @param depth
+	 * @return
+	 */
+	public String substringXPath(int depth) {
+		int offset = prologOffset;
+		for (int index = 0; index <= depth; index++)
+			offset = offset + getXPath(index).length();
+
+		return this.xpath.substring(0, relativePath.get(depth).getType()
+				.equals(Expr.Type.Root) ? offset + depth + 1 : offset + depth);
 	}
 
 	/**

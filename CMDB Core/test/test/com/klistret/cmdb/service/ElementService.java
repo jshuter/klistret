@@ -58,7 +58,7 @@ public class ElementService extends
 	// @Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
-				.getByCompositeId("com.klistret.cmdb.ci.element.logical.collection.Environment");
+				.getByCompositeId("{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment");
 
 		Element element = new Element();
 		element.setId(new Long(81));
@@ -80,7 +80,7 @@ public class ElementService extends
 	@Test
 	@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = { "declare mapping pojo:configuration=col:Environment; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:configuration/commons:Name[. = \"Saturnus\"]" };
+		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment\"]" };
 
 		QueryRequest queryRequest = new QueryRequest();
 		queryRequest.setExpressions(Arrays.asList(expressions));
