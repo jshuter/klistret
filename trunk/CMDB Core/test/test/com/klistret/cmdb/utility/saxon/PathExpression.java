@@ -46,7 +46,7 @@ public class PathExpression {
 
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Valid namespace declarations
 	 */
@@ -68,7 +68,7 @@ public class PathExpression {
 		assertNotNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
@@ -90,7 +90,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Missing namespace declaration for prefix a
 	 */
@@ -111,7 +111,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Missing semicolon between prefix a and prefix b
 	 */
@@ -133,7 +133,7 @@ public class PathExpression {
 		assertNull(pathExpression);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that a root exists
 	 */
@@ -155,7 +155,7 @@ public class PathExpression {
 		assertTrue(pathExpression.hasRoot());
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that a root does not exist
 	 */
@@ -177,7 +177,7 @@ public class PathExpression {
 		assertFalse(pathExpression.hasRoot());
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that only step expressions are present and that mappings
 	 * declarations are accepted.
@@ -203,7 +203,7 @@ public class PathExpression {
 		}
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions
@@ -225,21 +225,25 @@ public class PathExpression {
 
 		assertEquals(IrresoluteExpr.class, pathExpression.getExpr(2).getClass());
 	}
-	
+
 	@Test
 	public void xsiType() {
 		String xpath = String
-		.format(
-				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
-				"/a:google/a:without[@xsi:type='b:another']/b:microsoft");
-		
+				.format(
+						"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\";   %s",
+						"/a:google/a:whatever[@Name=\"yes\"][@Type=\"no\"]/b:microsoft[.=\"block\"]");
+
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
-			
+
 			for (Expr expr : pathExpression.getRelativePath()) {
 				System.out.println(expr);
 			}
+
+			System.out.println(pathExpression.getExpr(3));
+
+			System.out.println(pathExpression.substringXPath(3));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {

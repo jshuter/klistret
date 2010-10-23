@@ -780,6 +780,21 @@ public class CIContext {
 
 	/**
 	 * 
+	 * @param namespaceURI
+	 * @param localPart
+	 * @return
+	 */
+	public BeanMetadata getBean(String namespaceURI, String localPart) {
+		for (BeanMetadata bean : beans)
+			if (bean.type.getLocalPart().equals(localPart)
+					&& bean.type.getNamespaceURI().equals(namespaceURI))
+				return bean;
+
+		return null;
+	}
+
+	/**
+	 * 
 	 * @param className
 	 * @return
 	 */
@@ -789,5 +804,18 @@ public class CIContext {
 				return bean;
 
 		return null;
+	}
+
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public boolean isBean(QName type) {
+		for (BeanMetadata bean : beans)
+			if (bean.type.equals(type))
+				return true;
+
+		return false;
 	}
 }

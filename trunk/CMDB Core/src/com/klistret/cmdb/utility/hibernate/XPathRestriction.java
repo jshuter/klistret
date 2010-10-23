@@ -173,11 +173,6 @@ public class XPathRestriction implements Criterion {
 		 * funtion namespace
 		 */
 		if (dialect instanceof DB2Dialect) {
-			xpath = String.format("declare default function namespace \"%s\";",
-					DB2DefaultFunctionNamespace).concat(xpath);
-			logger.debug("XPath [{}] prior to returning XMLEXISTS clause",
-					xpath);
-
 			Matcher sq = singleQuotes.matcher(xpath);
 			if (sq.find()) {
 				logger

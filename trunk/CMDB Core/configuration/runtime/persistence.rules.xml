@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PersistenceRules xmlns="http://www.klistret.com/cmdb/aspects/persistence">
+<Persistence xmlns="http://www.klistret.com/cmdb/plugin/persistence">
     <Criterion Name="Name">
-        <Expressions>declare mapping pojo:configuration=col:Environment; declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; declare namespace col="http://www.klistret.com/cmdb/ci/element/logical/collection"; /pojo:Element/pojo:configuration/commons:Name</Expressions>
+        <Expression>declare namespace xsi="http://www.w3.org/2001/XMLSchema-instance"; declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; declare namespace col="http://www.klistret.com/cmdb/ci/element/logical/collection"; /pojo:Element/pojo:configuration/commons:Name</Expression>
     </Criterion>
     <Criterion Name="Namespace">
-        <Expressions>declare mapping pojo:configuration=col:Environment; declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; declare namespace col="http://www.klistret.com/cmdb/ci/element/logical/collection"; /pojo:Element[pojo:name = "Saturnus"]/pojo:configuration/commons:Namespace[. = "whatever"]</Expressions>
+        <Expression>declare namespace xsi="http://www.w3.org/2001/XMLSchema-instance"; declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; declare namespace col="http://www.klistret.com/cmdb/ci/element/logical/collection"; /pojo:Element/pojo:configuration/commons:Namespace</Expression>
     </Criterion>
-    <Rule Order="2">
-        <Classname>com.klistret.cmdb.ci.element.logical.collection.Environment</Classname>
-        <Criterion>Name</Criterion>
-    </Rule>
-    <Rule Order="1">
-        <Classname>com.klistret.cmdb.ci.element.logical.Collection</Classname>
-        <Criterion>Namespace</Criterion>
-    </Rule>
-</PersistenceRules>
+	<Identification Type="{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment">
+		<CriterionRule Name="Name" Order="2"/>
+	</Identification>
+	<Identification Type="{http://www.klistret.com/cmdb/ci/element/logical}Collection">
+		<CriterionRule Name="Namespace" Order="2"/>
+	</Identification>
+</Persistence>

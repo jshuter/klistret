@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.jaxb.BeanMetadata;
 import com.klistret.cmdb.utility.jaxb.CIContext;
+import com.klistret.cmdb.utility.jaxb.PropertyMetadata;
 import com.klistret.cmdb.utility.saxon.AndExpr;
 import com.klistret.cmdb.utility.saxon.ComparisonExpr;
 import com.klistret.cmdb.utility.saxon.Expr;
@@ -182,9 +183,9 @@ public class XPathCriteria {
 			/**
 			 * Handle predicate then recursively translate if next step exists
 			 */
-			if (contextStepExpr.hasPredicate())
-				criteria.add(translatePredicate(contextBean, contextStepExpr
-						.getPredicate()));
+			for (Expr predicate : contextStepExpr.getPredicates()) {
+				criteria.add(translatePredicate(contextBean, predicate));
+			}
 			if (contextStepExpr.getNext() != null)
 				translateStep(criteria, contextStepExpr.getNext());
 		}
@@ -234,10 +235,14 @@ public class XPathCriteria {
 			 * deemed as a XML column
 			 */
 			if (propertyType.isEntityType()) {
+				PropertyMetadata propertyMetadata = pBean
+						.getPropertyByName(step.getQName());
+
 				/**
 				 * Does step have corresponding bean Metadata?
 				 */
-				BeanMetadata sBean = ciContext.getBean(step.getQName());
+				BeanMetadata sBean = ciContext.getBean(propertyMetadata
+						.getType());
 				if (sBean == null) {
 					logger.error(
 							"Step [{}] has no corresponding bean metadata",
@@ -250,9 +255,9 @@ public class XPathCriteria {
 				Criteria nextCriteria = criteria.createCriteria(propertyType
 						.getName());
 
-				if (((StepExpr) step).hasPredicate()) {
+				for (Expr predicate : ((StepExpr) step).getPredicates()) {
 					nextCriteria.add(translatePredicate(sBean,
-							((StepExpr) step).getPredicate()));
+							predicate));
 				}
 
 				if (step.getNext() != null)
