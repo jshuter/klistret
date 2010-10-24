@@ -40,7 +40,7 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.getById(id);
 	}
 
-	public List<Relation> findByExpressions(String[] expressions, int start,
+	public List<Relation> findByExpressions(List<String> expressions, int start,
 			int limit) {
 		return relationDAO.findByExpressions(expressions, start, limit);
 	}

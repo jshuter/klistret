@@ -32,10 +32,9 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.saxon.Step;
 
 /**
- * Implements Hibernate Criterion for XPath expressions
- * 
- * Static default function declarations should be edit-ready rather then hard
- * coded.
+ * Implements Hibernate Criterion for XPath expressions acting on a property
+ * given a Step. The initial step's name is switched out with a wildcard since
+ * the underlying schema type is unknown.
  * 
  * @author Matthew Young
  * 
@@ -56,19 +55,9 @@ public class XPathRestriction implements Criterion {
 	private final Step step;
 
 	/**
-	 * 
+	 * Variable reference that associates the database column to the XPath.
 	 */
 	private final String variableReference;
-
-	/**
-	 * Default Function name-space for DB2 Viper (9 version)
-	 */
-	private final String DB2DefaultFunctionNamespace = "http://www.ibm.com/xmlns/prod/db2/functions";
-
-	/**
-	 * Default Function name-space for Oracle (11g version)
-	 */
-	private final String OracleDefaultFunctionNamespace = "http://xmlns.oracle.com/xdb";
 
 	/**
 	 * Return value for criterion without types values
@@ -175,10 +164,6 @@ public class XPathRestriction implements Criterion {
 		if (dialect instanceof DB2Dialect) {
 			Matcher sq = singleQuotes.matcher(xpath);
 			if (sq.find()) {
-				logger
-						.error(
-								"XPath [{}] contains surrounding single quotes which DB2 does not allow",
-								xpath);
 				throw new ApplicationException(
 						String
 								.format(
@@ -191,11 +176,6 @@ public class XPathRestriction implements Criterion {
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
-			xpath = String.format("declare default function namespace \"%s\";",
-					OracleDefaultFunctionNamespace).concat(xpath);
-			logger.debug("XPath [{}] prior to returning XMLEXISTS clause",
-					xpath);
-
 			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
 					xpath, columns[0], variableReference);
 		}

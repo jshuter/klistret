@@ -50,7 +50,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @see com.klistret.cmdb.dao.ElementDAO.findByCriteria
 	 * @return Collection
 	 */
-	public List<Element> findByExpressions(String[] expressions, int start,
+	public List<Element> findByExpressions(List<String> expressions, int start,
 			int limit) {
 		try {
 			if (expressions == null) {

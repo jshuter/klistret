@@ -35,13 +35,15 @@
 		class="org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource">
 		<property name="properties">
 			<props>
-				<prop key="getById">PROPAGATION_REQUIRED,timeout_20
-				</prop>
-				<prop key="getByCompositeId">PROPAGATION_REQUIRED,timeout_20
+				<prop key="get">PROPAGATION_REQUIRED,timeout_20
 				</prop>
 				<prop key="findByExpressions">PROPAGATION_REQUIRED,timeout_20
 				</prop>
-				<prop key="set">PROPAGATION_REQUIRED,timeout_20
+				<prop key="update">PROPAGATION_REQUIRED,timeout_20
+				</prop>
+				<prop key="create">PROPAGATION_REQUIRED,timeout_20
+				</prop>
+				<prop key="delete">PROPAGATION_REQUIRED,timeout_20
 				</prop>
 			</props>
 		</property>

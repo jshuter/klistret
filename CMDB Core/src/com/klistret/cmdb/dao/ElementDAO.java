@@ -48,7 +48,7 @@ public interface ElementDAO {
 	 * @param limit
 	 * @return List
 	 */
-	List<Element> findByExpressions(String[] expressions, int start, int limit);
+	List<Element> findByExpressions(List<String> expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update

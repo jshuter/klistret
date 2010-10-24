@@ -46,11 +46,11 @@ public class RestEasyService {
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
 	}
 
-	//@Test
-	public void getById() throws URISyntaxException, JAXBException,
+	@Test
+	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/get/81");
+				.get("/resteasy/element/81");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -76,7 +76,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 	
-	@Test
+	//@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/find");
 		MockHttpResponse response = new MockHttpResponse();

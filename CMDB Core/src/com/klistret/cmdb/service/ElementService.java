@@ -16,39 +16,84 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 @Path("/resteasy")
+@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface ElementService {
 
+	/**
+	 * Get an element by unique id
+	 */
 	@GET
-	@Path("/element/get/{id}")
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Element getById(@PathParam("id")
+	@Path("/element/{id}")
+	Element get(@PathParam("id")
 	Long id);
 
-	List<Element> findByExpressions(String[] expressions, int start,
-			int limit);
+	/**
+	 * Get elements that fulfill the XPath expressions (criterion)
+	 * 
+	 * @param expressions
+	 * @return Elements
+	 */
+	List<Element> findByExpressions(List<String> expressions);
 
-	@POST
-	@Path("/element/find")
-	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	QueryResponse findByExpressions(QueryRequest queryRequest);
+	/**
+	 * Get elements that fulfill the XPath expressions (criterion) at a start
+	 * position up to the specified limit (i.e. maximum result size)
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * @return Elements
+	 */
+	@GET
+	@Path("/element")
+	List<Element> findByExpressions(@QueryParam("Expressions")
+	List<String> expressions, @QueryParam("start")
+	int start, @QueryParam("limit")
+	int limit);
 
+	/**
+	 * Create an element
+	 * 
+	 * @param element
+	 * @return Element
+	 */
 	@POST
-	@Path("/element/set")
-	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Element set(Element element);
+	@Path("/element")
+	Element create(Element element);
+
+	/**
+	 * Update an element
+	 * 
+	 * @param element
+	 * @return Element
+	 */
+	@PUT
+	@Path("/element/{id}")
+	Element update(@PathParam("id")
+	Long id, Element element);
+
+	/**
+	 * Delete an element
+	 * 
+	 * @param id
+	 */
+	@DELETE
+	@Path("/element/{id}")
+	void delete(@PathParam("id")
+	Long id);
 }

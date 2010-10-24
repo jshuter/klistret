@@ -36,7 +36,7 @@ public interface RelationService {
 	Relation getById(@PathParam("id")
 	Long id);
 
-	List<Relation> findByExpressions(String[] expressions, int start, int limit);
+	List<Relation> findByExpressions(List<String> expressions, int start, int limit);
 
 	@POST
 	@Path("/relation/find")

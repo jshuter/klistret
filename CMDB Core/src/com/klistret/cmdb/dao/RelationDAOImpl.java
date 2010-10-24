@@ -89,7 +89,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	/**
 	 * 
 	 */
-	public List<Relation> findByExpressions(String[] expressions, int start,
+	public List<Relation> findByExpressions(List<String> expressions, int start,
 			int limit) {
 		try {
 			if (expressions == null) {
