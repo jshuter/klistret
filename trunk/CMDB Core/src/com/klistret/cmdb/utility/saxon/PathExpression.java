@@ -251,10 +251,6 @@ public class PathExpression {
 			xpathLength = xpathLength + (md.end() - md.start());
 
 			if (getNamespace(md.group(1)) == null) {
-				logger
-						.error(
-								"JTA property prefix [{}] has no cooresponding namespace declaration",
-								md.group(1));
 				throw new ApplicationException(
 						String
 								.format(
@@ -263,10 +259,6 @@ public class PathExpression {
 			}
 
 			if (getNamespace(md.group(3)) == null) {
-				logger
-						.error(
-								"Document type prefix [{}] has no cooresponding namespace declaration",
-								md.group(3));
 				throw new ApplicationException(
 						String
 								.format(
@@ -317,20 +309,12 @@ public class PathExpression {
 			 */
 			explain(expression);
 		} catch (XPathException e) {
-			logger
-					.error(
-							"XPathException [{}] creating Saxon expression from xpath [{}]",
-							e.getMessage(), xpath);
 			throw new ApplicationException(
 					String
 							.format(
 									"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
 									xpath, prologOffset), e);
 		} catch (ClassCastException e) {
-			logger
-					.error(
-							"ClassCastException [{}] creating Saxon expression from xpath [{}]",
-							e.getMessage(), xpath);
 			throw new ApplicationException(
 					String
 							.format(
@@ -339,6 +323,11 @@ public class PathExpression {
 		}
 	}
 
+	/**
+	 * Return Saxon XPathExpression
+	 * 
+	 * @return XPathExpression
+	 */
 	public XPathExpression getXPathExpression() {
 		return this.xpathExpression;
 	}
@@ -357,6 +346,7 @@ public class PathExpression {
 			 */
 			if (expression.getClass().getName().equals(
 					SlashExpression.class.getName())) {
+				logger.debug("Explaining a Saxon slash expression");
 				Expression controlling = ((SlashExpression) expression)
 						.getControllingExpression();
 				Expression controlled = ((SlashExpression) expression)
@@ -370,6 +360,7 @@ public class PathExpression {
 			 */
 			else if (expression.getClass().getName().equals(
 					RootExpression.class.getName())) {
+				logger.debug("Explaining a Saxon root expression");
 				relativePath.add(new RootExpr((RootExpression) expression,
 						staticContext.getConfiguration()));
 				hasRoot = true;
@@ -382,6 +373,7 @@ public class PathExpression {
 			 */
 			else if (expression.getClass().getName().equals(
 					AxisExpression.class.getName())) {
+				logger.debug("Explaining a Saxon axis expression");
 				relativePath.add(new StepExpr((AxisExpression) expression,
 						staticContext.getConfiguration()));
 			}
@@ -391,6 +383,7 @@ public class PathExpression {
 			 */
 			else if (expression.getClass().getName().equals(
 					FilterExpression.class.getName())) {
+				logger.debug("Explaining a Saxon filter expression");
 				relativePath.add(new StepExpr((FilterExpression) expression,
 						staticContext.getConfiguration()));
 			}

@@ -41,21 +41,50 @@ public class LiteralExpr extends Expr {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LiteralExpr.class);
 
+	/**
+	 * Value as string
+	 */
 	private String valueAsString;
 
+	/**
+	 * Value as an array of strings
+	 */
 	private String[] valueAsStringArray;
 
+	/**
+	 * Value as object
+	 */
 	private Object value;
 
+	/**
+	 * Value as an array of objects
+	 */
 	private Object[] valueAsArray;
 
+	/**
+	 * An atomic condition
+	 */
 	private Boolean atomic;
 
+	/**
+	 * The value of a string literal is an atomic value whose type is xs:string
+	 * and whose value is the string denoted by the characters between the
+	 * delimiting apostrophes or quotation marks
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	protected LiteralExpr(StringLiteral expression, Configuration configuration) {
 		super(expression, configuration);
 		setValue(expression);
 	}
 
+	/**
+	 * Numeric literal
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	protected LiteralExpr(Literal expression, Configuration configuration) {
 		super(expression, configuration);
 		setValue(expression);

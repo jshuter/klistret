@@ -34,6 +34,14 @@ import net.sf.saxon.om.NamePool;
 import net.sf.saxon.expr.Token;
 import net.sf.saxon.instruct.TraceExpression;
 
+/**
+ * Steps denote an axis step with predicates to filter the underlying sequence
+ * of items. A step is either an element or attribute with forward direction
+ * plus a valid QName.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class StepExpr extends Step {
 
 	private static final Logger logger = LoggerFactory
@@ -58,37 +66,46 @@ public class StepExpr extends Step {
 		Element, Attribute
 	}
 
+	/**
+	 * Passing a Saxon axis expression means there are no predicates
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	protected StepExpr(AxisExpression expression, Configuration configuration) {
 		super(expression, configuration);
 		setAxisExpression(expression);
 	}
 
+	/**
+	 * Passing a Saxon filter expression means there are predicates plus an
+	 * underlying axis expression
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	protected StepExpr(FilterExpression expression, Configuration configuration) {
 		super(expression, configuration);
 
 		/**
-		 * Manageable filter expressions are limited to a controlling step being
-		 * an axis expression which means the predicate may not be a predicate
-		 * list since Saxon builds the controlling step as a filter. Again, the
-		 * goal here is to allow for simple relative paths with a single, binary
-		 * predicate.
+		 * Multiple predicates are allowed and according to the XPath 2.0
+		 * specification are applied in order. Saxon just wraps predicates
+		 * inside individual filter expressions with the context in the axis
+		 * expression.
 		 */
 		Expression controlling = expression.getControllingExpression();
 		while (controlling.getClass().getName().equals(
 				FilterExpression.class.getName())) {
+			logger.debug("Adding a predicate [depth: {}]", predicates.size());
 			predicates.add(0, explainPredicate(((FilterExpression) controlling)
 					.getFilter()));
-			
+
 			controlling = ((FilterExpression) controlling)
 					.getControllingExpression();
 		}
 
 		if (!controlling.getClass().getName().equals(
 				AxisExpression.class.getName())) {
-			logger
-					.debug(
-							"Controlling step [{}] in filter expression is not an axis expression",
-							controlling);
 			throw new IrresoluteException(
 					String
 							.format(
@@ -97,6 +114,8 @@ public class StepExpr extends Step {
 		}
 
 		setAxisExpression((AxisExpression) controlling);
+		logger.debug("Adding the initial predicate [depth: {}]", predicates
+				.size());
 		predicates.add(0, explainPredicate(expression.getFilter()));
 	}
 
@@ -147,11 +166,12 @@ public class StepExpr extends Step {
 		 * Notable that Saxon does not formulate expressions into an axis with
 		 * predicates.
 		 */
-		if (getPrimaryNodeKind() == null || !isAbsolute() || getQName() == null) {
+		if (getPrimaryNodeKind() == null || !isAbsolute() || !isForward()
+				|| getQName() == null) {
 			throw new IrresoluteException(
 					String
 							.format(
-									"Axis expression [%s] is either neither not a primary node or is not an absolute step or the qname is null (likely a wildcard)",
+									"Axis expression [%s] is either neither not a primary node or is not an absolute step with forward direction or the qname is null (likely a wildcard)",
 									expression));
 		}
 	}
@@ -165,10 +185,9 @@ public class StepExpr extends Step {
 	 * @return
 	 */
 	private Expr explainPredicate(Expression expression) {
-		logger.debug("Explaining predicate on expression [{}]", expression);
-
 		if (expression.getClass().getName().equals(
 				BooleanExpression.class.getName())) {
+			logger.debug("Predicate is a boolean expression");
 			switch (((BooleanExpression) expression).getOperator()) {
 
 			case Token.AND:
@@ -176,11 +195,10 @@ public class StepExpr extends Step {
 						configuration);
 
 				for (Expression operand : ((BooleanExpression) expression)
-						.getOperands()) {
+						.getOperands())
 					andExpr.addOperand(explainPredicate(operand));
-				}
 
-				logger.debug("Return AndExpr predicate [{}]", andExpr);
+				logger.debug("Resolved as an AndExpr predicate [{}]", andExpr);
 
 				return andExpr;
 
@@ -189,19 +207,14 @@ public class StepExpr extends Step {
 						configuration);
 
 				for (Expression operand : ((BooleanExpression) expression)
-						.getOperands()) {
+						.getOperands())
 					orExpr.addOperand(explainPredicate(operand));
-				}
 
-				logger.debug("Return OrExpr predicate [{}]", orExpr);
+				logger.debug("Resolved as an OrExpr predicate [{}]", orExpr);
 
 				return orExpr;
 
 			default:
-				logger
-						.debug(
-								"Boolean expression [{}] must either be an AND or OR operation",
-								expression);
 				throw new IrresoluteException(
 						String
 								.format(
@@ -212,27 +225,29 @@ public class StepExpr extends Step {
 
 		else if (expression.getClass().getName().equals(
 				GeneralComparison.class.getName())) {
+			logger.debug("Predicate is a general comparison");
+
 			return new ComparisonExpr((GeneralComparison) expression,
 					configuration);
 		}
 
 		else if (expression.getClass().getName().equals(
 				ValueComparison.class.getName())) {
+			logger.debug("Predicate is a value comparison");
+
 			return new ComparisonExpr((ValueComparison) expression,
 					configuration);
 		}
 
 		else if (expression.getClass().getName().equals(
 				TraceExpression.class.getName())) {
+			logger.debug("Predicate is a trace or functional expression");
+
 			return new ComparisonExpr((TraceExpression) expression,
 					configuration);
 		}
 
 		else {
-			logger
-					.debug(
-							"Operand [{}] not a boolean, general or value logical expression",
-							expression);
 			throw new IrresoluteException(
 					String
 							.format(
@@ -265,7 +280,7 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * Is predicate
+	 * Has predicates
 	 * 
 	 * @return boolean
 	 */
@@ -277,7 +292,8 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * Valid underlying axis nodes are either an element or attribute
+	 * Valid underlying axis nodes are either an element or attribute (a
+	 * namespace is possible but not allowed)
 	 * 
 	 * @return PrimaryNodeKind
 	 */
@@ -293,8 +309,8 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * An axis that only ever contains the context node or nodes that are after
-	 * the context node in document order is a forward axis.
+	 * An axis that only contains the context node or nodes that are after the
+	 * context node in document order is a forward axis.
 	 * 
 	 * @return boolean
 	 */
@@ -322,8 +338,8 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * An axis that only ever contains the context node or nodes that are before
-	 * the context node in document order is a reverse axis.
+	 * An axis that only contains the context node or nodes that are before the
+	 * context node in document order is a reverse axis.
 	 * 
 	 * @return boolean
 	 */
@@ -365,7 +381,7 @@ public class StepExpr extends Step {
 	public String toString() {
 		return String
 				.format(
-						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], number of predicates [%d]",
+						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate count [%d]",
 						getType(), expression, getPrimaryNodeKind(),
 						getQName(), isForward(), isAbsolute(), predicates
 								.size());

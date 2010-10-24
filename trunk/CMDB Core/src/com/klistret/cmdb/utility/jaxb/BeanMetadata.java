@@ -19,34 +19,75 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 /**
+ * Bean metadata is a schema element either of complex or simple type. The type
+ * (QName) locates the bean inside the schema definitions and the Java class
+ * name locates the bean in the Java code (i.e. bridging Java/Schema). Outside
+ * of that critical relationship it is important to know if the bean is abstract
+ * and what properties are available.
  * 
  * @author Matthew Young
  * 
  */
 public class BeanMetadata {
 
+	/**
+	 * Types are reduced to either complex or simple types
+	 * 
+	 * @author Matthew Young
+	 * 
+	 */
 	public enum TypeCategory {
 		Complex, Simple
 	};
 
+	/**
+	 * Category of CMDB either an element, relation or proxy.
+	 * 
+	 * @author Matthew Young
+	 * 
+	 */
 	public enum CMDBCategory {
 		Proxy, Element, Relation
 	};
 
+	/**
+	 * Underlying java class representing the schema type
+	 */
 	protected Class<?> javaClass;
 
+	/**
+	 * Schema type
+	 */
 	protected QName type;
 
+	/**
+	 * Type category
+	 */
 	protected TypeCategory typeCategory;
 
+	/**
+	 * CMDB category
+	 */
 	protected CMDBCategory cmdbCategory;
 
+	/**
+	 * Base schema type (extended)
+	 */
 	protected QName base;
 
+	/**
+	 * Abstract conditional
+	 */
 	protected Boolean abstraction;
 
+	/**
+	 * Annotations on the schema type
+	 */
 	protected List<String> annotations = new ArrayList<String>();
 
+	/**
+	 * Properties
+	 */
 	protected List<PropertyMetadata> properties = new ArrayList<PropertyMetadata>();
 
 	public Class<?> getJavaClass() {
@@ -113,6 +154,9 @@ public class BeanMetadata {
 		return false;
 	}
 
+	/**
+	 * If the Java class names are identical then the objects are equal
+	 */
 	public boolean equals(Object other) {
 		if (this == other)
 			return true;
@@ -129,8 +173,9 @@ public class BeanMetadata {
 	}
 
 	public String toString() {
-		return String.format("class: %s, localName: %s, namespace: %s",
-				javaClass.getName(), type.getLocalPart(), type
-						.getNamespaceURI());
+		return String
+				.format("class: %s, type localName: %s, type namespace: %s",
+						javaClass.getName(), type.getLocalPart(), type
+								.getNamespaceURI());
 	}
 }

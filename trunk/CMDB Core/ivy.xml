@@ -88,10 +88,7 @@
 		
 		<!-- JSR 173 -->
 		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="runtime->*"/>
-		
-		<!-- JAXB2 reflection LOCAL REPO (1): jaxb2-reflection -->
-		<dependency org="org.jvnet.jaxb.reflection" name="jaxb2-reflection" rev="unknown" conf="runtime->*"/>
-		
+
 		<!-- Resteasy restasy-jaxrs (1): -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0.1.GA" conf="compile,runtime->master"/>
 		

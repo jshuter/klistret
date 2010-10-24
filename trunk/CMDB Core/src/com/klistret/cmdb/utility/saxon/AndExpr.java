@@ -17,6 +17,13 @@ package com.klistret.cmdb.utility.saxon;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.BooleanExpression;
 
+/**
+ * AndExpr is a logical expression either true or false made of ComparisonExpr
+ * operands.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class AndExpr extends LogicalExpr<Expr> {
 
 	protected AndExpr(BooleanExpression expression, Configuration configuration) {
