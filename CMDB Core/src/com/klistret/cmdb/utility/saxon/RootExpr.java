@@ -19,6 +19,12 @@ import javax.xml.namespace.QName;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.RootExpression;
 
+/**
+ * Root is the first node of the XPath tree void of a QName
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class RootExpr extends Step {
 
 	protected RootExpr(RootExpression expression, Configuration configuration) {

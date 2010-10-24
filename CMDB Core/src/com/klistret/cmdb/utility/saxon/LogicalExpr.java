@@ -23,7 +23,8 @@ import net.sf.saxon.expr.Expression;
 /**
  * A logical expression is either an and-expression or an or-expression. If a
  * logical expression does not raise an error, its value is always one of the
- * boolean values true or false
+ * boolean values true or false. Each operand is an Expr object and there can be
+ * any number of operands.
  * 
  * @author Matthew Young
  * 

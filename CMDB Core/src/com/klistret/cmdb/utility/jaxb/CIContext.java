@@ -68,6 +68,19 @@ import com.sun.org.apache.xerces.internal.xs.XSParticle;
 import com.sun.org.apache.xerces.internal.xs.XSSimpleTypeDefinition;
 import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
+/**
+ * Singleton class that locates all of the CI beans (elements, relations, and
+ * their proxies) using the Reflections project. During XJC generation each
+ * element, relation and proxy is given an specific annotation that Reflections
+ * finding by searching through the loaded archives. A validation Schema is
+ * created to enable validation of JAXB objects. Bean metadata with property
+ * metadata is built up for each element, relation and proxy. Metadata are
+ * simple beans describing the CI items with their QName, type, properties and
+ * so forth.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class CIContext {
 	/**
 	 * Based on
@@ -129,6 +142,12 @@ public class CIContext {
 	 */
 	private Schema schemaGrammers;
 
+	/**
+	 * Extends the StreamSource with a placeholder for a XSModel
+	 * 
+	 * @author Matthew Young
+	 * 
+	 */
 	private class SchemaStreamSource extends StreamSource {
 
 		private XSModel xsModel;
@@ -165,6 +184,12 @@ public class CIContext {
 			this.schemaStreamSources = schemaStreamSources;
 		}
 
+		/**
+		 * Resource name
+		 * 
+		 * @param path
+		 * @return
+		 */
 		private String getResourceName(String path) {
 			int lastIndexOf = path.lastIndexOf("/");
 
@@ -241,6 +266,10 @@ public class CIContext {
 	}
 
 	/**
+	 * Find bean namespace by looking first at the class annotation XmlType,
+	 * thereafter the class annotation XmlRootElement and finally the package
+	 * annotation XmlSchema. The resulting value together with the local part of
+	 * the bean makes up the QName describing the bean's type.
 	 * 
 	 * @param javaClass
 	 * @return
@@ -287,6 +316,9 @@ public class CIContext {
 	}
 
 	/**
+	 * Find the local name first in the class annotation XmlType and thereafter
+	 * the class annotation XmlRootElement. Together with the namespace the
+	 * local part makes up the QName denoting the bean's type.
 	 * 
 	 * @param javaClass
 	 * @return
@@ -313,6 +345,8 @@ public class CIContext {
 	}
 
 	/**
+	 * Get the type definition as defined by the Schema validation based on the
+	 * QName. The definition represents a complex or simple type.
 	 * 
 	 * @param localName
 	 * @param namespace
@@ -694,9 +728,6 @@ public class CIContext {
 			schemaGrammers = factory.newSchema(schemaStreamSources
 					.toArray(new SchemaStreamSource[0]));
 		} catch (SAXException e) {
-			logger.error(
-					"Generating binding schema from streamed XSD sources: {}",
-					e);
 			throw new InfrastructureException(
 					String
 							.format("Generating binding schema from streamed XSD sources"),
@@ -711,7 +742,6 @@ public class CIContext {
 					.toArray(new Class[0]));
 			logger.debug("Created JAXB context");
 		} catch (JAXBException e) {
-			logger.error("Unable to create JAXBContext: {}", e.getMessage());
 			throw new InfrastructureException("Unable to create JAXBContext", e);
 		}
 
@@ -750,6 +780,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Get the Schema validation
 	 * 
 	 * @return
 	 */
@@ -758,6 +789,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Get the set of bean metadata
 	 * 
 	 * @return
 	 */
@@ -766,6 +798,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Get a particular bean metadata by type
 	 * 
 	 * @param qname
 	 * @return
@@ -779,6 +812,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Get a particular bean metadata by type
 	 * 
 	 * @param namespaceURI
 	 * @param localPart
@@ -794,6 +828,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Get a particular bean metadata by class name
 	 * 
 	 * @param className
 	 * @return
@@ -807,6 +842,7 @@ public class CIContext {
 	}
 
 	/**
+	 * Is the type associated with a bean
 	 * 
 	 * @param type
 	 * @return
