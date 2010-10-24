@@ -20,11 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
 import com.klistret.cmdb.dao.ElementDAO;
-import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.exception.InfrastructureException;
 
 public class ElementServiceImpl implements ElementService {
 
@@ -37,41 +33,28 @@ public class ElementServiceImpl implements ElementService {
 		this.elementDAO = elementDAO;
 	}
 
-	public List<Element> findByExpressions(String[] expressions, int start,
+	public Element get(Long id) {
+		return elementDAO.getById(id);
+	}
+
+	public List<Element> findByExpressions(List<String> expressions) {
+		return elementDAO.findByExpressions(expressions, 0, 10);
+	}
+
+	public List<Element> findByExpressions(List<String> expressions, int start,
 			int limit) {
 		return elementDAO.findByExpressions(expressions, start, limit);
 	}
 
-	public QueryResponse findByExpressions(QueryRequest queryRequest) {
-		QueryResponse queryResponse = new QueryResponse();
-
-		try {
-			List<Element> elements = findByExpressions(queryRequest
-					.getExpressions().toArray(new String[0]), queryRequest
-					.getStart(), queryRequest.getLimit());
-			queryResponse.setElements(elements);
-			queryResponse.setCount(elements.size());
-			queryResponse.setSuccessful(true);
-		} catch (ApplicationException e) {
-			logger.error("Error executing query: {}", e);
-			queryResponse.setCount(0);
-			queryResponse.setSuccessful(false);
-			queryResponse.setMessage(e.getMessage());
-		} catch (InfrastructureException e) {
-			logger.error("Error executing query: {}", e);
-			queryResponse.setCount(0);
-			queryResponse.setSuccessful(false);
-			queryResponse.setMessage(e.getMessage());
-		}
-
-		return queryResponse;
-	}
-
-	public Element getById(Long id) {
-		return elementDAO.getById(id);
-	}
-
-	public Element set(Element element) {
+	public Element create(Element element) {
 		return elementDAO.set(element);
 	}
+
+	public Element update(Long id, Element element) {
+		return elementDAO.set(element);
+	}
+
+	public void delete(Long id) {
+	}
+
 }

@@ -329,7 +329,7 @@ public class CIIdentification {
 	 * @param element
 	 * @return
 	 */
-	protected String[] getCriterion(Element element) {
+	protected List<String> getCriterion(Element element) {
 		return getCriterion(element, element.getType().getName());
 	}
 
@@ -338,7 +338,7 @@ public class CIIdentification {
 	 * @param relation
 	 * @return
 	 */
-	protected String[] getCriterion(Relation relation) {
+	protected List<String> getCriterion(Relation relation) {
 		return getCriterion(relation, relation.getType().getName());
 	}
 
@@ -347,7 +347,7 @@ public class CIIdentification {
 	 * @param object
 	 * @return Criterion
 	 */
-	private String[] getCriterion(Object pojo, String type) {
+	private List<String> getCriterion(Object pojo, String type) {
 		List<String> criterionWithPredicates = new ArrayList<String>();
 
 		try {
@@ -421,8 +421,7 @@ public class CIIdentification {
 						criterionWithPredicates.add(exprWithPredicate);
 					}
 
-					return criterionWithPredicates
-							.toArray(new String[0]);
+					return criterionWithPredicates;
 				} catch (ApplicationException e) {
 					logger.debug("Continuing to the next criterion");
 					criterionWithPredicates.clear();

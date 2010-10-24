@@ -28,7 +28,7 @@ public class ElementIdentification {
 	}
 
 	public void identify(Element element) {
-		String[] criterion = ciIdentification.getCriterion(element);
+		List<String> criterion = ciIdentification.getCriterion(element);
 
 		if (criterion == null) {
 			logger

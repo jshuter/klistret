@@ -15,6 +15,7 @@
 package test.com.klistret.cmdb.service;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -30,9 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
@@ -47,10 +46,10 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void getById() throws JAXBException {
-		Element element = elementService.getById(new Long(81));
+		Element element = elementService.get(new Long(81));
 		System.out.println(element.getName());
 	}
 
@@ -74,7 +73,7 @@ public class ElementService extends
 
 		element.setConfiguration(environment);
 
-		elementService.set(element);
+		elementService.create(element);
 	}
 
 	@Test
@@ -82,13 +81,9 @@ public class ElementService extends
 	public void findByExpr() {
 		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment\"]" };
 
-		QueryRequest queryRequest = new QueryRequest();
-		queryRequest.setExpressions(Arrays.asList(expressions));
-		queryRequest.setStart(0);
-		queryRequest.setLimit(100);
-
-		QueryResponse response = elementService.findByExpressions(queryRequest);
-		for (Element element : response.getElements())
+		List<Element> response = elementService.findByExpressions(Arrays
+				.asList(expressions), 0, 10);
+		for (Element element : response)
 			System.out.println(String.format("Element id: %s, name: %s",
 					element.getId(), element.getName()));
 	}

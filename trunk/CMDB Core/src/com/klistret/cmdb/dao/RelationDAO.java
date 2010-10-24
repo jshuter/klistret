@@ -41,7 +41,7 @@ public interface RelationDAO {
 	 * @param limit
 	 * @return List
 	 */
-	List<Relation> findByExpressions(String[] expressions, int start, int limit);
+	List<Relation> findByExpressions(List<String> expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update

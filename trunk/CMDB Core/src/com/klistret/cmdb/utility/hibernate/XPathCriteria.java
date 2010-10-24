@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.utility.hibernate;
 
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -37,6 +39,16 @@ import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * XPath criteria expects XPaths that are absolute paths, a depth of at least
+ * one step, and the context bean (initial step) is the same for all XPaths. The
+ * Hibernate criteria passed back is created off the context bean's java class
+ * and thereafter subsequent steps are translated into appended criteria
+ * recursively.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class XPathCriteria {
 
 	private static final Logger logger = LoggerFactory
@@ -45,7 +57,7 @@ public class XPathCriteria {
 	/**
 	 * XPaths inclusive prologs
 	 */
-	private String[] xpaths;
+	private List<String> xpaths;
 
 	/**
 	 * Hibernate session
@@ -63,7 +75,7 @@ public class XPathCriteria {
 	private BeanMetadata contextBean;
 
 	/**
-	 * 
+	 * CI metadata
 	 */
 	private CIContext ciContext = CIContext.getCIContext();
 
@@ -72,7 +84,7 @@ public class XPathCriteria {
 	 * @param xpaths
 	 * @param session
 	 */
-	public XPathCriteria(String[] xpaths, Session session) {
+	public XPathCriteria(List<String> xpaths, Session session) {
 		this.xpaths = xpaths;
 		this.session = session;
 
@@ -84,7 +96,7 @@ public class XPathCriteria {
 	 * 
 	 * @return XPaths (string array)
 	 */
-	public String[] getXPaths() {
+	public List<String> getXPaths() {
 		return xpaths;
 	}
 
@@ -107,6 +119,10 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * XPath conditions are checked then a Hibernate criteria is created off the
+	 * context bean's java class which is the criteria passed back to the
+	 * caller. The predicates of the context bean are handled then the
+	 * subsequent steps are explained recursively.
 	 * 
 	 */
 	private void makeCriteria() {
@@ -121,8 +137,6 @@ public class XPathCriteria {
 			 * Every expression has to be absolute (ie. starts with a slash)
 			 */
 			if (!expression.hasRoot()) {
-				logger.error("XPath [{}] does not have a root expression",
-						expression.getXPath());
 				throw new ApplicationException(String.format(
 						"XPath [%s] does not have a root expression",
 						expression.getXPath()));
@@ -134,8 +148,6 @@ public class XPathCriteria {
 			 */
 			if (!(expression.getDepth() > 1)
 					&& expression.getExpr(1).getType() == Expr.Type.Step) {
-				logger.error("XPath [{}] must have at least one Step",
-						expression.getXPath());
 				throw new ApplicationException(String.format(
 						"XPath [%s] must have at least one Step", expression
 								.getXPath()));
@@ -148,10 +160,6 @@ public class XPathCriteria {
 			StepExpr contextStepExpr = (StepExpr) expression.getExpr(1);
 			if (contextStepExpr.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
 					|| contextStepExpr.getQName() == null) {
-				logger
-						.error(
-								"Context step [{}] must be an element with valid qname",
-								expression.getXPath());
 				throw new ApplicationException(
 						String
 								.format(
@@ -164,15 +172,14 @@ public class XPathCriteria {
 			 */
 			BeanMetadata bean = ciContext.getBean(contextStepExpr.getQName());
 			if (criteria == null && contextBean == null) {
+				logger.debug("Hibernate criteria created on java class [{}]",
+						bean.getJavaClass());
+
 				contextBean = bean;
 				criteria = session.createCriteria(contextBean.getJavaClass());
 			}
 
 			if (!contextBean.equals(bean)) {
-				logger
-						.error(
-								"Leading Bean [{}] not unique across xpath statements [{}]",
-								bean, xpaths);
 				throw new ApplicationException(
 						String
 								.format(
@@ -183,15 +190,17 @@ public class XPathCriteria {
 			/**
 			 * Handle predicate then recursively translate if next step exists
 			 */
-			for (Expr predicate : contextStepExpr.getPredicates()) {
+			for (Expr predicate : contextStepExpr.getPredicates())
 				criteria.add(translatePredicate(contextBean, predicate));
-			}
+
 			if (contextStepExpr.getNext() != null)
 				translateStep(criteria, contextStepExpr.getNext());
 		}
 	}
 
 	/**
+	 * Translates the step (subset of the XPath) into a new criteria appended to
+	 * the original criteria object.
 	 * 
 	 * @param criteria
 	 * @param step
@@ -203,31 +212,32 @@ public class XPathCriteria {
 					.getDepth());
 
 			/**
-			 * Gather parent information
+			 * Gather previous step information (CI/Hibernate metadata)
 			 */
 			Step parent = (Step) step.getPathExpression().getRelativePath()
 					.get(step.getDepth() - 1);
-
 			BeanMetadata pBean = ciContext.getBean(parent.getQName());
+			if (pBean == null)
+				throw new ApplicationException(String.format(
+						"Parent step [%s] has no CI metadata", parent));
+
 			ClassMetadata pHClassMetadata = session.getSessionFactory()
 					.getClassMetadata(pBean.getJavaClass());
+			if (pHClassMetadata == null)
+				throw new ApplicationException(String.format(
+						"Parent step [%s] has no Hibernate metadata", parent));
 
 			/**
-			 * Step must be a defined property ot the parent Hibernate entity
+			 * Step must be a defined property to the parent Hibernate entity
 			 */
 			Type propertyType = pHClassMetadata.getPropertyType(step.getQName()
 					.getLocalPart());
-			if (propertyType == null) {
-				logger
-						.error(
-								"Step [{}] is not defined as a property to the parent Hibernate entity [{}]",
-								step, pHClassMetadata.getEntityName());
+			if (propertyType == null)
 				throw new ApplicationException(
 						String
 								.format(
 										"Step [%s] is not defined as a property to the parent Hibernate entity [%s]",
 										step, pHClassMetadata.getEntityName()));
-			}
 
 			/**
 			 * If the step is an entity (ie. complex type) then create a
@@ -235,6 +245,8 @@ public class XPathCriteria {
 			 * deemed as a XML column
 			 */
 			if (propertyType.isEntityType()) {
+				logger.debug("Property [name: {}] is a Hibernate entity type",
+						step.getQName().getLocalPart());
 				PropertyMetadata propertyMetadata = pBean
 						.getPropertyByName(step.getQName());
 
@@ -243,22 +255,16 @@ public class XPathCriteria {
 				 */
 				BeanMetadata sBean = ciContext.getBean(propertyMetadata
 						.getType());
-				if (sBean == null) {
-					logger.error(
-							"Step [{}] has no corresponding bean metadata",
-							step);
+				if (sBean == null)
 					throw new ApplicationException(String.format(
 							"Step [%s] has no corresponding bean metadata",
 							step));
-				}
 
-				Criteria nextCriteria = criteria.createCriteria(propertyType
-						.getName());
+				Criteria nextCriteria = criteria.createCriteria(step.getQName()
+						.getLocalPart());
 
-				for (Expr predicate : ((StepExpr) step).getPredicates()) {
-					nextCriteria.add(translatePredicate(sBean,
-							predicate));
-				}
+				for (Expr predicate : ((StepExpr) step).getPredicates())
+					nextCriteria.add(translatePredicate(sBean, predicate));
 
 				if (step.getNext() != null)
 					translateStep(nextCriteria, step.getNext());
@@ -296,6 +302,9 @@ public class XPathCriteria {
 	 * @return
 	 */
 	private Criterion translatePredicate(BeanMetadata bean, Expr expr) {
+		logger.debug("Adding predicate of type [{}] to java class [{}]", expr
+				.getType(), bean.getJavaClass());
+
 		ClassMetadata hClassMetadata = session.getSessionFactory()
 				.getClassMetadata(bean.getJavaClass());
 
@@ -305,11 +314,9 @@ public class XPathCriteria {
 			 * Recursively breaks down the OrExpr by translating on the first
 			 * and second operands
 			 */
-			if (((OrExpr) expr).getOperands().size() != 2) {
-				logger.error("OrExpr expression [{}] expects 2 operands", expr);
+			if (((OrExpr) expr).getOperands().size() != 2)
 				throw new ApplicationException(String.format(
 						"OrExpr expression [%s] expects 2 operands", expr));
-			}
 
 			return Restrictions.or(translatePredicate(bean, ((OrExpr) expr)
 					.getOperands().get(0)), translatePredicate(bean,
@@ -320,17 +327,14 @@ public class XPathCriteria {
 			 * Recursively breaks down the AndExpr by translating on the first
 			 * and second operands
 			 */
-			if (((AndExpr) expr).getOperands().size() != 2) {
-				logger
-						.error("AndExpr expression [{}] expects 2 operands",
-								expr);
+			if (((AndExpr) expr).getOperands().size() != 2)
 				throw new ApplicationException(String.format(
 						"AndExpr expression [%s] expects 2 operands", expr));
-			}
 
 			return Restrictions.and(translatePredicate(bean, ((AndExpr) expr)
 					.getOperands().get(0)), translatePredicate(bean,
 					((AndExpr) expr).getOperands().get(1)));
+
 		case Comparison:
 			/**
 			 * Always at least one operand (step without predicates)
@@ -343,31 +347,21 @@ public class XPathCriteria {
 			 */
 			Type propertyType = hClassMetadata.getPropertyType(right.getQName()
 					.getLocalPart());
-			if (propertyType == null) {
-				logger
-						.error(
-								"Local part [{}] is not a property of the Hibernate entity [{}]",
-								right.getQName().getLocalPart(), hClassMetadata
-										.getEntityName());
+			if (propertyType == null)
 				throw new ApplicationException(
 						String
 								.format(
 										"Local part [%s] is not a property of the Hibernate entity [%s]",
 										right.getQName().getLocalPart(),
 										hClassMetadata.getEntityName()));
-			}
 
 			/**
 			 * Right step must exist in the bean metadata
 			 */
-			if (!bean.hasPropertyByName(right.getQName())) {
-				logger.error(
-						"Local part [{}] is not a property of the Bean [{}]",
-						right.getQName().getLocalPart(), bean);
+			if (!bean.hasPropertyByName(right.getQName()))
 				throw new ApplicationException(String.format(
 						"Local part [%s] is not a property of the Bean [%s]",
 						right.getQName().getLocalPart(), bean));
-			}
 
 			/**
 			 * Value/General comparisons have only 2 operands whereas function
@@ -409,45 +403,32 @@ public class XPathCriteria {
 						.in(((StepExpr) right).getQName().getLocalPart(),
 								((LiteralExpr) left).getValueAsArray());
 			case Matches:
-				if (((ComparisonExpr) expr).getOperands().size() != 2) {
-					logger.error("Matches function [{}] expects 2 operands",
-							expr);
+				if (((ComparisonExpr) expr).getOperands().size() != 2)
 					throw new ApplicationException(String.format(
 							"Matches function [%s] expects 2 operands", expr));
-				}
 
 				left = ((ComparisonExpr) expr).getOperands().get(1);
 				return Restrictions.ilike(((StepExpr) right).getQName()
 						.getLocalPart(), ((LiteralExpr) left)
 						.getValueAsString(), MatchMode.ANYWHERE);
 			case Exists:
-				if (((ComparisonExpr) expr).getOperands().size() != 1) {
-					logger.error("Exists function [{}] expects only 1 operand",
-							expr);
+				if (((ComparisonExpr) expr).getOperands().size() != 1)
 					throw new ApplicationException(
 							String
 									.format(
 											"Exists function [%s] expects only 1 operand",
 											expr));
-				}
 
 				return Restrictions.isNotNull(((StepExpr) right).getQName()
 						.getLocalPart());
 			case Empty:
-				if (((ComparisonExpr) expr).getOperands().size() != 1) {
-					logger.error("Empty function [{}] expects only 1 operand",
-							expr);
+				if (((ComparisonExpr) expr).getOperands().size() != 1)
 					throw new ApplicationException(String.format(
 							"Empty function [%s] expects only 1 operand", expr));
-				}
 
 				return Restrictions.isNull(((StepExpr) right).getQName()
 						.getLocalPart());
 			default:
-				logger
-						.error(
-								"Unexpected comparison operator [{}] handling predicates",
-								((ComparisonExpr) expr).getOperator());
 				throw new ApplicationException(
 						String
 								.format(
@@ -455,7 +436,6 @@ public class XPathCriteria {
 										((ComparisonExpr) expr).getOperator()));
 			}
 		default:
-			logger.error("Unexpected expr [{}] type for predicate", expr);
 			throw new ApplicationException(String.format(
 					"Unexpected expr [%s] type for predicate", expr));
 		}
