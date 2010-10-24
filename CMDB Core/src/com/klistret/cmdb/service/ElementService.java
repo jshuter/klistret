@@ -61,7 +61,7 @@ public interface ElementService {
 	 */
 	@GET
 	@Path("/element")
-	List<Element> findByExpressions(@QueryParam("Expressions")
+	List<Element> findByExpressions(@QueryParam("expressions")
 	List<String> expressions, @QueryParam("start")
 	int start, @QueryParam("limit")
 	int limit);

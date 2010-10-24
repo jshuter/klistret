@@ -2,6 +2,7 @@ package test.com.klistret.cmdb.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
@@ -19,8 +20,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.jboss.resteasy.util.HttpResponseCodes;
-
-
 
 public class RestEasyService {
 
@@ -46,11 +45,10 @@ public class RestEasyService {
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
 	}
 
-	@Test
+	// @Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/81");
+		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/81");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -61,7 +59,7 @@ public class RestEasyService {
 		System.out.println(responseBodyAsString);
 	}
 
-	//@Test
+	// @Test
 	public void set() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/set");
@@ -75,20 +73,22 @@ public class RestEasyService {
 		dispatcher.invoke(request, response);
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
-	
-	//@Test
+
+	@Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.post("/resteasy/element/find");
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element?expressions="
+						+ URLEncoder
+								.encode(
+										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment\"]",
+										"UTF-8")
+						+ "&start=0&limit=10");
+
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.QueryRequest\":{\"com.klistret.cmdb.ci.pojo.expressions\":[\"declare mapping pojo:configuration=col:Environment; declare namespace pojo=\\\"http://www.klistret.com/cmdb/ci/pojo\\\"; declare namespace commons=\\\"http://www.klistret.com/cmdb/ci/commons\\\"; declare namespace col=\\\"http://www.klistret.com/cmdb/ci/element/logical/collection\\\"; /pojo:Element[pojo:name=\\\"Saturnus\\\"]\"],\"com.klistret.cmdb.ci.pojo.start\":0,\"com.klistret.cmdb.ci.pojo.limit\":100}}";
-
-		request.contentType(MediaType.APPLICATION_JSON);
-		request.content(requestBodyAsString.getBytes("UTF-8"));
-	
 		dispatcher.invoke(request, response);
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-		
+
 		System.out.println(response.getContentAsString());
 	}
 }
