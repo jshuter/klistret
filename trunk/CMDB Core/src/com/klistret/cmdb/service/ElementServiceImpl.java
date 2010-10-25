@@ -17,6 +17,7 @@ package com.klistret.cmdb.service;
 import java.util.List;
 
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 
@@ -32,8 +33,7 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.get(id);
 	}
 
-	public List<Element> find(List<String> expressions, int start,
-			int limit) {
+	public List<Element> find(List<String> expressions, int start, int limit) {
 		if (start < 0)
 			throw new ApplicationException(String.format(
 					"Start parameter [%d] less than zero", start));
@@ -46,6 +46,17 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.find(expressions, start, limit);
 	}
 
+	public QueryResponse query(List<String> expressions, int start, int limit) {
+		List<Element> elements = find(expressions, start, limit);
+
+		QueryResponse qr = new QueryResponse();
+		qr.setSuccessful(true);
+		qr.setCount(elements.size());
+		qr.setElements(elements);
+
+		return qr;
+	}
+
 	public Element create(Element element) {
 		if (element.getId() != null)
 			throw new ApplicationException(String.format(
@@ -54,7 +65,11 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.set(element);
 	}
 
-	public Element update(Long id, Element element) {
+	public Element update(Element element) {
+		if (element.getId() == null)
+			throw new ApplicationException(String.format(
+					"Update against a non-persistent element [%s]", element));
+
 		return elementDAO.set(element);
 	}
 

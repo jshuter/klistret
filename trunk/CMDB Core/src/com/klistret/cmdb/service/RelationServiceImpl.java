@@ -53,7 +53,7 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.set(relation);
 	}
 
-	public Relation update(Long id, Relation relation) {
+	public Relation update(Relation relation) {
 		return relationDAO.set(relation);
 	}
 

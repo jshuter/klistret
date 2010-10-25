@@ -29,6 +29,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.QueryResponse;
 
 @Path("/resteasy")
 @Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -52,9 +53,19 @@ public interface ElementService {
 	 * @param limit
 	 * @return Elements
 	 */
+	List<Element> find(List<String> expressions, int start, int limit);
+
+	/**
+	 * Wrapper service for Ajax clients
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
 	@GET
 	@Path("/element")
-	List<Element> find(@QueryParam("expressions")
+	QueryResponse query(@QueryParam("expressions")
 	List<String> expressions, @QueryParam("start")
 	@DefaultValue("0")
 	int start, @QueryParam("limit")
@@ -78,9 +89,8 @@ public interface ElementService {
 	 * @return Element
 	 */
 	@PUT
-	@Path("/element/{id}")
-	Element update(@PathParam("id")
-	Long id, Element element);
+	@Path("/element")
+	Element update(Element element);
 
 	/**
 	 * Delete an element

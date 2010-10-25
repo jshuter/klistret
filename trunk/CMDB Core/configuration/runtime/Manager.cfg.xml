@@ -39,6 +39,8 @@
 				</prop>
 				<prop key="find">PROPAGATION_REQUIRED,timeout_20
 				</prop>
+				<prop key="query">PROPAGATION_REQUIRED,timeout_20
+				</prop>
 				<prop key="update">PROPAGATION_REQUIRED,timeout_20
 				</prop>
 				<prop key="create">PROPAGATION_REQUIRED,timeout_20
