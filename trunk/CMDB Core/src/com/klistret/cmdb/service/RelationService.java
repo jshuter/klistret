@@ -17,34 +17,65 @@ package com.klistret.cmdb.service;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
 
 @Path("/resteasy")
+@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface RelationService {
 	@GET
-	@Path("/relation/get/{id}")
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Relation getById(@PathParam("id")
+	@Path("/relation/{id}")
+	Relation get(@PathParam("id")
 	Long id);
 
-	List<Relation> findByExpressions(List<String> expressions, int start, int limit);
+	@GET
+	@Path("/relation")
+	List<Relation> find(@QueryParam("expressions")
+	List<String> expressions, @QueryParam("start")
+	@DefaultValue("0")
+	int start, @QueryParam("limit")
+	@DefaultValue("10")
+	int limit);
 
+	/**
+	 * Create a relation
+	 * 
+	 * @param relation
+	 * @return Relation
+	 */
 	@POST
-	@Path("/relation/find")
-	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	QueryResponse findByExpressions(QueryRequest queryRequest);
+	@Path("/relation")
+	Relation create(Relation relation);
 
-	@POST
-	@Path("/relation/set")
-	@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Relation set(Relation relation);
+	/**
+	 * Update an relation
+	 * 
+	 * @param relation
+	 * @return Relation
+	 */
+	@PUT
+	@Path("/relation/{id}")
+	Relation update(@PathParam("id")
+	Long id, Relation relation);
+
+	/**
+	 * Delete an relation
+	 * 
+	 * @param id
+	 */
+	@DELETE
+	@Path("/relation/{id}")
+	void delete(@PathParam("id")
+	Long id);
 }

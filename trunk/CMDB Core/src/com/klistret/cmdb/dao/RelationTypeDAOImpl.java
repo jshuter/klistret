@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
@@ -21,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.RelationType;
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 /**
@@ -43,31 +46,50 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 	 * @throws InfrastructureException
 	 *             when Hibernate criteria does not return a unique result
 	 */
-	public RelationType getByCompositeId(String name) {
-		logger.debug("getting relation type by composite id [{}]", name);
+	public RelationType get(String name) {
+		logger.debug("Getting relation type by composite id [{}]", name);
 
 		Criteria criteria = getSession().createCriteria(
 				com.klistret.cmdb.ci.pojo.RelationType.class);
-
 		criteria.add(Restrictions.isNull("toTimeStamp"));
 		criteria.add(Restrictions.eq("name", name));
 
 		try {
 			RelationType relationType = (RelationType) criteria.uniqueResult();
 
-			if (relationType != null) {
-				logger.debug("found relation type [{}]", relationType
+			if (relationType != null)
+				logger.debug("Found relation type [{}]", relationType
 						.toString());
-			}
 
 			return relationType;
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running get by composite ID [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
 
+	/**
+	 * Uses ILike expression to match by name and the to-timestamp is forced to
+	 * be null.
+	 * 
+	 * @param name
+	 * @return List
+	 */
+	@SuppressWarnings("unchecked")
+	public List<RelationType> find(String name) {
+		logger.debug("Finding relation type by composite id [{}]", name);
+
+		if (name == null)
+			throw new ApplicationException("Name parameter is null");
+
+		try {
+			Criteria query = getSession().createCriteria("RelationType");
+
+			query.add(Restrictions.ilike("name", name));
+			query.add(Restrictions.isNull("toTimeStamp"));
+
+			return query.list();
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
 }

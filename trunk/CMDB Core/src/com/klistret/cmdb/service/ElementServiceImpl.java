@@ -16,16 +16,11 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.dao.ElementDAO;
+import com.klistret.cmdb.exception.ApplicationException;
 
 public class ElementServiceImpl implements ElementService {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(ElementServiceImpl.class);
 
 	private ElementDAO elementDAO;
 
@@ -34,19 +29,28 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	public Element get(Long id) {
-		return elementDAO.getById(id);
+		return elementDAO.get(id);
 	}
 
-	public List<Element> findByExpressions(List<String> expressions) {
-		return elementDAO.findByExpressions(expressions, 0, 10);
-	}
-
-	public List<Element> findByExpressions(List<String> expressions, int start,
+	public List<Element> find(List<String> expressions, int start,
 			int limit) {
-		return elementDAO.findByExpressions(expressions, start, limit);
+		if (start < 0)
+			throw new ApplicationException(String.format(
+					"Start parameter [%d] less than zero", start));
+
+		if (limit < 0 || limit > 100)
+			throw new ApplicationException(String.format(
+					"Limit parameter [%d] less than zero or greater than 100",
+					limit));
+
+		return elementDAO.find(expressions, start, limit);
 	}
 
 	public Element create(Element element) {
+		if (element.getId() != null)
+			throw new ApplicationException(String.format(
+					"Create against a persistent element [%s]", element));
+
 		return elementDAO.set(element);
 	}
 
@@ -55,6 +59,7 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	public void delete(Long id) {
+		elementDAO.delete(id);
 	}
 
 }

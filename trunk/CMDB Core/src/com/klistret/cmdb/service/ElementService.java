@@ -25,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
@@ -43,14 +44,6 @@ public interface ElementService {
 	Long id);
 
 	/**
-	 * Get elements that fulfill the XPath expressions (criterion)
-	 * 
-	 * @param expressions
-	 * @return Elements
-	 */
-	List<Element> findByExpressions(List<String> expressions);
-
-	/**
 	 * Get elements that fulfill the XPath expressions (criterion) at a start
 	 * position up to the specified limit (i.e. maximum result size)
 	 * 
@@ -61,9 +54,11 @@ public interface ElementService {
 	 */
 	@GET
 	@Path("/element")
-	List<Element> findByExpressions(@QueryParam("expressions")
+	List<Element> find(@QueryParam("expressions")
 	List<String> expressions, @QueryParam("start")
+	@DefaultValue("0")
 	int start, @QueryParam("limit")
+	@DefaultValue("10")
 	int limit);
 
 	/**

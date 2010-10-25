@@ -14,7 +14,7 @@
 
 package com.klistret.cmdb.service;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.ci.pojo.ElementType;
@@ -27,16 +27,11 @@ public class ElementTypeServiceImpl implements ElementTypeService {
 		this.elementTypeDAO = elementTypeDAO;
 	}
 
-	public Integer countByName(String name) {
-		return elementTypeDAO.countByName(name);
+	public ElementType get(String name) {
+		return elementTypeDAO.get(name);
 	}
-
-	public Collection<ElementType> findByName(String name) {
-		return elementTypeDAO.findByName(name);
+	
+	public List<ElementType> find(String name) {
+		return elementTypeDAO.find(name);
 	}
-
-	public ElementType getByCompositeId(String name) {
-		return elementTypeDAO.getByCompositeId(name);
-	}
-
 }

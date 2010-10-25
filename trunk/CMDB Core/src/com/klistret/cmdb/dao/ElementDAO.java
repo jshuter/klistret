@@ -37,7 +37,7 @@ public interface ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	Element getById(Long id);
+	Element get(Long id);
 
 	/**
 	 * CRUD find by criteria where the criteria is a list of XPath expressions
@@ -48,7 +48,7 @@ public interface ElementDAO {
 	 * @param limit
 	 * @return List
 	 */
-	List<Element> findByExpressions(List<String> expressions, int start, int limit);
+	List<Element> find(List<String> expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update
@@ -57,4 +57,11 @@ public interface ElementDAO {
 	 * @return Element
 	 */
 	Element set(Element element);
+	
+	/**
+	 * CRUD delete
+	 * 
+	 * @param id
+	 */
+	void delete(Long id);
 }

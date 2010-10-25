@@ -37,7 +37,7 @@
 			<props>
 				<prop key="get">PROPAGATION_REQUIRED,timeout_20
 				</prop>
-				<prop key="findByExpressions">PROPAGATION_REQUIRED,timeout_20
+				<prop key="find">PROPAGATION_REQUIRED,timeout_20
 				</prop>
 				<prop key="update">PROPAGATION_REQUIRED,timeout_20
 				</prop>

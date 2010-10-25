@@ -16,19 +16,11 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.klistret.cmdb.dao.RelationDAO;
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.exception.InfrastructureException;
-import com.klistret.cmdb.ci.pojo.QueryRequest;
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
 
 public class RelationServiceImpl implements RelationService {
-	private static final Logger logger = LoggerFactory
-			.getLogger(RelationServiceImpl.class);
 
 	private RelationDAO relationDAO;
 
@@ -36,40 +28,37 @@ public class RelationServiceImpl implements RelationService {
 		this.relationDAO = relationDAO;
 	}
 
-	public Relation getById(Long id) {
-		return relationDAO.getById(id);
+	public Relation get(Long id) {
+		return relationDAO.get(id);
 	}
 
-	public List<Relation> findByExpressions(List<String> expressions, int start,
-			int limit) {
-		return relationDAO.findByExpressions(expressions, start, limit);
+	public List<Relation> find(List<String> expressions, int start, int limit) {
+		if (start < 0)
+			throw new ApplicationException(String.format(
+					"Start parameter [%d] less than zero", start));
+
+		if (limit < 0 || limit > 100)
+			throw new ApplicationException(String.format(
+					"Limit parameter [%d] less than zero or greater than 100",
+					limit));
+
+		return relationDAO.find(expressions, start, limit);
 	}
 
-	public QueryResponse findByExpressions(QueryRequest queryRequest) {
-		QueryResponse queryResponse = new QueryResponse();
+	public Relation create(Relation relation) {
+		if (relation.getId() != null)
+			throw new ApplicationException(String.format(
+					"Create against a persistent relation [%s]", relation));
 
-		try {
-			List<Relation> relations = findByExpressions(queryRequest
-					.getExpressions().toArray(new String[0]), queryRequest
-					.getStart(), queryRequest.getLimit());
-			queryResponse.setRelations(relations);
-			queryResponse.setCount(relations.size());
-			queryResponse.setSuccessful(true);
-		} catch (ApplicationException e) {
-			logger.error("Error executing query: {}", e);
-			queryResponse.setCount(0);
-			queryResponse.setSuccessful(false);
-		} catch (InfrastructureException e) {
-			logger.error("Error executing query: {}", e);
-			queryResponse.setCount(0);
-			queryResponse.setSuccessful(false);
-		}
-
-		return queryResponse;
-	}
-
-	public Relation set(Relation relation) {
 		return relationDAO.set(relation);
+	}
+
+	public Relation update(Long id, Relation relation) {
+		return relationDAO.set(relation);
+	}
+
+	public void delete(Long id) {
+		relationDAO.delete(id);
 	}
 
 }

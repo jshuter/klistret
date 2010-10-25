@@ -14,30 +14,28 @@
 
 package com.klistret.cmdb.service;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.ElementType;
 
 @Path("/resteasy")
+@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface ElementTypeService {
 
 	@GET
-	@Path("/elementType/get/{name}")
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	ElementType getByCompositeId(@PathParam("name")
+	@Path("/elementType/{name}")
+	ElementType get(@PathParam("name")
 	String name);
 
 	@GET
-	@Path("/elementType/find/{name}")
-	@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	Collection<ElementType> findByName(@PathParam("name")
+	@Path("/elementType")
+	List<ElementType> find(@QueryParam("name")
 	String name);
-
-	Integer countByName(String name);
 }
