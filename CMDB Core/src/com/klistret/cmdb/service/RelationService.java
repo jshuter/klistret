@@ -65,9 +65,8 @@ public interface RelationService {
 	 * @return Relation
 	 */
 	@PUT
-	@Path("/relation/{id}")
-	Relation update(@PathParam("id")
-	Long id, Relation relation);
+	@Path("/relation")
+	Relation update(Relation relation);
 
 	/**
 	 * Delete an relation

@@ -180,7 +180,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * date
 	 */
 	public void delete(Long id) {
-		Element element = get(id);
+		Criteria criteria = getSession().createCriteria(Element.class);
+		criteria.add(Restrictions.idEq(id));
+
+		Element element = (Element) criteria.uniqueResult();
 
 		if (element.getToTimeStamp() != null)
 			throw new ApplicationException(String.format(
@@ -190,7 +193,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
-			getSession().update("Element", element);
+			getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
