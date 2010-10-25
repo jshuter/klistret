@@ -74,13 +74,13 @@ public class RestEasyService {
 		System.out.println(responseBodyAsString);
 	}
 
-	// @Test
+	@Test
 	public void put() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.put("/resteasy/element");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.id\":123,\"com.klistret.cmdb.ci.pojo.name\":\"Mars\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-10-08T23:52:09.963+02:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/logical\\/collection}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.logical.collection:Environment\",\"@Watermark\":\"test\",\"com.klistret.cmdb.ci.commons.Name\":\"Mars\"}}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.id\":123,\"com.klistret.cmdb.ci.pojo.name\":\"Mars\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-10-08T23:52:09.963+02:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/logical\\/collection}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.logical.collection:Environment\",\"@Watermark\":\"past\",\"com.klistret.cmdb.ci.commons.Name\":\"Mars\"}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -104,7 +104,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	//@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="
