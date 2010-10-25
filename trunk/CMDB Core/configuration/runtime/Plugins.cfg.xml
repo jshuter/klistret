@@ -18,22 +18,16 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
  http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd ">
 
-	<bean id="identification"
-		class="com.klistret.cmdb.aspects.persistence.Identification">
-		<property name="persistenceRules" value="classpath:persistence.rules.xml" />
-		<property name="ciContextHelper" ref="ciContextHelper" />
-	</bean>
-
 	<bean id="elementIdentification"
-		class="com.klistret.cmdb.aspects.persistence.ElementIdentification">
-		<property name="identification" ref="identification" />
+		class="com.klistret.cmdb.plugin.persistence.aspect.ElementIdentification">
+		<property name="url" value="classpath:persistence.rules.xml" />
 		<property name="elementService" ref="elementService" />
 	</bean>
 
 	<aop:config>
 		<aop:aspect ref="elementIdentification">
 			<aop:pointcut id="setElementPointcut"
-				expression="execution(* com.klistret.cmdb.service.ElementService.set(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
+				expression="execution(* com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
 			<aop:before pointcut-ref="setElementPointcut"
 				method="identify" />
 		</aop:aspect>

@@ -19,8 +19,8 @@ public class ElementIdentification {
 
 	private ElementService elementService;
 
-	public void setURL(URL persistenceURL) {
-		this.ciIdentification = new CIIdentification(persistenceURL);
+	public void setUrl(URL url) {
+		this.ciIdentification = new CIIdentification(url);
 	}
 
 	public void setElementService(ElementService elementService) {
