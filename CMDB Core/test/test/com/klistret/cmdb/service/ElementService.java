@@ -46,8 +46,8 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.get(new Long(81));
 		System.out.println(element.getName());
@@ -57,7 +57,7 @@ public class ElementService extends
 	// @Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
-				.getByCompositeId("{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment");
+				.get("{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment");
 
 		Element element = new Element();
 		element.setId(new Long(81));
@@ -81,8 +81,8 @@ public class ElementService extends
 	public void findByExpr() {
 		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment\"]" };
 
-		List<Element> response = elementService.findByExpressions(Arrays
-				.asList(expressions), 0, 10);
+		List<Element> response = elementService.find(
+				Arrays.asList(expressions), 0, 10);
 		for (Element element : response)
 			System.out.println(String.format("Element id: %s, name: %s",
 					element.getId(), element.getName()));

@@ -36,8 +36,7 @@ public class ElementIdentification {
 			return;
 		}
 
-		List<Element> results = elementService.findByExpressions(criterion, 0,
-				10);
+		List<Element> results = elementService.find(criterion, 0, 10);
 
 		if (element.getId() == null && !results.isEmpty()) {
 			logger

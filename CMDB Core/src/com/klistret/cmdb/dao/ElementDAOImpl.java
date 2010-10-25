@@ -50,13 +50,15 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @see com.klistret.cmdb.dao.ElementDAO.findByCriteria
 	 * @return Collection
 	 */
-	public List<Element> findByExpressions(List<String> expressions, int start,
-			int limit) {
+	public List<Element> find(List<String> expressions, int start, int limit) {
 		try {
-			if (expressions == null) {
-				logger.error("Expressions parameter is null");
+			logger
+					.debug(
+							"Finding elements by expression from start position [{}] with limit [{}]",
+							start, limit);
+
+			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null");
-			}
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
@@ -103,10 +105,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			return elements;
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running criteria [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
@@ -119,21 +117,19 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @param id
 	 * @return Element
 	 */
-	public Element getById(Long id) {
+	public Element get(Long id) {
 		try {
-			Criteria criteria = getSession().createCriteria(Element.class);
+			logger.debug("Getting element [id: {}] by id ", id);
 
+			Criteria criteria = getSession().createCriteria(Element.class);
 			criteria.add(Restrictions.idEq(id));
 
-			logger.debug("getting element [id: {}] by id ", id);
 			Element proxy = (Element) criteria.uniqueResult();
-			logger.debug("found element [id: {}] by id ", id);
+			logger.debug("Found element [id: {}] by id ", id);
 
-			if (proxy == null) {
-				logger.error("element [id: {}] does not exist", id);
+			if (proxy == null)
 				throw new ApplicationException(String.format(
-						"element [id: %s] does not exist", id));
-			}
+						"Element [id: %s] does not exist", id));
 
 			Element element = new Element();
 			element.setId(proxy.getId());
@@ -151,10 +147,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			return element;
 
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException getting Element [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
@@ -175,15 +167,34 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		try {
 			getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException setting Element [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("save/update element [{}]", element.toString());
+		logger.info("Save/update element [{}]", element.toString());
 
 		return element;
+	}
+
+	/**
+	 * Delete an element by setting the ToTimeStamp attribute to the current
+	 * date
+	 */
+	public void delete(Long id) {
+		Element element = get(id);
+
+		if (element.getToTimeStamp() != null)
+			throw new ApplicationException(String.format(
+					"Element [id: %d] has already been deleted", id));
+
+		element.setToTimeStamp(new java.util.Date());
+		element.setUpdateTimeStamp(new java.util.Date());
+
+		try {
+			getSession().update("Element", element);
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+
+		logger.info("Deleted element [{}]", element);
 	}
 }

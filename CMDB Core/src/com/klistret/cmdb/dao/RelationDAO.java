@@ -30,7 +30,7 @@ public interface RelationDAO {
 	 * @param id
 	 * @return Relation
 	 */
-	Relation getById(Long id);
+	Relation get(Long id);
 
 	/**
 	 * CRUD find by criteria where the criteria is a list of XPath expressions
@@ -41,7 +41,7 @@ public interface RelationDAO {
 	 * @param limit
 	 * @return List
 	 */
-	List<Relation> findByExpressions(List<String> expressions, int start, int limit);
+	List<Relation> find(List<String> expressions, int start, int limit);
 
 	/**
 	 * CRUD save/update
@@ -50,4 +50,11 @@ public interface RelationDAO {
 	 * @return Relation
 	 */
 	Relation set(Relation relation);
+	
+	/**
+	 * CRUD delete
+	 * 
+	 * @param id
+	 */
+	void delete(Long id);
 }

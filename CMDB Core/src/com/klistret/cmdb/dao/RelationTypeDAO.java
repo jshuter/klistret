@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.List;
+
 import com.klistret.cmdb.ci.pojo.RelationType;
 
 /**
@@ -29,5 +31,13 @@ public interface RelationTypeDAO {
 	 * @param name
 	 * @return RelationType
 	 */
-	RelationType getByCompositeId(String name);
+	RelationType get(String name);
+	
+	/**
+	 * CRUD find by name used in an ILike expression
+	 * 
+	 * @param name
+	 * @return List
+	 */
+	List<RelationType> find(String name);
 }

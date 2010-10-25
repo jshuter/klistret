@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.service;
 
+import java.util.List;
+
 import com.klistret.cmdb.dao.RelationTypeDAO;
 import com.klistret.cmdb.ci.pojo.RelationType;
 
@@ -25,8 +27,11 @@ public class RelationTypeServiceImpl implements RelationTypeService {
 		this.relationTypeDAO = relationTypeDAO;
 	}
 
-	public RelationType getByCompositeId(String name) {
-		return this.relationTypeDAO.getByCompositeId(name);
+	public RelationType get(String name) {
+		return this.relationTypeDAO.get(name);
 	}
 
+	public List<RelationType> find(String name) {
+		return relationTypeDAO.find(name);
+	}
 }

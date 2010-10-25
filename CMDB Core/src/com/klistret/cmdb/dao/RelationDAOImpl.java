@@ -43,59 +43,16 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 	/**
 	 * 
-	 * @param id
-	 * @return Relation
 	 */
-	public Relation getById(Long id) {
+	public List<Relation> find(List<String> expressions, int start, int limit) {
 		try {
-			Criteria criteria = getSession().createCriteria(Relation.class);
-
-			criteria.add(Restrictions.idEq(id));
-
-			logger.debug("getting relation [id: {}] by id ", id);
-			Relation proxy = (Relation) criteria.uniqueResult();
-			logger.debug("found relation [id: {}] by id ", id);
-
-			if (proxy == null) {
-				logger.error("relation [id: {}] does not exist", id);
-				throw new ApplicationException(String.format(
-						"relation [id: %s] does not exist", id));
-			}
-
-			Relation relation = new Relation();
-			relation.setId(proxy.getId());
-			relation.setType(proxy.getType());
-			relation.setName(proxy.getName());
-			relation.setFromTimeStamp(proxy.getFromTimeStamp());
-			relation.setToTimeStamp(proxy.getToTimeStamp());
-			relation.setCreateId(proxy.getCreateId());
-			relation.setCreateTimeStamp(proxy.getCreateTimeStamp());
-			relation.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
-			relation.setConfiguration(proxy.getConfiguration());
-
-			proxy = null;
-
-			return relation;
-
-		} catch (HibernateException he) {
 			logger
-					.error(
-							"HibernateException getting Relation [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
-			throw new InfrastructureException(he.getMessage(), he.getCause());
-		}
-	}
+					.debug(
+							"Finding relations by expression from start position [{}] with limit [{}]",
+							start, limit);
 
-	/**
-	 * 
-	 */
-	public List<Relation> findByExpressions(List<String> expressions, int start,
-			int limit) {
-		try {
-			if (expressions == null) {
-				logger.error("Expressions parameter is null");
+			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null");
-			}
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
@@ -142,10 +99,45 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			return relations;
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running criteria [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
+	/**
+	 * 
+	 * @param id
+	 * @return Relation
+	 */
+	public Relation get(Long id) {
+		try {
+			logger.debug("Getting relation [id: {}] by id ", id);
+
+			Criteria criteria = getSession().createCriteria(Relation.class);
+			criteria.add(Restrictions.idEq(id));
+
+			Relation proxy = (Relation) criteria.uniqueResult();
+			logger.debug("Found relation [id: {}] by id ", id);
+
+			if (proxy == null)
+				throw new ApplicationException(String.format(
+						"relation [id: %s] does not exist", id));
+
+			Relation relation = new Relation();
+			relation.setId(proxy.getId());
+			relation.setType(proxy.getType());
+			relation.setName(proxy.getName());
+			relation.setFromTimeStamp(proxy.getFromTimeStamp());
+			relation.setToTimeStamp(proxy.getToTimeStamp());
+			relation.setCreateId(proxy.getCreateId());
+			relation.setCreateTimeStamp(proxy.getCreateTimeStamp());
+			relation.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
+			relation.setConfiguration(proxy.getConfiguration());
+
+			proxy = null;
+
+			return relation;
+
+		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
@@ -162,16 +154,34 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		try {
 			getSession().saveOrUpdate("Relation", relation);
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException setting Relation [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("save/update relation [{}]", relation.toString());
+		logger.info("Save/update relation [{}]", relation.toString());
 
 		return relation;
 	}
 
+	/**
+	 * Delete an element by setting the ToTimeStamp attribute to the current
+	 * date
+	 */
+	public void delete(Long id) {
+		Relation relation = get(id);
+
+		if (relation.getToTimeStamp() != null)
+			throw new ApplicationException(String.format(
+					"Relation [id: %d] has already been deleted", id));
+
+		relation.setToTimeStamp(new java.util.Date());
+		relation.setUpdateTimeStamp(new java.util.Date());
+
+		try {
+			getSession().update("Relation", relation);
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+
+		logger.info("Deleted relation [{}]", relation);
+	}
 }

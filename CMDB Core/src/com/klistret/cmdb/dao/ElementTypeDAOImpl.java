@@ -14,7 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -69,19 +69,46 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	}
 
 	/**
+	 * 
+	 * @param name
+	 * @return ElementType
+	 */
+	public ElementType get(String name) {
+		logger.debug("Getting element type by composite id [{}]", name);
+
+		if (name == null)
+			throw new ApplicationException("Name parameter is null");
+
+		Criteria criteria = getSession().createCriteria(
+				com.klistret.cmdb.ci.pojo.ElementType.class);
+		criteria.add(Restrictions.isNull("toTimeStamp"));
+		criteria.add(Restrictions.eq("name", name));
+
+		try {
+			ElementType elementType = (ElementType) criteria.uniqueResult();
+
+			if (elementType != null)
+				logger.debug("Found element type [{}]", elementType.toString());
+
+			return elementType;
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
+	/**
 	 * Uses ILike expression to match by name and the to-timestamp is forced to
 	 * be null.
 	 * 
 	 * @param name
-	 * @return Collection
+	 * @return List
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<ElementType> findByName(
-			String name) {
-		if (name == null) {
-			logger.error("Name parameter is null");
+	public List<ElementType> find(String name) {
+		logger.debug("Finding element type by composite id [{}]", name);
+
+		if (name == null)
 			throw new ApplicationException("Name parameter is null");
-		}
 
 		try {
 			Criteria query = getSession().createCriteria("ElementType");
@@ -91,47 +118,6 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 
 			return query.list();
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running criteria [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
-			throw new InfrastructureException(he.getMessage(), he.getCause());
-		}
-	}
-
-	/**
-	 * 
-	 * @param name
-	 * @return ElementType
-	 */
-	public ElementType getByCompositeId(String name) {
-		if (name == null) {
-			logger.error("Name parameter is null");
-			throw new ApplicationException("Name parameter is null");
-		}
-
-		logger.debug("getting element type by composite id [{}]", name);
-
-		Criteria criteria = getSession().createCriteria(
-				com.klistret.cmdb.ci.pojo.ElementType.class);
-
-		criteria.add(Restrictions.isNull("toTimeStamp"));
-		criteria.add(Restrictions.eq("name", name));
-
-		try {
-			ElementType elementType = (ElementType) criteria
-					.uniqueResult();
-
-			if (elementType != null) {
-				logger.debug("found element type [{}]", elementType.toString());
-			}
-
-			return elementType;
-		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException getting by id [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
