@@ -90,7 +90,7 @@
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
-	
+
 	<xs:simpleType name="BusinessCategory">
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
@@ -98,7 +98,7 @@
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
 			<xs:element name="Name" type="Name" maxOccurs="1"></xs:element>
-			<xs:element name="Namespace" type="Namespace"
+			<xs:element name="Namespace" type="Namespace" minOccurs="0"
 				maxOccurs="1">
 			</xs:element>
 			<xs:element name="Tag" type="Tag" minOccurs="0"
@@ -121,7 +121,7 @@
 			<xs:extension base="Base">
 				<xs:sequence>
 					<xs:element name="Ownership" type="Ownership"
-						maxOccurs="1">
+						maxOccurs="1" minOccurs="0">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>

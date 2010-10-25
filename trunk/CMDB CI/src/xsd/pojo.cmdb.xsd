@@ -77,20 +77,19 @@
 	</xs:simpleType>
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
-			<xs:element name="id" type="id" maxOccurs="1"
-				minOccurs="1" />
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1" />
 			<xs:element name="name" type="name" maxOccurs="1"
 				minOccurs="1" />
 			<xs:element name="fromTimeStamp" type="fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="toTimeStamp"
 				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="createId"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createTimeStamp"
-				type="createTimeStamp" maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp"
-				type="updateTimeStamp" maxOccurs="1" minOccurs="1" />
+			<xs:element name="createId" type="createId" maxOccurs="1"
+				minOccurs="0" />
+			<xs:element name="createTimeStamp" type="createTimeStamp"
+				maxOccurs="1" minOccurs="1" />
+			<xs:element name="updateTimeStamp" type="updateTimeStamp"
+				maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="Element">
@@ -131,8 +130,8 @@
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="configuration"
 						type="commons:Element" maxOccurs="1" minOccurs="1" />
-					<xs:element name="sourceRelations"
-						type="Relation" maxOccurs="unbounded" minOccurs="0" />
+					<xs:element name="sourceRelations" type="Relation"
+						maxOccurs="unbounded" minOccurs="0" />
 					<xs:element name="destinationRelations"
 						type="Relation" maxOccurs="unbounded" minOccurs="0" />
 				</xs:sequence>
@@ -256,27 +255,7 @@
 			<xs:extension base="Base"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	<xs:complexType name="QueryRequest">
-		<xs:annotation>
-			<xs:appinfo>
-				<ci:Proxy />
-			</xs:appinfo>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="expressions" type="xs:string"
-				maxOccurs="unbounded" minOccurs="1" />
-			<xs:element name="start" type="xs:int" maxOccurs="1"
-				minOccurs="0" default="0" />
-			<xs:element name="limit" type="xs:int" maxOccurs="1"
-				minOccurs="0" default="10" />
-		</xs:sequence>
-	</xs:complexType>
-	<xs:simpleType name="ResponseSuccessful">
-		<xs:annotation>
-			<xs:documentation>Object name</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:boolean" />
-	</xs:simpleType>
+
 	<xs:complexType name="QueryResponse">
 		<xs:annotation>
 			<xs:appinfo>
@@ -284,7 +263,7 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="successful" type="ResponseSuccessful"
+			<xs:element name="successful" type="xs:boolean"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="count" type="xs:int" maxOccurs="1"
 				minOccurs="1" />
@@ -298,6 +277,5 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
-	
-	<xs:element name="QueryResponse" type="QueryResponse"></xs:element>
+
 </xs:schema>
