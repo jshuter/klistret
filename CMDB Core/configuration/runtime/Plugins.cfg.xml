@@ -26,9 +26,13 @@
 
 	<aop:config>
 		<aop:aspect ref="elementIdentification">
-			<aop:pointcut id="setElementPointcut"
+			<aop:pointcut id="updatePointcut"
 				expression="execution(* com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
-			<aop:before pointcut-ref="setElementPointcut"
+			<aop:pointcut id="createPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.create(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
+			<aop:before pointcut-ref="updatePointcut"
+				method="identify" />
+			<aop:before pointcut-ref="createPointcut"
 				method="identify" />
 		</aop:aspect>
 	</aop:config>

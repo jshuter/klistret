@@ -20,6 +20,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -101,4 +102,15 @@ public interface ElementService {
 	@Path("/element/{id}")
 	void delete(@PathParam("id")
 	Long id);
+
+	/**
+	 * Preflighed requests
+	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain
+	 * access necessary for local testing
+	 * 
+	 */
+	@OPTIONS
+	@Path("/element")
+	@Produces( { MediaType.TEXT_HTML })
+	String preflighted();
 }
