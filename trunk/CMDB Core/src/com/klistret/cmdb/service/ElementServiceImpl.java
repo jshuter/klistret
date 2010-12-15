@@ -16,12 +16,18 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 
 public class ElementServiceImpl implements ElementService {
+	
+	private static final Logger logger = LoggerFactory
+	.getLogger(ElementServiceImpl.class);
 
 	private ElementDAO elementDAO;
 
@@ -77,4 +83,9 @@ public class ElementServiceImpl implements ElementService {
 		elementDAO.delete(id);
 	}
 
+	public String preflighted() {
+		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
+		
+		return "HTTP OPTIONS accepted";
+	}
 }

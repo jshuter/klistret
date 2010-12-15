@@ -45,10 +45,10 @@ public class RestEasyService {
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
 	}
 
-	// @Test
+	@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/81");
+		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/123");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -74,7 +74,7 @@ public class RestEasyService {
 		System.out.println(responseBodyAsString);
 	}
 
-	@Test
+	//@Test
 	public void put() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.put("/resteasy/element");
@@ -89,7 +89,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	//@Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
