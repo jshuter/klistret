@@ -189,8 +189,6 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 			throw {message: "JsonReader.read: Json object not found"};
 		}
 		
-		//var o = this.rewriteProperties(raw);
-
 		if (this.wrapped) {
 			for (var prop in o) {
 				if (typeof prop === 'string') {
