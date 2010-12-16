@@ -183,7 +183,8 @@ CMDB.Environment.Search = {
 				loadMask     : true,
     				
 	    		viewConfig   : {
-					forceFit   : true
+					forceFit   : true,
+					emptyText  : 'No rows to display'
 				}
    		 	});
     	
@@ -206,6 +207,7 @@ CMDB.Environment.Search = {
     	winGrid.getStore().load({
     		params   : 'start=0&limit=20&'+Ext.urlEncode({expressions : expressions[0]})+'&'+Ext.urlEncode({expressions : expressions[1]})
     	});
+    	winGrid.getView().refresh();
 	},
 	
 	// Buttons
