@@ -52,9 +52,6 @@ CMDB.Environment.Search = {
 		padding    : 10
 	},
 	
-	// Results
-	resultsWindows : new Array(),
-	
 	// Children
 	items : [
 		// Eastern panel (help)
@@ -122,7 +119,7 @@ CMDB.Environment.Search = {
 							mode                 : 'local',
                             forceSelection       : true,
                             
-                            expression           : '{0}'
+                            expression           : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[@Watermark=\"{0}\"]'
 						}
 					]
 				}
@@ -142,76 +139,73 @@ CMDB.Environment.Search = {
 			}
         });
         
-		var reader = new CMDB.JsonReader(
-			{
-				totalProperty       : 'com.klistret.cmdb.ci.pojo.count',
-    			successProperty     : 'com.klistret.cmdb.ci.pojo.successful',
-    			idProperty          : 'com.klistret.cmdb.ci.pojo.id',
-    			root                : 'com.klistret.cmdb.ci.pojo.elements'
-			}, 
-			[
-				{name: 'Id', mapping: 'com.klistret.cmdb.ci.pojo.id'},
-    			{name: 'Name', mapping: 'com.klistret.cmdb.ci.pojo.name'},
-    			{name: 'Watermark', mapping: 'com.klistret.cmdb.ci.pojo.configuration/@Watermark'}
-			]
-		);
+        var win = desktop.getWindow('EnvironmentSearchResults');
+        if (!win) {
+			var reader = new CMDB.JsonReader(
+				{
+					totalProperty       : 'com.klistret.cmdb.ci.pojo.count',
+    				successProperty     : 'com.klistret.cmdb.ci.pojo.successful',
+    				idProperty          : 'com.klistret.cmdb.ci.pojo.id',
+    				root                : 'com.klistret.cmdb.ci.pojo.elements'
+				}, 
+				[
+					{name: 'Id', mapping: 'com.klistret.cmdb.ci.pojo.id'},
+    				{name: 'Name', mapping: 'com.klistret.cmdb.ci.pojo.name'},
+    				{name: 'Watermark', mapping: 'com.klistret.cmdb.ci.pojo.configuration/@Watermark'}
+				]
+			);
 		
+        	Ext.Ajax.defaultHeaders = {
+ 				'Accept'        : 'application/json,application/xml,text/html',
+ 				'Content-Type'  : 'application/json'
+			};
         
-        Ext.Ajax.defaultHeaders = {
- 			'Accept'        : 'application/json,application/xml,text/html',
- 			'Content-Type'  : 'application/json'
-		};
-        
-        var ds = new Ext.data.Store({
-        	proxy      : new Ext.data.HttpProxy({
-            	url      : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
-            	method   : 'GET'
-        	}),
+	        var ds = new Ext.data.Store({
+				proxy      : new Ext.data.HttpProxy({
+					url      : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
+					method   : 'GET'
+        		}),
         	
-        	reader     : reader 
-    	});
+        		reader     : reader 
+    		});
     	
-    	ds.load({
-    		params   :  {
-        		start    : 0,
-        		limit    : 20,
-        		expressions : expressions[0]
-        	}
-    	});
-    	
-    	var grid = new Ext.grid.GridPanel({
-    		border       : false,
+    		var grid = new Ext.grid.GridPanel({
+    			border       : false,
     				
-    		store         : ds,
+    			store         : ds,
     				
-    		columns       : [
-    			{header: "Id", width: 40, sortable: true, dataIndex: 'Id'},
-				{header: "Name", width: 120, sortable: true, dataIndex: 'Name'},
-				{header: "Watermark", width: 120, sortable: true, dataIndex: 'Watermark'}
-			],
+    			columns       : [
+    				{header: "Id", width: 40, sortable: true, dataIndex: 'Id'},
+					{header: "Name", width: 120, sortable: true, dataIndex: 'Name'},
+					{header: "Watermark", width: 120, sortable: true, dataIndex: 'Watermark'}
+				],
 			
-			loadMask     : true,
+				loadMask     : true,
     				
-    		viewConfig   : {
-				forceFit   : true
-			}
-    	});
+	    		viewConfig   : {
+					forceFit   : true
+				}
+   		 	});
     	
-    	var win = desktop.createWindow({
-    		id           : 'environmentResults'+this.resultsWindows.length,
-    		title        : 'Search results (environment)',
+  	  		win = desktop.createWindow({
+    			id           : 'EnvironmentSearchResults',
+    			title        : 'Search results - Environment',
     		
-    		width        : 740,
-    		height       : 480,
+    			width        : 740,
+    			height       : 480,
     		
-    		iconCls      : 'icon-grid',
+    			iconCls      : 'icon-grid',
     		
-    		layout       : 'fit',
-    		items        : grid 
-    	});
-    	
-    	this.resultsWindows[this.resultsWindows.length] = win;
+   		 		layout       : 'fit',
+    			items        : grid 
+    		});
+		}
     	win.show();
+    	
+    	var winGrid = win.findByType('grid')[0];
+    	winGrid.getStore().load({
+    		params   : 'start=0&limit=20&'+Ext.urlEncode({expressions : expressions[0]})+'&'+Ext.urlEncode({expressions : expressions[1]})
+    	});
 	},
 	
 	// Buttons
@@ -273,7 +267,7 @@ CMDB.Environment.Edit = {
 					fieldLabel           : 'Name',
 					allowBlank           : false,
 					blankText            : 'Enter a unique environment name',
-					jsonMapping          : 'com.klistret.cmdb.ci.pojo.name'
+					jsonMapping          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'
 				},
 				{
 					xtype                : 'combo',
@@ -282,7 +276,7 @@ CMDB.Environment.Edit = {
 					displayField         : 'name',
 					mode                 : 'local',
 					forceSelection       : true,
-					jsonMapping          : 'com.klistret.cmdb.ci.pojo.configuration/@Watermark'
+					jsonMapping          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'
 				},
 				{
 					xtype                : 'combo',
@@ -301,18 +295,24 @@ CMDB.Environment.Edit = {
 		}
 	],
 	
+	doLoad : function() {
+	},
+	
 	doSave : function() {
 		var formPanel = this.findByType('form')[0];
 		var form = formPanel.getForm();
 		
-		if (!this.environment || !this.environment["com.klistret.cmdb.ci.pojo.id"]) {
+		if (!this.environment || !this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
 			this.environment = {
-				"com.klistret.cmdb.ci.pojo.type"              : CMDB.EnvironmentType.Empty,
-				"com.klistret.cmdb.ci.pojo.fromTimeStamp"     : new Date(),
-				"com.klistret.cmdb.ci.pojo.createTimeStamp"   : new Date(),
-				"com.klistret.cmdb.ci.pojo.updateTimeStamp"   : new Date(),
-				"com.klistret.cmdb.ci.pojo.configuration"     : {
-					"@www.w3.org.2001.XMLSchema-instance.type"       : "com.klistret.cmdb.ci.element.logical.collection:Environment"
+				"com.klistret.cmdb.ci.pojo.Element" : {
+					"com.klistret.cmdb.ci.pojo.fromTimeStamp"     : new Date(),
+					"com.klistret.cmdb.ci.pojo.createTimeStamp"   : new Date(),
+					"com.klistret.cmdb.ci.pojo.updateTimeStamp"   : new Date(),
+					"com.klistret.cmdb.ci.pojo.type"              : CMDB.EnvironmentType.Empty,
+					"com.klistret.cmdb.ci.pojo.configuration"     : {
+						"@www.w3.org.2001.XMLSchema-instance.type"       : "com.klistret.cmdb.ci.element.logical.collection:Environment",
+						"@Watermark"                                     : "whatever"
+					}
 				}
 			};
 		}
@@ -335,15 +335,61 @@ CMDB.Environment.Edit = {
           		prop[part] = item.getValue();
 			}
         }, this);
+        
+        this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.configuration"]["com.klistret.cmdb.ci.commons.Name"] = this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"];
 		
-		var dummy = "";
+		Ext.Ajax.defaultHeaders = {
+ 			'Accept'        : 'application/json,application/xml,text/html',
+ 			'Content-Type'  : 'application/json'
+		};
+		
+		this.mask.show();
+		Ext.Ajax.request({
+			url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
+			
+			method        : !this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] ? 'POST' : 'PUT',
+
+			jsonData      : Ext.encode(this.environment),
+			
+			scope         : this,
+			success       : function ( result, request ) {
+				this.environment = Ext.util.JSON.decode(result.responseText);
+                
+                this.mask.hide();
+                this.StatusText.setText('Succesfully saved ' + new Date().format('g:i:s A'));
+			},
+			failure       : function ( result, request ) {
+				var jsonData = Ext.util.JSON.decode(result.responseText);
+				
+				this.mask.hide();
+				this.StatusText.setText('Failed saving data');
+			}
+		});
+		
 	},
 	
-	buttons       : [
+	buttonAlign: 'left',
+	
+	fbar          : [
 		{
+			xtype        : 'tbtext',
+			text         : !this.environment ? 'CI is unsaved' : 'Last updated ' + this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.updateTimeStamp"],
+			
+			ref          : '../StatusText'
+		},
+		{
+			xtype        : 'tbfill'
+		},
+		{
+		    xtype        : 'button',
 			text         : 'Save',
 			handler      : function(b, e) {
 				var win = b.findParentByType('window');
+				
+				if (!win.mask) {
+					win.mask = new Ext.LoadMask(win.getEl(), {msg:'Saving. Please wait...'});
+				}
+				
 				win.doSave();
 			},
 			scope        : this // Scope is defaults to the Window (viewport)

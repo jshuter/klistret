@@ -60,7 +60,6 @@ CMDB.CreateMenuModule = Ext.extend(Ext.app.Module, {
                     	handler     : this.createWindow,
                     	scope       : this,
                     	config      : CMDB.Environment.Edit,
-                    	windowId    : 'EnvironmentCreate',
                     	windowTitle : 'Environment Create'
 					},
 					'-',
@@ -87,18 +86,15 @@ CMDB.CreateMenuModule = Ext.extend(Ext.app.Module, {
 	
 	createWindow : function(src) {
 		var desktop = this.app.getDesktop();
-        var win = desktop.getWindow(src.windowId);
         
-        if(!win){
-            win = desktop.createWindow(
-            	Ext.applyIf(
-            		{
-            			id      : src.windowId,
-            			title   : src.windowTitle
-            		},
-            		src.config)
-            );  // end create window
-        }
+        win = desktop.createWindow(
+           	Ext.applyIf(
+           		{
+           			title   : src.windowTitle
+           		},
+           		src.config)
+          );  // end create window
+
         win.show();
 	}
 });
