@@ -1,7 +1,13 @@
+/**
+ * Necessary namespaces
+*/
 Ext.namespace('CMDB.Environment');
 Ext.namespace('CMDB.EnvironmentType');
 
 
+/**
+ * Test-only
+*/
 CMDB.Environment.CategoryStore = new Ext.data.ArrayStore({
 	fields       : ['shortName', 'name', 'description'],
     data         : [
@@ -11,6 +17,9 @@ CMDB.Environment.CategoryStore = new Ext.data.ArrayStore({
 });
 
 
+/**
+ * Test-only
+*/
 CMDB.Environment.OwnershipStore = new Ext.data.ArrayStore({
 	fields       : ['shortName', 'name', 'description'],
     data         : [
@@ -21,6 +30,9 @@ CMDB.Environment.OwnershipStore = new Ext.data.ArrayStore({
 });
 
 
+/**
+ * Test-only
+*/
 CMDB.EnvironmentType.Empty = {
 	"com.klistret.cmdb.ci.pojo.id" : 1,
 	"com.klistret.cmdb.ci.pojo.name" : "{http://www.klistret.com/cmdb/ci/element/logical/collection}Environment",
@@ -30,7 +42,10 @@ CMDB.EnvironmentType.Empty = {
 };
 
 
-// Environment search configuration
+/**
+ * Configuration defining the search window containing a border
+ * layout with a center (critria) and eastern (help) panel.
+*/
 CMDB.Environment.Search = {
 	// Title shown
 	title : "Environment Search",
@@ -52,7 +67,7 @@ CMDB.Environment.Search = {
 		padding    : 10
 	},
 	
-	// Children
+	// Child configuration items
 	items : [
 		// Eastern panel (help)
 		{
@@ -90,6 +105,9 @@ CMDB.Environment.Search = {
 						width     : 300
 					},			
 					
+					/**
+					 * Each item has an "exprssion" property that is a XPath criteria
+					*/
 					items       : [
 						{
 							xtype                : 'textfield',
@@ -102,14 +120,14 @@ CMDB.Environment.Search = {
 							fieldLabel           : 'Created after',
 							format               : 'Y-m-d',
 							
-							expression           : '{0}'
+							expression           : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
 						},
 						{
 							xtype                : 'datefield',
 							fieldLabel           : 'Created before',
 							format               : 'Y-m-d',
 							
-							expression           : '{0}'
+							expression           : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 						},
 						{
 							xtype                : 'combo',
@@ -127,18 +145,15 @@ CMDB.Environment.Search = {
 		}
 	],
 	
+	/**
+	 * Search method that creates a results window if not present
+	 * and applies the criteria (expression) properties to the 
+	 * Store via the HttpProxy.
+	*/
 	doSearch : function(desktop) {
-		var formPanel = this.findByType('form')[0];
-		var form = formPanel.getForm();
-		
-		var expressions = new Array();
-		
-		form.items.each(function(item) {
-			if (!Ext.isEmpty(item.getValue())) {
-				expressions[expressions.length] = String.format(item.expression, item.getValue());
-			}
-        });
-        
+		/**
+		 * Find the results window, create if not present
+		*/
         var win = desktop.getWindow('EnvironmentSearchResults');
         if (!win) {
 			var reader = new CMDB.JsonReader(
@@ -168,6 +183,21 @@ CMDB.Environment.Search = {
         	
         		reader     : reader 
     		});
+    		
+    		ds.on(
+				'loadexception',
+				PageBus.publish.createDelegate(
+					PageBus,
+					[
+						'CMDB.Search.Exception',
+						{
+							state        : 'Error', 
+							elementType  : 'Environment'
+						}
+					],
+					0
+				)
+			);
     	
     		var grid = new Ext.grid.GridPanel({
     			border       : false,
@@ -183,9 +213,59 @@ CMDB.Environment.Search = {
 				loadMask     : true,
     				
 	    		viewConfig   : {
-					forceFit   : true,
-					emptyText  : 'No rows to display'
-				}
+					forceFit   : true
+				},
+				
+				bbar: new Ext.PagingToolbar({
+            		pageSize      : 20,
+					store         : ds,
+            		displayInfo   : true,
+            		displayMsg    : 'Displaying rows {0} - {1} of {2}',
+            		emptyMsg      : 'No rows to display',
+            		
+            		doLoad        : function(start){
+            			var o = {}, pn = this.getParams();
+        				o[pn.start] = start;
+        				o[pn.limit] = this.pageSize;
+            			
+            			if(this.fireEvent('beforechange', this, o) !== false){
+            				this.store.load({
+            					params   : 'start='+start+'&limit='+this.pageSize+'&'+this.store.expressions
+            				});
+        				}
+            		},
+            		
+            		items:[
+                		'-', 
+                		{
+                			xtype          : 'button',
+                			text           : 'Delete',
+                			cls            : 'x-btn-text-icon remove',
+                			handler        : function(b, e) {
+                				var grid = b.findParentByType('grid');
+                				
+                				var selected = grid.getSelectionModel().getSelected();
+                				
+                				if (selected) {
+                					Ext.Ajax.defaultHeaders = {
+ 										'Accept'        : 'application/json,application/xml,text/html',
+ 										'Content-Type'  : 'application/json'
+									};
+		
+									Ext.Ajax.request({
+										url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+selected.get('Id'),
+			
+										method        : 'DELETE',
+			
+										scope         : grid,
+										success       : function ( result, request ) {},
+										failure       : function ( result, request ) {}
+									});
+                				}
+                			}
+                		}
+            		]
+        		})
    		 	});
     	
   	  		win = desktop.createWindow({
@@ -203,17 +283,54 @@ CMDB.Environment.Search = {
 		}
     	win.show();
     	
-    	var winGrid = win.findByType('grid')[0];
-    	winGrid.getStore().load({
-    		params   : 'start=0&limit=20&'+Ext.urlEncode({expressions : expressions[0]})+'&'+Ext.urlEncode({expressions : expressions[1]})
-    	});
-    	winGrid.getView().refresh();
+    	/**
+    	 * Get underlying form and loop through item expressions
+    	*/
+    	var formPanel = this.findByType('form')[0];
+		var form = formPanel.getForm();
+		
+		var expressions;	
+		form.items.each(function(item) {
+			if (!Ext.isEmpty(item.getValue())) {
+				// Dates specially handled, should a converter function to each item instead
+				var expression = Ext.isDate(item.getValue()) ? String.format(item.expression, item.getValue().format('Y-m-d\\TH:i:s.uP')) : String.format(item.expression, item.getValue());
+				expressions = !expressions ? Ext.urlEncode({expressions : expression}) : expressions + '&' + Ext.urlEncode({expressions : expression});
+			}
+        });
+        
+        // Only active elements
+        var activeOnly = 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]';
+        expressions = !expressions ? Ext.urlEncode({expressions : activeOnly}) : expressions + '&' + Ext.urlEncode({expressions : activeOnly});
+        
+        /**
+         * Service must return an empty array to denote no results (null does nothing)
+        */
+    	if (expressions) {
+    		var winGrid = win.findByType('grid')[0];
+    		
+    		winGrid.getStore().expressions = expressions;
+    		winGrid.getStore().load({
+    			params   : 'start=0&limit=20&'+expressions
+    		});
+    	}
 	},
 	
+	/**
+	 Necessary for the fbar items to align properly
+	*/
+	buttonAlign : 'left',
+	
 	// Buttons
-	buttons : [
-		// Search
+	fbar        : [
 		{
+			xtype        : 'tbtext',
+			ref          : '../StatusText'
+		},
+		{
+			xtype        : 'tbfill'
+		},
+		{
+			xtype        : 'button',
 			text         : 'Search',
 			handler      : function(b, e) {
 				var win = b.findParentByType('window');
@@ -224,7 +341,9 @@ CMDB.Environment.Search = {
 	]
 };
 
-// Environment search configuration
+/**
+ * Configuration for editor window
+*/
 CMDB.Environment.Edit = {
 	// Title shown
 	title         : "Environment Editing",
@@ -246,6 +365,9 @@ CMDB.Environment.Edit = {
 		padding : 10
 	},
 	
+	/**
+	 * Accordian forms (general, ...)
+	*/
 	items         : [
 		{
 			title        : 'General',
@@ -262,14 +384,18 @@ CMDB.Environment.Edit = {
 			defaults     : {
 				width     : 300
 			},
-							
+			
+			/**
+			 * Each item has a elementMapping if the form field is an 
+			 * element or attribute to the CIs configuration XML
+			*/				
 			items       : [
 				{
 					xtype                : 'textfield',
 					fieldLabel           : 'Name',
 					allowBlank           : false,
 					blankText            : 'Enter a unique environment name',
-					jsonMapping          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'
 				},
 				{
 					xtype                : 'combo',
@@ -278,7 +404,7 @@ CMDB.Environment.Edit = {
 					displayField         : 'name',
 					mode                 : 'local',
 					forceSelection       : true,
-					jsonMapping          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'
 				},
 				{
 					xtype                : 'combo',
@@ -297,15 +423,21 @@ CMDB.Environment.Edit = {
 		}
 	],
 	
+	/**
+	 * Load forms with data
+	*/
 	doLoad : function() {
 	},
 	
+	/**
+	 * Save form data to element plus relations 
+	*/
 	doSave : function() {
-		var formPanel = this.findByType('form')[0];
-		var form = formPanel.getForm();
-		
-		if (!this.environment || !this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
-			this.environment = {
+		/**
+		 * Create a CI element if not present
+		*/		
+		if (!this.element || !this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
+			this.element = {
 				"com.klistret.cmdb.ci.pojo.Element" : {
 					"com.klistret.cmdb.ci.pojo.fromTimeStamp"     : new Date(),
 					"com.klistret.cmdb.ci.pojo.createTimeStamp"   : new Date(),
@@ -319,43 +451,62 @@ CMDB.Environment.Edit = {
 			};
 		}
 		
-		form.items.each(function(item) {
-			if (!Ext.isEmpty(item.getValue())) {
-				var parts = (item.jsonMapping || '').split('/'),
-					prop = this.environment,
-					part;
+		/**
+		 * Loop through the forms and pick out data to the CI element,relations
+		*/
+		Ext.each(this.findByType('form'), function(formPanel) {
+			var form = formPanel.getForm();
+			
+			// CI element data only based of elementMapping expressions
+			form.items.each(function(item) {
+				if (!Ext.isEmpty(item.getValue()) && item.elementMapping) {
+					var parts = (item.elementMapping || '').split('/'),
+						prop = this.element,
+						part;
 				
-				part = parts.shift();	
-				while (parts.length > 0) {
-					if (!prop.hasOwnProperty(part)) {
-						prop[part] = {};
-					}
-					prop = prop[part];
-					part = parts.shift(); 
-          		}
+					part = parts.shift();	
+					while (parts.length > 0) {
+						if (!prop.hasOwnProperty(part)) {
+							prop[part] = {};
+						}
+						prop = prop[part];
+						part = parts.shift(); 
+          			}
           		
-          		prop[part] = item.getValue();
-			}
-        }, this);
+          			prop[part] = item.getValue();
+				}
+        	}, this); // set scope to this configuration
+        	
+        	// TO-DO: relation mappings
+        }, this);  // set scope to this configuration
         
-        this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.configuration"]["com.klistret.cmdb.ci.commons.Name"] = this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"];
+        /**
+         * Follow-up code
+        */
+        this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.configuration"]["com.klistret.cmdb.ci.commons.Name"] = this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"];
+		
+		
+		/**
+		 * First mask the window then make a request to either create or
+		 * update the element
+ 		*/
+		this.mask.show();
 		
 		Ext.Ajax.defaultHeaders = {
  			'Accept'        : 'application/json,application/xml,text/html',
  			'Content-Type'  : 'application/json'
 		};
 		
-		this.mask.show();
 		Ext.Ajax.request({
 			url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
 			
-			method        : !this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] ? 'POST' : 'PUT',
+			method        : !this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] ? 'POST' : 'PUT',
 
-			jsonData      : Ext.encode(this.environment),
+			jsonData      : Ext.encode(this.element),
 			
 			scope         : this,
 			success       : function ( result, request ) {
-				this.environment = Ext.util.JSON.decode(result.responseText);
+				this.element = Ext.util.JSON.decode(result.responseText);
                 
                 this.mask.hide();
                 this.StatusText.setText('Succesfully saved ' + new Date().format('g:i:s A'));
@@ -370,12 +521,18 @@ CMDB.Environment.Edit = {
 		
 	},
 	
+	/**
+	 Necessary for the fbar items to align properly
+	*/
 	buttonAlign: 'left',
 	
+	/**
+	 * Gives status text to the left and buttons to the right
+	*/
 	fbar          : [
 		{
 			xtype        : 'tbtext',
-			text         : !this.environment ? 'CI is unsaved' : 'Last updated ' + this.environment["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.updateTimeStamp"],
+			text         : !this.element ? 'CI is unsaved' : 'Last updated ' + this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.updateTimeStamp"],
 			
 			ref          : '../StatusText'
 		},
