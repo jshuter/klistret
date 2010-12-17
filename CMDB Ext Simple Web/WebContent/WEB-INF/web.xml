@@ -12,7 +12,11 @@
 	
 	<context-param>
         <param-name>resteasy.providers</param-name>
-        <param-value>com.klistret.cmdb.utility.resteasy.AccessControlInterceptor</param-value>
+        <param-value>
+        	com.klistret.cmdb.utility.resteasy.AccessControlInterceptor,
+        	com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper,
+        	com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper
+        </param-value>
     </context-param>
 
 	<listener>
