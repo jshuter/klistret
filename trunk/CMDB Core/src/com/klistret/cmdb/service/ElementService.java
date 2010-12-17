@@ -110,7 +110,7 @@ public interface ElementService {
 	 * 
 	 */
 	@OPTIONS
-	@Path("/element")
+	@Path("/{var:.*}")
 	@Produces( { MediaType.TEXT_HTML })
 	String preflighted();
 }
