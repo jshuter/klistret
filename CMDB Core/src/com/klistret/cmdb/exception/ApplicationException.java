@@ -14,20 +14,15 @@
 
 package com.klistret.cmdb.exception;
 
-@SuppressWarnings("serial")
-public class ApplicationException extends RuntimeException {
-	public ApplicationException() {
-	}
+import org.springframework.core.NestedRuntimeException;
 
+@SuppressWarnings("serial")
+public class ApplicationException extends NestedRuntimeException {
 	public ApplicationException(String message) {
 		super(message);
 	}
 
 	public ApplicationException(String message, Throwable cause) {
 		super(message, cause);
-	}
-
-	public ApplicationException(Throwable cause) {
-		super(cause);
 	}
 }

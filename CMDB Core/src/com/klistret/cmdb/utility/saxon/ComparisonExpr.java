@@ -75,6 +75,8 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			break;
 
 		default:
+			logger
+					.error("Only the = operator is supported for general comparisons.  Most likely the expression is determined irresolute because a value comparison was intended.");
 			throw new IrresoluteException(String.format(
 					"General expression [%s] using unsupported operator [%d]",
 					expression, expression.getOperator()));

@@ -14,10 +14,11 @@
 
 package com.klistret.cmdb.exception;
 
+import org.springframework.core.NestedRuntimeException;
+
 @SuppressWarnings("serial")
-public class InfrastructureException extends RuntimeException {
-	public InfrastructureException() {
-	}
+public class InfrastructureException extends NestedRuntimeException {
+
 
 	public InfrastructureException(String message) {
 		super(message);
@@ -27,7 +28,4 @@ public class InfrastructureException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public InfrastructureException(Throwable cause) {
-		super(cause);
-	}
 }
