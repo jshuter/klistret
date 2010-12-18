@@ -30,8 +30,14 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
 
+/**
+ * Element service provides the basic CRUD methods plus a find which uses XPath
+ * expressions to build criteria. Support for cross-domain scripting is built in
+ * to speed up testing and can be disabled in the Web context in production.
+ * 
+ * @author Matthew Young
+ */
 @Path("/resteasy")
 @Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -54,27 +60,17 @@ public interface ElementService {
 	 * @param limit
 	 * @return Elements
 	 */
-	List<Element> find(List<String> expressions, int start, int limit);
-
-	/**
-	 * Wrapper service for Ajax clients
-	 * 
-	 * @param expressions
-	 * @param start
-	 * @param limit
-	 * @return
-	 */
 	@GET
 	@Path("/element")
-	QueryResponse query(@QueryParam("expressions")
+	List<Element> find(@QueryParam("expressions")
 	List<String> expressions, @QueryParam("start")
 	@DefaultValue("0")
 	int start, @QueryParam("limit")
-	@DefaultValue("10")
+	@DefaultValue("25")
 	int limit);
 
 	/**
-	 * Create an element
+	 * Creating an element is subject to AOP checks
 	 * 
 	 * @param element
 	 * @return Element
@@ -84,7 +80,7 @@ public interface ElementService {
 	Element create(Element element);
 
 	/**
-	 * Update an element
+	 * Updating an element is subject to AOP checks
 	 * 
 	 * @param element
 	 * @return Element
@@ -94,7 +90,7 @@ public interface ElementService {
 	Element update(Element element);
 
 	/**
-	 * Delete an element
+	 * Delete an element (soft-delete)
 	 * 
 	 * @param id
 	 */

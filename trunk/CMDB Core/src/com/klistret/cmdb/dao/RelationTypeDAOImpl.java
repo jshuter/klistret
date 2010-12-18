@@ -79,7 +79,8 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 		logger.debug("Finding relation type by composite id [{}]", name);
 
 		if (name == null)
-			throw new ApplicationException("Name parameter is null");
+			throw new ApplicationException("Name parameter is null",
+					new IllegalArgumentException());
 
 		try {
 			Criteria query = getSession().createCriteria("RelationType");

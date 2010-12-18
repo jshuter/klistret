@@ -1,3 +1,17 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package com.klistret.cmdb.plugin.persistence.aspect;
 
 import java.net.URL;
@@ -44,30 +58,58 @@ import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class CIIdentification {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(CIIdentification.class);
 
+	/**
+	 * JAXB Context
+	 */
 	private JAXBContext jaxbContext;
 
+	/**
+	 * JAXB Unmarshaller
+	 */
 	private Unmarshaller unmarshaller;
 
+	/**
+	 * Persistence XML representation
+	 */
 	private Persistence persistence;
 
+	/**
+	 * Cache of path expressions for QName which identify CIs
+	 */
 	private Map<QName, List<PathExpression[]>> cache = new HashMap<QName, List<PathExpression[]>>();
 
+	/**
+	 * XQuery that gets the types in the persistence XML and the rules
+	 * associated with each type to locate the underlying criteria for
+	 * identification. Criteria are returned by type (according to the order of
+	 * the type array passed to the query) with empty order attributes being
+	 * first.
+	 */
 	private static String criterionQuery = "declare default element namespace \'http://www.klistret.com/cmdb/plugin/persistence\'; "
-			+ "for $classname at $classnameIndex in (%s) "
-			+ "let $rule := /Persistence/Identification[@Type = $classname] "
+			+ "for $type at $typeIndex in (%s) "
+			+ "let $rule := /Persistence/Identification[@Type = $type] "
 			+ "for $criterion in /Persistence/Criterion[@Name = $rule/CriterionRule/@Name] "
-			+ "order by $classnameIndex, $rule/CriterionRule/@Order empty greatest "
+			+ "order by $typeIndex, $rule/CriterionRule/@Order empty greatest "
 			+ "return $criterion";
 
+	/**
+	 * QName syntax as a regular expression
+	 */
 	static final Pattern typeSyntax = Pattern.compile("\\{(.*)\\}(.*)");
 
 	/**
-	 * Constructor
+	 * Constructor building a local JAXB context consisting of the Persistence
+	 * and Criterion XML representations
 	 * 
 	 * @param url
 	 */

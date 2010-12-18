@@ -19,47 +19,75 @@ import org.junit.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.HttpResponseCodes;
 
+import com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper;
+import com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper;
+
+/**
+ * Element services tested through the RestEasy mock servlet
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class RestEasyService {
 
+	/**
+	 * Mock dispatcher
+	 */
 	private Dispatcher dispatcher;
 
+	/**
+	 * Spring application context
+	 */
 	private ConfigurableApplicationContext factory;
 
+	/**
+	 * Sets up the RestEasy Mock framework
+	 * 
+	 * @throws Exception
+	 */
 	@Before
 	public void setUp() throws Exception {
-		// embedded server
+		// Embedded server
 		dispatcher = MockDispatcherFactory.createDispatcher();
 
-		// load up the processor and build a spring factory
+		// Load up the processor and build a spring factory
 		SpringBeanProcessor processor = new SpringBeanProcessor(dispatcher,
 				null, null);
 		factory = new ClassPathXmlApplicationContext("Spring.cfg.xml");
 		factory.addBeanFactoryPostProcessor(processor);
 
-		// add service to the dispatcher
+		// Add service to the dispatcher
 		SpringResourceFactory noDefaults = new SpringResourceFactory(
 				"elementService", factory,
 				com.klistret.cmdb.service.ElementService.class);
 		dispatcher.getRegistry().addResourceFactory(noDefaults);
+
+		// Necessary providers
+		ResteasyProviderFactory providerFactory = dispatcher
+				.getProviderFactory();
+		providerFactory.registerProvider(ApplicationExceptionMapper.class);
+		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
 	}
 
-	//@Test
+	@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/123");
+		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/12");
 
 		MockHttpResponse response = new MockHttpResponse();
 
 		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+		
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-
-		String responseBodyAsString = response.getContentAsString();
-		System.out.println(responseBodyAsString);
 	}
 
-	// @Test
+	//@Test
 	public void delete() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -68,13 +96,14 @@ public class RestEasyService {
 		MockHttpResponse response = new MockHttpResponse();
 
 		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+		
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-
-		String responseBodyAsString = response.getContentAsString();
-		System.out.println(responseBodyAsString);
 	}
 
-	//@Test
+	// @Test
 	public void put() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.put("/resteasy/element");
@@ -89,7 +118,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	//@Test
+	// @Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
@@ -104,7 +133,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	// @Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="

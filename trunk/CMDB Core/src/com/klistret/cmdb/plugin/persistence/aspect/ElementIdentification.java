@@ -1,7 +1,22 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package com.klistret.cmdb.plugin.persistence.aspect;
 
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +25,11 @@ import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.service.ElementService;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class ElementIdentification {
 
 	private static final Logger logger = LoggerFactory
@@ -27,6 +47,12 @@ public class ElementIdentification {
 		this.elementService = elementService;
 	}
 
+	/**
+	 * If the criterion does not exist the method returns (ie. no proceeding).
+	 * If the element matches existing then an exception is raised.
+	 * 
+	 * @param element
+	 */
 	public void identify(Element element) {
 		List<String> criterion = ciIdentification.getCriterion(element);
 
@@ -47,7 +73,8 @@ public class ElementIdentification {
 					String
 							.format(
 									"Non-persistence element is identical to other elements [count: %d] according to persistence rules ",
-									results.size()));
+									results.size()),
+					new RejectedExecutionException());
 		}
 
 		if (element.getId() != null && !results.isEmpty()) {
@@ -61,7 +88,8 @@ public class ElementIdentification {
 							String
 									.format(
 											"Element [%d] is identical to other [%d] according to persistence rules ",
-											element.getId(), other.getId()));
+											element.getId(), other.getId()),
+							new RejectedExecutionException());
 				}
 			}
 		}

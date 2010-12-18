@@ -17,6 +17,7 @@ package com.klistret.cmdb.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 							start, limit);
 
 			if (expressions == null)
-				throw new ApplicationException("Expressions parameter is null");
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
@@ -125,11 +127,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			criteria.add(Restrictions.idEq(id));
 
 			Element proxy = (Element) criteria.uniqueResult();
-			logger.debug("Found element [id: {}] by id ", id);
 
 			if (proxy == null)
 				throw new ApplicationException(String.format(
-						"Element [id: %s] does not exist", id));
+						"Element [id: %s] not found", id),
+						new NoSuchElementException());
 
 			Element element = new Element();
 			element.setId(proxy.getId());
@@ -187,7 +189,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		if (element.getToTimeStamp() != null)
 			throw new ApplicationException(String.format(
-					"Element [id: %d] has already been deleted", id));
+					"Element [id: %d] has already been deleted", id),
+					new NoSuchElementException());
 
 		element.setToTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());

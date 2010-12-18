@@ -20,25 +20,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.QueryResponse;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 
+/**
+ * Element service implementation
+ * 
+ * @author Matthew Young
+ *
+ */
 public class ElementServiceImpl implements ElementService {
 	
+	/**
+	 * Logger
+	 */
 	private static final Logger logger = LoggerFactory
 	.getLogger(ElementServiceImpl.class);
 
+	/**
+	 * Element DAO
+	 */
 	private ElementDAO elementDAO;
 
+	/**
+	 * Dependency injection
+	 * 
+	 * @param elementDAO
+	 */
 	public void setElementDAO(ElementDAO elementDAO) {
 		this.elementDAO = elementDAO;
 	}
 
+	/**
+	 * Get an element
+	 * 
+	 * @param id
+	 * 
+	 * @return Element
+	 */
 	public Element get(Long id) {
 		return elementDAO.get(id);
 	}
 
+	/**
+	 * Find elements by criteria (XPath).  Results are restricted to 100.
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * 
+	 * @return List<Element>
+	 */
 	public List<Element> find(List<String> expressions, int start, int limit) {
 		if (start < 0)
 			throw new ApplicationException(String.format(
@@ -52,17 +84,13 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.find(expressions, start, limit);
 	}
 
-	public QueryResponse query(List<String> expressions, int start, int limit) {
-		List<Element> elements = find(expressions, start, limit);
-
-		QueryResponse qr = new QueryResponse();
-		qr.setSuccessful(true);
-		qr.setCount(elements.size());
-		qr.setElements(elements);
-
-		return qr;
-	}
-
+	/**
+	 * Create an element if the id property is null
+	 * 
+	 * @param element
+	 * 
+	 * @return Element
+	 */
 	public Element create(Element element) {
 		if (element.getId() != null)
 			throw new ApplicationException(String.format(
@@ -71,6 +99,13 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.set(element);
 	}
 
+	/**
+	 * Update an element
+	 * 
+	 * @param element
+	 * 
+	 * @return Element
+	 */
 	public Element update(Element element) {
 		if (element.getId() == null)
 			throw new ApplicationException(String.format(
@@ -79,10 +114,18 @@ public class ElementServiceImpl implements ElementService {
 		return elementDAO.set(element);
 	}
 
+	/**
+	 * Delete an element (soft-delete)
+	 * 
+	 * @param id
+	 */
 	public void delete(Long id) {
 		elementDAO.delete(id);
 	}
 
+	/**
+	 * Dummy method for pre-flighted calls
+	 */
 	public String preflighted() {
 		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
 		
