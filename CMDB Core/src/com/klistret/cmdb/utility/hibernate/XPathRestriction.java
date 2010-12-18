@@ -168,7 +168,8 @@ public class XPathRestriction implements Criterion {
 						String
 								.format(
 										"XPath [%s] contains surrounding single quotes which DB2 does not allow",
-										xpath));
+										xpath),
+						new UnsupportedOperationException());
 			}
 
 			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",

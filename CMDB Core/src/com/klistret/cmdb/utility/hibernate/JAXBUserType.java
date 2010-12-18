@@ -72,7 +72,8 @@ public class JAXBUserType implements UserType {
 	public Object assemble(Serializable cached, Object owner)
 			throws HibernateException {
 		if (!(cached instanceof String)) {
-			throw new IllegalArgumentException("Cached value must be a String");
+			throw new IllegalArgumentException("Cached value must be a String",
+					new IllegalArgumentException());
 		}
 		logger.debug("assembling string [{}]", (String) cached);
 		return fromXMLString((String) cached);

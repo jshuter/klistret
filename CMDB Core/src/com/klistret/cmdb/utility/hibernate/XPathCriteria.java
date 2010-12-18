@@ -139,7 +139,8 @@ public class XPathCriteria {
 			if (!expression.hasRoot()) {
 				throw new ApplicationException(String.format(
 						"XPath [%s] does not have a root expression",
-						expression.getXPath()));
+						expression.getXPath()),
+						new UnsupportedOperationException());
 			}
 
 			/**
@@ -150,7 +151,8 @@ public class XPathCriteria {
 					&& expression.getExpr(1).getType() == Expr.Type.Step) {
 				throw new ApplicationException(String.format(
 						"XPath [%s] must have at least one Step", expression
-								.getXPath()));
+								.getXPath()),
+						new UnsupportedOperationException());
 			}
 
 			/**
@@ -164,7 +166,8 @@ public class XPathCriteria {
 						String
 								.format(
 										"Context step [%s] must be an element with valid qname",
-										expression.getXPath()));
+										expression.getXPath()),
+						new UnsupportedOperationException());
 			}
 
 			/**
@@ -184,7 +187,8 @@ public class XPathCriteria {
 						String
 								.format(
 										"Leading Bean [%s] not unique across xpath statements [%s]",
-										bean, xpaths));
+										bean, xpaths),
+						new UnsupportedOperationException());
 			}
 
 			/**
@@ -287,7 +291,8 @@ public class XPathCriteria {
 		 */
 		default:
 			throw new ApplicationException(String.format(
-					"Unexpected expr [%s] type for step", step));
+					"Unexpected expr [%s] type for step", step),
+					new UnsupportedOperationException());
 		}
 	}
 

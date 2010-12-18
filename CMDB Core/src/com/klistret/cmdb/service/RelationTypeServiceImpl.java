@@ -19,6 +19,11 @@ import java.util.List;
 import com.klistret.cmdb.dao.RelationTypeDAO;
 import com.klistret.cmdb.ci.pojo.RelationType;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class RelationTypeServiceImpl implements RelationTypeService {
 
 	private RelationTypeDAO relationTypeDAO;

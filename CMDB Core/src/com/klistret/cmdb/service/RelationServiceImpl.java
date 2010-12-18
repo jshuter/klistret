@@ -15,11 +15,17 @@
 package com.klistret.cmdb.service;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.klistret.cmdb.dao.RelationDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.ci.pojo.Relation;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class RelationServiceImpl implements RelationService {
 
 	private RelationDAO relationDAO;
@@ -35,12 +41,13 @@ public class RelationServiceImpl implements RelationService {
 	public List<Relation> find(List<String> expressions, int start, int limit) {
 		if (start < 0)
 			throw new ApplicationException(String.format(
-					"Start parameter [%d] less than zero", start));
+					"Start parameter [%d] less than zero", start),
+					new IllegalArgumentException());
 
 		if (limit < 0 || limit > 100)
 			throw new ApplicationException(String.format(
 					"Limit parameter [%d] less than zero or greater than 100",
-					limit));
+					limit), new IllegalArgumentException());
 
 		return relationDAO.find(expressions, start, limit);
 	}
@@ -48,7 +55,8 @@ public class RelationServiceImpl implements RelationService {
 	public Relation create(Relation relation) {
 		if (relation.getId() != null)
 			throw new ApplicationException(String.format(
-					"Create against a persistent relation [%s]", relation));
+					"Create against a persistent relation [%s]", relation),
+					new RejectedExecutionException());
 
 		return relationDAO.set(relation);
 	}

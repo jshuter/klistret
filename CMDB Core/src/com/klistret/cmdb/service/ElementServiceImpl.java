@@ -15,6 +15,7 @@
 package com.klistret.cmdb.service;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +28,15 @@ import com.klistret.cmdb.exception.ApplicationException;
  * Element service implementation
  * 
  * @author Matthew Young
- *
+ * 
  */
 public class ElementServiceImpl implements ElementService {
-	
+
 	/**
 	 * Logger
 	 */
 	private static final Logger logger = LoggerFactory
-	.getLogger(ElementServiceImpl.class);
+			.getLogger(ElementServiceImpl.class);
 
 	/**
 	 * Element DAO
@@ -63,7 +64,7 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	/**
-	 * Find elements by criteria (XPath).  Results are restricted to 100.
+	 * Find elements by criteria (XPath). Results are restricted to 100.
 	 * 
 	 * @param expressions
 	 * @param start
@@ -74,12 +75,13 @@ public class ElementServiceImpl implements ElementService {
 	public List<Element> find(List<String> expressions, int start, int limit) {
 		if (start < 0)
 			throw new ApplicationException(String.format(
-					"Start parameter [%d] less than zero", start));
+					"Start parameter [%d] less than zero", start),
+					new IllegalArgumentException());
 
 		if (limit < 0 || limit > 100)
 			throw new ApplicationException(String.format(
 					"Limit parameter [%d] less than zero or greater than 100",
-					limit));
+					limit), new IllegalArgumentException());
 
 		return elementDAO.find(expressions, start, limit);
 	}
@@ -94,7 +96,8 @@ public class ElementServiceImpl implements ElementService {
 	public Element create(Element element) {
 		if (element.getId() != null)
 			throw new ApplicationException(String.format(
-					"Create against a persistent element [%s]", element));
+					"Create disallowed against persistent element [%s]",
+					element), new RejectedExecutionException());
 
 		return elementDAO.set(element);
 	}
@@ -109,7 +112,8 @@ public class ElementServiceImpl implements ElementService {
 	public Element update(Element element) {
 		if (element.getId() == null)
 			throw new ApplicationException(String.format(
-					"Update against a non-persistent element [%s]", element));
+					"Update against a non-persistent element [%s]", element),
+					new RejectedExecutionException());
 
 		return elementDAO.set(element);
 	}
@@ -128,7 +132,7 @@ public class ElementServiceImpl implements ElementService {
 	 */
 	public String preflighted() {
 		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
-		
+
 		return "HTTP OPTIONS accepted";
 	}
 }
