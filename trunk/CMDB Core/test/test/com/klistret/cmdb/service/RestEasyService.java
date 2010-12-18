@@ -115,6 +115,10 @@ public class RestEasyService {
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+		
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
@@ -130,6 +134,10 @@ public class RestEasyService {
 		request.content(requestBodyAsString.getBytes("UTF-8"));
 
 		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+		
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
@@ -145,9 +153,11 @@ public class RestEasyService {
 		MockHttpResponse response = new MockHttpResponse();
 
 		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+		
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-
-		System.out.println(response.getContentAsString());
 	}
 
 }
