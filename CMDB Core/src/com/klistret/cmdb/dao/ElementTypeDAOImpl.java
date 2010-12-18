@@ -47,7 +47,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	public Integer countByName(String name) {
 		if (name == null) {
 			logger.error("Name parameter is null");
-			throw new ApplicationException("Name parameter is null");
+			throw new ApplicationException("Name parameter is null",
+					new IllegalArgumentException());
 		}
 
 		try {
@@ -60,10 +61,6 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 
 			return (Integer) query.list().iterator().next();
 		} catch (HibernateException he) {
-			logger
-					.error(
-							"HibernateException running count query by name [message: {}, cause: {}]",
-							he.getMessage(), he.getCause());
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
@@ -77,7 +74,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 		logger.debug("Getting element type by composite id [{}]", name);
 
 		if (name == null)
-			throw new ApplicationException("Name parameter is null");
+			throw new ApplicationException("Name parameter is null",
+					new IllegalArgumentException());
 
 		Criteria criteria = getSession().createCriteria(
 				com.klistret.cmdb.ci.pojo.ElementType.class);
@@ -108,7 +106,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 		logger.debug("Finding element type by composite id [{}]", name);
 
 		if (name == null)
-			throw new ApplicationException("Name parameter is null");
+			throw new ApplicationException("Name parameter is null",
+					new IllegalArgumentException());
 
 		try {
 			Criteria query = getSession().createCriteria("ElementType");

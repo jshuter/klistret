@@ -17,6 +17,7 @@ package com.klistret.cmdb.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -42,6 +43,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			.getLogger(RelationDAOImpl.class);
 
 	/**
+	 * Finds relations based on XPath expressions
 	 * 
 	 */
 	public List<Relation> find(List<String> expressions, int start, int limit) {
@@ -52,7 +54,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 							start, limit);
 
 			if (expressions == null)
-				throw new ApplicationException("Expressions parameter is null");
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
@@ -104,6 +107,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	}
 
 	/**
+	 * Get relation by unique ID
 	 * 
 	 * @param id
 	 * @return Relation
@@ -116,11 +120,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			criteria.add(Restrictions.idEq(id));
 
 			Relation proxy = (Relation) criteria.uniqueResult();
-			logger.debug("Found relation [id: {}] by id ", id);
 
 			if (proxy == null)
 				throw new ApplicationException(String.format(
-						"relation [id: %s] does not exist", id));
+						"Relation [id: %s] not found", id),
+						new NoSuchElementException());
 
 			Relation relation = new Relation();
 			relation.setId(proxy.getId());
@@ -143,6 +147,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	}
 
 	/**
+	 * Update/save relation
 	 * 
 	 */
 	public Relation set(Relation relation) {
@@ -171,7 +176,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		if (relation.getToTimeStamp() != null)
 			throw new ApplicationException(String.format(
-					"Relation [id: %d] has already been deleted", id));
+					"Relation [id: %d] has already been deleted", id),
+					new NoSuchElementException());
 
 		relation.setToTimeStamp(new java.util.Date());
 		relation.setUpdateTimeStamp(new java.util.Date());

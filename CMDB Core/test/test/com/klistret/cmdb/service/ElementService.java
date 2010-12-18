@@ -14,6 +14,8 @@
 
 package test.com.klistret.cmdb.service;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +35,12 @@ import com.klistret.cmdb.ci.element.logical.collection.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 
+/**
+ * Element services are tested directly
+ * 
+ * @author Matthew Young
+ * 
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
 @TransactionConfiguration
@@ -40,9 +48,15 @@ import com.klistret.cmdb.ci.pojo.ElementType;
 public class ElementService extends
 		AbstractTransactionalJUnit4SpringContextTests {
 
+	/**
+	 * Element Service
+	 */
 	@Autowired
 	protected com.klistret.cmdb.service.ElementService elementService;
 
+	/**
+	 * Element Type Services
+	 */
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
@@ -50,7 +64,8 @@ public class ElementService extends
 	// @Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.get(new Long(81));
-		System.out.println(element.getName());
+		
+		assertNotNull(element);
 	}
 
 	// @Test
@@ -74,6 +89,8 @@ public class ElementService extends
 		element.setConfiguration(environment);
 
 		elementService.create(element);
+		
+		assertNotNull(element);
 	}
 
 	@Test
@@ -83,8 +100,7 @@ public class ElementService extends
 
 		List<Element> response = elementService.find(
 				Arrays.asList(expressions), 0, 10);
-		for (Element element : response)
-			System.out.println(String.format("Element id: %s, name: %s",
-					element.getId(), element.getName()));
+		
+		assertNotNull(response);
 	}
 }

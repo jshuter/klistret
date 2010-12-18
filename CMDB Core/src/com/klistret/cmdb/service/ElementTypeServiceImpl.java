@@ -19,10 +19,23 @@ import java.util.List;
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.ci.pojo.ElementType;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class ElementTypeServiceImpl implements ElementTypeService {
 
+	/**
+	 * Element Type DAO
+	 */
 	private ElementTypeDAO elementTypeDAO;
 
+	/**
+	 * Dependency injection
+	 * 
+	 * @param elementTypeDAO
+	 */
 	public void setElementTypeDAO(ElementTypeDAO elementTypeDAO) {
 		this.elementTypeDAO = elementTypeDAO;
 	}

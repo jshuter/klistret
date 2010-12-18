@@ -25,6 +25,11 @@ import javax.ws.rs.core.MediaType;
 
 import com.klistret.cmdb.ci.pojo.ElementType;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 @Path("/resteasy")
 @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface ElementTypeService {
