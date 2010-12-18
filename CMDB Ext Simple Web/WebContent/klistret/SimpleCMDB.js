@@ -189,24 +189,9 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 			throw {message: "JsonReader.read: Json object not found"};
 		}
 		
-		if (this.wrapped) {
-			for (var prop in o) {
-				if (typeof prop === 'string') {
-					o = this.convert(o[prop]);
-					break;
-				}
-			}
-		}
+		var data = response.status == '200' ? {total: o.length, successful: true, rows: o} : {total: 0, successful: false, rows: []};
 
-		if(o.metaData){
-			delete this.ef;
-			this.meta = o.metaData;
-
-			this.recordType = Ext.data.Record.create(o.metaData.fields);
-			this.onMetaChange(this.meta, this.recordType, o);
-		}
-
-		return CMDB.JsonReader.superclass.readRecords.call(this, o);
+		return CMDB.JsonReader.superclass.readRecords.call(this, data);
 	},
 	
 	createAccessor : function(){
@@ -232,15 +217,5 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 				return result;
             };
         };
-    }(),
-	
-	convert : function(o) {
-		var newResult = new Object();
-
-		for (var rootProp in o) {
-			newResult[rootProp] = o[rootProp];
-		}
-
-		return newResult;
-	}
+    }()
 });

@@ -158,15 +158,15 @@ CMDB.Environment.Search = {
         if (!win) {
 			var reader = new CMDB.JsonReader(
 				{
-					totalProperty       : 'com.klistret.cmdb.ci.pojo.count',
-    				successProperty     : 'com.klistret.cmdb.ci.pojo.successful',
-    				idProperty          : 'com.klistret.cmdb.ci.pojo.id',
-    				root                : 'com.klistret.cmdb.ci.pojo.elements'
+					totalProperty       : 'total',
+    				successProperty     : 'successful',
+    				idProperty          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.id',
+    				root                : 'rows'
 				}, 
 				[
-					{name: 'Id', mapping: 'com.klistret.cmdb.ci.pojo.id'},
-    				{name: 'Name', mapping: 'com.klistret.cmdb.ci.pojo.name'},
-    				{name: 'Watermark', mapping: 'com.klistret.cmdb.ci.pojo.configuration/@Watermark'}
+					{name: 'Id', mapping: 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.id'},
+    				{name: 'Name', mapping: 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'},
+    				{name: 'Watermark', mapping: 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'}
 				]
 			);
 		
