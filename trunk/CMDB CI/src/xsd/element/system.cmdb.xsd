@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../commons.cmdb.xsd" />
+
+	<xs:complexType name="System" abstract="true">
+		<xs:annotation>
+			<xs:documentation>
+				A system is a logical framework constituting a runtime
+				made up of software or hardware components
+				(http://en.wikipedia.org/wiki/System). In laymans term a
+				system is where stuff (services) executes whereas
+				components (the physical stuff) are inventory. For
+				example, a online server provides functions for running
+				software and is a computer system. The actual type of
+				server offline might be a Unix machine. The machine
+				disjointed from it's runtime state is just a machine or
+				component bought in buy an IT department.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="commons:Element" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="System" type="System"></xs:element>
+</xs:schema>
