@@ -12,48 +12,41 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/system/computerSystem"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/system/computerSystem"
+	xmlns:system="http://www.klistret.com/cmdb/ci/element/system"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="../commons.cmdb.xsd" />
+		schemaLocation="../../commons.cmdb.xsd" />
 
-	<xs:simpleType name="State">
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element/system"
+		schemaLocation="../computerSystem.cmdb.xsd" />
+
+	<xs:simpleType name="Type">
 		<xs:annotation>
 			<xs:documentation>
-				State or status of the system
+				Virtual machine type
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
-
-	<xs:complexType name="System" abstract="true">
+	
+	<xs:complexType name="VirtualSystem">
 		<xs:annotation>
-			<xs:documentation>
-				A system is a logical framework constituting a runtime
-				made up of software or hardware components
-				(http://en.wikipedia.org/wiki/System). In laymans term a
-				system is where stuff (services) executes whereas
-				components (the physical stuff) are inventory. For
-				example, a online server provides functions for running
-				software and is a computer system. The actual type of
-				server offline might be a Unix machine. The machine
-				disjointed from it's runtime state is just a machine or
-				component bought in buy an IT department.
-			</xs:documentation>
+			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element">
+			<xs:extension base="system:ComputerSystem">
 				<xs:sequence>
-					<xs:element name="State" type="State" maxOccurs="1"
+					<xs:element name="Type" type="Type" maxOccurs="1"
 						minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="System" type="System"></xs:element>
+	<xs:element name="VirtualSystem" type="VirtualSystem"></xs:element>
 </xs:schema>

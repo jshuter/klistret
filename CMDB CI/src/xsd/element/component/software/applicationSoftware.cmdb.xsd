@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
+<xs:schema
+	xmlns="http://www.klistret.com/cmdb/ci/element/component/software"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/component/software"
+	xmlns:component="http://www.klistret.com/cmdb/ci/element/component"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../../commons.cmdb.xsd" />
+
+	<xs:import
+		namespace="http://www.klistret.com/cmdb/ci/element/component"
+		schemaLocation="../software.cmdb.xsd" />
+
+	<xs:complexType name="ApplicationSoftware">
+		<xs:annotation>
+			<xs:documentation>
+				Application software, also known as an application or an
+				"app", is computer software designed to help the user to
+				perform singular or multiple related specific tasks. It
+				helps to solve problems in the real world. Examples
+				include enterprise software, accounting software, office
+				suites, graphics software, and media players.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="component:Software" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="ApplicationSoftware" type="ApplicationSoftware"></xs:element>
+</xs:schema>

@@ -32,8 +32,7 @@
 		<xs:annotation>
 			<xs:documentation>
 				Namespace associated with the base instance allowing for
-				segregation of data into collections (instances may not
-				be unique across namespaces)
+				segregation of data into collections.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -91,27 +90,33 @@
 		</xs:choice>
 	</xs:complexType>
 
-	<xs:simpleType name="BusinessCategory">
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
-
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
-			<xs:element name="Name" type="Name" maxOccurs="1"></xs:element>
+			<xs:element name="Name" type="Name" minOccurs="1"
+				maxOccurs="1">
+			</xs:element>
 			<xs:element name="Namespace" type="Namespace" minOccurs="0"
 				maxOccurs="1">
 			</xs:element>
 			<xs:element name="Tag" type="Tag" minOccurs="0"
 				maxOccurs="unbounded">
 			</xs:element>
+			<xs:element name="Description" type="Description" minOccurs="0"
+				maxOccurs="unbounded">
+			</xs:element>
+			<xs:element name="Annotation" type="Annotation" minOccurs="0"
+				maxOccurs="unbounded">
+			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
+		<xs:attribute name="Version" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="Element" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Root CI (abstract) defining common CI characteristics
+				Root CI for core elements (services, systems, and
+				components) at the heart of a CMDB.
 			</xs:documentation>
 			<xs:appinfo>
 				<ci:Element />
