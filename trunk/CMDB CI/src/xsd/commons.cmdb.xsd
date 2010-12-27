@@ -78,13 +78,15 @@
 	</xs:simpleType>
 
 	<xs:complexType name="Ownership">
+		<xs:annotation>
+			<xs:documentation>
+				Ownership is responsibility over the base instance
+			</xs:documentation>
+		</xs:annotation>
 		<xs:choice>
 			<xs:element name="Name" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>
-						Ownership is responsibility over the base
-						instance
-					</xs:documentation>
+					<xs:documentation>Contact name</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:choice>
@@ -101,11 +103,11 @@
 			<xs:element name="Tag" type="Tag" minOccurs="0"
 				maxOccurs="unbounded">
 			</xs:element>
-			<xs:element name="Description" type="Description" minOccurs="0"
-				maxOccurs="unbounded">
+			<xs:element name="Description" type="Description"
+				minOccurs="0" maxOccurs="unbounded">
 			</xs:element>
-			<xs:element name="Annotation" type="Annotation" minOccurs="0"
-				maxOccurs="unbounded">
+			<xs:element name="Annotation" type="Annotation"
+				minOccurs="0" maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
@@ -115,8 +117,8 @@
 	<xs:complexType name="Element" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Root CI for core elements (services, systems, and
-				components) at the heart of a CMDB.
+				Root CI for core (services, systems, and components) and
+				process (change, problem, incident) elements.
 			</xs:documentation>
 			<xs:appinfo>
 				<ci:Element />
@@ -154,7 +156,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:complexType name="TargetReference">
+	<xs:complexType name="DestinationReference">
 		<xs:complexContent>
 			<xs:extension base="Reference">
 				<xs:sequence></xs:sequence>
@@ -176,13 +178,12 @@
 				<xs:sequence>
 					<xs:element name="Source" type="SourceReference"
 						maxOccurs="1" minOccurs="1" />
-					<xs:element name="Target" type="TargetReference"
-						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Destination"
+						type="DestinationReference" maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
 	<xs:element name="Relation" type="Relation"></xs:element>
-
 </xs:schema>
