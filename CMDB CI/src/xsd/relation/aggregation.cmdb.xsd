@@ -12,8 +12,8 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,23 +21,31 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:complexType name="Component" abstract="true">
+	<xs:complexType name="Aggregation">
 		<xs:annotation>
 			<xs:documentation>
-				A component is physical. Good examples of components are
-				software or hardware that are inventory. When a company
-				buys in a PC offline it is just a component with a
-				serial number, capacity in terms of CPU and memory plus
-				other stuff like network cards. It has latent functions
-				but these capabilities aren't important until the
-				component is put in a live situation and suddenly a
-				component becomes a system (or a logical entity).
+				Aggregation is a variant of the "has a" or association
+				relationship; aggregation is more specific than
+				association. It is an association that represents a
+				part-whole or part-of relationship. As a type of
+				association, an aggregation can be named and have the
+				same adornments that an association can. However, an
+				aggregation may not involve more than two classes.
+
+				Aggregation can occur when a class is a collection or
+				container of other classes, but where the contained
+				classes do not have a strong life cycle dependency on
+				the container—essentially, if the container is
+				destroyed, its contents are not.
+
+				Aggregation is suitable for logical relationships
+				(construction).
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element" />
+			<xs:extension base="commons:Relation"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Component" type="Component"></xs:element>
+	<xs:element name="Aggregation" type="Aggregation" />
 </xs:schema>

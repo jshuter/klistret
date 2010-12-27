@@ -30,7 +30,7 @@
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="element:System" />
+			<xs:extension base="element:Component" />
 		</xs:complexContent>
 	</xs:complexType>
 
