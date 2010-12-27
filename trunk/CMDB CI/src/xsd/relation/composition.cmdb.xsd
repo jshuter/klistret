@@ -12,8 +12,8 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,23 +21,31 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:complexType name="Component" abstract="true">
+	<xs:complexType name="Composition">
 		<xs:annotation>
 			<xs:documentation>
-				A component is physical. Good examples of components are
-				software or hardware that are inventory. When a company
-				buys in a PC offline it is just a component with a
-				serial number, capacity in terms of CPU and memory plus
-				other stuff like network cards. It has latent functions
-				but these capabilities aren't important until the
-				component is put in a live situation and suddenly a
-				component becomes a system (or a logical entity).
+				Composition is a stronger variant of the "owns a" or
+				association relationship; composition is more specific
+				than aggregation. It is represented with a solid diamond
+				shape.
+
+				Composition usually has a strong life cycle dependency
+				between instances of the container class and instances
+				of the contained class(es): If the container is
+				destroyed, normally every instance that it contains is
+				destroyed as well. Note that a part can (where allowed)
+				be removed from a composite before the composite is
+				deleted, and thus not be deleted as part of the
+				composite.
+
+				Composition is more geared towards physical
+				relationships (construction).
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element" />
+			<xs:extension base="commons:Relation"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Component" type="Component"></xs:element>
+	<xs:element name="Composition" type="Composition" />
 </xs:schema>

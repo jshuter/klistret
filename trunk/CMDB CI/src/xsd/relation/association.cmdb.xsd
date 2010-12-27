@@ -17,24 +17,22 @@
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
+
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:complexType name="Association" abstract="true">
+	<xs:complexType name="Association">
 		<xs:annotation>
 			<xs:documentation>
-				Association denotes a permanent relationship between two
-				items
+				Association represents the static relationship shared
+				among the objects of two classes. Example: "department
+				offers courses", is an association relation.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Relation">
-				<xs:attribute name="Weak" type="xs:boolean"
-					default="false" use="optional" />
-			</xs:extension>
+			<xs:extension base="commons:Relation"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Association" type="Association">
-	</xs:element>
+	<xs:element name="Association" type="Association" />
 </xs:schema>

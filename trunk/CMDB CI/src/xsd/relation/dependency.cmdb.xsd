@@ -12,20 +12,25 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation/association"
-	targetNamespace="http://www.klistret.com/cmdb/ci/relation/association"
-	xmlns:relation="http://www.klistret.com/cmdb/ci/relation"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/relation"
+	targetNamespace="http://www.klistret.com/cmdb/ci/relation"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-	<xs:import namespace="http://www.klistret.com/cmdb/ci/relation"
-		schemaLocation="../association.cmdb.xsd" />
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../commons.cmdb.xsd" />
 
 	<xs:complexType name="Dependency">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>
+				Dependency is a weaker form of relationship which
+				indicates that something depends on another because it
+				uses it at some point of time.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="relation:Association"></xs:extension>
+			<xs:extension base="commons:Relation"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
