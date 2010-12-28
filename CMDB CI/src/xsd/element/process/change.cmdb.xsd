@@ -12,18 +12,20 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/change"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element/change"
-	xmlns:element="http://www.klistret.com/cmdb/ci/element"
+<xs:schema
+	xmlns="http://www.klistret.com/cmdb/ci/element/process/change"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/process/change"
+	xmlns:process="http://www.klistret.com/cmdb/ci/element/process"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="../commons.cmdb.xsd" />
+		schemaLocation="../../commons.cmdb.xsd" />
 
-	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
-		schemaLocation="../element.cmdb.xsd" />
+	<xs:import
+		namespace="http://www.klistret.com/cmdb/ci/element/process"
+		schemaLocation="../process.cmdb.xsd" />
 
 	<!-- start of Installation -->
 	<xs:complexType name="Installation">
@@ -31,7 +33,7 @@
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="element:Change">
+			<xs:extension base="process:Change">
 				<xs:sequence>
 					<xs:element name="System"
 						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />

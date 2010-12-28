@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
+<xs:schema
+	xmlns="http://www.klistret.com/cmdb/ci/element/context/lifecycle"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/context/lifecycle"
+	xmlns:context="http://www.klistret.com/cmdb/ci/element/context"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../../commons.cmdb.xsd" />
+
+	<xs:import
+		namespace="http://www.klistret.com/cmdb/ci/element/context"
+		schemaLocation="../context.cmdb.xsd" />
+
+
+	<xs:simpleType name="Phase">
+		<xs:annotation>
+			<xs:documentation>
+				Lifecycle phase such as alpha, beta, live, etc.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
+
+	<!-- start of SoftwareLifecycle -->
+	<xs:complexType name="SoftwareLifecycle">
+		<xs:annotation>
+			<xs:documentation>
+				The software release life cycle is composed of discrete
+				phases that describe the software's maturity as it
+				advances from planning and development to release and
+				support phases.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="context:Lifecycle">
+				<xs:sequence>
+					<xs:element name="Phase" type="Phase" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="SoftwareLifecycle" type="SoftwareLifecycle"></xs:element>
+	<!-- end of SoftwareLifecycle -->
+
+</xs:schema>
