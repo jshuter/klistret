@@ -38,6 +38,13 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
+	<xs:simpleType name="Module">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
 	<xs:simpleType name="Version">
 		<xs:annotation>
 			<xs:documentation>
@@ -72,7 +79,17 @@
 			<xs:documentation>
 				Defining appropriate types for software is up to the
 				development organization and not to be confused with the
-				format of the deliverable.
+				format/packaging of the deliverable.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
+	<xs:simpleType name="Packaging">
+		<xs:annotation>
+			<xs:documentation>
+				Indicates the package type to be used by this artifact
+				(e.g. JAR, WAR, EAR, etc.).
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -105,17 +122,23 @@
 					<xs:element name="Organization" type="Organization"
 						maxOccurs="1" minOccurs="1">
 					</xs:element>
+					<xs:element name="Module" type="Module"
+						maxOccurs="1" minOccurs="1">
+					</xs:element>
 					<xs:element name="Version" type="Version"
 						maxOccurs="1" minOccurs="1">
 					</xs:element>
 					<xs:element name="Type" type="Type" maxOccurs="1"
-						minOccurs="1">
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="Packaging" type="Packaging"
+						maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Identification"
 						type="Identification" maxOccurs="1" minOccurs="1">
 					</xs:element>
 					<xs:element name="Availability" type="Availability"
-						maxOccurs="1" minOccurs="1">
+						maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Phase" type="Phase" maxOccurs="1"
 						minOccurs="0">

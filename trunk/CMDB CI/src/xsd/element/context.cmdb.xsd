@@ -28,7 +28,10 @@
 	<!-- start of Organization -->
 	<xs:complexType name="Organization">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>
+				An organisation is either a company, an individual, or
+				simply any group of people that produces software.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="element:Context"></xs:extension>
@@ -37,6 +40,25 @@
 
 	<xs:element name="Organization" type="Organization"></xs:element>
 	<!-- end of Organization -->
+
+
+
+	<!-- start of Module -->
+	<xs:complexType name="Module">
+		<xs:annotation>
+			<xs:documentation>
+				A module is a self-contained, reusable unit of software
+				that, as a whole unit, follows a revision control
+				scheme.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Module" type="Module"></xs:element>
+	<!-- end of Module -->
 
 
 
