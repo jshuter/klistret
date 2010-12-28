@@ -53,11 +53,7 @@
 			<arg value="${tmp-destdir}" />
 			<arg value="-b" />
 			<arg value="${config-basedir}/build/jaxb.binding.xml" />
-			<arg value="${schema-basedir}/pojo.cmdb.xsd" />
-			<arg value="${schema-basedir}/commons.cmdb.xsd" />
-			<arg value="${schema-basedir}/xmlschemaNamespace.xsd" />
-			<arg value="${schema-basedir}/element" />
-			<arg value="${schema-basedir}/relation" />
+			<arg value="${schema-basedir}" />
 			<arg value="-Xcollection-setter-injector" />
 			<arg value="-Xinject-code" />
 			<arg value="-Xci" />

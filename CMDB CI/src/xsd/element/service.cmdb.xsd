@@ -12,8 +12,9 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/service"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/service"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,19 +22,34 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:complexType name="Service" abstract="true">
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
+		schemaLocation="../element.cmdb.xsd" />
+
+	<!-- start of BusinessService -->
+	<xs:complexType name="BusinessService">
 		<xs:annotation>
-			<xs:documentation>
-				Services are basically a contract (interface) between a
-				provider and a consumer. The actually implementation is
-				buried in software components and available through
-				system applications. Services are unique or immutable.
-			</xs:documentation>
+			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element" />
+			<xs:extension base="element:Service" />
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Service" type="Service"></xs:element>
+	<xs:element name="BusinessService" type="BusinessService"></xs:element>
+	<!-- end of BusinessService -->
+	
+	
+	
+	<!-- start of TechnicalService -->
+	<xs:complexType name="TechnicalService">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Service" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="TechnicalService" type="TechnicalService"></xs:element>
+	<!-- end of TechnicalService -->
 </xs:schema>

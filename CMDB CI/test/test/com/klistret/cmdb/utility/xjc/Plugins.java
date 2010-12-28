@@ -20,11 +20,7 @@ public class Plugins {
 				"C:/temp",
 				"-b",
 				"C:/workshop/klistret/CMDB CI/configuration/build/jaxb.binding.xml",
-				"C:/workshop/klistret/CMDB CI/src/xsd/pojo.xsd",
-				"C:/workshop/klistret/CMDB CI/src/xsd/commons.xsd",
-				"C:/workshop/klistret/CMDB CI/src/xsd/xmlschemaNamespace.xsd",
-				"C:/workshop/klistret/CMDB CI/src/xsd/element",
-				"C:/workshop/klistret/CMDB CI/src/xsd/relation",
+				"C:/workshop/klistret/CMDB CI/src/xsd",
 				"-Xcollection-setter-injector",
 				"-Xinject-code",
 				"-Xci"};

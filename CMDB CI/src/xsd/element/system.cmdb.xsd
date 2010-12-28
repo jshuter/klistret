@@ -12,8 +12,9 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/system"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/system"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,39 +22,71 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:simpleType name="State">
-		<xs:annotation>
-			<xs:documentation>
-				State or status of the system
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
+		schemaLocation="../element.cmdb.xsd" />
 
-	<xs:complexType name="System" abstract="true">
+	<!-- start of ApplicationSystem -->
+	<xs:complexType name="ApplicationSystem" abstract="true">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:System" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="ApplicationSystem" type="ApplicationSystem"></xs:element>
+	<!-- end of ApplicationSystem -->
+	
+	
+	
+	<!-- start of ComputerSystem -->
+	<xs:complexType name="Capability">
+		<xs:annotation>
+			<xs:documentation>Functional role</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Function" type="xs:string" minOccurs="1"
+				maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="Order" type="xs:int" default="0"
+			use="optional">
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="ComputerSystem" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				A system is a logical framework constituting a runtime
-				made up of software or hardware components
-				(http://en.wikipedia.org/wiki/System). In laymans term a
-				system is where stuff (services) executes whereas
-				components (the physical stuff) are inventory. For
-				example, a online server provides functions for running
-				software and is a computer system. The actual type of
-				server offline might be a Unix machine. The machine
-				disjointed from it's runtime state is just a machine or
-				component bought in buy an IT department.
+				Collections of managed system elements that provide
+				computing capabilities and serve as aggregation points.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element">
+			<xs:extension base="element:System">
 				<xs:sequence>
-					<xs:element name="State" type="State" maxOccurs="1"
-						minOccurs="1" />
+					<xs:element name="Capability" type="Capability"
+						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="System" type="System"></xs:element>
+	<xs:element name="ComputerSystem" type="ComputerSystem"></xs:element>
+	<!-- end of ComputerSystem -->
+	
+	
+	
+	<!-- start of Environment -->
+	<xs:complexType name="Environment">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:System" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Environment" type="Environment"></xs:element>
+	<!-- end of Environment -->
 </xs:schema>
