@@ -7,7 +7,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -147,12 +146,8 @@ public class Experimenting {
 	public void validation2() throws SAXException, JAXBException, IOException,
 			ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
-		com.klistret.cmdb.ci.pojo.QueryResponse obj = new com.klistret.cmdb.ci.pojo.QueryResponse();
-		obj.setCount(0);
-		obj.setSuccessful(true);
-		obj.setMessage("");
 
-		com.klistret.cmdb.ci.element.logical.collection.Environment env = new com.klistret.cmdb.ci.element.logical.collection.Environment();
+		com.klistret.cmdb.ci.element.system.Environment env = new com.klistret.cmdb.ci.element.system.Environment();
 		env.setName("hellow");
 		env.setNamespace("production");
 		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
@@ -190,11 +185,8 @@ public class Experimenting {
 		rel.setCreateTimeStamp(new java.util.Date());
 		rel.setUpdateTimeStamp(new java.util.Date());
 
-		obj.setElements(Arrays.asList(elm));
-		// obj.setRelations(Arrays.asList(rel));
-
 		JAXBContext context = JAXBContext
-				.newInstance(com.klistret.cmdb.ci.pojo.QueryResponse.class);
+				.newInstance(com.klistret.cmdb.ci.element.system.Environment.class);
 		Marshaller m = context.createMarshaller();
 
 		final FileInputStream commons = new FileInputStream(
@@ -281,7 +273,7 @@ public class Experimenting {
 		});
 
 		StringWriter sw = new StringWriter();
-		m.marshal(obj, sw);
+		m.marshal(env, sw);
 		sw.close();
 
 		System.out.println(sw.toString());

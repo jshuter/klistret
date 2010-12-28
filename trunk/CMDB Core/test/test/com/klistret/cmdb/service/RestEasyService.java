@@ -72,10 +72,10 @@ public class RestEasyService {
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
 	}
 
-	@Test
+	//@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/12");
+		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/186");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -103,13 +103,13 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	//@Test
 	public void put() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.put("/resteasy/element");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.id\":123,\"com.klistret.cmdb.ci.pojo.name\":\"Pluto\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-10-08T23:52:09.963+02:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/logical\\/collection}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.logical.collection:Environment\",\"@Watermark\":\"past\",\"com.klistret.cmdb.ci.commons.Name\":\"Pluto\"}}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.name\":\"Mars\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-12-28T10:37:26.408+01:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.system:Environment\",\"@Watermark\":\"production\",\"com.klistret.cmdb.ci.commons.Name\":\"Mars\",\"com.klistret.cmdb.ci.element.State\":\"active\"}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -122,13 +122,13 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	@Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.name\":\"Pluto\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-07-08T16:38:00.478+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-10-25T15:02:09.446+02:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/logical\\/collection}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.logical.collection:Environment\",\"@Watermark\":\"past\",\"com.klistret.cmdb.ci.commons.Name\":\"Pluto\"}}}";
+		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.name\":\"Mars\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-12-28T10:37:26.408+01:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":1,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2009-08-05T11:20:12.471+02:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2009-08-05T11:20:12.471+02:00\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.system:Environment\",\"@Watermark\":\"production\",\"com.klistret.cmdb.ci.commons.Name\":\"Mars\",\"com.klistret.cmdb.ci.element.State\":\"active\"}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
