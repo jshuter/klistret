@@ -28,10 +28,10 @@
 		schemaLocation="../component.cmdb.xsd" />
 
 	<!-- start of ApplicationSoftware -->
-	<xs:simpleType name="Organisation">
+	<xs:simpleType name="Organization">
 		<xs:annotation>
 			<xs:documentation>
-				An organisation is either a company, an individual, or
+				An organization is either a company, an individual, or
 				simply any group of people that produces software.
 			</xs:documentation>
 		</xs:annotation>
@@ -48,11 +48,30 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
+	<xs:simpleType name="Availability">
+		<xs:annotation>
+			<xs:documentation>
+				Organizational time frame for production availability (a
+				specific date or quarter or period).
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
+	<xs:simpleType name="Phase">
+		<xs:annotation>
+			<xs:documentation>
+				Software life cycle phase
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
 	<xs:simpleType name="Type">
 		<xs:annotation>
 			<xs:documentation>
 				Defining appropriate types for software is up to the
-				development organisation and not to be confused with the
+				development organization and not to be confused with the
 				format of the deliverable.
 			</xs:documentation>
 		</xs:annotation>
@@ -83,7 +102,7 @@
 		<xs:complexContent>
 			<xs:extension base="component:Software">
 				<xs:sequence>
-					<xs:element name="Organisation" type="Organisation"
+					<xs:element name="Organization" type="Organization"
 						maxOccurs="1" minOccurs="1">
 					</xs:element>
 					<xs:element name="Version" type="Version"
@@ -95,6 +114,12 @@
 					<xs:element name="Identification"
 						type="Identification" maxOccurs="1" minOccurs="1">
 					</xs:element>
+					<xs:element name="Availability" type="Availability"
+						maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="Phase" type="Phase" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -102,13 +127,17 @@
 
 	<xs:element name="ApplicationSoftware" type="ApplicationSoftware"></xs:element>
 	<!-- end of ApplicationSoftware -->
-	
-	
-	
+
+
+
 	<!-- start of SystemSoftware -->
 	<xs:complexType name="SystemSoftware">
 		<xs:annotation>
-			<xs:documentation>System software is computer software designed to operate the computer hardware and to provide and maintain a platform for running application software.</xs:documentation>
+			<xs:documentation>
+				System software is computer software designed to operate
+				the computer hardware and to provide and maintain a
+				platform for running application software.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="component:Software" />

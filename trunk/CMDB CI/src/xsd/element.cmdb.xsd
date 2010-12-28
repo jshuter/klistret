@@ -21,106 +21,51 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="commons.cmdb.xsd" />
 
-	<!-- start of Change -->
-	<xs:complexType name="Origin">
+	<!-- start of Process -->
+	<xs:complexType name="Process" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Change requests typically originate from one of five
-				sources: (i) problem reports that identify bugs that
-				must be fixed, which forms the most common source, (ii)
-				system enhancement requests from users, (iii) events in
-				the development of other systems, (iv) changes in
-				underlying structure and or standards (e.g. in software
-				development this could be a new operating system), and
-				(v) demands from senior management.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:choice>
-			<xs:element name="Name" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>
-						Origin name denoting a project or organisation.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:choice>
-	</xs:complexType>
-
-	<xs:complexType name="Responsible">
-		<xs:annotation>
-			<xs:documentation>
-				Who is responsible for the change
-			</xs:documentation>
-		</xs:annotation>
-		<xs:choice>
-			<xs:element name="Name" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>
-						Name delegating responsibility to a project or
-						organisation.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:choice>
-	</xs:complexType>
-
-	<xs:complexType name="Schedule">
-		<xs:annotation>
-			<xs:documentation>
-				Important time aspects like estimated start/finish
-				dates.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="EstimatedFinish" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
-			</xs:element>
-			<xs:element name="EstimatedStart" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="Change">
-		<xs:annotation>
-			<xs:documentation>
-				A change request is a document containing a call for an
-				adjustment of a system. A change request is declarative,
-				i.e. it states what needs to be accomplished, but leaves
-				out how the change should be carried out.
+				A process is either a change, incident or problem
+				against core CIs like services, systems and components.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element">
-				<xs:sequence>
-					<xs:element name="State" type="commons:State" maxOccurs="1"
-						minOccurs="1">
-					</xs:element>
-					<xs:element name="Origin" type="Origin"
-						maxOccurs="1" minOccurs="1">
-					</xs:element>
-					<xs:element name="Responsible" type="Responsible"
-						maxOccurs="1" minOccurs="1">
-					</xs:element>
-					<xs:element name="Schedule" type="Schedule"
-						maxOccurs="1" minOccurs="0">
-					</xs:element>
-				</xs:sequence>
-			</xs:extension>
+			<xs:extension base="commons:Element" />
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Change" type="Change"></xs:element>
-	<!-- end of Change -->
-	
-	
+	<xs:element name="Process" type="Process"></xs:element>
+	<!-- end of Process -->
+
+
+
+	<!-- start of Context -->
+	<xs:complexType name="Context" abstract="true">
+		<xs:annotation>
+			<xs:documentation>
+				Contextual data like organizations, roles (requester,
+				receiver, etc.), life cycles and other "positioning"
+				data should really be external but for non-federation
+				solutions this CMDB model includes contextual data.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="commons:Element" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Context" type="Context"></xs:element>
+	<!-- end of "Context" -->
+
+
+
 	<!-- start of Component -->
 	<xs:complexType name="Component" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
 				A component is physical. Good examples of components are
 				software or hardware that are inventory. When a company
-				buys in a PC offline it is just a component with a
+				buys in a PC off-line it is just a component with a
 				serial number, capacity in terms of CPU and memory plus
 				other stuff like network cards. It has latent functions
 				but these capabilities aren't important until the
@@ -135,8 +80,9 @@
 
 	<xs:element name="Component" type="Component"></xs:element>
 	<!-- end of Component -->
-	
-	
+
+
+
 	<!-- start of Service -->
 	<xs:complexType name="Service" abstract="true">
 		<xs:annotation>
@@ -154,20 +100,21 @@
 
 	<xs:element name="Service" type="Service"></xs:element>
 	<!-- end of Service -->
-	
-	
+
+
+
 	<!-- start of System -->
 	<xs:complexType name="System" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
 				A system is a logical framework constituting a runtime
 				made up of software or hardware components
-				(http://en.wikipedia.org/wiki/System). In laymans term a
-				system is where stuff (services) executes whereas
+				(http://en.wikipedia.org/wiki/System). In secular terms
+				a system is where stuff (services) executes whereas
 				components (the physical stuff) are inventory. For
 				example, a online server provides functions for running
 				software and is a computer system. The actual type of
-				server offline might be a Unix machine. The machine
+				server off-line might be a Unix machine. The machine
 				disjointed from it's runtime state is just a machine or
 				component bought in buy an IT department.
 			</xs:documentation>
@@ -175,8 +122,8 @@
 		<xs:complexContent>
 			<xs:extension base="commons:Element">
 				<xs:sequence>
-					<xs:element name="State" type="commons:State" maxOccurs="1"
-						minOccurs="1" />
+					<xs:element name="State" type="commons:State"
+						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>

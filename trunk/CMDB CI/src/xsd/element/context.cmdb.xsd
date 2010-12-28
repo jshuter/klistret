@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	This file is part of Klistret. Klistret is free software: you can
+	redistribute it and/or modify it under the terms of the GNU General
+	Public License as published by the Free Software Foundation, either
+	version 3 of the License, or (at your option) any later version.
+	
+	Klistret is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+	General Public License for more details. You should have received a
+	copy of the GNU General Public License along with Klistret. If not,
+	see <http://www.gnu.org/licenses/>
+-->
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/context"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/context"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified">
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
+		schemaLocation="../commons.cmdb.xsd" />
+
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
+		schemaLocation="../element.cmdb.xsd" />
+
+	<!-- start of Organization -->
+	<xs:complexType name="Organization">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Organization" type="Organization"></xs:element>
+	<!-- end of Organization -->
+
+
+
+	<!-- start of Lifecycle -->
+	<xs:complexType name="Lifecycle" abstract="true">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Lifecycle" type="Lifecycle"></xs:element>
+	<!-- end of Lifecycle -->
+
+
+
+	<!-- start of Timeframe -->
+	<xs:complexType name="Timeframe">
+		<xs:annotation>
+			<xs:documentation>
+				Long and short terms time frames to represent
+				organizational milestones.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Timeframe" type="Timeframe"></xs:element>
+	<!-- end of Timeframe -->
+</xs:schema>
