@@ -12,8 +12,9 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/component"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/component"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,23 +22,34 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:complexType name="Component" abstract="true">
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
+		schemaLocation="../element.cmdb.xsd" />
+
+	<!-- start of Hardware -->
+	<xs:complexType name="Hardware" abstract="true">
 		<xs:annotation>
-			<xs:documentation>
-				A component is physical. Good examples of components are
-				software or hardware that are inventory. When a company
-				buys in a PC offline it is just a component with a
-				serial number, capacity in terms of CPU and memory plus
-				other stuff like network cards. It has latent functions
-				but these capabilities aren't important until the
-				component is put in a live situation and suddenly a
-				component becomes a system (or a logical entity).
-			</xs:documentation>
+			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element" />
+			<xs:extension base="element:Component"></xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Component" type="Component"></xs:element>
+	<xs:element name="Hardware" type="Hardware"></xs:element>
+	<!-- end of Installation -->
+	
+	
+	
+	<!-- start of Software -->
+	<xs:complexType name="Software" abstract="true">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Component" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Software" type="Software"></xs:element>
+	<!-- end of Software -->
 </xs:schema>

@@ -12,8 +12,9 @@
 	copy of the GNU General Public License along with Klistret. If not,
 	see <http://www.gnu.org/licenses/>
 -->
-<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
-	targetNamespace="http://www.klistret.com/cmdb/ci/element"
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/change"
+	targetNamespace="http://www.klistret.com/cmdb/ci/element/change"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
@@ -21,102 +22,26 @@
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
 
-	<xs:simpleType name="State">
-		<xs:annotation>
-			<xs:documentation>
-				State or status of the change
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
+		schemaLocation="../element.cmdb.xsd" />
 
-	<xs:complexType name="Origin">
+	<!-- start of Installation -->
+	<xs:complexType name="Installation">
 		<xs:annotation>
-			<xs:documentation>
-				Change requests typically originate from one of five
-				sources: (i) problem reports that identify bugs that
-				must be fixed, which forms the most common source, (ii)
-				system enhancement requests from users, (iii) events in
-				the development of other systems, (iv) changes in
-				underlying structure and or standards (e.g. in software
-				development this could be a new operating system), and
-				(v) demands from senior management.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:choice>
-			<xs:element name="Name" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>
-						Origin name denoting a project or organisation.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:choice>
-	</xs:complexType>
-
-	<xs:complexType name="Responsible">
-		<xs:annotation>
-			<xs:documentation>
-				Who is responsible for the change
-			</xs:documentation>
-		</xs:annotation>
-		<xs:choice>
-			<xs:element name="Name" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>
-						Name delegating responsibility to a project or
-						organisation.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:choice>
-	</xs:complexType>
-
-	<xs:complexType name="Schedule">
-		<xs:annotation>
-			<xs:documentation>
-				Important time aspects like estimated start/finish
-				dates.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="EstimatedFinish" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
-			</xs:element>
-			<xs:element name="EstimatedStart" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="Change">
-		<xs:annotation>
-			<xs:documentation>
-				A change request is a document containing a call for an
-				adjustment of a system. A change request is declarative,
-				i.e. it states what needs to be accomplished, but leaves
-				out how the change should be carried out.
-			</xs:documentation>
+			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="commons:Element">
+			<xs:extension base="element:Change">
 				<xs:sequence>
-					<xs:element name="State" type="State" maxOccurs="1"
-						minOccurs="1">
-					</xs:element>
-					<xs:element name="Origin" type="Origin"
-						maxOccurs="1" minOccurs="1">
-					</xs:element>
-					<xs:element name="Responsible" type="Responsible"
-						maxOccurs="1" minOccurs="1">
-					</xs:element>
-					<xs:element name="Schedule" type="Schedule"
-						maxOccurs="1" minOccurs="0">
-					</xs:element>
+					<xs:element name="System"
+						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
+					<xs:element name="Software"
+						type="commons:DestinationReference" maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Change" type="Change"></xs:element>
+	<xs:element name="Installation" type="Installation"></xs:element>
+	<!-- end of Installation -->
 </xs:schema>
