@@ -17,7 +17,7 @@ public class CIContext {
 
 	com.klistret.cmdb.ci.pojo.ElementType elementType;
 
-	com.klistret.cmdb.ci.element.logical.collection.Environment environment;
+	com.klistret.cmdb.ci.element.system.Environment environment;
 
 	com.klistret.cmdb.utility.jaxb.CIContext helper;
 
@@ -30,11 +30,12 @@ public class CIContext {
 		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
 		ownership.setName("ITA");
 
-		environment = new com.klistret.cmdb.ci.element.logical.collection.Environment();
+		environment = new com.klistret.cmdb.ci.element.system.Environment();
 		environment.setName("a environment");
 		environment.setNamespace("development");
 		environment.setWatermark("1234");
 		environment.setOwnership(ownership);
+		environment.setState("active");
 
 		element = new com.klistret.cmdb.ci.pojo.Element();
 		element.setId(new Long(1));
@@ -45,7 +46,7 @@ public class CIContext {
 		helper = com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
 	}
 
-	// @Test
+	@Test
 	public void marshallAndValidate() throws Exception {
 		Marshaller m = helper.getJAXBContext().createMarshaller();
 
@@ -64,7 +65,7 @@ public class CIContext {
 		System.out.println(sw.toString());
 	}
 
-	@Test
+	//@Test
 	public void checkBeans() {
 		Set<BeanMetadata> beans = helper.getBeans();
 		for (BeanMetadata bean : beans) {

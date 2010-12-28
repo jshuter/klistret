@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.ci.element.logical.collection.Environment;
+import com.klistret.cmdb.ci.element.system.Environment;
 
 public class Experimenting {
 
