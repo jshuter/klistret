@@ -41,11 +41,4 @@ public interface ElementTypeDAO {
 	 */
 	List<ElementType> find(String name);
 
-	/**
-	 * CRUD find count by name used in an ILike expression
-	 * 
-	 * @param name
-	 * @return Integer
-	 */
-	Integer countByName(String name);
 }

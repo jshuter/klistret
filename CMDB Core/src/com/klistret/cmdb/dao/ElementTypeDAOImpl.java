@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,34 +37,6 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 			.getLogger(ElementTypeDAOImpl.class);
 
 	/**
-	 * Uses ILike expression to match by name and the to-timestamp is forced to
-	 * be null.
-	 * 
-	 * @param name
-	 * @return Integer
-	 */
-	public Integer countByName(String name) {
-		if (name == null) {
-			logger.error("Name parameter is null");
-			throw new ApplicationException("Name parameter is null",
-					new IllegalArgumentException());
-		}
-
-		try {
-			Criteria query = getSession().createCriteria("ElementType");
-
-			query.add(Restrictions.ilike("name", name));
-			query.add(Restrictions.isNull("toTimeStamp"));
-
-			query.setProjection(Projections.rowCount());
-
-			return (Integer) query.list().iterator().next();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
-		}
-	}
-
-	/**
 	 * 
 	 * @param name
 	 * @return ElementType
@@ -77,8 +48,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 			throw new ApplicationException("Name parameter is null",
 					new IllegalArgumentException());
 
-		Criteria criteria = getSession().createCriteria(
-				com.klistret.cmdb.ci.pojo.ElementType.class);
+		Criteria criteria = getSession().createCriteria(ElementType.class);
 		criteria.add(Restrictions.isNull("toTimeStamp"));
 		criteria.add(Restrictions.eq("name", name));
 
@@ -110,7 +80,7 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 					new IllegalArgumentException());
 
 		try {
-			Criteria query = getSession().createCriteria("ElementType");
+			Criteria query = getSession().createCriteria(ElementType.class);
 
 			query.add(Restrictions.ilike("name", name));
 			query.add(Restrictions.isNull("toTimeStamp"));
