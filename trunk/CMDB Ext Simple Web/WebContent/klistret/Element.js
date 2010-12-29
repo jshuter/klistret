@@ -19,9 +19,7 @@ CMDB.Element.Search = {
 	
 	// Listeners establish domain subscriptions and Window event handlers
 	listeners      : {
-		render          : function(me) {
-			// Subscribe to domain events
-					
+		render          : function(me) {					
 			// Set-up ref event handlers
 			me.Search.on('click', me.doSearch, me);
 		},
@@ -99,15 +97,33 @@ CMDB.Element.Search = {
 							method        : 'DELETE',
 							
 							headers        : {
-								'Accept'          : 'text/html',
-								'Content-Type'    : 'application/json'
+								'Accept'        : 'application/json,application/xml,text/html',
+ 			    				'Content-Type'  : 'application/json'
 							},
 			
+							scope         : grid,
+							
 							success       : function ( result, request ) {
-								alert('successfully delete');
+								this.element = Ext.util.JSON.decode(result.responseText);
+								
+								PageBus.publish(	
+									'CMDB.Element.Delete', 
+									{
+										state         : 'success', 
+										type          : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.type"]["com.klistret.cmdb.ci.pojo.name"],
+										id            : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"],
+										element       : this.element 
+									}
+								);
+								
+								var bbar = this.getBottomToolbar();
+								bbar.Status.setText('Deleted record(s).');
 							},
 							failure       : function ( result, request ) {
-								alert('failed to delete');
+								this.store.rejectChanges();
+								
+								var bbar = this.getBottomToolbar();
+								bbar.Status.setText('Failed deleting.');
 							}
 						});
         			}
@@ -116,7 +132,7 @@ CMDB.Element.Search = {
     		
     		
     		// On-failure to load data
-    		store.on('loadexception', this.loadFailure, this);
+    		store.on('loadexception', this.loadException, this);
     		
     		
     		// Grid
@@ -131,17 +147,44 @@ CMDB.Element.Search = {
     			columns       : this.columns,
 			
 				loadMask      : true,
-    				
-	    		viewConfig    : {
+				
+				desktop       : this.desktop,
+				
+				editor        : this.editor,
+				
+				viewConfig    : {
 					forceFit       : true
 				},
 				
 				// Setup domain event listeners
 				listeners      : {
 					render          : function(me) {
+						// Subscribe to domain events
 					},
 		
 					destroy         : function(me) {
+						// Unsubscribe to domain events
+					},
+					
+					rowdblclick     : function(me, rowIndex) {
+						var record = this.store.getAt(rowIndex);
+						
+						var id = record.get('Payload')["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"];
+						var name = record.get('Payload')["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"];
+					
+						var win = desktop.getWindow(id);
+						if (!win) {
+							win = desktop.createWindow(
+								Ext.applyIf(
+									{
+										id         : id,
+										title      : name
+									},
+									this.editor)
+							);
+						}
+						
+        				win.show();
 					}
 				},
 				
@@ -178,7 +221,12 @@ CMDB.Element.Search = {
                 					store.remove(records);
                 				}
                 			}
-                		}
+                		},
+                		'-',
+                		{
+							xtype        : 'tbtext',
+							ref          : 'Status'
+						}
             		]
             	})
 			});
@@ -205,8 +253,14 @@ CMDB.Element.Search = {
 		var expressions;
 		this.Form.getForm().items.each(function(item) {
 			if ((item.getXType() != 'displayfield' && item.getXType() != 'hidden') && !Ext.isEmpty(item.getValue())) {
+				var expression = String.format(item.expression, item.getValue());
+				
 				// Dates specially handled, should a converter function to each item instead
-				var expression = Ext.isDate(item.getValue()) ? String.format(item.expression, item.getValue().format('Y-m-d\\TH:i:s.uP')) : String.format(item.expression, item.getValue());
+				if (Ext.isDate(item.getValue())) expression = String.format(item.expression, item.getValue().format('Y-m-d\\TH:i:s.uP'));
+				
+				// Replace * with %
+				if (Ext.isString(item.getValue())) expression = String.format(item.expression, item.getValue().replace(/\*/g, '%'));
+								
 				expressions = !expressions ? Ext.urlEncode({expressions : expression}) : expressions + '&' + Ext.urlEncode({expressions : expression});
 			}
 			
@@ -225,7 +279,7 @@ CMDB.Element.Search = {
     	}
 	},
 	
-	loadFailure    : function() {
+	loadException    : function() {
 	}
 };
 
@@ -252,6 +306,14 @@ CMDB.Element.Edit = {
 			me.mask = new Ext.LoadMask(me.getEl(), {msg:'Sending. Please wait...'})
 		
 			// Subscribe to domain events
+			me.ElementDeleteSubscribeId = PageBus.subscribe(
+				'CMDB.Element.Delete', 
+				this, 
+				function() {
+					this.close();
+				}, 
+				null
+			);
 					
 			// Set-up ref event handlers
 			me.Save.on('click', me.doSave, me);
@@ -261,6 +323,7 @@ CMDB.Element.Edit = {
 		
 		destroy         : function(me) {
 			// Unsubscribe to domain events
+			PageBus.unsubscribe(me.ElementDeleteSubscribeId);
 		}
 	},
 	
@@ -287,20 +350,27 @@ CMDB.Element.Edit = {
 		{
 		    xtype        : 'button',
 		    ref          : '../Delete',
-			text         : 'Delete'
+			text         : 'Delete',
+			disabled     : true
 		}
 	],
 	
 	doLoad         : function() {
 		alert('do load');
+		
+		this.Delete.enable();
 	},
 	
 	doSave         : function() {
+		var isValid = true;
+	
 		// Save element mappings
 		Ext.each(this.findByType('form'), function(formPanel) {
 			var form = formPanel.getForm();
 			
 			form.items.each(function(item) {
+				if (!item.validate()) isValid = false;
+			
 				if (!Ext.isEmpty(item.getValue()) && item.elementMapping) {
 					var parts = (item.elementMapping || '').split('/'),
 						prop = this.element,
@@ -319,6 +389,8 @@ CMDB.Element.Edit = {
 				}
 			}, this);
 		}, this);
+		
+		if (!isValid) return;
 		
 		// Save relation mappings
 		
@@ -350,16 +422,63 @@ CMDB.Element.Edit = {
                 
                 this.mask.hide();
                 this.Status.setText('Succesfully saved ' + new Date().format('g:i:s A'));
+                
+				PageBus.publish(	
+					'CMDB.Element.Save', 
+					{
+						state         : 'success', 
+						type          : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.type"]["com.klistret.cmdb.ci.pojo.name"],
+						id            : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"],
+						element       : this.element 
+					}
+				);
+				
+				this.Delete.enable();
 			},
 			failure       : function ( result, request ) {
 				var jsonData = Ext.util.JSON.decode(result.responseText);
 				
 				this.mask.hide();
-				this.Status.setText('Failed saving data');
+				this.Status.setText('Failed saving.');
 			}
 		});
 	},
 	
 	doDelete       : function() {
+		this.mask.show();
+	
+		Ext.Ajax.request({
+			url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"],
+			
+			method        : 'DELETE',
+							
+			headers        : {
+				'Accept'        : 'application/json,application/xml,text/html',
+ 			    'Content-Type'  : 'application/json'
+			},
+			
+			scope         : this,
+			
+			success       : function ( result, request ) {
+				this.element = Ext.util.JSON.decode(result.responseText);
+				
+				this.mask.hide();
+				PageBus.publish(	
+					'CMDB.Element.Delete', 
+					{
+						state         : 'success', 
+						type          : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.type"]["com.klistret.cmdb.ci.pojo.name"],
+						id            : this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"],
+						element       : this.element 
+					}
+				);
+			},
+			failure       : function ( result, request ) {
+				this.element = Ext.util.JSON.decode(result.responseText);
+				
+				this.mask.hide();
+				this.Status.setText('Failed deleting.');
+			}
+		});
 	}
 };
