@@ -91,15 +91,31 @@
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
-	
+
 	<xs:simpleType name="State">
 		<xs:annotation>
-			<xs:documentation>
-				State or status
-			</xs:documentation>
+			<xs:documentation>State or status</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
+
+	<xs:complexType name="Property">
+		<xs:annotation>
+			<xs:documentation>
+				General attribute (or property) of
+				elements/relationships not modeled allowing the end-user
+				to pin "extra" data to the CIs.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" minOccurs="1"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="Value" type="xs:string" minOccurs="1"
+				maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
@@ -117,6 +133,9 @@
 			</xs:element>
 			<xs:element name="Annotation" type="Annotation"
 				minOccurs="0" maxOccurs="unbounded">
+			</xs:element>
+			<xs:element name="Property" type="Property" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
