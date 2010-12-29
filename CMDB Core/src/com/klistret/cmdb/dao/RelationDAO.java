@@ -56,5 +56,5 @@ public interface RelationDAO {
 	 * 
 	 * @param id
 	 */
-	void delete(Long id);
+	Relation delete(Long id);
 }

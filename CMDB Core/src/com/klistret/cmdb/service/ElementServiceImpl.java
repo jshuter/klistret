@@ -123,8 +123,8 @@ public class ElementServiceImpl implements ElementService {
 	 * 
 	 * @param id
 	 */
-	public void delete(Long id) {
-		elementDAO.delete(id);
+	public Element delete(Long id) {
+		return elementDAO.delete(id);
 	}
 
 	/**
