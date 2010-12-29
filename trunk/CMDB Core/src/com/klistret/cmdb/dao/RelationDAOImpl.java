@@ -119,25 +119,12 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			Criteria criteria = getSession().createCriteria(Relation.class);
 			criteria.add(Restrictions.idEq(id));
 
-			Relation proxy = (Relation) criteria.uniqueResult();
+			Relation relation = (Relation) criteria.uniqueResult();
 
-			if (proxy == null)
+			if (relation == null)
 				throw new ApplicationException(String.format(
 						"Relation [id: %s] not found", id),
 						new NoSuchElementException());
-
-			Relation relation = new Relation();
-			relation.setId(proxy.getId());
-			relation.setType(proxy.getType());
-			relation.setName(proxy.getName());
-			relation.setFromTimeStamp(proxy.getFromTimeStamp());
-			relation.setToTimeStamp(proxy.getToTimeStamp());
-			relation.setCreateId(proxy.getCreateId());
-			relation.setCreateTimeStamp(proxy.getCreateTimeStamp());
-			relation.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
-			relation.setConfiguration(proxy.getConfiguration());
-
-			proxy = null;
 
 			return relation;
 
@@ -172,7 +159,15 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * date
 	 */
 	public Relation delete(Long id) {
-		Relation relation = get(id);
+		Criteria criteria = getSession().createCriteria(Relation.class);
+		criteria.add(Restrictions.idEq(id));
+
+		Relation relation = (Relation) criteria.uniqueResult();
+
+		if (relation == null)
+			throw new ApplicationException(String.format(
+					"Relation [id: %s] not found", id),
+					new NoSuchElementException());
 
 		if (relation.getToTimeStamp() != null)
 			throw new ApplicationException(String.format(

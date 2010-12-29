@@ -126,27 +126,14 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			Criteria criteria = getSession().createCriteria(Element.class);
 			criteria.add(Restrictions.idEq(id));
 
-			Element proxy = (Element) criteria.uniqueResult();
+			Element element = (Element) criteria.uniqueResult();
 
-			if (proxy == null)
+			if (element == null)
 				throw new ApplicationException(String.format(
 						"Element [id: %s] not found", id),
 						new NoSuchElementException());
 
-			Element element = new Element();
-			element.setId(proxy.getId());
-			element.setType(proxy.getType());
-			element.setName(proxy.getName());
-			element.setFromTimeStamp(proxy.getFromTimeStamp());
-			element.setToTimeStamp(proxy.getToTimeStamp());
-			element.setCreateId(proxy.getCreateId());
-			element.setCreateTimeStamp(proxy.getCreateTimeStamp());
-			element.setUpdateTimeStamp(proxy.getUpdateTimeStamp());
-			element.setConfiguration(proxy.getConfiguration());
-
-			proxy = null;
-
-			return element;
+			return clean(element);
 
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
@@ -173,7 +160,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		}
 
 		logger.info("Save/update element [{}]", element.toString());
-
 		return element;
 	}
 
@@ -186,6 +172,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		criteria.add(Restrictions.idEq(id));
 
 		Element element = (Element) criteria.uniqueResult();
+
+		if (element == null)
+			throw new ApplicationException(String.format(
+					"Element [id: %s] not found", id),
+					new NoSuchElementException());
 
 		if (element.getToTimeStamp() != null)
 			throw new ApplicationException(String.format(
@@ -202,6 +193,29 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		}
 
 		logger.info("Deleted element [{}]", element);
+		return clean(element);
+	}
+
+	/**
+	 * Strips the source/destination relationships
+	 * 
+	 * @param other
+	 * @return
+	 */
+	private Element clean(Element other) {
+		Element element = new Element();
+		element.setId(other.getId());
+		element.setType(other.getType());
+		element.setName(other.getName());
+		element.setFromTimeStamp(other.getFromTimeStamp());
+		element.setToTimeStamp(other.getToTimeStamp());
+		element.setCreateId(other.getCreateId());
+		element.setCreateTimeStamp(other.getCreateTimeStamp());
+		element.setUpdateTimeStamp(other.getUpdateTimeStamp());
+		element.setConfiguration(other.getConfiguration());
+
+		other = null;
+
 		return element;
 	}
 }
