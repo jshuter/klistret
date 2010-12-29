@@ -17,8 +17,9 @@ CMDB.Desktop = new Ext.app.App({
 
 	getModules : function(){
 		return [
-			new CMDB.CreateMenuModule(),
-			new CMDB.SearchMenuModule()
+			new CMDB.CoreMenuModule(),
+			new CMDB.ProcessMenuModule(),
+			new CMDB.ContextMenuModule()
 		];
 	},
 
@@ -41,125 +42,162 @@ CMDB.Desktop = new Ext.app.App({
 });
 
 
-// Create menu
-CMDB.CreateMenuModule = Ext.extend(Ext.app.Module, {
 
-	// Initialize module
+// Core CI menu (construction, building, searching)
+CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
 	init : function() {
 	
 		this.launcher = {
-            text: 'Create',
-            iconCls: 'tabs',
-            handler: function() {
-				return false;
-			},
-			menu: {
-                items: [
-					{
-						text        : 'Environment',
-                    	handler     : this.createWindow,
-                    	scope       : this,
-                    	config      : CMDB.Environment.Edit,
-                    	windowTitle : 'Environment Create'
-					},
-					'-',
-					{
-                    	text: 'Application',
-                    	handler: function(src) {},
-                    	scope: this
+            text     : 'Core',
+            menu     : {
+                items      : [
+                	{
+                    	text     : 'Service',
+                    	menu     : {
+                    		items     : [
+                    			{
+                    				text     : 'Business',
+                    				disabled : true
+                    			},
+                    			{
+                    				text     : 'Technical',
+                    				disabled : true
+                    			}
+                    		]
+                    	} // end menu Service
                     },
-					{
-                    	text: 'Software Package',
-                    	handler: function(src) {},
-                    	scope: this
+                    {
+                    	text     : 'System',
+                    	menu     : {
+                    		items     : [
+                    			{
+                    				text     : 'Environment',
+                    				menu     : {
+                    					items      : [
+                    						{
+                    							text     : 'Create',
+                    							handler  : this.openCreateWindow,
+                    							scope    : this,
+                    							config   : CMDB.Environment.Edit
+                    						},
+                    						{
+                    							text     : 'Search',
+                    							handler  : this.openSearchWindow,
+                    							scope    : this,
+                    							config   : CMDB.Environment.Search
+                    						}
+                    					]
+                    				}
+                    			},
+                    			'-',
+                    			{
+                    				text     : 'Application system'
+                    			},
+                    			{
+                    				text     : 'Computer system'
+                    			}
+                    		]
+                    	}
                     },
-					'-',
-					{
-                    	text: 'Release',
-                    	handler: function(src) {},
-                    	scope: this
-                	}
-				] // end items
-            } // end menu
-		}; // end launcher
-	} , // end init
-	
-	createWindow : function(src) {
-		var desktop = this.app.getDesktop();
-        
-        win = desktop.createWindow(
-           	Ext.applyIf(
-           		{
-           			title   : src.windowTitle
-           		},
-           		src.config)
-          );  // end create window
-
-        win.show();
-	}
-});
-
-
-// Search menu
-CMDB.SearchMenuModule = Ext.extend(Ext.app.Module, {
-
-	// Initialize module
-	init : function() {
-	
-		this.launcher = {
-            text: 'Search',
-            iconCls: 'tabs',
-            handler: function() {
-				return false;
-			},
-			menu: {
-                items: [
-					{
-						text         : 'Environment',
-                    	handler      : this.createWindow,
-                    	scope        : this,
-                    	config       : CMDB.Environment.Search,
-                    	windowId     : 'EnvironmentSearch' 
-					}
-					,
-					'-',
-					{
-                    	text: 'Application',
-                    	handler: function(src) {},
-                    	scope: this
-                    },
-					{
-                    	text: 'Software Package',
-                    	handler: function(src) {},
-                    	scope: this
-                    },
-					'-',
-					{
-                    	text: 'Release',
-                    	handler: function(src) {},
-                    	scope: this
-                	}
-				] // end items
-            } // end menu
+                    {
+                    	text     : 'Component'
+                    }
+                ]
+			}// end menu Core
 		}; // end launcher
 	}, // end init
 	
-	createWindow : function(src) {
+	
+	openCreateWindow : function(src) {
 		var desktop = this.app.getDesktop();
-        var win = desktop.getWindow(src.windowId);
+       
+        win = desktop.createWindow(src.config);
+        win.show();
+	},
+	
+	openSearchWindow : function(src) {
+		var desktop = this.app.getDesktop();
+        var win = desktop.getWindow(src.config.id);
         
         if(!win){
             win = desktop.createWindow(
             	Ext.applyIf(
             		{
-            			id : src.windowId
+            			desktop      : desktop
             		},
             		src.config)
-            );  // end create window
+            );
         }
         win.show();
 	}
 });
+
+
+
+// Process menu
+CMDB.ProcessMenuModule = Ext.extend(Ext.app.Module, {
+	init : function() {
+	
+		this.launcher = {
+            text     : 'Process',
+            menu     : {
+                items      : [
+                	{
+                		text     : 'Change'
+                	},
+                	{
+                		text     : 'Problem',
+                		disabled : true
+                	},
+                	{
+                		text     : 'Incident',
+                		disabled : true
+                	}
+                ]
+			}// end menu Process
+		}; // end launcher
+	} // end init
+});
+
+
+
+// Business context menu
+CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
+	init : function() {
+	
+		this.launcher = {
+            text     : 'Business',
+            menu     : {
+                items      : [
+                	{
+                		text     : 'Organization'
+                	},
+                	{
+                		text     : 'Planning',
+                		menu     : {
+                    		items     : [
+                    			{
+                    				text     : 'Software Lifecycle',
+                    				disabled : true
+                    			},
+                    			{
+                    				text     : 'Timeframes',
+                    				disabled : true
+                    			}
+                    		]
+                    	} // end menu Planing
+                	},
+                	{
+                		text     : 'Module',
+                		disabled : true
+                	}
+                ]
+			}// end menu Process
+		}; // end launcher
+	} // end init
+});
+
+
 
 /**
  http://erichauser.net/2007/11/07/more-wcf-json-and-extjs/
@@ -218,4 +256,29 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
             };
         };
     }()
+});
+
+
+/**
+ * Test-only
+*/
+CMDB.CategoryStore = new Ext.data.ArrayStore({
+	fields       : ['shortName', 'name', 'description'],
+    data         : [
+        ['QA', 'Quality Assurance', 'Quality assurance is ....'],
+        ['Prod', 'Production', 'Production ownership is the ....']
+    ]
+});
+
+
+/**
+ * Test-only
+*/
+CMDB.OwnershipStore = new Ext.data.ArrayStore({
+	fields       : ['shortName', 'name', 'description'],
+    data         : [
+        ['ITA', 'ITA', 'Development ....'],
+        ['ITP', 'ITP', 'Production ownership is the ....'],
+        ['ITT', 'ITT', 'Service ....']
+    ]
 });
