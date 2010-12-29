@@ -65,8 +65,8 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.set(relation);
 	}
 
-	public void delete(Long id) {
-		relationDAO.delete(id);
+	public Relation delete(Long id) {
+		return relationDAO.delete(id);
 	}
 
 }

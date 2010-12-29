@@ -63,5 +63,5 @@ public interface ElementDAO {
 	 * 
 	 * @param id
 	 */
-	void delete(Long id);
+	Element delete(Long id);
 }

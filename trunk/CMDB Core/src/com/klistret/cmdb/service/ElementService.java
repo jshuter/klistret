@@ -96,8 +96,7 @@ public interface ElementService {
 	 */
 	@DELETE
 	@Path("/element/{id}")
-	@Produces( { MediaType.TEXT_HTML })
-	void delete(@PathParam("id")
+	Element delete(@PathParam("id")
 	Long id);
 
 	/**

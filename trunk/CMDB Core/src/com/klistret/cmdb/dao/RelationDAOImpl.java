@@ -171,7 +171,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * Delete an element by setting the ToTimeStamp attribute to the current
 	 * date
 	 */
-	public void delete(Long id) {
+	public Relation delete(Long id) {
 		Relation relation = get(id);
 
 		if (relation.getToTimeStamp() != null)
@@ -189,5 +189,6 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		}
 
 		logger.info("Deleted relation [{}]", relation);
+		return relation;
 	}
 }

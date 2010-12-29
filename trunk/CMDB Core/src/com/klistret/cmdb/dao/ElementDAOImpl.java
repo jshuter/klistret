@@ -181,7 +181,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * Delete an element by setting the ToTimeStamp attribute to the current
 	 * date
 	 */
-	public void delete(Long id) {
+	public Element delete(Long id) {
 		Criteria criteria = getSession().createCriteria(Element.class);
 		criteria.add(Restrictions.idEq(id));
 
@@ -202,5 +202,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		}
 
 		logger.info("Deleted element [{}]", element);
+		return element;
 	}
 }

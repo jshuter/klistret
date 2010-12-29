@@ -75,6 +75,6 @@ public interface RelationService {
 	 */
 	@DELETE
 	@Path("/relation/{id}")
-	void delete(@PathParam("id")
+	Relation delete(@PathParam("id")
 	Long id);
 }
