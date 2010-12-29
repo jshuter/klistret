@@ -9,18 +9,105 @@ Ext.namespace('CMDB.EnvironmentType');
  * Test-only
 */
 CMDB.EnvironmentType.Empty = {
-	"com.klistret.cmdb.ci.pojo.id" : 1,
-	"com.klistret.cmdb.ci.pojo.name" : "{http://www.klistret.com/cmdb/ci/element/system}Environment",
-	"com.klistret.cmdb.ci.pojo.fromTimeStamp" : "2009-08-05T11:20:12.471+02:00",
-	"com.klistret.cmdb.ci.pojo.createTimeStamp" : "2009-08-05T11:20:12.471+02:00",
-	"com.klistret.cmdb.ci.pojo.updateTimeStamp" : "2009-08-05T11:20:12.471+02:00"
+	"com.klistret.cmdb.ci.pojo.id" : 18,
+	"com.klistret.cmdb.ci.pojo.name" : "{http://www.klistret.com/cmdb/ci/element/system}Environment"
 };
 
 
-CMDB.Environment.Search = Ext.apply(CMDB.Element.Search, {
-	type           : 'Environment',
+CMDB.Environment.StateStore = new Ext.data.ArrayStore({
+	fields       : ['name', 'description'],
+    data         : [
+        ['Online', 'System is online or active'],
+        ['Offline', 'System is offline or inactive'],
+        ['Transition', 'System is in transation either to an online or offline state']
+    ]
+});
+
+
+/**
+*/
+CMDB.Environment.Edit = Ext.apply(CMDB.Element.Edit, {
+	title          : 'Environment Editing',
 	
+	// Default element
+	element        : {
+		"com.klistret.cmdb.ci.pojo.Element"  : {
+			"com.klistret.cmdb.ci.pojo.fromTimeStamp"     : new Date(),
+			"com.klistret.cmdb.ci.pojo.createTimeStamp"   : new Date(),
+			"com.klistret.cmdb.ci.pojo.updateTimeStamp"   : new Date(),
+			"com.klistret.cmdb.ci.pojo.type"              : CMDB.EnvironmentType.Empty,
+					"com.klistret.cmdb.ci.pojo.configuration"     : {
+						"@www.w3.org.2001.XMLSchema-instance.type"       : "com.klistret.cmdb.ci.element.system:Environment",
+						"@Watermark"                                     : "Test"
+					}
+		}
+	},
+	
+	// Accordian forms
+	// Form panel (criteria)
+	items          : [
+		// General information
+		{
+			title       : 'General',
+			
+			autoScroll  : true,
+			
+			xtype       : 'form',
+					
+            border      : false,
+					
+			labelAlign  : 'top',
+			
+			bodyStyle   : 'padding:10px; background-color:white;',
+			
+			defaults    : {
+				width             : 300
+			},
+			
+			items       : [
+				{
+					xtype                : 'textfield',
+					fieldLabel           : 'Name',
+					allowBlank           : false,
+					maxLength            : 100,
+					blankText            : 'Unique Environment name',
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'
+				},
+				{
+					xtype                : 'textarea',
+					fieldLabel           : 'Description',
+					height               : 50,
+					blankText            : 'Description of the Environment',
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/com.klistret.cmdb.ci.commons.Description'
+				},
+				{
+					xtype                : 'combo',
+					fieldLabel           : 'State',
+					allowBlank           : false,
+					blankText            : 'State is required',
+					store                : CMDB.Environment.StateStore,
+					displayField         : 'name',
+					mode                 : 'local',
+					forceSelection       : true,
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/com.klistret.cmdb.ci.element.State'
+				},
+				{
+					xtype                : 'hidden',
+					value                : 'Ext Simple Web',
+					
+					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'
+				}
+			]
+		}
+	]
+});
+
+
+
+CMDB.Environment.Search = Ext.apply(CMDB.Element.Search, {
 	id             : 'EnvironmentSearch',
+	
+	editor         : CMDB.Environment.Edit,
 	
 	title          : 'Environment Search',
 
@@ -117,77 +204,6 @@ CMDB.Environment.Search = Ext.apply(CMDB.Element.Search, {
 			width       : 120, 
 			sortable    : true, 
 			dataIndex   : 'Watermark'
-		}
-	]
-});
-
-
-/**
-*/
-CMDB.Environment.Edit = Ext.apply(CMDB.Element.Edit, {
-	title          : 'Environment Editing',
-	
-	// Default element
-	element        : {
-		"com.klistret.cmdb.ci.pojo.Element"  : {
-			"com.klistret.cmdb.ci.pojo.fromTimeStamp"     : new Date(),
-			"com.klistret.cmdb.ci.pojo.createTimeStamp"   : new Date(),
-			"com.klistret.cmdb.ci.pojo.updateTimeStamp"   : new Date(),
-			"com.klistret.cmdb.ci.pojo.type"              : CMDB.EnvironmentType.Empty,
-					"com.klistret.cmdb.ci.pojo.configuration"     : {
-						"@www.w3.org.2001.XMLSchema-instance.type"       : "com.klistret.cmdb.ci.element.system:Environment",
-						"@Watermark"                                     : "Test"
-					}
-		}
-	},
-	
-	// Accordian forms
-	// Form panel (criteria)
-	items          : [
-		// General information
-		{
-			title       : 'General',
-			
-			autoScroll  : true,
-			
-			xtype       : 'form',
-					
-            border      : false,
-					
-			labelAlign  : 'top',
-			
-			bodyStyle   : 'padding:10px; background-color:white;',
-			
-			defaults    : {
-				width             : 300
-			},
-			
-			items       : [
-				{
-					xtype                : 'textfield',
-					fieldLabel           : 'Name',
-					allowBlank           : false,
-					blankText            : 'Enter a unique environment name',
-					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.name'
-				},
-				{
-					xtype                : 'combo',
-					fieldLabel           : 'Category',
-					store                : CMDB.CategoryStore,
-					displayField         : 'name',
-					mode                 : 'local',
-					forceSelection       : true,
-					elementMapping       : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.configuration/@Watermark'
-				},
-				{
-					xtype                : 'combo',
-					fieldLabel           : 'Ownership',
-					store                : CMDB.OwnershipStore,
-					displayField         : 'name',
-					mode                 : 'local',
-					forceSelection       : true
-				}
-			]
 		}
 	]
 });
