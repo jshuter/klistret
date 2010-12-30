@@ -111,7 +111,7 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
 	openCreateWindow : function(src) {
 		var desktop = this.app.getDesktop();
        
-        win = desktop.createWindow(src.config);
+        win = desktop.createWindow({desktop:desktop},src.config);
         win.show();
 	},
 	
@@ -120,13 +120,7 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
         var win = desktop.getWindow(src.config.id);
         
         if(!win){
-            win = desktop.createWindow(
-            	Ext.applyIf(
-            		{
-            			desktop      : desktop
-            		},
-            		src.config)
-            );
+            win = desktop.createWindow({desktop:desktop},src.config);
         }
         win.show();
 	}
