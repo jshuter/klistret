@@ -4,17 +4,27 @@
 Ext.namespace('CMDB.Element');
 
 
-Ext.Element.HiddenSearchPlugin = (function() {
+Ext.Element.SearchParameterPlugin = (function() {
 
 	return {
 
 		init       : function(item) {
 		
 			Ext.apply(item, {
-				cidata           : true,
+				elementdata      : true,
 				
 				getParameter     : function() {
-					return Ext.urlEncode({expressions : this.expression});
+					if (Ext.isEmpty(this.getValue())) return null;
+				
+					if (this.getXType() == 'textfield') {
+						return Ext.urlEncode({expressions : String.format(this.expression, this.getValue().replace(/\*/g, '%'))});
+					}
+					
+					if (this.getXType() == 'datefield') {
+						return Ext.urlEncode({expressions : String.format(this.expression, this.getValue().format('Y-m-d\\TH:i:s.uP'))});
+					}
+				
+					return null;
 				}
 			});
 		}
@@ -22,22 +32,57 @@ Ext.Element.HiddenSearchPlugin = (function() {
 });
 
 
-Ext.Element.TextFieldSearchPlugin = (function() {
+Ext.Element.EditParameterPlugin = (function() {
 
 	return {
 
 		init       : function(item) {
 		
 			Ext.apply(item, {
-				cidata           : true,
+				elementdata      : true,
 				
-				getParameter     : function() {
-					return Ext.isEmpty(this.getValue()) || this.required ? Ext.urlEncode({expressions : String.format(this.expression, Ext.isEmpty(this.getValue()) ? '-' : this.getValue().replace(/\*/g, '%'))}) : null;
+				extract         : function(element) {
+					this.setting(element, this.mapping);
+				},
+				
+				insert           : function(element) {
+					this.setValue(this.getting(element, this.mapping));
+				},
+				
+				getting          : function(obj, expr) {
+					var parts = (expr || '').split('/'),
+						result = obj,
+						part;
+					
+					while (parts.length > 0 && result) {
+						part = parts.shift();
+						result = result[part];
+					}
+          		
+					return result;
+				},
+				
+				setting          : function(obj, expr) {
+					var parts = (expr || '').split('/'),
+						prop = obj,
+						part;
+                                
+					part = parts.shift();   
+					while (parts.length > 0) {
+						if (!prop.hasOwnProperty(part)) {
+							prop[part] = {};
+						}
+						prop = prop[part];
+						part = parts.shift(); 
+					}
+                        
+					prop[part] = this.getValue();
 				}
 			});
 		}
 	};
 });
+
 
 
 /**
@@ -53,8 +98,6 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	width          : 600,
 	
 	buttonAlign    : 'left',
-	
-	layout         : 'accordion',
 	
 	layoutConfig   : {
 		animate          : false
@@ -86,6 +129,26 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	*/
 	initComponent  : function() {
 		CMDB.Element.Edit.superclass.initComponent.apply(this, arguments);
+		
+		this.addEvents(
+			'beforesave',
+			
+			'beforeload',
+			
+			'beforedelete',
+			
+			'aftersave',
+			
+			'afterload',
+			
+			'afterdelete',
+			
+			'afterinsertion',
+			
+			'afterextraction',
+			
+			'requestfailure'
+		);
 	},
 	
 	/**
@@ -135,7 +198,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		)
 		
 		// Load element
-		if (this.element) this.doLoad();
+		this.doLoad();
 	},
 	
 	/**
@@ -167,20 +230,33 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	 * fields
  	*/
 	doLoad           : function() {
+		if(this.fireEvent('beforeload', this) !== false){
+			this.loading();
+		}
+	},
+	
+	loading          : function() {
 		if (this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
 			this.insertion();
-			this.Delete.enable();
 		}
+		
+		this.fireEvent('afterload', this);
 	},
 	
 	/**
 	 * Saves element by first calling the extraction method that gets
 	 * data from the form fields and updates the element
 	*/
-	doSave           : function() {
+	doSave          : function() {
+		if(this.fireEvent('beforesave', this) !== false){
+			this.saving();
+		}
+	},
+	
+	saving          : function() {
 		if (this.element) {
 			this.updateMask.show();
-			
+						
 			this.extraction();
 			
 			Ext.Ajax.request({
@@ -207,20 +283,30 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 					);
 					
 					this.updateMask.hide();
-					this.Status.setText('Succesfully saved ' + new Date().format('g:i:s A'));
+					this.Status.setText("Successfully saved.");
+					this.fireEvent('aftersave', this);
 				},
 				failure       : function ( result, request ) {
 					this.updateMask.hide();
-					this.Status.setText('Failed saving.');
+					this.Status.setText("Failed saving.");
+					this.fireEvent('requestfailure', this, result);
 				}
 			});
 		}
 	},
 	
+	
 	/**
 	 * Delete the element by id
 	*/
 	doDelete         : function() {
+		if(this.fireEvent('beforedelete', this) !== false){
+			this.deleting();
+		}
+	},
+	
+	
+	deleting         : function() {
 		if (this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
 			this.updateMask.show();
 			
@@ -247,29 +333,35 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 					);
 					
 					this.updateMask.hide();
+					this.fireEvent('afterdelete', this);
 				},
 				failure       : function ( result, request ) {
 					this.updateMask.hide();
-					this.Status.setText('Failed deleting.');
+					this.Status.setText("Failed deleting.");
+					this.fireEvent('requestfailure', this, result);
 				}
 			});
 		}
 	},
 	
 	extraction       : function() {
-		var helpers = this.find(this.dataProperty, this.dataValue);
+		var element = this.element, fields = this.find('elementdata', true);			
+		Ext.each(fields, function(field) {
+			field.extract(element);
+		});
 		
-		Ext.each(helpers, function(item) {
-			// extract data (helper.extraction data)
-		}); 
+		element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.configuration"]["com.klistret.cmdb.ci.commons.Name"] = element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"]; 
+		
+		this.fireEvent('afterextraction', this);
 	},
 	
 	insertion        : function() {
-		var helpers = this.find(this.dataProperty, this.dataValue);
-		
-		Ext.each(helpers, function(item) {
-			// insert data (helper.insertion data)
+		var element = this.element, fields = this.find('elementdata', true);			
+		Ext.each(fields, function(field) {
+			field.insert(element);
 		});
+		
+		this.fireEvent('afterinsertion', this);
 	}       
 });
 
@@ -308,6 +400,12 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 	
 	initComponent  : function() {
 		CMDB.Element.Search.superclass.initComponent.apply(this, arguments);
+		
+		this.addEvents(
+			'beforesearch',
+			
+			'aftersearch'
+		);
 	},
 	
 	onRender       : function() {
@@ -321,31 +419,43 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 		CMDB.Element.Search.superclass.onDestroy.apply(this, arguments);
 	},
 	
+	beforeSearch   : Ext.emptyFn,
+	
+	afterSearch    : Ext.emptyFn,
+	
 	doSearch       : function() {
-		var helpers = this.find('cidata', true);
-		
-		var expressions;
-		Ext.each(helpers, function(item) {
-			var parameter = item.getParameter();
+		var initialized, criteria = this.find('elementdata', true);			
+		Ext.each(criteria, function(criterion) {
+			var parameter = criterion.getParameter();
 			
 			if (parameter) {
-				expressions = !expressions ? parameter : expressions + "&" + parameter;
+				initialized = !initialized ? parameter : initialized + "&" + parameter;
 			}
 		});
+
+		this.expressions = initialized;	
+		if(this.expressions && this.fireEvent('beforesearch', this) !== false) {
+			this.searching();
+		}
+	},
 	
+	searching      : function() {
 		win = this.desktop.createWindow(
 			{
 				desktop      : this.desktop,
 				fields       : this.fields,
-				columns      : this.columns
+				columns      : this.columns,
+				editor       : this.editor,
+				
+				title        : 'Results - ' + this.title
 			},
 			CMDB.Element.Results
 		);
-		
+
 		win.show();
-		win.Grid.getStore().expressions = expressions;
+		win.Grid.getStore().expressions = this.expressions;
 		win.Grid.getStore().load({
-			params   : 'start=' + this.start + '&limit=' + this.limit+'&'+expressions
+			params   : 'start=' + this.start + '&limit=' + this.limit+'&'+this.expressions
 		});
 	}
 });
@@ -440,6 +550,8 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
             	]
             })
         });
+        
+        grid.on('rowdblclick', this.doOpen, this);
 		
 		var config = {
 			items      : grid
@@ -460,6 +572,25 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 					
 					if (record) {
 						this.Grid.store.remove(record);
+					}	
+				}
+			}, 
+			null
+		);
+		
+		this.ElementSaveSubscribeId = PageBus.subscribe(
+			'CMDB.Element.Save', 
+			this, 
+			function(subj, msg, data) {
+				if (msg.state == 'success') {
+					var record = this.Grid.store.getById(msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
+					
+					if (record) {
+						var other = new this.Grid.store.recordType(msg.element, msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
+						var index = this.Grid.store.indexOf(record);
+						
+						this.Grid.store.remove(record);
+						this.Grid.store.insert(index, other);
 					}	
 				}
 			}, 
@@ -511,5 +642,19 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 				}
 			});
 		});
+	},
+	
+	doOpen         : function(grid, index) {
+		var record = grid.getStore().getAt(index);	
+		var element = record.get("Element");
+		
+		win = this.desktop.createWindow(
+			{
+				element       : { 'com.klistret.cmdb.ci.pojo.Element' : element }
+			},
+			this.editor
+		);
+		
+		win.show();
 	}
 });
