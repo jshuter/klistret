@@ -147,16 +147,156 @@ Ext.reg('generalForm', CMDB.Element.GeneralForm);
  * Relation form panel common to all elements
 */
 CMDB.Element.RelationForm = Ext.extend(Ext.form.FormPanel, {
+	fields      : [
+		{
+			name            : 'Id',
+			mapping         : 'Relation/id/$'
+		},
+		{
+			name            : 'Type', 
+			mapping         : 'Relation/type/name/$'
+		},
+		{
+			name            : 'SourceName', 
+			mapping         : 'Relation/configuration/Source/LocalName/$'
+		},
+		{
+			name            : 'SourceId', 
+			mapping         : 'Relation/configuration/Source/Id/$'
+		},
+		{
+			name            : 'DestName', 
+			mapping         : 'Relation/configuration/Destination/LocalName/$'
+		},
+		{
+			name            : 'DestId', 
+			mapping         : 'Relation/configuration/Destination/Id/$'
+		},
+		{
+			name            : 'Relation',
+			mapping         : 'Relation'
+		}
+	],
+	
+	columns     : [
+		{
+			header          : "Source Name", 
+			width           : 120, 
+			sortable        : true, 
+			dataIndex       : 'SourceName',
+			editor          : {
+				xtype           : 'textfield',
+				allowBlank      : false
+			}
+		}
+	],  
+
+
+	/**
+	 *
+	*/
 	initComponent  : function() {
+		var fields  = this.fields || [];
+		var columns = this.columns || []; 
+	
+		var editor = new Ext.ux.grid.RowEditor({ saveText: 'Update' });
+		
+		var reader = new CMDB.JsonReader({
+			totalProperty   : 'total',
+    		successProperty : 'successful',
+    		idProperty      : 'Relation/id/$',
+    		root            : 'rows',
+			fields          : fields
+		});
+		
+		var store = new Ext.data.GroupingStore({
+			reader          : reader,
+			sortInfo        : {
+				field           : 'start', 
+				direction       : 'ASC'
+			}
+		});
+		
+		var grid = new Ext.grid.GridPanel({
+			height          : 200,
+			view            : new Ext.grid.GroupingView({
+				markDirty       : false
+			}),
+			plugins         : editor,
+			editor          : editor,
+			store           : store,
+			columns         : columns,
+			
+			tbar            : [
+				{
+					xtype        : 'button',
+					ref          : '../Add',
+					iconCls      : 'addButton',
+					text         : 'Add',
+					handler      : this.doAdd,
+					scope        : this
+				},
+				{
+					xtype        : 'button',
+					ref          : '../Delete',
+					iconCls      : 'deleteButton',
+					text         : 'Delete',
+					handler      : this.doDelete,
+					scope        : this
+				}
+			]
+		});
+	
 		var config = {
+			title       : 'Relations',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			
+			Grid        : grid,
+			
+			items       : [
+				{
+					xtype       : 'displayfield',
+					width       : 'auto',
+					html        : 'Relationships to the Environment CI'
+				},
+				grid
+			]
 		};
 		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Element.RelationForm.superclass.initComponent.apply(this, arguments);
 	},
 	
-	onRender       : function() {
-		CMDB.Element.RelationForm.superclass.onRender.apply(this, arguments);
+	
+	/**
+	 *
+	*/
+	doDelete       : function() {
+	},
+	
+	
+	/**
+	 *
+	*/
+	doAdd          : function() {
+		var recordDef = Ext.data.Record.create(this.fields);
+		var dummy = new recordDef({
+			'Id'         : '123',
+			'Type'       : 'Whatever',
+			'SourceName' : 'Big',
+			'SourceId'   : '52354',
+			'DestName'   : 'Little',
+			'DestId'     : '12323',
+			'Relation'   : null
+		});
+		
+		this.Grid.editor.stopEditing();
+		this.Grid.store.insert(0, dummy);
+		this.Grid.getView().refresh();
+		this.Grid.getSelectionModel().selectRow(0);
+		this.Grid.editor.startEditing(0);
 	}
 });
 Ext.reg('relationForm', CMDB.Element.RelationForm);
@@ -167,16 +307,99 @@ Ext.reg('relationForm', CMDB.Element.RelationForm);
  * Property form panel common to all elements
 */
 CMDB.Element.PropertyForm = Ext.extend(Ext.form.FormPanel, {
+
+	/**
+	 *
+	*/
 	initComponent  : function() {
+		var grid = new Ext.grid.PropertyGrid({
+			plugins     : [new Ext.Element.EditParameterPlugin()],
+			mapping     : 'Element/configuration/Property',
+			height      : 200,
+			
+			viewConfig  : {
+				forceFit       : true,
+				scrollOffset   : 2 // the grid will never have scrollbars
+			},
+			
+			source      : {},
+			
+			tbar        : [
+				{
+					xtype        : 'textfield',
+					ref          : '../Name'
+				},
+				{
+					xtype        : 'button',
+					ref          : '../Add',
+					iconCls      : 'addButton',
+					text         : 'Add',
+					handler      : Ext.emptyFn,
+					scope        : this
+				},
+				{
+					xtype        : 'button',
+					ref          : '../Delete',
+					iconCls      : 'deleteButton',
+					text         : 'Delete',
+					handler      : Ext.emptyFn,
+					scope        : this
+				}	
+			]
+		});
+		
+		grid.Add.on('click', this.doAdd, grid);
+		grid.Delete.on('click', this.doDelete, grid);
+	
 		var config = {
+			title       : 'Properties',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			
+			items       : [
+				{
+					xtype       : 'displayfield',
+					width       : 'auto',
+					html        : 'User defined properties specific to the Environment CI.'
+				},
+				grid
+			]
 		};
 		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Element.PropertyForm.superclass.initComponent.apply(this, arguments);
 	},
 	
-	onRender       : function() {
+	
+	/**
+	 *
+	*/
+	onRender       : function() {		
 		CMDB.Element.PropertyForm.superclass.onRender.apply(this, arguments);
+	},
+	
+	
+	/**
+	 *
+	*/
+	doDelete       : function() {
+		var selection = this.getSelectionModel().getSelectedCell();
+		
+		if (selection) {
+			var record = this.store.getAt(selection[0]);
+			this.removeProperty(record.get('name'));
+		}
+	},
+	
+	
+	/**
+	 *
+	*/
+	doAdd          : function() {
+		if (!Ext.isEmpty(this.Name.getValue())) {
+			this.setProperty(this.Name.getValue(),"",true);
+		}
 	}
 });
 Ext.reg('propertyForm', CMDB.Element.PropertyForm);
