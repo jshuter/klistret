@@ -7,6 +7,88 @@
 Ext.namespace('CMDB');
 
 
+// Badgerfish reader
+CMDB.BadgerfishImpl = function() {
+	var 
+		getFullPropertyName = function (obj, suffix) {
+			var name;
+		
+			for (var propName in obj) {
+				if (propName.replace(/^\w+:/,'') === suffix) name = propName;
+			}
+			return name;
+		},
+		
+		getNamespaces = function(obj) {
+			var result = obj,
+			    namespaces = {};
+			
+			for (var prop in result) {
+				if (prop === "@xmlns") {
+					Ext.applyIf(namespaces, result[prop]);
+				}
+				if (Ext.isObject(result[prop]) && prop !== "@xmlns") {
+					Ext.applyIf(namespaces, getNamespaces(result[prop]));
+				}
+			}
+			
+			return namespaces;
+		}
+	;
+
+	return {
+		get        : function(obj, expr) {
+			var parts = (expr || '').split('/'),
+              	result = obj,
+				part;
+					
+			while (parts.length > 0 && result) {
+				part = parts.shift();
+				
+				var propName = getFullPropertyName(result, part);	
+				result = propName ? result[propName] : null;
+          	}
+          		
+			return result;
+		},
+		
+		set        : function(obj, expr, value) {
+			var parts = (expr || '').split('/'),
+				result = obj,
+				part;
+                                
+			part = parts.shift();   
+			while (parts.length > 0) {
+				var propName = getFullPropertyName(result, part);	
+				result = propName ? result[propName] : null;
+				
+				part = parts.shift(); 
+			}
+            
+            var propName = getFullPropertyName(result, part);            
+			if (propName) result[propName] = value;
+		},
+		
+		getNS      : function(obj) {
+			return getNamespaces(obj);
+		},
+		
+		getPrefix  : function(obj, ns) {
+			var namespaces = getNamespaces(obj),
+				prefix;
+			
+			for (key in namespaces) {
+				if (namespaces[key] === ns) prefix = key;
+			}
+			return prefix;
+		}
+	};
+};
+
+
+CMDB.Badgerfish = new CMDB.BadgerfishImpl();
+
+
 // Sample desktop configuration
 CMDB.Desktop = new Ext.app.App({
 	init :function(){
@@ -237,19 +319,28 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
             }
             
             return function(obj){
-            	var parts = (expr || '').split('/'),
-              		result = obj,
-					part;
-					
-				while (parts.length > 0 && result) {
-					part = parts.shift();
-					result = result[part];
-          		}
-          		
-				return result;
+            	return CMDB.Badgerfish.get(obj, expr);
             };
         };
-    }()
+    }(),
+    
+    createRecord : function(rawdata, id) {
+    	var recordDef = Ext.data.Record.create(this.meta.fields),
+			record = {};
+							
+			Ext.each(
+				this.meta.fields, 
+				function(field) {
+					var accessor = this.createAccessor(field.mapping);
+					var value = accessor(rawdata);
+							
+					record[field.name] = value;
+				},
+				this
+			);
+						
+			return new recordDef(record, id);
+    }
 });
 
 

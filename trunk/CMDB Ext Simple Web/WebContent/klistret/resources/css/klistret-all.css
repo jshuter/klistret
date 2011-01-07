@@ -1,3 +1,7 @@
 .addButton {
-	background-image: url(../images/addPlus.png) !important;
+	background-image: url(../images/addButton.gif) !important;
+}
+
+.deleteButton {
+	background-image: url(../images/deleteButton.gif) !important;
 }
