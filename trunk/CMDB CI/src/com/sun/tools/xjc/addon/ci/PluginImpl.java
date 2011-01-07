@@ -13,17 +13,11 @@
  */
 package com.sun.tools.xjc.addon.ci;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.namespace.QName;
 
-import org.jboss.resteasy.annotations.providers.jaxb.json.Mapped;
-import org.jboss.resteasy.annotations.providers.jaxb.json.XmlNsMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
@@ -34,7 +28,6 @@ import com.klistret.cmdb.annotations.ci.Bean;
 import com.klistret.cmdb.annotations.ci.Element;
 import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.annotations.ci.Relation;
-import com.sun.codemodel.JAnnotationArrayMember;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.tools.xjc.Options;
@@ -56,11 +49,6 @@ public class PluginImpl extends Plugin {
 			.getLogger(PluginImpl.class);
 
 	/**
-	 * Namespace URI to JSON mappings
-	 */
-	private Map<String, String> namespaceJSONMapping = new HashMap<String, String>();
-
-	/**
 	 * Only one root element
 	 */
 	private ClassOutline element;
@@ -69,11 +57,6 @@ public class PluginImpl extends Plugin {
 	 * Only one root relation
 	 */
 	private ClassOutline relation;
-
-	/**
-	 * Proxies for element/relation extensions
-	 */
-	private List<ClassOutline> proxies = new ArrayList<ClassOutline>();
 
 	@Override
 	public String getOptionName() {
@@ -145,21 +128,9 @@ public class PluginImpl extends Plugin {
 			logger.debug("Grammer (schema) {}", grammer.getSystemId());
 
 		/**
-		 * First pass to associate namespaces with packages for JSON mappings
-		 * plus store proxy, element, and relation classes.
+		 * First pass to annotate proxy, element, and relation classes.
 		 */
 		for (ClassOutline co : model.getClasses()) {
-			/**
-			 * Associate namespace to package name
-			 */
-			QName key = co.target.getTypeName();
-			if (!namespaceJSONMapping.containsKey(key.getNamespaceURI())) {
-				logger.debug("Mapping namescape [{}] to package [{}]", key
-						.getNamespaceURI(), co.implClass.getPackage().name());
-				namespaceJSONMapping.put(key.getNamespaceURI(), co.target
-						.getOwnerPackage().name());
-			}
-
 			/**
 			 * Proxy information (multiple)
 			 */
@@ -182,7 +153,10 @@ public class PluginImpl extends Plugin {
 						.getName());
 				co.implClass.annotate(Proxy.class);
 
-				proxies.add(co);
+				JAnnotationUse xmlRootElement = co.implClass
+						.annotate(XmlRootElement.class);
+				xmlRootElement.param("name", co.implClass.name());
+
 				ciProxy.markAsAcknowledged();
 				continue;
 			}
@@ -280,47 +254,6 @@ public class PluginImpl extends Plugin {
 			logger.error("Relation root is not defined by CI extension");
 			throw new SAXException(String
 					.format("Relation root is not defined by CI extension"));
-		}
-
-		/**
-		 * Add JSON XmlNSMap annotations (necessary for Jettison/Jackson) to the
-		 * proxy classes
-		 */
-		for (ClassOutline co : proxies) {
-			/**
-			 * Construct the Mapped annotation (RestEasy/Jettison requirement)
-			 */
-			JAnnotationUse mapped = co.implClass.annotate(Mapped.class);
-			JAnnotationArrayMember namespaceMap = mapped
-					.paramArray("namespaceMap");
-
-			/**
-			 * Add every package as a potential namespace
-			 */
-			for (Map.Entry<String, String> entry : namespaceJSONMapping
-					.entrySet()) {
-				JAnnotationUse xmlNsMapJAnnotation = namespaceMap
-						.annotate(XmlNsMap.class);
-				xmlNsMapJAnnotation.param("namespace", entry.getKey());
-				xmlNsMapJAnnotation.param("jsonName", entry.getValue());
-			}
-
-			/**
-			 * Add general XML schema mappings
-			 */
-			JAnnotationUse xmlNsMapJAnnotation = namespaceMap
-					.annotate(XmlNsMap.class);
-			xmlNsMapJAnnotation.param("namespace",
-					"http://www.w3.org/2001/XMLSchema-instance");
-			xmlNsMapJAnnotation.param("jsonName",
-					"www.w3.org.2001.XMLSchema-instance");
-
-			/**
-			 * XmlRootElement
-			 */
-			JAnnotationUse xmlRootElement = co.implClass
-					.annotate(XmlRootElement.class);
-			xmlRootElement.param("name", co.implClass.name());
 		}
 
 		/**
