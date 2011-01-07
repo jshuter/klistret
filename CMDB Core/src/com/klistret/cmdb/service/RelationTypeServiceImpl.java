@@ -16,15 +16,21 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.dao.RelationTypeDAO;
 import com.klistret.cmdb.ci.pojo.RelationType;
 
 /**
  * 
  * @author Matthew Young
- *
+ * 
  */
 public class RelationTypeServiceImpl implements RelationTypeService {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(RelationTypeServiceImpl.class);
 
 	private RelationTypeDAO relationTypeDAO;
 
@@ -38,5 +44,14 @@ public class RelationTypeServiceImpl implements RelationTypeService {
 
 	public List<RelationType> find(String name) {
 		return relationTypeDAO.find(name);
+	}
+
+	/**
+	 * Dummy method for pre-flighted calls
+	 */
+	public String preflighted() {
+		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
+
+		return "HTTP OPTIONS accepted";
 	}
 }

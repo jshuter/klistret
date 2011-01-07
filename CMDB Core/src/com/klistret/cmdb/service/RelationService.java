@@ -20,6 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -28,17 +29,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
+
 import com.klistret.cmdb.ci.pojo.Relation;
 
 @Path("/resteasy")
 @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface RelationService {
+	@BadgerFish
 	@GET
 	@Path("/relation/{id}")
 	Relation get(@PathParam("id")
 	Long id);
 
+	@BadgerFish
 	@GET
 	@Path("/relation")
 	List<Relation> find(@QueryParam("expressions")
@@ -54,9 +59,10 @@ public interface RelationService {
 	 * @param relation
 	 * @return Relation
 	 */
+	@BadgerFish
 	@POST
 	@Path("/relation")
-	Relation create(Relation relation);
+	Relation create(@BadgerFish Relation relation);
 
 	/**
 	 * Update an relation
@@ -64,17 +70,30 @@ public interface RelationService {
 	 * @param relation
 	 * @return Relation
 	 */
+	@BadgerFish
 	@PUT
 	@Path("/relation")
-	Relation update(Relation relation);
+	Relation update(@BadgerFish Relation relation);
 
 	/**
 	 * Delete an relation
 	 * 
 	 * @param id
 	 */
+	@BadgerFish
 	@DELETE
 	@Path("/relation/{id}")
-	Relation delete(@PathParam("id")
+	Relation delete(@BadgerFish @PathParam("id")
 	Long id);
+	
+	/**
+	 * Preflighed requests
+	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain
+	 * access necessary for local testing
+	 * 
+	 */
+	@OPTIONS
+	@Path("/{var:.*}")
+	@Produces( { MediaType.TEXT_HTML })
+	String preflighted();
 }

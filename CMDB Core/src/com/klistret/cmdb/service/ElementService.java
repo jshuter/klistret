@@ -29,6 +29,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
+
 import com.klistret.cmdb.ci.pojo.Element;
 
 /**
@@ -46,6 +48,7 @@ public interface ElementService {
 	/**
 	 * Get an element by unique id
 	 */
+	@BadgerFish
 	@GET
 	@Path("/element/{id}")
 	Element get(@PathParam("id")
@@ -60,6 +63,7 @@ public interface ElementService {
 	 * @param limit
 	 * @return Elements
 	 */
+	@BadgerFish
 	@GET
 	@Path("/element")
 	List<Element> find(@QueryParam("expressions")
@@ -75,9 +79,10 @@ public interface ElementService {
 	 * @param element
 	 * @return Element
 	 */
+	@BadgerFish
 	@POST
 	@Path("/element")
-	Element create(Element element);
+	Element create(@BadgerFish Element element);
 
 	/**
 	 * Updating an element is subject to AOP checks
@@ -85,15 +90,17 @@ public interface ElementService {
 	 * @param element
 	 * @return Element
 	 */
+	@BadgerFish
 	@PUT
 	@Path("/element")
-	Element update(Element element);
+	Element update(@BadgerFish Element element);
 
 	/**
 	 * Delete an element (soft-delete)
 	 * 
 	 * @param id
 	 */
+	@BadgerFish
 	@DELETE
 	@Path("/element/{id}")
 	Element delete(@PathParam("id")
