@@ -16,15 +16,21 @@ package com.klistret.cmdb.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.dao.ElementTypeDAO;
 import com.klistret.cmdb.ci.pojo.ElementType;
 
 /**
  * 
  * @author Matthew Young
- *
+ * 
  */
 public class ElementTypeServiceImpl implements ElementTypeService {
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(ElementTypeServiceImpl.class);
 
 	/**
 	 * Element Type DAO
@@ -43,8 +49,17 @@ public class ElementTypeServiceImpl implements ElementTypeService {
 	public ElementType get(String name) {
 		return elementTypeDAO.get(name);
 	}
-	
+
 	public List<ElementType> find(String name) {
 		return elementTypeDAO.find(name);
+	}
+
+	/**
+	 * Dummy method for pre-flighted calls
+	 */
+	public String preflighted() {
+		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
+
+		return "HTTP OPTIONS accepted";
 	}
 }

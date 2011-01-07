@@ -17,11 +17,14 @@ package com.klistret.cmdb.service;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
 
 import com.klistret.cmdb.ci.pojo.ElementType;
 
@@ -34,13 +37,26 @@ import com.klistret.cmdb.ci.pojo.ElementType;
 @Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface ElementTypeService {
 
+	@BadgerFish
 	@GET
 	@Path("/elementType/{name}")
 	ElementType get(@PathParam("name")
 	String name);
 
+	@BadgerFish
 	@GET
 	@Path("/elementType")
 	List<ElementType> find(@QueryParam("name")
 	String name);
+	
+	/**
+	 * Preflighed requests
+	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain
+	 * access necessary for local testing
+	 * 
+	 */
+	@OPTIONS
+	@Path("/{var:.*}")
+	@Produces( { MediaType.TEXT_HTML })
+	String preflighted();
 }

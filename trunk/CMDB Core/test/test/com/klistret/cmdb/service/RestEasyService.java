@@ -72,10 +72,10 @@ public class RestEasyService {
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
 	}
 
-	//@Test
+	@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/186");
+		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/274");
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -122,13 +122,13 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	//@Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"com.klistret.cmdb.ci.pojo.Element\":{\"com.klistret.cmdb.ci.pojo.name\":\"Gollum\",\"com.klistret.cmdb.ci.pojo.fromTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.createTimeStamp\":\"2010-12-28T10:37:20.923+01:00\",\"com.klistret.cmdb.ci.pojo.updateTimeStamp\":\"2010-12-28T10:37:26.408+01:00\",\"com.klistret.cmdb.ci.pojo.type\":{\"com.klistret.cmdb.ci.pojo.id\":18,\"com.klistret.cmdb.ci.pojo.name\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment\"},\"com.klistret.cmdb.ci.pojo.configuration\":{\"@www.w3.org.2001.XMLSchema-instance.type\":\"com.klistret.cmdb.ci.element.system:Environment\",\"@Watermark\":\"development\",\"com.klistret.cmdb.ci.commons.Name\":\"Gollum\",\"com.klistret.cmdb.ci.element.State\":\"active\"}}}";
+		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"ns9\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\",\"ns10\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system\",\"ns2\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/commons\",\"$\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/pojo\"},\"name\":{\"$\":\"River\"},\"type\":{\"id\":{\"$\":\"18\"},\"name\":{\"$\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment\"}},\"fromTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"createTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"updateTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema-instance\"},\"@xsi:type\":\"ns10:Environment\",\"ns2:Name\":{\"$\":\"River\"},\"ns2:Tag\":[{\"$\":\"my special tag\"},{\"$\":\"danny's tag\"}],\"ns2:Property\":[{\"ns2:Name\":{\"$\":\"example\"},\"ns2:Value\":{\"$\":\"of a property\"}},{\"ns2:Name\":{\"$\":\"another\"},\"ns2:Value\":{\"$\":\"property to look at\"}}],\"ns9:State\":{\"$\":\"Online\"}}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -141,7 +141,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	//@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="

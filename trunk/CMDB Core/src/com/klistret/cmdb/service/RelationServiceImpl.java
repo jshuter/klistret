@@ -17,6 +17,9 @@ package com.klistret.cmdb.service;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.klistret.cmdb.dao.RelationDAO;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.ci.pojo.Relation;
@@ -24,9 +27,11 @@ import com.klistret.cmdb.ci.pojo.Relation;
 /**
  * 
  * @author Matthew Young
- *
+ * 
  */
 public class RelationServiceImpl implements RelationService {
+	private static final Logger logger = LoggerFactory
+			.getLogger(RelationServiceImpl.class);
 
 	private RelationDAO relationDAO;
 
@@ -69,4 +74,12 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.delete(id);
 	}
 
+	/**
+	 * Dummy method for pre-flighted calls
+	 */
+	public String preflighted() {
+		logger.debug("Entered preflighted method (ie handled HTTP OPTIONS");
+
+		return "HTTP OPTIONS accepted";
+	}
 }
