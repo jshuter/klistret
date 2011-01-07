@@ -4,6 +4,9 @@
 Ext.namespace('CMDB.Element');
 
 
+/**
+ *
+ */
 Ext.Element.SearchParameterPlugin = (function() {
 
 	return {
@@ -32,6 +35,9 @@ Ext.Element.SearchParameterPlugin = (function() {
 });
 
 
+/**
+ *
+ */
 Ext.Element.EditParameterPlugin = (function() {
 
 	return {
@@ -42,46 +48,138 @@ Ext.Element.EditParameterPlugin = (function() {
 				elementdata      : true,
 				
 				extract         : function(element) {
-					this.setting(element, this.mapping);
+					if (this.getXType() == 'textfield' || this.getXType() == 'textarea') {
+						CMDB.Badgerfish.set(element, this.mapping, this.getValue());
+					}
+					
+					if (this.getXType() == 'propertygrid') {
+						var properties = [];
+						
+						this.store.each(
+							function(record) {
+								var property = {
+									"com.klistret.cmdb.ci.commons.Name"  : record.get("name"),
+									"com.klistret.cmdb.ci.commons.Value" : record.get("value")
+								};
+								
+								properties[properties.length] = property;
+							},
+							this
+						);
+						
+						CMDB.Badgerfish.set(element, this.mapping, properties);
+					}
 				},
 				
 				insert           : function(element) {
-					this.setValue(this.getting(element, this.mapping));
-				},
-				
-				getting          : function(obj, expr) {
-					var parts = (expr || '').split('/'),
-						result = obj,
-						part;
+					if (this.getXType() == 'textfield' || this.getXType() == 'textarea') {
+						var value = CMDB.Badgerfish.get(element, this.mapping);
+						this.setValue(value);
+					}
 					
-					while (parts.length > 0 && result) {
-						part = parts.shift();
-						result = result[part];
+					if (this.getXType() == 'propertygrid') {
+						var properties = CMDB.Badgerfish.get(element, this.mapping);
+						/**
+						Ext.each(
+							properties, 
+							function(property) {
+								this.source[property["com.klistret.cmdb.ci.commons.Name"]] = property["com.klistret.cmdb.ci.commons.Value"];
+							},
+							this);
+						*/
 					}
-          		
-					return result;
-				},
-				
-				setting          : function(obj, expr) {
-					var parts = (expr || '').split('/'),
-						prop = obj,
-						part;
-                                
-					part = parts.shift();   
-					while (parts.length > 0) {
-						if (!prop.hasOwnProperty(part)) {
-							prop[part] = {};
-						}
-						prop = prop[part];
-						part = parts.shift(); 
-					}
-                        
-					prop[part] = this.getValue();
 				}
 			});
 		}
 	};
 });
+
+
+/**
+ * General form panel common for all elements (stuff like
+ * name, description, tags, and so forth)
+*/
+CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
+
+	initComponent  : function() {
+		var config = {
+			title       : 'General',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			defaults    : {
+				width             : 300
+			},
+			
+			items       : [
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.EditParameterPlugin()],
+					fieldLabel        : 'Name',
+					allowBlank        : false,
+					blankText         : 'Enter a unique environment name',
+					mapping           : 'Element/name/$'
+				},
+				{
+					xtype             : 'textarea',
+					plugins           : [new Ext.Element.EditParameterPlugin()],
+					fieldLabel        : 'Description',
+					height            : 50,
+					blankText         : 'Description of the Environment',
+					mapping           : 'Element/configuration/Description/$'
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Element.GeneralForm.superclass.initComponent.apply(this, arguments);
+	},
+	
+	onRender       : function() {
+		CMDB.Element.GeneralForm.superclass.onRender.apply(this, arguments);
+	}
+});
+Ext.reg('generalForm', CMDB.Element.GeneralForm);
+
+
+
+/**
+ * Relation form panel common to all elements
+*/
+CMDB.Element.RelationForm = Ext.extend(Ext.form.FormPanel, {
+	initComponent  : function() {
+		var config = {
+		};
+		
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Element.RelationForm.superclass.initComponent.apply(this, arguments);
+	},
+	
+	onRender       : function() {
+		CMDB.Element.RelationForm.superclass.onRender.apply(this, arguments);
+	}
+});
+Ext.reg('relationForm', CMDB.Element.RelationForm);
+
+
+
+/**
+ * Property form panel common to all elements
+*/
+CMDB.Element.PropertyForm = Ext.extend(Ext.form.FormPanel, {
+	initComponent  : function() {
+		var config = {
+		};
+		
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Element.PropertyForm.superclass.initComponent.apply(this, arguments);
+	},
+	
+	onRender       : function() {
+		CMDB.Element.PropertyForm.superclass.onRender.apply(this, arguments);
+	}
+});
+Ext.reg('propertyForm', CMDB.Element.PropertyForm);
 
 
 
@@ -124,6 +222,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		}
 	],
 
+
 	/**
 	 * Initialize component prior to rendering (settings/events)
 	*/
@@ -151,6 +250,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		);
 	},
 	
+	
 	/**
 	 * Adjust component after child elements are rendered 
 	*/
@@ -160,7 +260,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			'CMDB.Element.Delete', 
 			this, 
 			function(subj, msg, data) {
-				if (msg.state == 'success' && this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] == msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
+				if (msg.state == 'success' && this.element && CMDB.Badgerfish.get(this.element,"Element/id/$") == CMDB.Badgerfish.get(msg.element,"Element/id/$")) {
 					this.close();
 				}
 			}, 
@@ -172,7 +272,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			'CMDB.Element.Save', 
 			this, 
 			function(subj, msg, data) {
-				if (msg.state == 'success' && this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] == msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
+				if (msg.state == 'success' && this.element && CMDB.Badgerfish.get(this.element,"Element/id/$") == CMDB.Badgerfish.get(msg.element,"Element/id/$")) {
 					this.element = msg.element;
 					this.doLoad();
 				}
@@ -183,7 +283,18 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		// Handle fbar events
 		this.Save.on('click', this.doSave, this);
 		this.Delete.on('click', this.doDelete, this);
-
+		
+		
+		// Handle component events
+		this.on('beforeload', this.beforeLoad, this);
+		this.on('afterload', this.afterLoad, this);
+		this.on('beforesave', this.beforeSave, this);
+		this.on('aftersave', this.afterSave, this);
+		this.on('beforedelete', this.beforeDelete, this);
+		this.on('afterdelete', this.afterDelete, this);
+		this.on('afterinsertion', this.afterInsertion, this);
+		this.on('afterextraction', this.afterExtraction, this);
+	
 	
 		// Parent code
 		CMDB.Element.Edit.superclass.onRender.apply(this, arguments);
@@ -201,6 +312,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		this.doLoad();
 	},
 	
+	
 	/**
 	 * Prior to destroying destroy child Ext objects
 	*/
@@ -214,6 +326,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		CMDB.Element.Edit.superclass.beforeDestroy.apply(this, arguments);
 	},
 	
+	
 	/**
 	 * Prior to destroying clean up
 	*/
@@ -223,6 +336,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	
 		CMDB.Element.Edit.superclass.onDestroy.apply(this, arguments);
 	},
+	
 	
 	/**
 	 * Load of element data by first calling the insertion method
@@ -235,13 +349,28 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		}
 	},
 	
+	
+	// private
 	loading          : function() {
-		if (this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
-			this.insertion();
+		if (this.element && CMDB.Badgerfish.get(this.element,"Element/id/$")) {
+			this.doInsertion();
 		}
 		
 		this.fireEvent('afterload', this);
 	},
+	
+	
+	/**
+     * Abstract method automatically called by event beforeload
+     */
+	beforeLoad       : Ext.emptyFn,
+	
+	
+	/**
+     * Abstract method automatically called by event afterload
+     */
+	afterLoad        : Ext.emptyFn,
+	
 	
 	/**
 	 * Saves element by first calling the extraction method that gets
@@ -253,15 +382,17 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		}
 	},
 	
+	
+	// private
 	saving          : function() {
 		if (this.element) {
 			this.updateMask.show();
 						
-			this.extraction();
+			this.doExtraction();
 			
 			Ext.Ajax.request({
 				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
-				method        : !this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"] ? 'POST' : 'PUT',
+				method        : !CMDB.Badgerfish.get(this.element,"Element/id/$") ? 'POST' : 'PUT',
 				
 				headers       : {
 					'Accept'        : 'application/json,application/xml,text/html',
@@ -297,6 +428,18 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	
 	
 	/**
+     * Abstract method automatically called by event beforesave
+     */
+	beforeSave       : Ext.emptyFn,
+	
+	
+	/**
+     * Abstract method automatically called by event aftersave
+     */
+	afterSave        : Ext.emptyFn,
+	
+	
+	/**
 	 * Delete the element by id
 	*/
 	doDelete         : function() {
@@ -306,12 +449,13 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	},
 	
 	
+	// private
 	deleting         : function() {
-		if (this.element && this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]) {
+		if (this.element && CMDB.Badgerfish.get(this.element,"Element/id/$")) {
 			this.updateMask.show();
 			
 			Ext.Ajax.request({
-				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"],
+				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+CMDB.Badgerfish.get(this.element,"Element/id/$"),
 				method        : 'DELETE',
 							
 				headers        : {
@@ -344,7 +488,23 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		}
 	},
 	
-	extraction       : function() {
+	
+	/**
+     * Abstract method automatically called by event beforedelete
+     */
+	beforeDelete     : Ext.emptyFn,
+	
+	
+	/**
+     * Abstract method automatically called by event afterdelete
+     */
+	afterDelete      : Ext.emptyFn,
+	
+	
+	/**
+	 *
+	 */
+	doExtraction     : function() {
 		var element = this.element, fields = this.find('elementdata', true);			
 		Ext.each(fields, function(field) {
 			field.extract(element);
@@ -355,14 +515,30 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 		this.fireEvent('afterextraction', this);
 	},
 	
-	insertion        : function() {
+	
+	/**
+     * Abstract method automatically called by event afterextraction
+     */
+	afterExtraction  : Ext.emptyFn,
+	
+	
+	/**
+	 *
+	 */
+	doInsertion      : function() {
 		var element = this.element, fields = this.find('elementdata', true);			
 		Ext.each(fields, function(field) {
 			field.insert(element);
 		});
 		
 		this.fireEvent('afterinsertion', this);
-	}       
+	},
+	
+	
+	/**
+     * Abstract method automatically called by event afterinsertion
+     */
+     afterInsertion  : Ext.emptyFn       
 });
 
 
@@ -398,6 +574,10 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 	start          : 0,
 	limit          : 20,
 	
+	
+	/**
+	 *
+	 */
 	initComponent  : function() {
 		CMDB.Element.Search.superclass.initComponent.apply(this, arguments);
 		
@@ -408,22 +588,35 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 		);
 	},
 	
+	
+	/**
+	 *
+	 */
 	onRender       : function() {
 		// Handle fbar events
 		this.Search.on('click', this.doSearch, this);
+		
+		// Handle component events
+		this.on('beforesearch', this.beforeSearch ,this);
+		this.on('afterextraction', this.afterExtraction, this);
 	
 		CMDB.Element.Search.superclass.onRender.apply(this, arguments);
 	},
 	
+	
+	/**
+	 *
+	 */
 	onDestroy      : function() {
 		CMDB.Element.Search.superclass.onDestroy.apply(this, arguments);
 	},
 	
-	beforeSearch   : Ext.emptyFn,
 	
-	afterSearch    : Ext.emptyFn,
-	
-	doSearch       : function() {
+	/**
+	 * Loops through all of the components with 'elementdata' property
+	 * and uses the getParameter method to get each criterion.
+	 */
+	doSearch       : function() {	
 		var initialized, criteria = this.find('elementdata', true);			
 		Ext.each(criteria, function(criterion) {
 			var parameter = criterion.getParameter();
@@ -439,6 +632,7 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 		}
 	},
 	
+	// private
 	searching      : function() {
 		win = this.desktop.createWindow(
 			{
@@ -457,7 +651,19 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 		win.Grid.getStore().load({
 			params   : 'start=' + this.start + '&limit=' + this.limit+'&'+this.expressions
 		});
-	}
+	},
+	
+	
+	/**
+     * Abstract method automatically called by event beforesearch
+     */
+	beforeSearch   : Ext.emptyFn,
+	
+	
+	/**
+     * Abstract method automatically called by event aftersearch
+     */
+	afterSearch    : Ext.emptyFn,
 });
 
 
@@ -474,6 +680,9 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 	layout         : 'fit',
 	iconCls        : 'icon-grid',
 	
+	/**
+	 *
+	 */
 	initComponent  : function() {
 		var fields = this.fields || [];
 		var columns = this.columns || [];
@@ -481,7 +690,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		var reader = new CMDB.JsonReader({
 			totalProperty       : 'total',
     		successProperty     : 'successful',
-    		idProperty          : 'com.klistret.cmdb.ci.pojo.Element/com.klistret.cmdb.ci.pojo.id',
+    		idProperty          : 'Element/id/$',
     		root                : 'rows',
 			fields              : fields
 		});
@@ -539,6 +748,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
                 		xtype          : 'button',
                 		ref            : 'Delete',
                 		text           : 'Delete',
+                		iconCls        : 'deleteButton',
                 		handler        : this.doDelete,
                 		scope          : this
                 	},
@@ -561,6 +771,10 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		CMDB.Element.Results.superclass.initComponent.apply(this, arguments);
 	},
 	
+	
+	/**
+	 *
+	 */
 	onRender       : function() {
 		// Add Delete subscription
 		this.ElementDeleteSubscribeId = PageBus.subscribe(
@@ -568,7 +782,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			this, 
 			function(subj, msg, data) {
 				if (msg.state == 'success' && this.element) {
-					var record = this.Grid.store.getById(this.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
+					var record = this.Grid.store.getById(CMDB.Badgerfish.get(this.element,"Element/id/$"));
 					
 					if (record) {
 						this.Grid.store.remove(record);
@@ -586,9 +800,12 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 					var record = this.Grid.store.getById(msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
 					
 					if (record) {
-						var other = new this.Grid.store.recordType(msg.element, msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
-						var index = this.Grid.store.indexOf(record);
+						var other = this.Grid.store.reader.createRecord(
+							msg.element, 
+							CMDB.Badgerfish.get(msg.element,"Element/id/$")
+						);
 						
+						var index = this.Grid.store.indexOf(record);
 						this.Grid.store.remove(record);
 						this.Grid.store.insert(index, other);
 					}	
@@ -600,6 +817,10 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		CMDB.Element.Results.superclass.onRender.apply(this, arguments);
 	},
 	
+	
+	/**
+	 *
+	 */
 	onDestroy      : function() {
 		// Remove event subscriptions
 		PageBus.unsubscribe(this.ElementDeleteSubscribeId);
@@ -607,50 +828,62 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		CMDB.Element.Results.superclass.onDestroy.apply(this, arguments);
 	},
 	
+	
+	/**
+	 *
+	 */
 	doDelete       : function() {
 		var records = this.Grid.getSelectionModel().getSelections();
 		
-		Ext.each(records, function(record) {
-			Ext.Ajax.request({
-				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+record.id,
-				method        : 'DELETE',
+		Ext.each(
+			records, 
+			function(record) {
+				Ext.Ajax.request({
+					url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+record.id,
+					method        : 'DELETE',
 							
-				headers        : {
-					'Accept'        : 'application/json,application/xml,text/html',
-					'Content-Type'  : 'application/json'
-				},
+					headers        : {
+						'Accept'        : 'application/json,application/xml,text/html',
+						'Content-Type'  : 'application/json'
+					},
 			
-				scope         : this,
+					scope         : this,
 			
-				success       : function ( result, request ) {
-					this.element = Ext.util.JSON.decode(result.responseText);
+					success       : function ( result, request ) {
+						this.element = Ext.util.JSON.decode(result.responseText);
 				
-					PageBus.publish(	
-						'CMDB.Element.Delete', 
-						{
-							state         : 'success', 
-							element       : this.element 
-						}
-					);
+						PageBus.publish(	
+							'CMDB.Element.Delete', 
+							{
+								state         : 'success', 
+								element       : this.element 
+							}
+						);
 					
-					var bbar = this.Grid.getBottomToolbar();
-					bbar.Status.setText('Deletion successful');
+						var bbar = this.Grid.getBottomToolbar();
+						bbar.Status.setText('Deletion successful');
+					},
+					failure       : function ( result, request ) {
+						var bbar = this.Grid.getBottomToolbar();
+						bbar.Status.setText('Failed deleting.');
+					}
 				},
-				failure       : function ( result, request ) {
-					var bbar = this.Grid.getBottomToolbar();
-					bbar.Status.setText('Failed deleting.');
-				}
-			});
+				this
+			);
 		});
 	},
 	
+	
+	/**
+	 *
+	 */
 	doOpen         : function(grid, index) {
 		var record = grid.getStore().getAt(index);	
 		var element = record.get("Element");
 		
 		win = this.desktop.createWindow(
 			{
-				element       : { 'com.klistret.cmdb.ci.pojo.Element' : element }
+				element       : { 'Element' : element }
 			},
 			this.editor
 		);
