@@ -49,8 +49,7 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 	public RelationType get(String name) {
 		logger.debug("Getting relation type by composite id [{}]", name);
 
-		Criteria criteria = getSession().createCriteria(
-				com.klistret.cmdb.ci.pojo.RelationType.class);
+		Criteria criteria = getSession().createCriteria(RelationType.class);
 		criteria.add(Restrictions.isNull("toTimeStamp"));
 		criteria.add(Restrictions.eq("name", name));
 
@@ -83,7 +82,7 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 					new IllegalArgumentException());
 
 		try {
-			Criteria query = getSession().createCriteria("RelationType");
+			Criteria query = getSession().createCriteria(RelationType.class);
 
 			query.add(Restrictions.ilike("name", name));
 			query.add(Restrictions.isNull("toTimeStamp"));
