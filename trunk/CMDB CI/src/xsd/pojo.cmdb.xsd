@@ -213,6 +213,7 @@
     				}
 					]]>
 				</codeInjector:code>
+				<ci:Proxy />
 			</xs:appinfo>
 		</xs:annotation>
 
@@ -248,6 +249,7 @@
     				}
 					]]>
 				</codeInjector:code>
+				<ci:Proxy />
 			</xs:appinfo>
 		</xs:annotation>
 
