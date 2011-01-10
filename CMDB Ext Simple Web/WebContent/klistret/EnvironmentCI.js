@@ -23,7 +23,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 					xtype       : 'generalForm'
 				},
 				{
-					xtype       : 'relationForm'
+					xtype       : 'destRelationForm'
 				},
 				{
 					xtype       : 'propertyForm'

@@ -280,8 +280,6 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
 */
 CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 
-	wrapped: true,
-	
 	rewriteProperties : function(obj) {
 		if (typeof obj !== "object") return obj;
 		for (var prop in obj) {
@@ -322,25 +320,25 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
             	return CMDB.Badgerfish.get(obj, expr);
             };
         };
-    }(),
+    }()/**,
     
     createRecord : function(rawdata, id) {
     	var recordDef = Ext.data.Record.create(this.meta.fields),
 			record = {};
 							
-			Ext.each(
-				this.meta.fields, 
-				function(field) {
-					var accessor = this.createAccessor(field.mapping);
-					var value = accessor(rawdata);
+		Ext.each(
+			this.meta.fields, 
+			function(field) {
+				var accessor = this.createAccessor(field.mapping);
+				var value = accessor(rawdata);
 							
-					record[field.name] = value;
-				},
-				this
-			);
+				record[field.name] = value;
+			},
+			this
+		);
 						
-			return new recordDef(record, id);
-    }
+		return new recordDef(record, id);
+    }*/
 });
 
 
