@@ -8,6 +8,49 @@ Ext.namespace('CMDB.Environment');
  *
  */
 CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
+	element        : {
+		'Element' : {
+			'@xmlns' : 
+				{
+					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
+					'ns10' : 'http://www.klistret.com/cmdb/ci/element/system',
+					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+				},
+			'name' : {
+				'$' : ''
+			},
+			'type' : {
+				'id' : {
+					'$' : '18'
+				},
+				'name' : {
+					'$' : '{http://www.klistret.com/cmdb/ci/element/system}Environment'
+				}
+			},
+			'fromTimeStamp' : {
+				'$' : new Date()
+			},
+			'createTimeStamp' : {
+				'$' : new Date()
+			},
+			'updateTimeStamp' : {
+				'$' : new Date()
+			},
+			'configuration' : { 
+				'@xmlns' : {
+					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+				},
+				'@xsi:type' : 'ns10:Environment',
+				'ns2:Name' : {
+					'$' : ''
+				},
+				'ns9:State' : {
+					'$' : ''
+				}
+			}
+		}
+	},
 
 	/**
 	 *
@@ -23,7 +66,8 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 					xtype       : 'generalForm'
 				},
 				{
-					xtype       : 'destRelationForm'
+					xtype       : 'destRelationForm',
+					ref         : 'DestRelForm'
 				},
 				{
 					xtype       : 'propertyForm'
@@ -33,6 +77,10 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Environment.Edit.superclass.initComponent.apply(this, arguments);
+	},
+	
+	afterInsertion : function() {
+		this.DestRelForm.Grid.enable();
 	}
 });
 
