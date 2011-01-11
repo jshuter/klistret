@@ -49,15 +49,15 @@ public class ApplicationExceptionMapper implements
 				.entity(exception.getMessage()).type(MediaType.TEXT_HTML);
 
 		if (exception.contains(NoSuchElementException.class)) {
-			rb = Response.status(Response.Status.NOT_FOUND);
+			rb.status(Response.Status.NOT_FOUND);
 		}
 
 		if (exception.contains(IllegalArgumentException.class)) {
-			rb = Response.status(Response.Status.BAD_REQUEST);
+			rb.status(Response.Status.BAD_REQUEST);
 		}
 
 		if (exception.contains(RejectedExecutionException.class)) {
-			rb = Response.status(Response.Status.FORBIDDEN);
+			rb.status(Response.Status.FORBIDDEN);
 		}
 
 		return rb.build();
