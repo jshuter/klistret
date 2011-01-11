@@ -320,7 +320,7 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
             	return CMDB.Badgerfish.get(obj, expr);
             };
         };
-    }()/**,
+    }(),
     
     createRecord : function(rawdata, id) {
     	var recordDef = Ext.data.Record.create(this.meta.fields),
@@ -338,7 +338,7 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 		);
 						
 		return new recordDef(record, id);
-    }*/
+    }
 });
 
 
