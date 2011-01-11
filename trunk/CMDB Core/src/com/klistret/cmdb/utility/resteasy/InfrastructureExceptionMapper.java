@@ -41,7 +41,7 @@ public class InfrastructureExceptionMapper implements
 				exception.getMessage()).type(MediaType.TEXT_HTML);
 
 		if (exception.contains(org.hibernate.TransactionException.class)) {
-			rb = Response.status(Response.Status.SERVICE_UNAVAILABLE);
+			rb.status(Response.Status.SERVICE_UNAVAILABLE);
 		}
 
 		return rb.build();
