@@ -20,11 +20,15 @@ Ext.Element.SearchParameterPlugin = (function() {
 					if (Ext.isEmpty(this.getValue())) return null;
 				
 					if (this.getXType() == 'textfield') {
-						return Ext.urlEncode({expressions : String.format(this.expression, this.getValue().replace(/\*/g, '%'))});
+						return Ext.urlEncode({
+							expressions : String.format(this.expression, this.getValue().replace(/\*/g, '%'))
+						});
 					}
 					
 					if (this.getXType() == 'datefield') {
-						return Ext.urlEncode({expressions : String.format(this.expression, this.getValue().format('Y-m-d\\TH:i:s.uP'))});
+						return Ext.urlEncode({
+							expressions : String.format(this.expression, this.getValue().format('Y-m-d\\TH:i:s.uP'))
+						});
 					}
 				
 					return null;
@@ -255,6 +259,8 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			},
 			this
 		);
+		
+		grid.disable();
 					
 		var config = {
 			title       : 'Owned relations',
@@ -520,7 +526,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			{
 				msg      : 'Sending. Please wait...'
 			}
-		)
+		);
 		
 		// Load element
 		this.doLoad();
@@ -881,7 +887,7 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
 	/**
      * Abstract method automatically called by event aftersearch
      */
-	afterSearch    : Ext.emptyFn,
+	afterSearch    : Ext.emptyFn
 });
 
 
@@ -929,8 +935,6 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
         });
         
         var grid = new Ext.grid.GridPanel({
-        	ref           : 'Grid',
-        
         	border        : false,
     		store         : store,
     		columns       : columns,
@@ -985,6 +989,8 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
         grid.on('rowdblclick', this.doOpen, this);
 		
 		var config = {
+			Grid       : grid,
+			
 			items      : grid
 		};
 	
