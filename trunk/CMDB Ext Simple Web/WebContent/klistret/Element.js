@@ -53,13 +53,18 @@ Ext.Element.EditParameterPlugin = (function() {
 					}
 					
 					if (this.getXType() == 'propertygrid') {
-						var properties = [];
+						var properties = [],	
+						    prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
 						
 						this.store.each(
 							function(record) {
-								var property = {
-									"com.klistret.cmdb.ci.commons.Name"  : record.get("name"),
-									"com.klistret.cmdb.ci.commons.Value" : record.get("value")
+								var property = {};
+								
+								property[prefix + ":Name"] = {
+									"$" : record.get("name")
+								};
+								property[prefix + ":Value"] = {
+									"$" : record.get("value")
 								};
 								
 								properties[properties.length] = property;
@@ -79,14 +84,13 @@ Ext.Element.EditParameterPlugin = (function() {
 					
 					if (this.getXType() == 'propertygrid') {
 						var properties = CMDB.Badgerfish.get(element, this.mapping);
-						/**
+						
 						Ext.each(
 							properties, 
 							function(property) {
-								this.source[property["com.klistret.cmdb.ci.commons.Name"]] = property["com.klistret.cmdb.ci.commons.Value"];
+								this.source[CMDB.Badgerfish.get(property,"Name/$")] = CMDB.Badgerfish.get(property,"Value/$");
 							},
 							this);
-						*/
 					}
 				}
 			});
@@ -175,170 +179,19 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			header          : 'Relationship', 
 			width           : 150, 
 			sortable        : true, 
-			dataIndex       : 'Type',
-			editor          : {
-				xtype           : 'combo',
-				allowBlank      : false,
-				blankText       : 'Relationship field necessary',
-				typeAhead       : true,
-				forceSelection  : true,
-				mode            : 'remote',
-				
-				/**
-				 * Query parameter is 'name' rather than default 'query'
-				*/
-				queryParam      : 'name',
-
-				/**
-				 * Modify the query parameter if exists with wildcards
-				*/
-				listeners       : {
-         			'beforequery'       : function(e) {
-         				e.query = Ext.isEmpty(e.query) ? '' : '%' + e.query + '%';
-         			}
-   				},
-   				
-   				/**
-   				 * Nullify the start/limit parameters
-   				*/
-				store           : new Ext.data.Store({
-					baseParams     : {
-					},
-					
-					proxy          : new Ext.data.HttpProxy({
-						url            : 'http://sadbmatrix2:55167/CMDB/resteasy/relationType',
-						method         : 'GET',
-					
-						headers        : {
-							'Accept'          : 'application/json,application/xml,text/html',
-							'Content-Type'    : 'application/json'
-						}
-        			}),
-        			
-        			reader         : new CMDB.JsonReader({
-						totalProperty       : 'total',
-    					successProperty     : 'successful',
-    					idProperty          : 'RelationType/id/$',
-    					root                : 'rows',
-						fields              : [
-							{
-								name             : 'Id',
-								mapping          : 'RelationType/id/$'
-							},
-							{
-								name             : 'Name',
-								mapping          : 'RelationType/name/$'
-							}
-						]
-					}),
-					
-					listeners       : {
-						'load'           : function(store, records, options) {
-							Ext.each(records, function(record) {
-								var name = record.get('Name');
-								
-								record.set('Name', name.replace(/\{.*\}(.*)/,"$1"));
-								record.commit();
-							});
-						}
-					}
-    			}),
-    			
-    			valueField      : 'Name',
-    			displayField    : 'Name'
-			}
+			dataIndex       : 'Type'
 		},
 		{
 			header          : 'CI Type', 
 			width           : 150, 
 			sortable        : true, 
-			dataIndex       : 'DestType',
-			editor          : {
-				xtype           : 'combo',
-				allowBlank      : false,
-				blankText       : 'CI Type is necessary to search by name',
-				typeAhead       : true,
-				forceSelection  : true,
-				mode            : 'remote',
-				
-				bubbleEvents    : [
-					'select'
-				],
-				
-				/**
-				 * Query parameter is 'name' rather than default 'query'
-				*/
-				queryParam      : 'name',
-
-				/**
-				 * Modify the query parameter if exists with wildcards
-				*/
-				listeners       : {
-         			'beforequery'       : function(e) {
-         				e.query = Ext.isEmpty(e.query) ? '' : '%' + e.query + '%';
-         			}
-   				},
-   				
-   				/**
-   				 * Nullify the start/limit parameters
-   				*/
-				store           : new Ext.data.Store({
-					baseParams     : {
-					},
-					
-					proxy          : new Ext.data.HttpProxy({
-						url            : 'http://sadbmatrix2:55167/CMDB/resteasy/elementType',
-						method         : 'GET',
-					
-						headers        : {
-							'Accept'          : 'application/json,application/xml,text/html',
-							'Content-Type'    : 'application/json'
-						}
-        			}),
-        			
-        			reader         : new CMDB.JsonReader({
-						totalProperty       : 'total',
-    					successProperty     : 'successful',
-    					idProperty          : 'ElementType/id/$',
-    					root                : 'rows',
-						fields              : [
-							{
-								name             : 'Id',
-								mapping          : 'ElementType/id/$'
-							},
-							{
-								name             : 'Name',
-								mapping          : 'ElementType/name/$'
-							}
-						]
-					}),
-					
-					listeners       : {
-						'load'           : function(store, records, options) {
-							Ext.each(records, function(record) {
-								var name = record.get('Name');
-								
-								record.set('Name', name.replace(/\{.*\}(.*)/,"$1"));
-								record.commit();
-							});
-						}
-					}
-    			}),
-    			
-    			valueField      : 'Name',
-    			displayField    : 'Name'
-			}
+			dataIndex       : 'DestType'
 		},
 		{
 			header          : "CI Name", 
 			width           : 150, 
 			sortable        : true, 
-			dataIndex       : 'DestName',
-			editor          : {
-				xtype           : 'textfield',
-				allowBlank      : false,
-				disabled        : true
-			}
+			dataIndex       : 'DestName'
 		}
 	],  
 
@@ -360,7 +213,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			fields          : fields
 		});
 		
-		var store = new Ext.data.GroupingStore({
+		var store = new Ext.data.Store({
 			reader          : reader,
 			sortInfo        : {
 				field           : 'start', 
@@ -370,23 +223,10 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		
 		var grid = new Ext.grid.GridPanel({
 			height          : 200,
-			view            : new Ext.grid.GroupingView({
-				markDirty       : false
-			}),
-			plugins         : editor,
-			editor          : editor,
 			store           : store,
 			columns         : columns,
 			
 			tbar            : [
-				{
-					xtype        : 'button',
-					ref          : '../Add',
-					iconCls      : 'addButton',
-					text         : 'Add',
-					handler      : this.doAdd,
-					scope        : this
-				},
 				{
 					xtype        : 'button',
 					ref          : '../Delete',
@@ -399,17 +239,23 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		});
 		
 		grid.on(
-			'select',
-			function(component, selected) {
-				if (component.getXType() === 'combo') {
-					var ed = this.getColumnModel().getColumnAt(2).getEditor();
-					ed.enable();
-					ed.ciType = selected.get('Name');
-				}
+			'afterrender',
+			function() {
+				var gridDropTarget = new Ext.dd.DropTarget(
+					this.Grid.getView().scroller.dom, 
+					{
+						ddGroup    : 'relationDDGroup',
+						notifyDrop : function(ddSource, e, data){
+							var records =  ddSource.dragData.selections;
+							
+                        	return true;
+                		}
+					}
+				);
 			},
-			grid
-		); 
-	
+			this
+		);
+					
 		var config = {
 			title       : 'Owned relations',
 			autoScroll  : true,
@@ -432,32 +278,16 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		CMDB.Element.DestRelationForm.superclass.initComponent.apply(this, arguments);
 	},
 	
-	
 	/**
 	 *
 	*/
 	doDelete       : function() {
 	},
 	
-	
 	/**
 	 *
 	*/
 	doAdd          : function() {
-		var recordDef = Ext.data.Record.create(this.fields);
-		var dummy = new recordDef({
-			'Id'         : null,
-			'Type'       : null,
-			'DestName'   : null,
-			'DestType'   : null,
-			'Relation'   : null
-		});
-		
-		this.Grid.editor.stopEditing();
-		this.Grid.store.insert(0, dummy);
-		this.Grid.getView().refresh();
-		this.Grid.getSelectionModel().selectRow(0);
-		this.Grid.editor.startEditing(0);
 	}
 });
 Ext.reg('destRelationForm', CMDB.Element.DestRelationForm);
@@ -894,8 +724,12 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			field.extract(element);
 		});
 		
-		element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.configuration"]["com.klistret.cmdb.ci.commons.Name"] = element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.name"]; 
-		
+		CMDB.Badgerfish.set(
+			element,
+			"Element/configuration/Name/$",
+			CMDB.Badgerfish.get(element, "Element/name/$")
+		);
+	
 		this.fireEvent('afterextraction', this);
 	},
 	
@@ -1102,6 +936,9 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
     		columns       : columns,
 			loadMask      : true,
 			
+			ddGroup       : 'relationDDGroup',
+			enableDragDrop: true,
+			
 			viewConfig    : {
 				forceFit       : true
 			},
@@ -1181,7 +1018,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			this, 
 			function(subj, msg, data) {
 				if (msg.state == 'success') {
-					var record = this.Grid.store.getById(msg.element["com.klistret.cmdb.ci.pojo.Element"]["com.klistret.cmdb.ci.pojo.id"]);
+					var record = this.Grid.store.getById(CMDB.Badgerfish.get(msg.element,"Element/id/$"));
 					
 					if (record) {
 						var other = this.Grid.store.reader.createRecord(
