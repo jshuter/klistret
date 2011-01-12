@@ -52,22 +52,26 @@ Ext.Element.EditParameterPlugin = (function() {
 				elementdata      : true,
 				
 				extract         : function(element) {
-					if (this.getXType() == 'textfield' || this.getXType() == 'textarea') {
+					if (this.getXType() == 'textfield' || this.getXType() == 'textarea' || this.getXType() == 'combo') {
+						if (Ext.isFunction(this.builder) && !Ext.isEmpty(this.getValue())) {
+							this.builder(element);
+						}
+						
 						CMDB.Badgerfish.set(element, this.mapping, this.getValue());
 					}
 					
 					if (this.getXType() == 'propertygrid') {
 						var properties = [],	
-						    prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+						    commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
 						
 						this.store.each(
 							function(record) {
 								var property = {};
 								
-								property[prefix + ":Name"] = {
+								property[commons + ":Name"] = {
 									"$" : record.get("name")
 								};
-								property[prefix + ":Value"] = {
+								property[commons + ":Value"] = {
 									"$" : record.get("value")
 								};
 								
@@ -76,12 +80,16 @@ Ext.Element.EditParameterPlugin = (function() {
 							this
 						);
 						
+						if (Ext.isFunction(this.builder) && !Ext.isEmpty(properties)) {
+							this.builder(element);
+						}
+						
 						CMDB.Badgerfish.set(element, this.mapping, properties);
 					}
 				},
 				
 				insert           : function(element) {
-					if (this.getXType() == 'textfield' || this.getXType() == 'textarea') {
+					if (this.getXType() == 'textfield' || this.getXType() == 'textarea' || this.getXType() == 'combo') {
 						var value = CMDB.Badgerfish.get(element, this.mapping);
 						this.setValue(value);
 					}
@@ -134,17 +142,23 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					fieldLabel        : 'Description',
 					height            : 50,
 					blankText         : 'Description of the Environment',
-					mapping           : 'Element/configuration/Description/$'
+					mapping           : 'Element/configuration/Description/$',
+					builder           : function(element) {
+						var configuration = CMDB.Badgerfish.get(element, 'Element/configuration')
+							commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+						
+						if (!configuration.hasOwnProperty(commons+":Description")) {
+							configuration[commons+":Description"] = {
+								'$' : ''
+							};
+						}
+					}
 				}
 			]
 		};
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Element.GeneralForm.superclass.initComponent.apply(this, arguments);
-	},
-	
-	onRender       : function() {
-		CMDB.Element.GeneralForm.superclass.onRender.apply(this, arguments);
 	}
 });
 Ext.reg('generalForm', CMDB.Element.GeneralForm);
@@ -312,6 +326,14 @@ CMDB.Element.PropertyForm = Ext.extend(Ext.form.FormPanel, {
 		var grid = new Ext.grid.PropertyGrid({
 			plugins     : [new Ext.Element.EditParameterPlugin()],
 			mapping     : 'Element/configuration/Property',
+			builder     : function(element) {
+				var configuration = CMDB.Badgerfish.get(element, 'Element/configuration')
+					commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+						
+					if (!configuration.hasOwnProperty(commons+":Property")) {
+						configuration[commons+":Property"] = [];
+					}
+			},
 			height      : 200,
 			
 			viewConfig  : {
@@ -597,8 +619,15 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	 * data from the form fields and updates the element
 	*/
 	doSave          : function() {
-		if(this.fireEvent('beforesave', this) !== false){
-			this.saving();
+		if(this.fireEvent('beforesave', this) !== false) {
+			var forms = this.findByType('form');
+		
+			var isValid = true;
+			Ext.each(forms, function(form) {
+				if (!form.getForm().isValid()) isValid = false;
+			});
+		
+			if (isValid) this.saving();
 		}
 	},
 	
@@ -725,11 +754,22 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	 *
 	 */
 	doExtraction     : function() {
-		var element = this.element, fields = this.find('elementdata', true);			
+		var element = this.element, 
+			fields = this.find('elementdata', true);
+						
 		Ext.each(fields, function(field) {
 			field.extract(element);
 		});
 		
+		var configuration = CMDB.Badgerfish.get(element, 'Element/configuration')
+			commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+						
+		if (!configuration.hasOwnProperty(commons+":Name")) {
+			configuration[commons+":Name"] = {
+				'$' : ''
+			};
+		}
+		 
 		CMDB.Badgerfish.set(
 			element,
 			"Element/configuration/Name/$",
@@ -1051,6 +1091,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 	onDestroy      : function() {
 		// Remove event subscriptions
 		PageBus.unsubscribe(this.ElementDeleteSubscribeId);
+		PageBus.unsubscribe(this.ElementSaveSubscribeId);
 		
 		CMDB.Element.Results.superclass.onDestroy.apply(this, arguments);
 	},
