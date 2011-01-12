@@ -41,13 +41,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 				'@xmlns' : {
 					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 				},
-				'@xsi:type' : 'ns10:Environment',
-				'ns2:Name' : {
-					'$' : ''
-				},
-				'ns9:State' : {
-					'$' : ''
-				}
+				'@xsi:type' : 'ns10:Environment'
 			}
 		}
 	},
@@ -64,6 +58,9 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 			items       : [
 				{
 					xtype       : 'generalForm'
+				},
+				{
+					xtype       : 'systemGeneralForm'
 				},
 				{
 					xtype       : 'destRelationForm',
