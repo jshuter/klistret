@@ -86,6 +86,12 @@ Ext.Element.EditParameterPlugin = (function() {
 						
 						CMDB.Badgerfish.set(element, this.mapping, properties);
 					}
+					
+					if (this.getXType() == 'superboxselect') {
+						if (Ext.isFunction(this.builder) && !Ext.isEmpty(this.getValueEx())) {
+							this.builder(element, this.getValueEx());
+						}
+					}
 				},
 				
 				insert           : function(element) {
@@ -117,6 +123,8 @@ Ext.Element.EditParameterPlugin = (function() {
 */
 CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 
+	tags           : [],
+
 	initComponent  : function() {
 		var config = {
 			title       : 'General',
@@ -135,6 +143,60 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					allowBlank        : false,
 					blankText         : 'Enter a unique environment name',
 					mapping           : 'Element/name/$'
+				},
+				{
+					xtype             : 'superboxselect',
+					plugins           : [new Ext.Element.EditParameterPlugin()],
+					fieldLabel        : 'Tags',
+					mapping           : 'Element/configuration/Tag',
+					builder           : function(element, values) {
+						var configuration = CMDB.Badgerfish.get(element, 'Element/configuration')
+							commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons')
+							tags = [];
+												
+						Ext.each(
+							values, 
+							function(value) {
+								var tag = {
+									'$' : value['name']
+								};
+								
+								tags[tags.length] = tag;
+							}
+						);
+						
+						configuration[commons+":Tag"] = tags;
+					},
+					
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'name'
+						],
+						data             : this.tags,
+						sortInfo         : {
+							field             : 'name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					displayField      : 'name',
+					valueField        : 'name',
+					mode              : 'local',
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							v = v.slice(0,1).toUpperCase() + v.slice(1).toLowerCase();
+							var newObj = {
+								name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'textarea',
@@ -221,8 +283,6 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		var fields  = this.fields || [];
 		var columns = this.columns || []; 
 	
-		var editor = new Ext.ux.grid.RowEditor({ saveText: 'Update' });
-		
 		var reader = new CMDB.JsonReader({
 			totalProperty   : 'total',
     		successProperty : 'successful',
@@ -263,11 +323,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 					this.Grid.getView().scroller.dom, 
 					{
 						ddGroup    : 'relationDDGroup',
-						notifyDrop : function(ddSource, e, data){
-							var records =  ddSource.dragData.selections;
-							
-                        	return true;
-                		}
+						notifyDrop : this.doAdd.createDelegate(this)
 					}
 				);
 			},
@@ -298,6 +354,18 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		CMDB.Element.DestRelationForm.superclass.initComponent.apply(this, arguments);
 	},
 	
+	onRender       : function() {
+		this.on(
+			'afterinsertion', 
+			function() {
+				this.Grid.enable();
+			}, 
+			this
+		);
+	
+		CMDB.Element.DestRelationForm.superclass.onRender.apply(this, arguments);
+	},
+	
 	/**
 	 *
 	*/
@@ -307,7 +375,39 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	/**
 	 *
 	*/
-	doAdd          : function() {
+	doAdd          : function(ddSource, e, data){
+		var records =  ddSource.dragData.selections;
+							
+		Ext.each(
+			records, 
+			function(record) {
+				var destinationType = CMDB.Badgerfish.get(record.json, 'Element/type/name/$');
+				
+				var relationType = this.getRelationType(destinationType);
+				
+				var relation = {
+				};
+			},
+			this
+		);
+	},
+	
+	getRelationType : function(destinationType) {
+		var relationType;
+	
+		if (this.relations) {
+			Ext.each(
+				this.relations,
+				function(relation) {
+					if (relation.hasOwnProperty(destinationType)) {
+						relationType = relation[destinationType];
+					}
+				},
+				this
+			);
+		}
+		
+		return relationType;
 	}
 });
 Ext.reg('destRelationForm', CMDB.Element.DestRelationForm);
@@ -489,6 +589,13 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			'afterextraction',
 			
 			'requestfailure'
+		);
+		
+		this.items.each( 
+			function(item) {
+				this.relayEvents(item, ['afterinsertion']);
+			},
+			this
 		);
 	},
 	

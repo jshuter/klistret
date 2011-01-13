@@ -57,14 +57,26 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 			
 			items       : [
 				{
-					xtype       : 'generalForm'
+					xtype       : 'generalForm',
+					tags        : [
+						['Production'],
+						['Test'],
+						['Development'],
+						['Verification'],
+						['Sandbox']
+					]
 				},
 				{
 					xtype       : 'systemGeneralForm'
 				},
 				{
 					xtype       : 'destRelationForm',
-					ref         : 'DestRelForm'
+					ref         : 'DestRelForm',
+					relations   : [
+						{
+							'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/commons}Aggregation'
+						}
+					]
 				},
 				{
 					xtype       : 'propertyForm'
@@ -74,10 +86,6 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Environment.Edit.superclass.initComponent.apply(this, arguments);
-	},
-	
-	afterInsertion : function() {
-		this.DestRelForm.Grid.enable();
 	}
 });
 
