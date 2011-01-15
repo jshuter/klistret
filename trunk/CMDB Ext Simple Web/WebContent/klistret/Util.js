@@ -31,6 +31,23 @@ CMDB.Badgerfish = function() {
 	;
 
 	return {
+		remove     : function(obj, expr) {
+			var parts = (expr || '').split('/'),
+              	result = obj,
+				part;
+				
+			part = parts.shift();   
+			while (parts.length > 0) {
+				var propName = getFullPropertyName(result, part);	
+				result = propName ? result[propName] : null;
+				
+				part = parts.shift(); 
+			}
+			
+			var propName = getFullPropertyName(result, part);
+			if (propName) delete result[propName]; 
+		},
+		
 		get        : function(obj, expr) {
 			var parts = (expr || '').split('/'),
               	result = obj,
