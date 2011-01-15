@@ -29,6 +29,7 @@ CMDB.System.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 			items       : [
 				{
 					xtype             : 'combo',
+					elementdata       : true,
 					fieldLabel        : 'State',
 					allowBlank        : false,
 					blankText         : 'State is required',
@@ -37,17 +38,16 @@ CMDB.System.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					mode              : 'local',
 					forceSelection    : true,
 					
-					plugins           : [new Ext.Element.EditParameterPlugin()],
-					mapping           : 'Element/configuration/State/$',
-					builder           : function(element) {
-						var configuration = CMDB.Badgerfish.get(element, 'Element/configuration')
-							elementP = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element');
-						
-						if (!configuration.hasOwnProperty(elementP+":State")) {
-							configuration[elementP+":State"] = {
-								'$' : ''
-							};
+					marshall          : function(element) {
+						if (this.getValue() && element['Element']['configuration']) {
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element');
+							element['Element']['configuration'][prefix+':State'] = { '$' : this.getValue() };
 						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/State/$');
+						}
+					},
+					unmarshall        : function(element) {
 					}
 				}
 			]

@@ -17,9 +17,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
 					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
 				},
-			'name' : {
-				'$' : ''
-			},
+			
 			'type' : {
 				'id' : {
 					'$' : '18'
