@@ -1,6 +1,9 @@
 Ext.namespace('CMDB');
 
 
+CMDB.URL = 'http://sadbmatrix2:55167';
+
+
 // Badgerfish reader
 CMDB.Badgerfish = function() {
 	var 

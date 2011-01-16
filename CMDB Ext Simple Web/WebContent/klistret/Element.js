@@ -109,6 +109,27 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					},
 					// Read from JSON into object
 					unmarshall        : function(element) {
+						var tags = CMDB.Badgerfish.get(element, 'Element/configuration/Tag'),
+							formated = [];
+						
+						if (Ext.isArray(tags)) {
+							Ext.each(
+								tags,
+								function(tag) {
+									formated[formated.length] = {
+										'name' : tag['$']
+									};
+								}
+							);
+						}
+						
+						if (Ext.isObject(tags)) {
+							formated[formated.length] = {
+								'name' : tags['$']
+							};
+						}
+						
+						this.setValueEx(formated);
 					},
 					
 					store             : new Ext.data.SimpleStore({
@@ -159,6 +180,8 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					},
 					// Read from JSON into object
 					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Description/$');
+						this.setValue(value);
 					}
 				}
 			]
@@ -400,6 +423,21 @@ CMDB.Element.PropertyForm = Ext.extend(Ext.form.FormPanel, {
 			},
 			// Read from JSON into object
 			unmarshall        : function(element) {
+				var properties = CMDB.Badgerfish.get(element, 'Element/configuration/Property');
+			
+				if (Ext.isArray(properties)) {
+					Ext.each(
+						properties,
+						function(property) {
+							this.source[CMDB.Badgerfish.get(property,"Name/$")] = CMDB.Badgerfish.get(property,"Value/$");
+						},
+						this
+					);
+				}
+						
+				if (Ext.isObject(properties)) {
+					this.source[CMDB.Badgerfish.get(properties,"Name/$")] = CMDB.Badgerfish.get(properties,"Value/$");
+				}
 			},
 
 			height      : 200,
@@ -715,7 +753,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			this.doExtraction();
 			
 			Ext.Ajax.request({
-				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
+				url           : (CMDB.URL || '') + '/CMDB/resteasy/element',
 				method        : !CMDB.Badgerfish.get(this.element,"Element/id/$") ? 'POST' : 'PUT',
 				
 				headers       : {
@@ -779,7 +817,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			this.updateMask.show();
 			
 			Ext.Ajax.request({
-				url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+CMDB.Badgerfish.get(this.element,"Element/id/$"),
+				url           : (CMDB.URL || '') + '/CMDB/resteasy/element/'+CMDB.Badgerfish.get(this.element,"Element/id/$"),
 				method        : 'DELETE',
 							
 				headers        : {
@@ -870,7 +908,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	doInsertion      : function() {
 		var element = this.element, fields = this.find('elementdata', true);			
 		Ext.each(fields, function(field) {
-			field.insert(element);
+			field.unmarshall(element);
 		});
 		
 		this.fireEvent('afterinsertion', this);
@@ -1038,7 +1076,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		});
 		
 		var proxy = new Ext.data.HttpProxy({
-			url            : 'http://sadbmatrix2:55167/CMDB/resteasy/element',
+			url            : (CMDB.URL || '') + '/CMDB/resteasy/element',
 			method         : 'GET',
 					
 			headers        : {
@@ -1185,7 +1223,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			records, 
 			function(record) {
 				Ext.Ajax.request({
-					url           : 'http://sadbmatrix2:55167/CMDB/resteasy/element/'+record.id,
+					url           : (CMDB.URL || '') + '/CMDB/resteasy/element/'+record.id,
 					method        : 'DELETE',
 							
 					headers        : {
