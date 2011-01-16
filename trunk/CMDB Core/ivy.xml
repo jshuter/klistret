@@ -109,6 +109,10 @@
 
 		<!-- Jettison LOCAL REPO (1) which is a dependency of RestEASY jettison provider -->
 		<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="runtime->*"/>
+		
+		<!-- Jakarta HTTPCLIENT -->
+		<dependency org="commons-codec" name="commons-codec" rev="1.4" conf="test->master"/>
+		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="test->master"/>
 
 		<!-- Scannotation (1) which is a dependency of RestEASY Servlet: scannotation -->
 		<dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="runtime->master"/>

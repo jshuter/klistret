@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
+import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
@@ -105,10 +106,10 @@ public class Experimenting {
 
 			Environment environment = new Environment();
 			environment.setProperty(Arrays.asList(properties));
-			
-			String[] tags = new String[] {"my special tag" , "danny's tag"};
+
+			String[] tags = new String[] { "my special tag" };
 			environment.setTag(Arrays.asList(tags));
-			
+
 			environment.setWatermark("production");
 
 			element.setConfiguration(environment);
@@ -121,10 +122,14 @@ public class Experimenting {
 		@Path("/element")
 		@Consumes(MediaType.APPLICATION_JSON)
 		@Produces(MediaType.APPLICATION_JSON)
-		public Element create(@BadgerFish Element element) {
+		public Element create(@BadgerFish
+		Element element) {
 			List<Property> properties = element.getConfiguration()
 					.getProperty();
 			System.out.println("Properties size: " + properties.size());
+
+			List<String> tags = element.getConfiguration().getTag();
+			System.out.println("Tag size: " + tags.size());
 
 			return element;
 		}
@@ -156,7 +161,8 @@ public class Experimenting {
 		@Path("/myElement")
 		@Consumes(MediaType.APPLICATION_JSON)
 		@Produces(MediaType.APPLICATION_JSON)
-		public MyElement createMy(@BadgerFish MyElement myElement) {
+		public MyElement createMy(@BadgerFish
+		MyElement myElement) {
 			List<MyProperty> properties = myElement.getMyProperty();
 			System.out.println("Properties size: " + properties.size());
 
@@ -174,7 +180,7 @@ public class Experimenting {
 
 	}
 
-	@Test
+	// @Test
 	public void get() throws URISyntaxException {
 		MockHttpRequest request = MockHttpRequest.get("/test/element/44");
 
@@ -187,7 +193,7 @@ public class Experimenting {
 		System.out.println(responseBodyAsString);
 	}
 
-	//@Test
+	// @Test
 	public void create() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/test/element");
@@ -206,7 +212,7 @@ public class Experimenting {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	//@Test
+	// @Test
 	public void getAndCreate() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest getRequest = MockHttpRequest.get("/test/element/44");
@@ -229,5 +235,48 @@ public class Experimenting {
 		System.out.println(String.format(
 				"Post Response code [%s] with payload [%s]", postResponse
 						.getStatus(), postResponse.getContentAsString()));
+	}
+
+	// @Test
+	public void getClient() throws Exception {
+		ClientRequest request = new ClientRequest(
+				"http://sadbmatrix2:55167/CMDB/resteasy/element/{id}");
+
+		request.accept(MediaType.APPLICATION_JSON).pathParameter("id", 321);
+		String response = request.getTarget(String.class);
+
+		System.out.println(response);
+	}
+
+	// @Test
+	public void getAndPostClient() throws Exception {
+		ClientRequest getRequest = new ClientRequest(
+				"http://sadbmatrix2:55167/CMDB/resteasy/element/{id}");
+
+		getRequest.accept(MediaType.APPLICATION_JSON).pathParameter("id", 321);
+		String getResponse = getRequest.getTarget(String.class);
+
+		ClientRequest putRequest = new ClientRequest(
+				"http://sadbmatrix2:55167/CMDB/resteasy/element");
+
+		putRequest.accept(MediaType.APPLICATION_JSON).body(
+				MediaType.APPLICATION_JSON, getResponse);
+		int status = putRequest.put().getStatus();
+
+		System.out.println(status);
+	}
+
+	@Test
+	public void postClient() throws Exception {
+		String data = "{'Element':{'@xmlns':{'ns10':'http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system','ns9':'http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element','ns2':'http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/commons','$':'http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/pojo'},'name':{'$':'Hell'},'fromTimeStamp':{'$':'2011-01-14T09:01:53.923+01:00'},'createTimeStamp':{'$':'2011-01-14T09:01:53.923+01:00'},'updateTimeStamp':{'$':'2011-01-14T09:34:57.667+01:00'},'type':{'id':{'$':'18'},'name':{'$':'{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment'},'fromTimeStamp':{'$':'2009-08-05T11:20:12.471+02:00'},'createTimeStamp':{'$':'2009-08-05T11:20:12.471+02:00'},'updateTimeStamp':{'$':'2009-08-05T11:20:12.471+02:00'}},'configuration':{'@xmlns':{'xsi':'http:\\/\\/www.w3.org\\/2001\\/XMLSchema-instance'},'@xsi:type':'ns10:Environment','@Watermark':'production','ns2:Name':{'$':'Hell'},'ns2:Tag':[{'$':'my litte'},{'$':'bears'}],'ns2:Property':[{'ns2:Name':{'$':'example'},'ns2:Value':{'$':'of a property'}},{'ns2:Name':{'$':'another test'},'ns2:Value':{'$':'where a property is created'}}],'ns9:State':{'$':'Online'}}}}";
+
+		ClientRequest postRequest = new ClientRequest(
+				"http://sadbmatrix2:55167/CMDB/resteasy/element");
+
+		postRequest.accept(MediaType.APPLICATION_JSON).body(
+				MediaType.APPLICATION_JSON, data);
+		String response = postRequest.postTarget(String.class);
+
+		System.out.println(response);
 	}
 }

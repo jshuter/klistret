@@ -60,32 +60,32 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.get(new Long(274));
 
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Environment");
 
 		Element element = new Element();
-		element.setName("Blue");
+		element.setName("Different");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Environment environment = new Environment();
-		environment.setName("Blue");
+		environment.setName("Different");
 		environment.setWatermark("production");
 		environment.setState("Online");
-
+		
 		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
 		property1.setName("example");
 		property1.setValue("of a property");
@@ -97,6 +97,8 @@ public class ElementService extends
 		com.klistret.cmdb.ci.commons.Property[] properties = new com.klistret.cmdb.ci.commons.Property[] {
 				property1, property2 };
 		environment.setProperty(Arrays.asList(properties));
+		
+		environment.setTag(Arrays.asList(new String[] {"my litte", "bears"}));
 
 		element.setConfiguration(environment);
 
