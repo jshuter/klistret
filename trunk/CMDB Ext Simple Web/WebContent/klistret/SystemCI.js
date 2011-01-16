@@ -48,6 +48,8 @@ CMDB.System.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 						}
 					},
 					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/State/$');
+						this.setValue(value);
 					}
 				}
 			]
