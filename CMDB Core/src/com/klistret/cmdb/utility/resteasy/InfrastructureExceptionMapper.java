@@ -38,7 +38,7 @@ public class InfrastructureExceptionMapper implements
 				.debug("Handling InfrastructureException inside a custom resteasy mapper");
 
 		ResponseBuilder rb = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
-				exception.getMessage()).type(MediaType.TEXT_HTML);
+				exception.getMessage()).type(MediaType.TEXT_PLAIN);
 
 		if (exception.contains(org.hibernate.TransactionException.class)) {
 			rb.status(Response.Status.SERVICE_UNAVAILABLE);

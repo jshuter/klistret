@@ -46,7 +46,7 @@ public class ApplicationExceptionMapper implements
 				.debug("Handling ApplicationException inside a custom resteasy mapper");
 
 		ResponseBuilder rb = Response.status(Response.Status.BAD_REQUEST)
-				.entity(exception.getMessage()).type(MediaType.TEXT_HTML);
+				.entity(exception.getMessage()).type(MediaType.TEXT_PLAIN);
 
 		if (exception.contains(NoSuchElementException.class)) {
 			rb.status(Response.Status.NOT_FOUND);
