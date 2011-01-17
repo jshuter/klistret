@@ -20,10 +20,10 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 			
 			'type' : {
 				'id' : {
-					'$' : '18'
+					'$' : null
 				},
 				'name' : {
-					'$' : '{http://www.klistret.com/cmdb/ci/element/system}Environment'
+					'$' : null
 				}
 			},
 			'fromTimeStamp' : {
@@ -48,6 +48,12 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	 *
 	 */
 	initComponent  : function() {
+		var index = CMDB.ElementTypes.find('Name','Environment'),
+			type = CMDB.ElementTypes.getAt(index).get('ElementType');
+		
+		this.element['Element']['type']['id']['$'] = type['id']['$'];
+		this.element['Element']['type']['name']['$'] = type['name']['$'];
+		
 		var config = {
 			title       : 'Environment Editor',
 			

@@ -320,9 +320,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Element.DestRelationForm.superclass.initComponent.apply(this, arguments);
-	},
-	
-	onRender       : function() {
+		
+		this.relayEvents(this.ownerCt, ['afterinsertion']);
+		
 		this.on(
 			'afterinsertion', 
 			function() {
@@ -330,7 +330,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			}, 
 			this
 		);
+	},
 	
+	onRender       : function() {
 		CMDB.Element.DestRelationForm.superclass.onRender.apply(this, arguments);
 	},
 	
@@ -596,13 +598,6 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			
 			'requestfailure'
 		);
-		
-		this.items.each( 
-			function(item) {
-				this.relayEvents(item, ['afterinsertion']);
-			},
-			this
-		);
 	},
 	
 	
@@ -821,7 +816,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 				method        : 'DELETE',
 							
 				headers        : {
-					'Accept'        : 'application/json,application/xml,text/html',
+					'Accept'        : 'application/json,application/xml,text/*',
 					'Content-Type'  : 'application/json'
 				},
 			
@@ -1080,7 +1075,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			method         : 'GET',
 					
 			headers        : {
-				'Accept'          : 'application/json,application/xml,text/html',
+				'Accept'          : 'application/json,application/xml,text/*',
 				'Content-Type'    : 'application/json'
 			}
         });
@@ -1227,7 +1222,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 					method        : 'DELETE',
 							
 					headers        : {
-						'Accept'        : 'application/json,application/xml,text/html',
+						'Accept'        : 'application/json,application/xml,text/*',
 						'Content-Type'  : 'application/json'
 					},
 			
@@ -1251,10 +1246,10 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 						var bbar = this.Grid.getBottomToolbar();
 						bbar.Status.setText('Failed deleting.');
 					}
-				},
-				this
-			);
-		});
+				});
+			},
+			this
+		);
 	},
 	
 	
