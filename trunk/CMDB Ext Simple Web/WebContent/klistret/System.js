@@ -1,11 +1,73 @@
 /**
- * Name-spaces
+ * 
 */
+Ext.namespace('CMDB.System');
 Ext.namespace('CMDB.Environment');
 
 
+CMDB.System.StateStore = new Ext.data.ArrayStore({
+	fields       : ['name', 'description'],
+    data         : [
+        ['Online', 'System is online or active'],
+        ['Offline', 'System is offline or inactive'],
+        ['Transition', 'System is in transation either to an online or offline state']
+    ]
+});
+
+
+CMDB.System.GeneralForm = Ext.extend(Ext.form.FormPanel, {
+
+	initComponent  : function() {
+		var config = {
+			title       : 'System',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			defaults    : {
+				width             : 300
+			},
+			
+			items       : [
+				{
+					xtype             : 'combo',
+					elementdata       : true,
+					fieldLabel        : 'State',
+					allowBlank        : false,
+					blankText         : 'State is required',
+					store             : CMDB.System.StateStore,
+					displayField      : 'name',
+					mode              : 'local',
+					forceSelection    : true,
+					
+					marshall          : function(element) {
+						if (this.getValue() && element['Element']['configuration']) {
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element');
+							element['Element']['configuration'][prefix+':State'] = { '$' : this.getValue() };
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/State');
+						}
+					},
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/State/$');
+						this.setValue(value);
+					}
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.System.GeneralForm.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+Ext.reg('systemGeneralForm', CMDB.System.GeneralForm);
+
+
+
 /**
- *
+ * Extends Element editor by defining an element template
+ * and initializes the component with predefined forms.
  */
 CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -75,7 +137,6 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 				},
 				{
 					xtype       : 'destRelationForm',
-					ref         : 'DestRelForm',
 					relations   : [
 						{
 							'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/commons}Aggregation'
@@ -185,14 +246,6 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Environment.Search.superclass.initComponent.apply(this, arguments);
-	},
-	
-	
-	/**
-	 *
-	 */
-	onRender       : function() {
-		CMDB.Environment.Search.superclass.onRender.apply(this, arguments);
 	},
 	
 	

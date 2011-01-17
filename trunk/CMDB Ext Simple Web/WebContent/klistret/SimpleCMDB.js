@@ -104,7 +104,30 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
                     	}
                     },
                     {
-                    	text     : 'Component'
+                    	text     : 'Component',
+                    	menu     : {
+                    		items     : [
+                    			{
+                    				text     : 'Application Software',
+                    				menu     : {
+                    					items      : [
+                    						{
+                    							text     : 'Create',
+                    							handler  : this.openCreateWindow,
+                    							scope    : this,
+                    							config   : CMDB.ApplicationSoftware.Edit
+                    						},
+                    						{
+                    							text     : 'Search',
+                    							handler  : this.openSearchWindow,
+                    							scope    : this,
+                    							config   : CMDB.ApplicationSoftware.Search
+                    						}
+                    					]
+                    				}
+                    			}
+                    		]
+                    	}
                     }
                 ]
 			}// end menu Core
