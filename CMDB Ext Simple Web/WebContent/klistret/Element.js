@@ -86,7 +86,7 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					fieldLabel        : 'Tags',
 					// Read from object into JSON
 					marshall          : function(element) {
-						if (this.getValueEx() && element['Element']['configuration']) {
+						if (!Ext.isEmpty(this.getValueEx()) && element['Element']['configuration']) {
 							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons')
 								tags = [];
 								
@@ -298,7 +298,17 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			this
 		);
 		
-		grid.disable();
+		/**
+		 * Necessary after layout is done to deal with
+		 * a bug in IE (http://www.coolite.com/forums/Topic24335-16-1.aspx#bm24337)
+		*/
+		grid.on(
+			'afterlayout',
+			function() {
+				(this.ownerCt.element && CMDB.Badgerfish.get(this.ownerCt.element,"Element/id/$")) ? this.Grid.enable() : this.Grid.disable();
+			},
+			this
+		);	
 					
 		var config = {
 			title       : 'Owned relations',
@@ -320,20 +330,18 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Element.DestRelationForm.superclass.initComponent.apply(this, arguments);
-		
-		this.relayEvents(this.ownerCt, ['afterinsertion']);
-		
-		this.on(
-			'afterinsertion', 
-			function() {
-				this.Grid.enable();
-			}, 
-			this
-		);
 	},
 	
 	onRender       : function() {
 		CMDB.Element.DestRelationForm.superclass.onRender.apply(this, arguments);
+		
+		this.on(
+			'afterinsertion',
+			function() {
+				(this.ownerCt.element && CMDB.Badgerfish.get(this.ownerCt.element,"Element/id/$")) ? this.Grid.enable() : this.Grid.disable();
+			},
+			this
+		);
 	},
 	
 	/**
@@ -658,15 +666,30 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			}
 		);
 		
+		this.items.each(
+			function(item) {
+				item.relayEvents(this, ['afterinsertion']);
+			},
+			this
+		);
+	},
+	
+	
+	/**
+	 *
+	*/
+	afterRender    : function() {
 		// Load element
 		this.doLoad();
+		
+		CMDB.Element.Edit.superclass.afterRender.apply(this, arguments);
 	},
 	
 	
 	/**
 	 * Prior to destroying destroy child Ext objects
 	*/
-	beforeDestroy  : function(){
+	beforeDestroy  : function() {
 		if (this.rendered) {
 			Ext.destroy(
 				this.updateMask

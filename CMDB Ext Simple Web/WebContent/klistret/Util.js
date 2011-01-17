@@ -220,7 +220,67 @@ CMDB.ElementTypes =  new Ext.data.Store({
 		}
 	}
 });
+
 CMDB.ElementTypes.load({
+	params : {
+		'name'      : '%'
+	}
+});
+
+
+CMDB.RelationTypes =  new Ext.data.Store({
+	baseParams     : {},
+                                        
+	proxy          : new Ext.data.HttpProxy({
+		url            : (CMDB.URL || '') + '/CMDB/resteasy/relationType',
+		method         : 'GET',
+                                        
+		headers        : {
+			'Accept'          : 'application/json,application/xml,text/*',
+			'Content-Type'    : 'application/json'
+		}
+	}),
+                                
+	reader         : new CMDB.JsonReader({
+		totalProperty       : 'total',
+		successProperty     : 'successful',
+		idProperty          : 'RelationType/id/$',
+		root                : 'rows',
+		fields              : [
+			{
+				name             : 'Id',
+				mapping          : 'RelationType/id/$'
+			},
+			{
+				name             : 'Name',
+				mapping          : 'RelationType/name/$'
+			},
+			{
+				name             : 'Namespace',
+				mapping          : 'RelationType/name/$'
+			},
+			{
+				name             : 'RelationType',
+				mapping          : 'RelationType'
+			}
+		]
+	}),
+                                        
+	listeners       : {
+		'load'           : function(store, records, options) {
+			Ext.each(records, function(record) {
+				var name = record.get('Name'),
+					namespace = record.get('Namespace');
+                                                                
+				record.set('Name', name.replace(/\{.*\}(.*)/,"$1"));
+				record.set('Namespace', namespace.replace(/\{(.*)\}.*/,"$1"));
+				record.commit();
+			});
+		}
+	}
+});
+
+CMDB.RelationTypes.load({
 	params : {
 		'name'      : '%'
 	}
