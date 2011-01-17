@@ -167,3 +167,61 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 		return new recordDef(record, id);
     }
 });
+
+
+CMDB.ElementTypes =  new Ext.data.Store({
+	baseParams     : {},
+                                        
+	proxy          : new Ext.data.HttpProxy({
+		url            : (CMDB.URL || '') + '/CMDB/resteasy/elementType',
+		method         : 'GET',
+                                        
+		headers        : {
+			'Accept'          : 'application/json,application/xml,text/*',
+			'Content-Type'    : 'application/json'
+		}
+	}),
+                                
+	reader         : new CMDB.JsonReader({
+		totalProperty       : 'total',
+		successProperty     : 'successful',
+		idProperty          : 'ElementType/id/$',
+		root                : 'rows',
+		fields              : [
+			{
+				name             : 'Id',
+				mapping          : 'ElementType/id/$'
+			},
+			{
+				name             : 'Name',
+				mapping          : 'ElementType/name/$'
+			},
+			{
+				name             : 'Namespace',
+				mapping          : 'ElementType/name/$'
+			},
+			{
+				name             : 'ElementType',
+				mapping          : 'ElementType'
+			}
+		]
+	}),
+                                        
+	listeners       : {
+		'load'           : function(store, records, options) {
+			Ext.each(records, function(record) {
+				var name = record.get('Name'),
+					namespace = record.get('Namespace');
+                                                                
+				record.set('Name', name.replace(/\{.*\}(.*)/,"$1"));
+				record.set('Namespace', namespace.replace(/\{(.*)\}.*/,"$1"));
+				record.commit();
+			});
+		}
+	}
+});
+CMDB.ElementTypes.load({
+	params : {
+		'name'      : '%'
+	}
+});
