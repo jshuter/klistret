@@ -135,7 +135,7 @@
 						maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Identification"
-						type="Identification" maxOccurs="1" minOccurs="1">
+						type="Identification" maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Availability" type="Availability"
 						maxOccurs="1" minOccurs="0">
