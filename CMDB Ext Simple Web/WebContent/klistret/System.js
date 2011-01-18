@@ -139,7 +139,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 					xtype       : 'destRelationForm',
 					relations   : [
 						{
-							'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/commons}Aggregation'
+							'ApplicationSoftware' : 'Aggregation'
 						}
 					]
 				},
