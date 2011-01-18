@@ -60,16 +60,16 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void getById() throws JAXBException {
 		Element element = elementService.get(new Long(274));
 
 		assertNotNull(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void setElement() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Environment");
@@ -85,7 +85,7 @@ public class ElementService extends
 		environment.setName("Different");
 		environment.setWatermark("production");
 		environment.setState("Online");
-		
+
 		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
 		property1.setName("example");
 		property1.setValue("of a property");
@@ -97,8 +97,8 @@ public class ElementService extends
 		com.klistret.cmdb.ci.commons.Property[] properties = new com.klistret.cmdb.ci.commons.Property[] {
 				property1, property2 };
 		environment.setProperty(Arrays.asList(properties));
-		
-		environment.setTag(Arrays.asList(new String[] {"my litte", "bears"}));
+
+		environment.setTag(Arrays.asList(new String[] { "my litte", "bears" }));
 
 		element.setConfiguration(environment);
 
@@ -107,10 +107,19 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void findByExpr() {
-		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\"; /pojo:Element[empty(pojo:toTimeStamp) and exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/system}Environment\"]" };
+		// String[] expressions = { "declare namespace
+		// xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace
+		// pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace
+		// commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare
+		// namespace
+		// col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\";
+		// /pojo:Element[empty(pojo:toTimeStamp) and
+		// exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/system}Environment\"]"
+		// };
+		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"att\")]" };
 
 		List<Element> response = elementService.find(
 				Arrays.asList(expressions), 0, 10);
