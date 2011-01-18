@@ -117,6 +117,31 @@
 		</xs:sequence>
 	</xs:complexType>
 
+	<xs:complexType name="Reference" abstract="true">
+		<xs:sequence>
+			<xs:element name="Id" type="xs:long" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="QName" type="xs:string" maxOccurs="1"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="SourceReference">
+		<xs:complexContent>
+			<xs:extension base="Reference">
+				<xs:sequence></xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="DestinationReference">
+		<xs:complexContent>
+			<xs:extension base="Reference">
+				<xs:sequence></xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
 			<xs:element name="Name" type="Name" minOccurs="1"
@@ -164,32 +189,6 @@
 
 	<xs:element name="Element" type="Element"></xs:element>
 
-	<xs:complexType name="Reference" abstract="true">
-		<xs:sequence>
-			<xs:element name="Id" type="xs:long" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="Namespace" type="xs:string" maxOccurs="1"
-				minOccurs="1" />
-			<xs:element name="LocalName" type="xs:string" maxOccurs="1"
-				minOccurs="1" />
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="SourceReference">
-		<xs:complexContent>
-			<xs:extension base="Reference">
-				<xs:sequence></xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-
-	<xs:complexType name="DestinationReference">
-		<xs:complexContent>
-			<xs:extension base="Reference">
-				<xs:sequence></xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
 
 	<xs:complexType name="Relation" abstract="true">
 		<xs:annotation>
@@ -201,14 +200,7 @@
 			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="Base">
-				<xs:sequence>
-					<xs:element name="Source" type="SourceReference"
-						maxOccurs="1" minOccurs="1" />
-					<xs:element name="Destination"
-						type="DestinationReference" maxOccurs="1" minOccurs="1" />
-				</xs:sequence>
-			</xs:extension>
+			<xs:extension base="Base" />
 		</xs:complexContent>
 	</xs:complexType>
 
