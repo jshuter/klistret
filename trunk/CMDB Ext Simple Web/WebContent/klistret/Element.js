@@ -264,6 +264,18 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			sortInfo        : {
 				field           : 'start', 
 				direction       : 'ASC'
+			},
+			listeners       : {
+				'load'           : function(store, records, options) {
+					Ext.each(records, function(record) {
+						var type = record.get('Type'),
+							destType = record.get('DestType');
+                                                                
+						record.set('Type', type.replace(/\{.*\}(.*)/,"$1"));
+						record.set('DestType', destType.replace(/\{.*\}(.*)/,"$1"));
+						record.commit();
+					});
+				}
 			}
 		});
 		
@@ -348,9 +360,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 					
 					record = new recordDef({
                         'Id'         : CMDB.Badgerfish.get(msg.relation, 'Relation/id/$'),
-                        'Type'       : CMDB.Badgerfish.get(msg.relation, 'Relation/type/name/$'),
+                        'Type'       : CMDB.Badgerfish.get(msg.relation, 'Relation/type/name/$').replace(/\{.*\}(.*)/,"$1"),
                         'DestName'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/name/$'),
-                        'DestType'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/type/name/$'),
+                        'DestType'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/type/name/$').replace(/\{.*\}(.*)/,"$1"),
                         'Relation'   : CMDB.Badgerfish.get(msg.relation, 'Relation')
                 	});
                 	
