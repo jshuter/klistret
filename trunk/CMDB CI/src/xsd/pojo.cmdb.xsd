@@ -130,10 +130,6 @@
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="configuration"
 						type="commons:Element" maxOccurs="1" minOccurs="1" />
-					<xs:element name="sourceRelations" type="Relation"
-						maxOccurs="unbounded" minOccurs="0" />
-					<xs:element name="destinationRelations"
-						type="Relation" maxOccurs="unbounded" minOccurs="0" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
