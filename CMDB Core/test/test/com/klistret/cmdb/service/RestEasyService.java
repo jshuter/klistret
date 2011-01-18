@@ -3,6 +3,7 @@ package test.com.klistret.cmdb.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
@@ -76,10 +77,14 @@ public class RestEasyService {
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
 	}
 
-	// @Test
+	@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest.get("/resteasy/element/274");
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/382")
+				.accept(
+						Arrays
+								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -126,7 +131,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	// @Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
@@ -164,7 +169,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	//@Test
+	// @Test
 	public void find() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/relationType?name="

@@ -63,21 +63,6 @@
 			<type
 				name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
 		</property>
-
-		<list name="sourceRelations" lazy="true" inverse="true"
-			cascade="save-update" where="TOTIMESTAMP is null">
-			<key column="SOURCEID" on-delete="noaction" not-null="true" />
-			<index column="RELATIONID" />
-			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
-		</list>
-
-		<list name="destinationRelations" lazy="true" inverse="true"
-			cascade="save-update" where="TOTIMESTAMP is null">
-			<key column="DESTINATIONID" on-delete="noaction"
-				not-null="true" />
-			<index column="RELATIONID" />
-			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
-		</list>
 	</class>
 
 </hibernate-mapping>
