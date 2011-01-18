@@ -77,7 +77,7 @@ public class RestEasyService {
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
 	}
 
-	@Test
+	//@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -150,7 +150,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="

@@ -34,6 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.klistret.cmdb.ci.element.system.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
+import com.klistret.cmdb.ci.pojo.Relation;
+import com.klistret.cmdb.ci.pojo.RelationType;
+import com.klistret.cmdb.ci.relation.Aggregation;
 
 /**
  * Element services are tested directly
@@ -59,10 +62,22 @@ public class ElementService extends
 	 */
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
+	
+	/**
+	 * Relation Service
+	 */
+	@Autowired
+	protected com.klistret.cmdb.service.RelationService relationService;
+	
+	/**
+	 * Relation Type Services
+	 */
+	@Autowired
+	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	@Test
-	@Rollback(value = false)
-	public void getById() throws JAXBException {
+	//@Test
+	//@Rollback(value = false)
+	public void get() throws JAXBException {
 		Element element = elementService.get(new Long(274));
 
 		assertNotNull(element);
@@ -70,7 +85,7 @@ public class ElementService extends
 
 	// @Test
 	// @Rollback(value = false)
-	public void setElement() {
+	public void set() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Environment");
 
@@ -109,21 +124,39 @@ public class ElementService extends
 
 	//@Test
 	//@Rollback(value = false)
-	public void findByExpr() {
-		// String[] expressions = { "declare namespace
-		// xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace
-		// pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace
-		// commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare
-		// namespace
-		// col=\"http://www.klistret.com/cmdb/ci/element/logical/collection\";
-		// /pojo:Element[empty(pojo:toTimeStamp) and
-		// exists(pojo:fromTimeStamp)]/pojo:type[pojo:name=\"{http://www.klistret.com/cmdb/ci/element/system}Environment\"]"
-		// };
+	public void find() {
 		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"att\")]" };
 
 		List<Element> response = elementService.find(
 				Arrays.asList(expressions), 0, 10);
 
 		assertNotNull(response);
+	}
+	
+	@Test
+	@Rollback(value = false)
+	public void relate() {
+		RelationType type = relationTypeService
+		.get("{http://www.klistret.com/cmdb/ci/relation}Aggregation");
+		
+		Element software = elementService.get(new Long(404));
+		Element environment = elementService.get(new Long(364));
+		
+		Relation relation = new Relation();
+		relation.setType(type);
+		relation.setSource(environment);
+		relation.setDestination(software);
+		relation.setFromTimeStamp(new java.util.Date());
+		relation.setCreateTimeStamp(new java.util.Date());
+		relation.setUpdateTimeStamp(new java.util.Date());
+		
+		Aggregation aggregation = new Aggregation();
+		aggregation.setName("364 against 404");
+		
+		relation.setConfiguration(aggregation);
+		
+		relationService.create(relation);
+		
+		assertNotNull(relation);
 	}
 }
