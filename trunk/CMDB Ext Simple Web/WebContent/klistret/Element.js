@@ -333,6 +333,33 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	},
 	
 	onRender       : function() {
+		// Add Save subscription
+		this.RelationDeleteSubscribeId = PageBus.subscribe(
+			'CMDB.Relation.Save', 
+			this, 
+			function(subj, msg, data) {
+				if (msg.state == 'success') {
+					var record = this.Grid.store.getById(CMDB.Badgerfish.get(msg.relation, 'Relation/id/$'));
+					if (record) {
+						this.Grid.store.remove(record);
+					}
+					
+					var recordDef = Ext.data.Record.create(this.fields);
+					
+					record = new recordDef({
+                        'Id'         : CMDB.Badgerfish.get(msg.relation, 'Relation/id/$'),
+                        'Type'       : CMDB.Badgerfish.get(msg.relation, 'Relation/type/name/$'),
+                        'DestName'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/name/$'),
+                        'DestType'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/type/name/$'),
+                        'Relation'   : CMDB.Badgerfish.get(msg.relation, 'Relation')
+                	});
+                	
+                	this.Grid.store.add(record);
+				}
+			}, 
+			null
+		);
+	
 		CMDB.Element.DestRelationForm.superclass.onRender.apply(this, arguments);
 		
 		this.on(
@@ -342,6 +369,13 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			},
 			this
 		);
+	},
+	
+	onDestroy      : function() {
+		// Remove event subscriptions
+		PageBus.unsubscribe(this.RelationDeleteSubscribeId);
+	
+		CMDB.Element.DestRelationForm.superclass.onDestroy.apply(this, arguments);
 	},
 	
 	/**
@@ -359,12 +393,97 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		Ext.each(
 			records, 
 			function(record) {
-				var destinationType = CMDB.Badgerfish.get(record.json, 'Element/type/name/$');
-				
-				var relationType = this.getRelationType(destinationType);
+				var destinationType = CMDB.Badgerfish.get(record.json, 'Element/type/name/$').replace(/\{.*\}(.*)/,"$1"),
+					name = this.getRelationType(destinationType),
+					index = CMDB.RelationTypes.find('Name',name),
+					relationType = CMDB.RelationTypes.getAt(index).get('RelationType');
 				
 				var relation = {
+					'Relation' : {
+						'@xmlns' : {
+							'ns9'  : 'http://www.klistret.com/cmdb/ci/relation',
+							'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+							'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+						},
+						'type' : {
+							'id' : {
+								'$' : relationType['id']['$']
+							},
+							'name' : {
+								'$' : relationType['name']['$']
+							}
+						},
+						'source' : this.ownerCt.element['Element'],
+						'destination' : record.json['Element'],
+						'fromTimeStamp' : {
+							'$' : new Date()
+						},
+						'createTimeStamp' : {
+							'$' : new Date()
+						},
+						'updateTimeStamp' : {
+							'$' : new Date()
+						},
+						'configuration' : { 
+							'@xmlns' : {
+								'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+							},
+							'@xsi:type' : 'ns9:Aggregation',
+							'ns2:Name' : {
+								'$' : 'whatever'
+							},
+							'ns2:Source' : {
+								'ns2:Id' : {
+									'$' : this.ownerCt.element['Element']['id']['$']
+								},
+								'ns2:Namespace' : {
+									'$' : this.ownerCt.element['Element']['type']['name']['$'].replace(/\{(.*)\}.*/,"$1")
+								},
+								'ns2:LocalName' : {
+									'$' : this.ownerCt.element['Element']['type']['name']['$'].replace(/\{.*\}(.*)/,"$1")
+								}
+							},
+							'ns2:Destination' : {
+								'ns2:Id' : {
+									'$' : record.json['Element']['id']['$']
+								},
+								'ns2:Namespace' : {
+									'$' : record.json['Element']['type']['name']['$'].replace(/\{(.*)\}.*/,"$1")
+								},
+								'ns2:LocalName' : {
+									'$' : record.json['Element']['type']['name']['$'].replace(/\{.*\}(.*)/,"$1")
+								}
+							}
+						}
+					}
 				};
+				
+				Ext.Ajax.request({
+					url           : (CMDB.URL || '') + '/CMDB/resteasy/relation',
+					method        : 'POST',
+				
+					headers       : {
+						'Accept'        : 'application/json,application/xml,text/*',
+						'Content-Type'  : 'application/json'
+					},
+			
+					jsonData      : Ext.encode(relation),
+					scope         : this,
+				
+					success       : function ( result, request ) {
+						var data = Ext.util.JSON.decode(result.responseText);
+				
+						PageBus.publish(	
+							'CMDB.Relation.Save', 
+							{
+								state         : 'success', 
+								relation      : data 
+							}
+						);
+					},
+					failure       : function ( result, request ) {
+					}
+				});
 			},
 			this
 		);
@@ -727,6 +846,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 	loading          : function() {
 		if (this.element && CMDB.Badgerfish.get(this.element,"Element/id/$")) {
 			this.doInsertion();
+			this.Delete.enable();
 		}
 		
 		this.fireEvent('afterload', this);
@@ -776,7 +896,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 				
 				headers       : {
 					'Accept'        : 'application/json,application/xml,text/*',
-					'Content-Type'  : 'application/json'
+					'Content-Type'  : 'application/json; charset=ISO-8859-1'
 				},
 			
 				jsonData      : Ext.encode(this.element),
@@ -1182,8 +1302,8 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			'CMDB.Element.Delete', 
 			this, 
 			function(subj, msg, data) {
-				if (msg.state == 'success' && this.element) {
-					var record = this.Grid.store.getById(CMDB.Badgerfish.get(this.element,"Element/id/$"));
+				if (msg.state == 'success' && msg.element) {
+					var record = this.Grid.store.getById(CMDB.Badgerfish.get(msg.element,"Element/id/$"));
 					
 					if (record) {
 						this.Grid.store.remove(record);

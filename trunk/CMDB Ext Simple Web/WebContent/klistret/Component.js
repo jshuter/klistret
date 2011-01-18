@@ -198,4 +198,111 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
+	/**
+	 *
+	 */
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search criteria for application software items'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Organization',
+					expression        : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"{0}\")]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Application Software Search',
+			editor      : CMDB.ApplicationSoftware.Edit,
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Organization', 
+					mapping     : 'Element/configuration/Organization/$'
+				},
+				{
+					name        : 'Module',
+					mapping     : 'Element/configuration/Module/$'
+				},
+				{
+					name        : 'Version',
+					mapping     : 'Element/configuration/Version/$'
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : 'Name', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				},
+				{
+					header      : 'Organization', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Organization'
+				},
+				{
+					header      : 'Module', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Module'
+				},
+				{
+					header      : 'Version', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Version'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Environment.Search.superclass.initComponent.apply(this, arguments);
+	},
+	
+	
+	/**
+	 * Apply extra filters
+	 */
+	beforeSearch   : function() {
+		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
+		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"ApplicationSoftware\")]'});
+	}
 });
