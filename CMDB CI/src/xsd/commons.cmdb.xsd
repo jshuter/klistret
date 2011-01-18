@@ -139,7 +139,6 @@
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
-		<xs:attribute name="Version" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="Element" abstract="true">
