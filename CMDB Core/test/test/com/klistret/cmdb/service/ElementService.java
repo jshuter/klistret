@@ -133,8 +133,8 @@ public class ElementService extends
 		assertNotNull(response);
 	}
 	
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void relate() {
 		RelationType type = relationTypeService
 		.get("{http://www.klistret.com/cmdb/ci/relation}Aggregation");
@@ -158,5 +158,23 @@ public class ElementService extends
 		relationService.create(relation);
 		
 		assertNotNull(relation);
+	}
+	
+	//@Test
+	//@Rollback(value = false)
+	public void getRelation() {
+		Relation relation = relationService.get(new Long(1));
+		assertNotNull(relation);
+	}
+	
+	@Test
+	@Rollback(value = false)
+	public void findRelation() {
+		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]", "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 3]" };
+	
+		List<Relation> response = relationService.find(
+				Arrays.asList(expressions), 0, 10);
+
+		assertNotNull(response);
 	}
 }

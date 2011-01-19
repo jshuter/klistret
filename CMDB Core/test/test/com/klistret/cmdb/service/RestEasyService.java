@@ -64,10 +64,14 @@ public class RestEasyService {
 		SpringResourceFactory elementService = new SpringResourceFactory(
 				"elementService", factory,
 				com.klistret.cmdb.service.ElementService.class);
+		SpringResourceFactory relationService = new SpringResourceFactory(
+				"relationService", factory,
+				com.klistret.cmdb.service.RelationService.class);
 		SpringResourceFactory relationTypeService = new SpringResourceFactory(
 				"relationTypeService", factory,
 				com.klistret.cmdb.service.RelationTypeService.class);
 		dispatcher.getRegistry().addResourceFactory(elementService);
+		dispatcher.getRegistry().addResourceFactory(relationService);
 		dispatcher.getRegistry().addResourceFactory(relationTypeService);
 
 		// Necessary providers
@@ -81,7 +85,7 @@ public class RestEasyService {
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/382")
+				.get("/resteasy/relation/1")
 				.accept(
 						Arrays
 								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
@@ -153,10 +157,10 @@ public class RestEasyService {
 	@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element?expressions="
+				.get("/resteasy/relation?expressions="
 						+ URLEncoder
 								.encode(
-										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"2010-07-08T16:38:00.478+02:00\" cast as xs:dateTime]",
+										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 1]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
