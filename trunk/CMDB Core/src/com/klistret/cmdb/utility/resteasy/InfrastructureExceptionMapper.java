@@ -35,9 +35,12 @@ public class InfrastructureExceptionMapper implements
 	@Override
 	public Response toResponse(InfrastructureException exception) {
 		logger
-				.debug("Handling InfrastructureException inside a custom resteasy mapper");
+				.debug(
+						"Handling InfrastructureException [{}] inside a custom resteasy mapper",
+						exception.getMessage());
 
-		ResponseBuilder rb = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+		ResponseBuilder rb = Response.status(
+				Response.Status.INTERNAL_SERVER_ERROR).entity(
 				exception.getMessage()).type(MediaType.TEXT_PLAIN);
 
 		if (exception.contains(org.hibernate.TransactionException.class)) {

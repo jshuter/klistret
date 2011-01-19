@@ -43,7 +43,9 @@ public class ApplicationExceptionMapper implements
 	@Override
 	public Response toResponse(ApplicationException exception) {
 		logger
-				.debug("Handling ApplicationException inside a custom resteasy mapper");
+				.debug(
+						"Handling ApplicationException [{}] inside a custom resteasy mapper",
+						exception.getMessage());
 
 		ResponseBuilder rb = Response.status(Response.Status.BAD_REQUEST)
 				.entity(exception.getMessage()).type(MediaType.TEXT_PLAIN);

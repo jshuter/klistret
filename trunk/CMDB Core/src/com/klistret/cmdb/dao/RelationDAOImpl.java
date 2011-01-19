@@ -14,20 +14,16 @@
 
 package com.klistret.cmdb.dao;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
@@ -46,6 +42,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * Finds relations based on XPath expressions
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Relation> find(List<String> expressions, int start, int limit) {
 		try {
 			logger
@@ -59,46 +56,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-			String alias = hcriteria.getAlias();
-
-			hcriteria.setProjection(Projections.projectionList().add(
-					Projections.property(alias + ".id")).add(
-					Projections.property(alias + ".type")).add(
-					Projections.property(alias + ".name")).add(
-					Projections.property(alias + ".fromTimeStamp")).add(
-					Projections.property(alias + ".toTimeStamp")).add(
-					Projections.property(alias + ".createId")).add(
-					Projections.property(alias + ".createTimeStamp")).add(
-					Projections.property(alias + ".updateTimeStamp")).add(
-					Projections.property(alias + ".configuration")));
-
+			
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
 
-			Object[] results = hcriteria.list().toArray();
-
-			List<Relation> relations = new ArrayList<Relation>(results.length);
-			logger.debug("Results length [{}]", results.length);
-
-			for (int index = 0; index < results.length; index++) {
-				Object[] row = (Object[]) results[index];
-
-				Relation relation = new Relation();
-				relation.setId((Long) row[0]);
-				relation.setType((RelationType) row[1]);
-				relation.setName((String) row[2]);
-				relation.setFromTimeStamp((Date) row[3]);
-				relation.setToTimeStamp((Date) row[4]);
-				relation.setCreateId((String) row[5]);
-				relation.setCreateTimeStamp((Date) row[6]);
-				relation.setUpdateTimeStamp((Date) row[7]);
-				relation
-						.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[8]);
-
-				relations.add(relation);
-			}
-
-			results = null;
+			List<Relation> relations = hcriteria.list();
 
 			return relations;
 		} catch (HibernateException he) {
