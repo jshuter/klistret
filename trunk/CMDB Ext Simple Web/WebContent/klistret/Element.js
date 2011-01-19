@@ -250,7 +250,17 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	initComponent  : function() {
 		var fields  = this.fields || [];
 		var columns = this.columns || []; 
-	
+
+		var proxy = new Ext.data.HttpProxy({
+			url            : (CMDB.URL || '') + '/CMDB/resteasy/relation',
+			method         : 'GET',
+					
+			headers        : {
+				'Accept'          : 'application/json,application/xml,text/*',
+				'Content-Type'    : 'application/json'
+			}
+        });
+        	
 		var reader = new CMDB.JsonReader({
 			totalProperty   : 'total',
     		successProperty : 'successful',
@@ -261,8 +271,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		
 		var store = new Ext.data.Store({
 			reader          : reader,
+			proxy           : proxy,
 			sortInfo        : {
-				field           : 'start', 
+				field           : 'DestName', 
 				direction       : 'ASC'
 			},
 			listeners       : {
@@ -279,21 +290,66 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			}
 		});
 		
+		store.expressions = Ext.urlEncode({
+			expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]'
+		});
+					
+		store.expressions = store.expressions + '&' + Ext.urlEncode({
+			expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq ' + CMDB.Badgerfish.get(this.ownerCt.element,"Element/id/$") + ']'
+		});
+		
+		if (this.ownerCt.element && CMDB.Badgerfish.get(this.ownerCt.element,"Element/id/$")) {					
+			store.load({
+				params   : 'start=0&limit=20&' + store.expressions
+			});
+		}
+		
 		var grid = new Ext.grid.GridPanel({
 			height          : 200,
 			store           : store,
 			columns         : columns,
 			
-			tbar            : [
-				{
-					xtype        : 'button',
-					ref          : '../Delete',
-					iconCls      : 'deleteButton',
-					text         : 'Delete',
-					handler      : this.doDelete,
-					scope        : this
-				}
-			]
+			viewConfig    : {
+				forceFit       : true
+			},
+			
+			bbar: new Ext.PagingToolbar({
+				pageSize       : 20,
+				store          : store,
+            	displayInfo    : true,
+            	displayMsg     : 'Displaying rows {0} - {1} of {2}',
+            	emptyMsg       : 'No rows to display',
+            		
+            	// Override private doLoad method in Ext.PagingToolbar class
+            	doLoad        : function(start){
+            		var o = {}, pn = this.getParams();
+        			o[pn.start] = start;
+        			o[pn.limit] = this.pageSize;
+            		
+            		if(this.fireEvent('beforechange', this, o) !== false){
+            			this.store.load({
+            				params   : 'start='+start+'&limit='+this.pageSize+'&'+this.store.expressions
+            			});
+        			}
+            	},
+            		
+            	items          : [
+                	'-', 
+                	{
+                		xtype          : 'button',
+                		ref            : 'Delete',
+                		text           : 'Delete',
+                		iconCls        : 'deleteButton',
+                		handler        : this.doDelete,
+                		scope          : this
+                	},
+                	'-',
+                	{
+						xtype        : 'tbtext',
+						ref          : 'Status'
+					}
+            	]
+            })
 		});
 		
 		grid.on(
@@ -346,7 +402,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	
 	onRender       : function() {
 		// Add Save subscription
-		this.RelationDeleteSubscribeId = PageBus.subscribe(
+		this.RelationSaveSubscribeId = PageBus.subscribe(
 			'CMDB.Relation.Save', 
 			this, 
 			function(subj, msg, data) {
@@ -371,6 +427,22 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			}, 
 			null
 		);
+		
+		// Add Delete subscription
+		this.RelationDeleteSubscribeId = PageBus.subscribe(
+			'CMDB.Relation.Delete', 
+			this, 
+			function(subj, msg, data) {
+				if (msg.state == 'success' && msg.relation) {
+					var record = this.Grid.store.getById(CMDB.Badgerfish.get(msg.relation,"Relation/id/$"));
+					
+					if (record) {
+						this.Grid.store.remove(record);
+					}	
+				}
+			}, 
+			null
+		);
 	
 		CMDB.Element.DestRelationForm.superclass.onRender.apply(this, arguments);
 		
@@ -385,6 +457,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	
 	onDestroy      : function() {
 		// Remove event subscriptions
+		PageBus.unsubscribe(this.RelationSaveSubscribeId);
 		PageBus.unsubscribe(this.RelationDeleteSubscribeId);
 	
 		CMDB.Element.DestRelationForm.superclass.onDestroy.apply(this, arguments);
@@ -394,6 +467,44 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 	 *
 	*/
 	doDelete       : function() {
+		var records = this.Grid.getSelectionModel().getSelections();
+		
+		Ext.each(
+			records, 
+			function(record) {
+				Ext.Ajax.request({
+					url           : (CMDB.URL || '') + '/CMDB/resteasy/relation/'+record.id,
+					method        : 'DELETE',
+							
+					headers        : {
+						'Accept'        : 'application/json,application/xml,text/*',
+						'Content-Type'  : 'application/json'
+					},
+			
+					scope         : this,
+			
+					success       : function ( result, request ) {
+						var data = Ext.util.JSON.decode(result.responseText);
+				
+						PageBus.publish(	
+							'CMDB.Relation.Delete', 
+							{
+								state         : 'success', 
+								relation      : data 
+							}
+						);
+					
+						var bbar = this.Grid.getBottomToolbar();
+						bbar.Status.setText('Deletion successful');
+					},
+					failure       : function ( result, request ) {
+						var bbar = this.Grid.getBottomToolbar();
+						bbar.Status.setText('Failed deleting.');
+					}
+				});
+			},
+			this
+		);
 	},
 	
 	/**
@@ -438,33 +549,12 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 						},
 						'configuration' : { 
 							'@xmlns' : {
+								'rel' : relationType['name']['$'].replace(/\{(.*)\}.*/,"$1"),
 								'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 							},
-							'@xsi:type' : 'ns9:Aggregation',
+							'@xsi:type' : 'rel:' + relationType['name']['$'].replace(/\{.*\}(.*)/,"$1"),
 							'ns2:Name' : {
 								'$' : 'whatever'
-							},
-							'ns2:Source' : {
-								'ns2:Id' : {
-									'$' : this.ownerCt.element['Element']['id']['$']
-								},
-								'ns2:Namespace' : {
-									'$' : this.ownerCt.element['Element']['type']['name']['$'].replace(/\{(.*)\}.*/,"$1")
-								},
-								'ns2:LocalName' : {
-									'$' : this.ownerCt.element['Element']['type']['name']['$'].replace(/\{.*\}(.*)/,"$1")
-								}
-							},
-							'ns2:Destination' : {
-								'ns2:Id' : {
-									'$' : record.json['Element']['id']['$']
-								},
-								'ns2:Namespace' : {
-									'$' : record.json['Element']['type']['name']['$'].replace(/\{(.*)\}.*/,"$1")
-								},
-								'ns2:LocalName' : {
-									'$' : record.json['Element']['type']['name']['$'].replace(/\{.*\}(.*)/,"$1")
-								}
 							}
 						}
 					}
