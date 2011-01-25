@@ -56,7 +56,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-			
+
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
 
@@ -117,7 +117,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	}
 
 	/**
-	 * Delete an element by setting the ToTimeStamp attribute to the current
+	 * Delete a relation by setting the ToTimeStamp attribute to the current
 	 * date
 	 */
 	public Relation delete(Long id) {
@@ -147,5 +147,21 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		logger.info("Deleted relation [{}]", relation);
 		return relation;
+	}
+
+	/**
+	 * Deletion of element logically result in the deletion of their relations.
+	 * DML-style operation written directly in HQL quickens the update process.
+	 * 
+	 * @param id
+	 */
+	public int cascade(Long id) {
+		String hqlElementDeletion = "update Relation r set r.toTimeStamp = current_timestamp() where (r.source.id = :sourceId or r.destination.id = :destinationId) and r.toTimeStamp is null";
+
+		int count = getSession().createQuery(hqlElementDeletion).setLong(
+				"sourceId", id).setLong("destinationId", id).executeUpdate();
+		logger.info("Deleted {} relations to element [{}]", count, id);
+		
+		return count;
 	}
 }

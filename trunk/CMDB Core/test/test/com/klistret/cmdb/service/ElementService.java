@@ -167,8 +167,8 @@ public class ElementService extends
 		assertNotNull(relation);
 	}
 	
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void findRelation() {
 		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]", "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 3]" };
 	
@@ -176,5 +176,17 @@ public class ElementService extends
 				Arrays.asList(expressions), 0, 10);
 
 		assertNotNull(response);
+	}
+	
+	//@Test
+	//@Rollback(value = false)
+	public void cascade() {
+		relationService.cascade(new Long(1));
+	}
+	
+	@Test
+	@Rollback(value = false)
+	public void delete() {
+		elementService.delete(new Long(4));
 	}
 }
