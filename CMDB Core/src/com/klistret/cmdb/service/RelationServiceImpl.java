@@ -82,4 +82,13 @@ public class RelationServiceImpl implements RelationService {
 
 		return "HTTP OPTIONS accepted";
 	}
+
+	/**
+	 * DML-style casade deletion of element relations
+	 * 
+	 * @param id
+	 */
+	public int cascade(Long id) {
+		return relationDAO.cascade(id);
+	}
 }

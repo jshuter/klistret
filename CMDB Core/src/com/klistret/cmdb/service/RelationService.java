@@ -96,4 +96,11 @@ public interface RelationService {
 	@Path("/{var:.*}")
 	@Produces( { MediaType.TEXT_HTML })
 	String preflighted();
+	
+	/**
+	 * DML-style casade deletion of element relations
+	 * 
+	 * @param id
+	 */
+	int cascade(Long id);
 }

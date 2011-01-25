@@ -50,11 +50,18 @@ public interface RelationDAO {
 	 * @return Relation
 	 */
 	Relation set(Relation relation);
-	
+
 	/**
 	 * CRUD delete
 	 * 
 	 * @param id
 	 */
 	Relation delete(Long id);
+
+	/**
+	 * DML-style casade deletion of element relations
+	 * 
+	 * @param id
+	 */
+	int cascade(Long id);
 }

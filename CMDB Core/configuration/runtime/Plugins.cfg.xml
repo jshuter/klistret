@@ -36,4 +36,18 @@
 				method="identify" />
 		</aop:aspect>
 	</aop:config>
+	
+	<bean id="elementDeletion"
+		class="com.klistret.cmdb.plugin.deletion.aspect.ElementDeletion">
+		<property name="relationService" ref="relationService" />
+	</bean>
+	
+	<aop:config>
+		<aop:aspect ref="elementDeletion">
+			<aop:pointcut id="deletePointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.delete(Long)) and args(id)" />
+			<aop:after-returning pointcut-ref="deletePointcut"
+				method="remove" />
+		</aop:aspect>
+	</aop:config>
 </beans>
