@@ -37,9 +37,9 @@
 
 	<xs:element name="ApplicationSystem" type="ApplicationSystem"></xs:element>
 	<!-- end of ApplicationSystem -->
-	
-	
-	
+
+
+
 	<!-- start of ComputerSystem -->
 	<xs:complexType name="Capability">
 		<xs:annotation>
@@ -74,9 +74,9 @@
 
 	<xs:element name="ComputerSystem" type="ComputerSystem"></xs:element>
 	<!-- end of ComputerSystem -->
-	
-	
-	
+
+
+
 	<!-- start of Environment -->
 	<xs:complexType name="Environment">
 		<xs:annotation>
@@ -89,4 +89,34 @@
 
 	<xs:element name="Environment" type="Environment"></xs:element>
 	<!-- end of Environment -->
+
+
+
+	<!-- start of Application -->
+	<xs:complexType name="Application">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:System">
+				<xs:sequence>
+					<xs:element name="Identification" type="xs:string"
+						maxOccurs="unbounded" minOccurs="0">
+						<xs:annotation>
+							<xs:documentation>
+								Identifications can be build numbers,
+								service pack identifiers, patch number
+								or any number of construction
+								information denoting the version of the
+								application.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Application" type="Application"></xs:element>
+	<!-- end of Application -->
 </xs:schema>
