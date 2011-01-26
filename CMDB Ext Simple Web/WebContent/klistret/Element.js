@@ -991,7 +991,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 			this.updateMask.show();
 						
 			this.doExtraction();
-			
+				
 			Ext.Ajax.request({
 				url           : (CMDB.URL || '') + '/CMDB/resteasy/element',
 				method        : !CMDB.Badgerfish.get(this.element,"Element/id/$") ? 'POST' : 'PUT',
