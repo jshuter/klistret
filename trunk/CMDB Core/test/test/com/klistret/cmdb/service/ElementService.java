@@ -83,9 +83,20 @@ public class ElementService extends
 
 		assertNotNull(element);
 	}
+	
+	//@Test
+	//@Rollback(value = false)
+	public void getAndSet() {
+		Element element = elementService.get(new Long(181));
+		
+		element.getConfiguration().setTag(Arrays.asList(new String[] { "Development" }));
+		elementService.update(element);
+		
+		assertNotNull(element);
+	}
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void set() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
@@ -122,21 +133,21 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void set2() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
 
 		Element element = new Element();
-		element.setName("KND");
+		element.setName("EÄH");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Application application = new Application();
-		application.setName("KND");
+		application.setName("EÄH");
 		application.setWatermark("Testing");
 		application.setState("Online");
 		
