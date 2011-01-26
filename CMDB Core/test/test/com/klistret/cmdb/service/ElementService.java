@@ -31,7 +31,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.klistret.cmdb.ci.element.system.Environment;
+import com.klistret.cmdb.ci.element.context.Environment;
+import com.klistret.cmdb.ci.element.system.Application;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
@@ -62,44 +63,43 @@ public class ElementService extends
 	 */
 	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
-	
+
 	/**
 	 * Relation Service
 	 */
 	@Autowired
 	protected com.klistret.cmdb.service.RelationService relationService;
-	
+
 	/**
 	 * Relation Type Services
 	 */
 	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void get() throws JAXBException {
 		Element element = elementService.get(new Long(274));
 
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void set() {
 		ElementType elementType = elementTypeService
-				.get("{http://www.klistret.com/cmdb/ci/element/system}Environment");
+				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
 
 		Element element = new Element();
-		element.setName("Different");
+		element.setName("Production");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Environment environment = new Environment();
-		environment.setName("Different");
-		environment.setWatermark("production");
-		environment.setState("Online");
+		environment.setName("Production");
+		environment.setWatermark("Testing");
 
 		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
 		property1.setName("example");
@@ -124,6 +124,31 @@ public class ElementService extends
 
 	//@Test
 	//@Rollback(value = false)
+	public void set2() {
+		ElementType elementType = elementTypeService
+				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
+
+		Element element = new Element();
+		element.setName("KND");
+		element.setType(elementType);
+		element.setFromTimeStamp(new java.util.Date());
+		element.setCreateTimeStamp(new java.util.Date());
+		element.setUpdateTimeStamp(new java.util.Date());
+
+		Application application = new Application();
+		application.setName("KND");
+		application.setWatermark("Testing");
+		application.setState("Online");
+		
+		element.setConfiguration(application);
+
+		elementService.create(element);
+
+		assertNotNull(element);
+	}
+
+	// @Test
+	// @Rollback(value = false)
 	public void find() {
 		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"att\")]" };
 
@@ -132,16 +157,16 @@ public class ElementService extends
 
 		assertNotNull(response);
 	}
-	
-	//@Test
-	//@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void relate() {
 		RelationType type = relationTypeService
-		.get("{http://www.klistret.com/cmdb/ci/relation}Aggregation");
-		
+				.get("{http://www.klistret.com/cmdb/ci/relation}Aggregation");
+
 		Element software = elementService.get(new Long(404));
 		Element environment = elementService.get(new Long(364));
-		
+
 		Relation relation = new Relation();
 		relation.setType(type);
 		relation.setSource(environment);
@@ -149,43 +174,45 @@ public class ElementService extends
 		relation.setFromTimeStamp(new java.util.Date());
 		relation.setCreateTimeStamp(new java.util.Date());
 		relation.setUpdateTimeStamp(new java.util.Date());
-		
+
 		Aggregation aggregation = new Aggregation();
 		aggregation.setName("364 against 404");
-		
+
 		relation.setConfiguration(aggregation);
-		
+
 		relationService.create(relation);
-		
+
 		assertNotNull(relation);
 	}
-	
-	//@Test
-	//@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void getRelation() {
 		Relation relation = relationService.get(new Long(1));
 		assertNotNull(relation);
 	}
-	
-	//@Test
-	//@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void findRelation() {
-		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]", "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 3]" };
-	
-		List<Relation> response = relationService.find(
-				Arrays.asList(expressions), 0, 10);
+		String[] expressions = {
+				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
+				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 3]" };
+
+		List<Relation> response = relationService.find(Arrays
+				.asList(expressions), 0, 10);
 
 		assertNotNull(response);
 	}
-	
-	//@Test
-	//@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void cascade() {
 		relationService.cascade(new Long(1));
 	}
-	
-	@Test
-	@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void delete() {
 		elementService.delete(new Long(4));
 	}

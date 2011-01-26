@@ -389,6 +389,7 @@ public class CIIdentification {
 	 * @param object
 	 * @return Criterion
 	 */
+	@SuppressWarnings("unchecked")
 	private List<String> getCriterion(Object pojo, String type) {
 		List<String> criterionWithPredicates = new ArrayList<String>();
 
@@ -413,7 +414,7 @@ public class CIIdentification {
 				bean = CIContext.getCIContext()
 						.getBean(namespaceURI, localPart);
 				if (bean == null) {
-					throw new ApplicationException("No ");
+					throw new ApplicationException("Bean not found within CI Context");
 				}
 			} else {
 				throw new ApplicationException(
@@ -437,29 +438,32 @@ public class CIIdentification {
 						/**
 						 * Results must be a single value
 						 */
-						List<?> results = xexpr.evaluate(jaxbSource);
-						if (results.size() != 1) {
+						List<ValueRepresentation> results = xexpr
+								.evaluate(jaxbSource);
+						if (results.size() == 0) {
 							logger
 									.debug(
-											"Expression [{}] either returned nothing or multiple results [size: {}] against the passed object [{}]",
-											new Object[] { expr.getXPath(),
-													results.size(), pojo });
+											"Expression [{}] either returned nothing against the passed object [{}]",
+											xexpr, bean);
 							throw new ApplicationException(
 									String
 											.format(
-													"Expression [%s] either returned nothing or multiple results [size: %d] against the passed object [%s]",
-													expr.getXPath(), results
-															.size(), pojo));
+													"Expression [%s] either returned nothing against the passed object [%s]",
+													xexpr, bean));
 						}
 
-						ValueRepresentation valueRep = (ValueRepresentation) results
-								.get(0);
-
+						String valueSequence = null;
+						for (ValueRepresentation valueRep : results) {
+							valueSequence = valueSequence == null ? String
+									.format("\"%s\"", valueRep.getStringValue())
+									: String.format("%s, \"%s\"",
+											valueSequence, valueRep
+													.getStringValue());
+						}
 						String exprWithPredicate = String.format(
-								"%s[%s=\"%s\"]", expr.substringXPath(expr
+								"%s[%s = (%s)]", expr.substringXPath(expr
 										.getDepth() - 2), expr.getXPath(expr
-										.getDepth() - 1), valueRep
-										.getStringValue());
+										.getDepth() - 1), valueSequence);
 						criterionWithPredicates.add(exprWithPredicate);
 					}
 

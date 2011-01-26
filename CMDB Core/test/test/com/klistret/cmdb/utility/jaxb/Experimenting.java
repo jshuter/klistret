@@ -147,7 +147,7 @@ public class Experimenting {
 			ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 
-		com.klistret.cmdb.ci.element.system.Environment env = new com.klistret.cmdb.ci.element.system.Environment();
+		com.klistret.cmdb.ci.element.context.Environment env = new com.klistret.cmdb.ci.element.context.Environment();
 		env.setName("hellow");
 		env.setNamespace("production");
 		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
@@ -186,7 +186,7 @@ public class Experimenting {
 		rel.setUpdateTimeStamp(new java.util.Date());
 
 		JAXBContext context = JAXBContext
-				.newInstance(com.klistret.cmdb.ci.element.system.Environment.class);
+				.newInstance(com.klistret.cmdb.ci.element.context.Environment.class);
 		Marshaller m = context.createMarshaller();
 
 		final FileInputStream commons = new FileInputStream(

@@ -38,6 +38,8 @@ public class ElementIdentification {
 	private CIIdentification ciIdentification;
 
 	private ElementService elementService;
+	
+	private static final String activeQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]";
 
 	public void setUrl(URL url) {
 		this.ciIdentification = new CIIdentification(url);
@@ -62,6 +64,7 @@ public class ElementIdentification {
 			return;
 		}
 
+		criterion.add(activeQuery);
 		List<Element> results = elementService.find(criterion, 0, 10);
 
 		if (element.getId() == null && !results.isEmpty()) {

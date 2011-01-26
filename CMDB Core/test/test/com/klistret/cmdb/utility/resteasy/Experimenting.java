@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.klistret.cmdb.ci.commons.Property;
-import com.klistret.cmdb.ci.element.system.Environment;
+import com.klistret.cmdb.ci.element.context.Environment;
 import com.klistret.cmdb.ci.pojo.Element;
 
 public class Experimenting {
