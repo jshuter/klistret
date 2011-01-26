@@ -17,7 +17,7 @@ public class CIContext {
 
 	com.klistret.cmdb.ci.pojo.ElementType elementType;
 
-	com.klistret.cmdb.ci.element.system.Environment environment;
+	com.klistret.cmdb.ci.element.context.Environment environment;
 
 	com.klistret.cmdb.utility.jaxb.CIContext helper;
 
@@ -30,12 +30,11 @@ public class CIContext {
 		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
 		ownership.setName("ITA");
 
-		environment = new com.klistret.cmdb.ci.element.system.Environment();
+		environment = new com.klistret.cmdb.ci.element.context.Environment();
 		environment.setName("a environment");
 		environment.setNamespace("development");
 		environment.setWatermark("1234");
 		environment.setOwnership(ownership);
-		environment.setState("active");
 
 		element = new com.klistret.cmdb.ci.pojo.Element();
 		element.setId(new Long(1));
