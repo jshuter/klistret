@@ -73,29 +73,7 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
                     	menu     : {
                     		items     : [
                     			{
-                    				text     : 'Environment',
-                    				menu     : {
-                    					items      : [
-                    						{
-                    							text     : 'Create',
-                    							handler  : this.openCreateWindow,
-                    							scope    : this,
-                    							config   : CMDB.Environment.Edit
-                    						},
-                    						{
-                    							text     : 'Search',
-                    							handler  : this.openSearchWindow,
-                    							scope    : this,
-                    							config   : CMDB.Environment.Search
-                    						}
-                    					]
-                    				}
-                    			},
-                    			'-',
-                    			{
-                    				text     : 'Application system',
-                    				handler  : this.testing,
-                    				scope    : this
+                    				text     : 'Application system'
                     			},
                     			{
                     				text     : 'Computer system'
@@ -147,17 +125,6 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
 
         win = desktop.createWindow({desktop:desktop},src.config);
         win.show();
-	},
-	
-	testing          : function(src) {
-		var desktop = this.app.getDesktop();
-		
-		win = desktop.createWindow({
-			desktop:desktop,
-			height:400,
-			width:400
-		});
-        win.show();
 	}
 });
 
@@ -185,7 +152,21 @@ CMDB.ProcessMenuModule = Ext.extend(Ext.app.Module, {
                 ]
 			}// end menu Process
 		}; // end launcher
-	} // end init
+	}, // end init
+	
+	openCreateWindow : function(src) {
+		var desktop = this.app.getDesktop();
+       
+        win = desktop.createWindow({desktop:desktop},src.config);
+        win.show();
+	},
+	
+	openSearchWindow : function(src) {
+		var desktop = this.app.getDesktop();
+
+        win = desktop.createWindow({desktop:desktop},src.config);
+        win.show();
+	}
 });
 
 
@@ -195,11 +176,27 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
 	init : function() {
 	
 		this.launcher = {
-            text     : 'Business',
+            text     : 'Context',
             menu     : {
                 items      : [
                 	{
-                		text     : 'Organization'
+                		text     : 'Organization',
+                		menu     : {
+							items      : [
+								{
+									text     : 'Create',
+									handler  : this.openCreateWindow,
+									scope    : this,
+									config   : CMDB.Organization.Edit
+								},
+								{
+									text     : 'Search',
+									handler  : this.openSearchWindow,
+									scope    : this,
+									config   : CMDB.Organization.Search
+								}
+							]
+						}
                 	},
                 	{
                 		text     : 'Planning',
@@ -217,11 +214,44 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
                     	} // end menu Planing
                 	},
                 	{
+						text     : 'Environment',
+						menu     : {
+							items      : [
+								{
+									text     : 'Create',
+									handler  : this.openCreateWindow,
+									scope    : this,
+									config   : CMDB.Environment.Edit
+								},
+								{
+									text     : 'Search',
+									handler  : this.openSearchWindow,
+									scope    : this,
+									config   : CMDB.Environment.Search
+								}
+							]
+						}
+                	},
+                	{
                 		text     : 'Module',
                 		disabled : true
                 	}
                 ]
 			}// end menu Process
 		}; // end launcher
-	} // end init
+	}, // end init
+	
+	openCreateWindow : function(src) {
+		var desktop = this.app.getDesktop();
+       
+        win = desktop.createWindow({desktop:desktop},src.config);
+        win.show();
+	},
+	
+	openSearchWindow : function(src) {
+		var desktop = this.app.getDesktop();
+
+        win = desktop.createWindow({desktop:desktop},src.config);
+        win.show();
+	}
 });

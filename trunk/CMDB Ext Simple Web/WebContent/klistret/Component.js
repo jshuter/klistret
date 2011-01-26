@@ -4,13 +4,51 @@
 Ext.namespace('CMDB.ApplicationSoftware');
 
 
-CMDB.ApplicationSoftware.OrganizationStore = new Ext.data.ArrayStore({
-	fields       : ['name', 'description'],
-    data         : [
-        ['Försäkringskassan', 'Swedish Social Insurance agency'],
-        ['Skatteverket', 'Swedish Tax agency'],
-        ['Pensionsmyndigheten', 'Swedish Pension agency']
-    ]
+CMDB.ApplicationSoftware.OrganizationStore = new Ext.data.Store({
+	proxy        : new Ext.data.HttpProxy({
+		url            : (CMDB.URL || '') + '/CMDB/resteasy/element',
+		method         : 'GET',
+                                        
+		headers        : {
+			'Accept'          : 'application/json,application/xml,text/html',
+			'Content-Type'    : 'application/json'
+		}
+	}),
+	
+	reader      : new CMDB.JsonReader({
+		totalProperty       : 'total',
+		successProperty     : 'successful',
+		idProperty          : 'Element/id/$',
+		root                : 'rows',
+		fields              : [
+			{
+				name             : 'Id',
+				mapping          : 'Element/id/$'
+			},
+			{
+				name             : 'Name',
+				mapping          : 'Element/name/$'
+			}
+		]
+	}),
+	
+	listeners         : {
+		'beforeload'       : function(store, options) {
+			var expressions;
+			
+			expressions = Ext.urlEncode({
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
+			});
+			expressions = expressions + "&" + Ext.urlEncode({
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Environment\")]'
+			});
+			expressions = expressions + "&" + Ext.urlEncode({
+				expressions : store.baseParams.expressions
+			});
+			
+			options.params = "start=0&limit=10&"+expressions;	
+		}
+	}
 });
 
 
@@ -43,9 +81,16 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					allowBlank        : false,
 					blankText         : 'Organization is required',
 					store             : CMDB.ApplicationSoftware.OrganizationStore,
-					displayField      : 'name',
-					mode              : 'local',
+					displayField      : 'Name',
+					mode              : 'remote',
+					queryParam        : 'expressions',
 					forceSelection    : true,
+					
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"%' + e.query + '%\")]';
+						}
+					},
 					
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
@@ -215,19 +260,39 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'displayfield',
 					width             : 'auto',
-					'html'            : 'Search criteria for application software items'
+					'html'            : 'Search criteria for Application Software items'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Organization',
-					expression        : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Module',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Module,\"{0}\")]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
