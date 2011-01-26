@@ -92,4 +92,33 @@
 
 	<xs:element name="Timeframe" type="Timeframe"></xs:element>
 	<!-- end of Timeframe -->
+
+
+
+	<!-- start of Environment -->
+	<xs:complexType name="Environment">
+		<xs:annotation>
+			<xs:documentation>
+				An environment could be a system related to other
+				systems rather than a context for systems. ITIL is
+				geared towards production and seldom encapsulates other
+				environments (i.e. variations of test, higher levels of
+				development, sand boxes/POC instanses or clouds). DMTF
+				standards do not provide an environment CI. Systems
+				always operate inside one or more contexts. A general
+				nomenclature for this context is an environment.
+
+				Environments are good candidates for aiming changes
+				against. Installations processes often lack the
+				granularity to direct changes to specific system and it
+				is easier to formulate an RFC to act on an environment.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Environment" type="Environment"></xs:element>
+	<!-- end of Environment -->
 </xs:schema>

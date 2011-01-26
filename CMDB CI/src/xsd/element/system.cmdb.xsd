@@ -77,25 +77,13 @@
 
 
 
-	<!-- start of Environment -->
-	<xs:complexType name="Environment">
-		<xs:annotation>
-			<xs:documentation></xs:documentation>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:extension base="element:System" />
-		</xs:complexContent>
-	</xs:complexType>
-
-	<xs:element name="Environment" type="Environment"></xs:element>
-	<!-- end of Environment -->
-
-
-
 	<!-- start of Application -->
 	<xs:complexType name="Application">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>
+				An application is a runtime conglomeration of software
+				within an application system and a managed object.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="element:System">
