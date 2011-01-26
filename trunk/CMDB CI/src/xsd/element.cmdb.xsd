@@ -117,11 +117,17 @@
 				server off-line might be a Unix machine. The machine
 				disjointed from it's runtime state is just a machine or
 				component bought in buy an IT department.
+
+				Systems have states (like being offline or online) and
+				operate within a context normally known as an
+				environment (such as production or test).
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="commons:Element">
 				<xs:sequence>
+					<xs:element name="Environment" type="xs:string"
+						maxOccurs="unbounded" minOccurs="0" />
 					<xs:element name="State" type="commons:State"
 						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
