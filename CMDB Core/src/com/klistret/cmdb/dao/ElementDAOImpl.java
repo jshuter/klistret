@@ -61,7 +61,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-	
 
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
@@ -117,7 +116,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
-			getSession().saveOrUpdate("Element", element);
+			if (element.getId() != null)
+				getSession().merge("Element", element);
+			else
+				getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
@@ -150,7 +152,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
-			getSession().saveOrUpdate("Element", element);
+			getSession().merge("Element", element);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
