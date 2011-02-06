@@ -73,10 +73,31 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
                     	menu     : {
                     		items     : [
                     			{
-                    				text     : 'Application system'
+                    				text     : 'Application system',
+                    				disabled : true
                     			},
                     			{
-                    				text     : 'Computer system'
+                    				text     : 'Computer system',
+                    				disabled : true
+                    			},
+                    			{
+                    				text     : 'Application',
+                    				menu     : {
+                    					items      : [
+                    						{
+                    							text     : 'Create',
+                    							handler  : this.openCreateWindow,
+                    							scope    : this,
+                    							config   : CMDB.Application.Edit
+                    						},
+                    						{
+                    							text     : 'Search',
+                    							handler  : this.openSearchWindow,
+                    							scope    : this,
+                    							config   : CMDB.Application.Search
+                    						}
+                    					]
+                    				}
                     			}
                     		]
                     	}
@@ -139,7 +160,30 @@ CMDB.ProcessMenuModule = Ext.extend(Ext.app.Module, {
             menu     : {
                 items      : [
                 	{
-                		text     : 'Change'
+                		text     : 'Change',
+                		menu     : {
+                    		items     : [
+                    			{
+                    				text     : 'Installation',
+                    				menu     : {
+                    					items      : [
+                    						{
+                    							text     : 'Create',
+                    							handler  : this.openCreateWindow,
+                    							scope    : this,
+                    							config   : CMDB.Installation.Edit
+                    						},
+                    						{
+                    							text     : 'Search',
+                    							handler  : this.openSearchWindow,
+                    							scope    : this,
+                    							config   : CMDB.Installation.Search
+                    						}
+                    					]
+                    				}
+                    			}
+                    		]
+                    	}
                 	},
                 	{
                 		text     : 'Problem',
@@ -204,11 +248,41 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
                     		items     : [
                     			{
                     				text     : 'Software Lifecycle',
-                    				disabled : true
+                    				menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.SoftwareLifecycle.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.SoftwareLifecycle.Search
+											}
+										]
+									}
                     			},
                     			{
                     				text     : 'Timeframes',
-                    				disabled : true
+                    				menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.Timeframe.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.Timeframe.Search
+											}
+										]
+									}
                     			}
                     		]
                     	} // end menu Planing
@@ -234,7 +308,22 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
                 	},
                 	{
                 		text     : 'Module',
-                		disabled : true
+                		menu     : {
+							items      : [
+								{
+									text     : 'Create',
+									handler  : this.openCreateWindow,
+									scope    : this,
+									config   : CMDB.Module.Edit
+								},
+								{
+									text     : 'Search',
+									handler  : this.openSearchWindow,
+									scope    : this,
+									config   : CMDB.Module.Search
+								}
+							]
+						}
                 	}
                 ]
 			}// end menu Process
