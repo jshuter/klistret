@@ -1,13 +1,13 @@
-/**
- *
- */
 Ext.namespace('CMDB.Environment');
 Ext.namespace('CMDB.Organization');
+Ext.namespace('CMDB.Module');
+Ext.namespace('CMDB.SoftwareLifecycle');
+Ext.namespace('CMDB.Timeframe');
+
 
 
 /**
- * Extends Element editor by defining an element template
- * and initializes the component with predefined forms.
+ * Environment (Editor) 
  */
 CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -64,6 +64,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 			items       : [
 				{
 					xtype       : 'generalForm',
+					helpInfo    : 'An environment is a collection of logical systems that represent an entire production, test or development IT landspace.',
 					tags        : [
 						['Production'],
 						['Test'],
@@ -87,13 +88,10 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 /**
- *
+ * Environment (Seach)
  */
 CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 
-	/**
-	 *
-	 */
 	initComponent  : function() {
 		var form = new Ext.form.FormPanel({
 			border          : false,
@@ -128,6 +126,8 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 		var config = {
 			title       : 'Environment Search',
 			editor      : CMDB.Environment.Edit,
+			
+			elementType : 'Environment',
 
 			items       : form,
 		
@@ -178,22 +178,13 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Environment.Search.superclass.initComponent.apply(this, arguments);
-	},
-	
-	
-	/**
-	 * Apply extra filters
-	 */
-	beforeSearch   : function() {
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Environment\")]'});
 	}
 });
 
 
 
 /**
- *
+ * Organization (Editor)
  */
 CMDB.Organization.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -250,6 +241,7 @@ CMDB.Organization.Edit = Ext.extend(CMDB.Element.Edit, {
 			items       : [
 				{
 					xtype       : 'generalForm',
+					helpInfo    : 'An organisation is either a company, an individual, or simply any group of people.',
 					tags        : [
 						['Project'],
 						['Section'],
@@ -272,13 +264,10 @@ CMDB.Organization.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 /**
- *
+ * Organization (Search)
  */
 CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 
-	/**
-	 *
-	 */
 	initComponent  : function() {
 		var form = new Ext.form.FormPanel({
 			border          : false,
@@ -313,6 +302,8 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 		var config = {
 			title       : 'Organization Search',
 			editor      : CMDB.Organization.Edit,
+			
+			elementType : 'Organization',
 
 			items       : form,
 		
@@ -363,14 +354,518 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Organization.Search.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Module (Editor)
+ */
+CMDB.Module.Edit = Ext.extend(CMDB.Element.Edit, {
+	element        : {
+		'Element' : {
+			'@xmlns' : 
+				{
+					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
+					'ns10' : 'http://www.klistret.com/cmdb/ci/element/context',
+					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+				},
+			
+			'type' : {
+				'id' : {
+					'$' : null
+				},
+				'name' : {
+					'$' : null
+				}
+			},
+			'fromTimeStamp' : {
+				'$' : new Date()
+			},
+			'createTimeStamp' : {
+				'$' : new Date()
+			},
+			'updateTimeStamp' : {
+				'$' : new Date()
+			},
+			'configuration' : { 
+				'@xmlns' : {
+					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+				},
+				'@xsi:type' : 'ns10:Module'
+			}
+		}
+	},
+
+	/**
+	 *
+	 */
+	initComponent  : function() {
+		var index = CMDB.ElementTypes.find('Name','Module'),
+			type = CMDB.ElementTypes.getAt(index).get('ElementType');
+		
+		this.element['Element']['type']['id']['$'] = type['id']['$'];
+		this.element['Element']['type']['name']['$'] = type['name']['$'];
+		
+		var config = {
+			title       : 'Module Editor',
+			
+			layout      : 'accordion',
+			
+			items       : [
+				{
+					xtype       : 'generalForm',
+					helpInfo    : 'Modules are a self-contained, reusable unit of software that, as a whole unit, follows a revision control scheme.',
+					tags        : [
+						['Middleware'],
+						['Educational'],
+						['Simulation'],
+						['Content access'],
+						['Media devleopment'],
+						['Enterprise']
+					]
+				},
+				{
+					xtype       : 'propertyForm'
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Module.Edit.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Module (Search)
+ */
+CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
+
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search for Modules'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Module Search',
+			editor      : CMDB.Module.Edit,
+			
+			elementType : 'Module',
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
+					name        : 'Tag', 
+					mapping     : 'Element/configuration/Tag/$'
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : "Name", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				},
+				{
+					header      : "Tags", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Description'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Module.Search.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Software Lifecyle (Editor)
+ */
+CMDB.SoftwareLifecycle.Edit = Ext.extend(CMDB.Element.Edit, {
+	element        : {
+		'Element' : {
+			'@xmlns' : 
+				{
+					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
+					'ns10' : 'http://www.klistret.com/cmdb/ci/element/component',
+					'ns11' : 'http://www.klistret.com/cmdb/ci/element/context/lifecycle',
+					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+				},
+			
+			'type' : {
+				'id' : {
+					'$' : null
+				},
+				'name' : {
+					'$' : null
+				}
+			},
+			'fromTimeStamp' : {
+				'$' : new Date()
+			},
+			'createTimeStamp' : {
+				'$' : new Date()
+			},
+			'updateTimeStamp' : {
+				'$' : new Date()
+			},
+			'configuration' : { 
+				'@xmlns' : {
+					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+				},
+				'@xsi:type' : 'ns11:SoftwareLifecycle'
+			}
+		}
 	},
 	
+	initComponent  : function() {
+		var index = CMDB.ElementTypes.find('Name','SoftwareLifecycle'),
+			type = CMDB.ElementTypes.getAt(index).get('ElementType');
+		
+		this.element['Element']['type']['id']['$'] = type['id']['$'];
+		this.element['Element']['type']['name']['$'] = type['name']['$'];
+		
+		var config = {
+			title       : 'Software Lifecycle Editor',
+			
+			layout      : 'accordion',
+			
+			items       : [
+				{
+					xtype       : 'generalForm',
+					helpInfo    : 'The software life cycle is composed of discrete phases that describe the software\'s maturity as it advances from planning and development to release and support phases.',
+					tags        : []
+				},
+				{
+					xtype       : 'propertyForm'
+				}
+			]
+		};
 	
-	/**
-	 * Apply extra filters
-	 */
-	beforeSearch   : function() {
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Organization\")]'});
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.SoftwareLifecycle.Edit.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Software Lifecycle (Search)
+ */
+CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
+
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search for Software lifecycles'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Software Lifecycle Search',
+			editor      : CMDB.SoftwareLifecycle.Edit,
+			
+			elementType : 'SoftwareLifecycle',
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
+					name        : 'Tag', 
+					mapping     : 'Element/configuration/Tag/$'
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : "Name", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				},
+				{
+					header      : "Tags", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Description'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.SoftwareLifecycle.Search.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Timeframe (Editor)
+ */
+CMDB.Timeframe.Edit = Ext.extend(CMDB.Element.Edit, {
+	element        : {
+		'Element' : {
+			'@xmlns' : 
+				{
+					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
+					'ns10' : 'http://www.klistret.com/cmdb/ci/element/component',
+					'ns11' : 'http://www.klistret.com/cmdb/ci/element/context',
+					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+				},
+			
+			'type' : {
+				'id' : {
+					'$' : null
+				},
+				'name' : {
+					'$' : null
+				}
+			},
+			'fromTimeStamp' : {
+				'$' : new Date()
+			},
+			'createTimeStamp' : {
+				'$' : new Date()
+			},
+			'updateTimeStamp' : {
+				'$' : new Date()
+			},
+			'configuration' : { 
+				'@xmlns' : {
+					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+				},
+				'@xsi:type' : 'ns11:Timeframe'
+			}
+		}
+	},
+	
+	initComponent  : function() {
+		var index = CMDB.ElementTypes.find('Name','Timeframe'),
+			type = CMDB.ElementTypes.getAt(index).get('ElementType');
+		
+		this.element['Element']['type']['id']['$'] = type['id']['$'];
+		this.element['Element']['type']['name']['$'] = type['name']['$'];
+		
+		var config = {
+			title       : 'Software Lifecycle Editor',
+			
+			layout      : 'accordion',
+			
+			items       : [
+				{
+					xtype       : 'generalForm',
+					helpInfo    : 'Time frames can be both short or long term representing organizational milestones.',
+					tags        : []
+				},
+				{
+					xtype       : 'propertyForm'
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Timeframe.Edit.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+/**
+ * Timeframe (Search)
+ */
+CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
+
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search for timeframes'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Timeframe Search',
+			editor      : CMDB.Timeframe.Edit,
+			
+			elementType : 'Timeframe',
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
+					name        : 'Tag', 
+					mapping     : 'Element/configuration/Tag/$'
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : "Name", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				},
+				{
+					header      : "Tags", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Description'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Timeframe.Search.superclass.initComponent.apply(this, arguments);
 	}
 });

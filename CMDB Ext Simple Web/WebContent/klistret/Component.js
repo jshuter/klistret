@@ -1,68 +1,13 @@
-/**
- *
-*/
 Ext.namespace('CMDB.ApplicationSoftware');
 
 
-CMDB.ApplicationSoftware.OrganizationStore = new Ext.data.Store({
-	proxy        : new Ext.data.HttpProxy({
-		url            : (CMDB.URL || '') + '/CMDB/resteasy/element',
-		method         : 'GET',
-                                        
-		headers        : {
-			'Accept'          : 'application/json,application/xml,text/html',
-			'Content-Type'    : 'application/json'
-		}
-	}),
-	
-	reader      : new CMDB.JsonReader({
-		totalProperty       : 'total',
-		successProperty     : 'successful',
-		idProperty          : 'Element/id/$',
-		root                : 'rows',
-		fields              : [
-			{
-				name             : 'Id',
-				mapping          : 'Element/id/$'
-			},
-			{
-				name             : 'Name',
-				mapping          : 'Element/name/$'
-			}
-		]
-	}),
-	
-	listeners         : {
-		'beforeload'       : function(store, options) {
-			var expressions;
-			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
-			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Environment\")]'
-			});
-			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : store.baseParams.expressions
-			});
-			
-			options.params = "start=0&limit=10&"+expressions;	
-		}
-	}
-});
 
-
-CMDB.ApplicationSoftware.ModuleStore = new Ext.data.ArrayStore({
-	fields       : ['name', 'description'],
-    data         : [
-        ['KND', 'Kund'],
-        ['KUI', 'Kunskapsinfo'],
-        ['JUnit', 'Java Unit Testing']
-    ]
-});
-
-
-CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
+/**
+ * Application Software - Software form forcing associations
+ * to organizations, modules and a timeframe.
+ *
+ */
+CMDB.ApplicationSoftware.SoftwareForm = Ext.extend(Ext.form.FormPanel, {
 	initComponent  : function() {
 		var config = {
 			title       : 'Software',
@@ -75,23 +20,30 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 			
 			items       : [
 				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Similar to Ivy and Maven appliation software is produced by an organization (group) and ships as a module thereafter further decorated with version number, artifact ids and so forth.'
+				},
+				{
 					xtype             : 'combo',
 					elementdata       : true,
 					fieldLabel        : 'Organization',
 					allowBlank        : false,
 					blankText         : 'Organization is required',
-					store             : CMDB.ApplicationSoftware.OrganizationStore,
+					store             : CMDB.OrganizationStore,
 					displayField      : 'Name',
 					mode              : 'remote',
 					queryParam        : 'expressions',
 					forceSelection    : true,
 					
+					// Edit the query for the combo into an expression
 					listeners         : {
 						'beforequery'       : function(e) {
-							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"%' + e.query + '%\")]';
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
 						}
 					},
 					
+					// Marshall combo into the element
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
 							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
@@ -101,6 +53,8 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 							CMDB.Badgerfish.remove(element, 'Element/configuration/Organization');
 						}
 					},
+					
+					// Unmarshall element value into the combo
 					unmarshall        : function(element) {
 						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Organization/$');
 						this.setValue(value);
@@ -112,11 +66,20 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					fieldLabel        : 'Module',
 					allowBlank        : false,
 					blankText         : 'Module is required',
-					store             : CMDB.ApplicationSoftware.ModuleStore,
-					displayField      : 'name',
-					mode              : 'local',
+					store             : CMDB.ModuleStore,
+					displayField      : 'Name',
+					mode              : 'remote',
+					queryParam        : 'expressions',
 					forceSelection    : true,
 					
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					},
+					
+					// Marshall combo into the element
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
 							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
@@ -126,6 +89,8 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 							CMDB.Badgerfish.remove(element, 'Element/configuration/Module');
 						}
 					},
+					
+					// Unmarshall element value into the combo
 					unmarshall        : function(element) {
 						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Module/$');
 						this.setValue(value);
@@ -137,7 +102,8 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					fieldLabel        : 'Version',
 					allowBlank        : false,
 					blankText         : 'Enter a version',
-					// Read from object into JSON
+					
+					// Marshall combo into the element
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
 							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
@@ -147,7 +113,8 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 							CMDB.Badgerfish.remove(element, 'Element/configuration/Version');
 						}
 					},
-					// Read from JSON into object
+					
+					// Unmarshall element value into the combo
 					unmarshall        : function(element) {
 						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Version/$');					
 						this.setValue(value);
@@ -157,14 +124,140 @@ CMDB.ApplicationSoftware.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 		};
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
-		CMDB.ApplicationSoftware.GeneralForm.superclass.initComponent.apply(this, arguments);
+		CMDB.ApplicationSoftware.SoftwareForm.superclass.initComponent.apply(this, arguments);
 	}
 });
-
-Ext.reg('applicationSoftwareGeneralForm', CMDB.ApplicationSoftware.GeneralForm);
-
+Ext.reg('applicationSoftwareForm', CMDB.ApplicationSoftware.SoftwareForm);
 
 
+
+/**
+ *
+ */
+CMDB.ApplicationSoftware.LifecycleForm = Ext.extend(Ext.form.FormPanel, {
+	initComponent  : function() {
+		var config = {
+			title       : 'Lifecycle',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			defaults    : {
+				width             : 300
+			},
+			
+			items       : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'All software goes through different stages in a lifecycle and this form establishes the phase, availability plus how an organization regards this software by type.'
+				},
+				{
+					xtype             : 'combo',
+					elementdata       : true,
+					fieldLabel        : 'Phase',
+					allowBlank        : true,
+					store             : CMDB.SoftwareLifecycleStore,
+					displayField      : 'Name',
+					mode              : 'remote',
+					queryParam        : 'expressions',
+					forceSelection    : true,
+					
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					},
+					
+					// Marshall combo into the element
+					marshall          : function(element) {
+						if (this.getValue() && element['Element']['configuration']) {
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
+							element['Element']['configuration'][prefix+':Phase'] = { '$' : this.getValue() };
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Phase');
+						}
+					},
+					
+					// Unmarshall element value into the combo
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Phase/$');
+						this.setValue(value);
+					}
+				},
+				{
+					xtype             : 'combo',
+					elementdata       : true,
+					fieldLabel        : 'Availability',
+					allowBlank        : true,
+					store             : CMDB.TimeframeStore,
+					displayField      : 'Name',
+					mode              : 'remote',
+					queryParam        : 'expressions',
+					forceSelection    : true,
+					
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					},
+					
+					// Marshall combo into the element
+					marshall          : function(element) {
+						if (this.getValue() && element['Element']['configuration']) {
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
+							element['Element']['configuration'][prefix+':Availability'] = { '$' : this.getValue() };
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Availability');
+						}
+					},
+					
+					// Unmarshall element value into the combo
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Availability/$');
+						this.setValue(value);
+					}
+				},
+				{
+					xtype             : 'textfield',
+					elementdata       : true,
+					fieldLabel        : 'Organizational type',
+					allowBlank        : true,
+					
+					// Marshall combo into the element
+					marshall          : function(element) {
+						if (this.getValue() && element['Element']['configuration']) {
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/component/software');
+							element['Element']['configuration'][prefix+':Type'] = { '$' : this.getValue() };
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Type');
+						}
+					},
+					
+					// Unmarshall element value into the combo
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Type/$');					
+						this.setValue(value);
+					}
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.ApplicationSoftware.LifecycleForm.superclass.initComponent.apply(this, arguments);
+	}
+});
+Ext.reg('applicationLifecycleForm', CMDB.ApplicationSoftware.LifecycleForm);
+
+
+
+/**
+ * Application Software (Editor Form)
+ */
 CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
 		'Element' : {
@@ -218,6 +311,7 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 			items       : [
 				{
 					xtype       : 'generalForm',
+					helpInfo    : 'Application software is software designed to help users or even business processes to perform singular or multiple related specific tasks.  This CI is what makes up logical applications.',
 					tags        : [
 						['Third party'],
 						['Open source'],
@@ -228,7 +322,10 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 					]
 				},
 				{
-					xtype       : 'applicationSoftwareGeneralForm'
+					xtype       : 'applicationSoftwareForm'
+				},
+				{
+					xtype       : 'applicationLifecycleForm'
 				},
 				{
 					xtype       : 'propertyForm'
@@ -242,10 +339,12 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 });
 
 
+
+/** 
+ * Application Software (Search Form)
+ */
 CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
-	/**
-	 *
-	 */
+
 	initComponent  : function() {
 		var form = new Ext.form.FormPanel({
 			border          : false,
@@ -300,6 +399,8 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 		var config = {
 			title       : 'Application Software Search',
 			editor      : CMDB.ApplicationSoftware.Edit,
+			
+			elementType : 'ApplicationSoftware',
 
 			items       : form,
 		
@@ -360,14 +461,5 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Environment.Search.superclass.initComponent.apply(this, arguments);
-	},
-	
-	
-	/**
-	 * Apply extra filters
-	 */
-	beforeSearch   : function() {
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"ApplicationSoftware\")]'});
 	}
 });
