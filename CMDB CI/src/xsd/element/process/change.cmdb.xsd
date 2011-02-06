@@ -35,10 +35,12 @@
 		<xs:complexContent>
 			<xs:extension base="process:Change">
 				<xs:sequence>
-					<xs:element name="System"
+					<xs:element name="Source"
 						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
-					<xs:element name="Software"
+					<xs:element name="Destination"
 						type="commons:DestinationReference" maxOccurs="1" minOccurs="1" />
+					<xs:element name="State" type="commons:State"
+						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
