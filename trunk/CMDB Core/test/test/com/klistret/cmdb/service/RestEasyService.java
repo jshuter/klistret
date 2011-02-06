@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
@@ -24,6 +26,7 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.HttpResponseCodes;
 
 import com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper;
+import com.klistret.cmdb.utility.resteasy.EncodingInterceptor;
 import com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper;
 
 /**
@@ -79,9 +82,15 @@ public class RestEasyService {
 				.getProviderFactory();
 		providerFactory.registerProvider(ApplicationExceptionMapper.class);
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
+		providerFactory.registerProvider(EncodingInterceptor.class);
+		
+		// Language mapper
+		Map<String,String> lm = new HashMap<String,String>();
+		lm.put("ISO-8859-1", "UTF-8");
+		dispatcher.setLanguageMappings(lm);
 	}
 
-	//@Test
+	// @Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -135,13 +144,13 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	@Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
 		MockHttpResponse response = new MockHttpResponse();
 
-		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"ns9\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\",\"ns10\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system\",\"ns2\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/commons\",\"$\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/pojo\"},\"name\":{\"$\":\"River\"},\"type\":{\"id\":{\"$\":\"18\"},\"name\":{\"$\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/system}Environment\"}},\"fromTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"createTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"updateTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema-instance\"},\"@xsi:type\":\"ns10:Environment\",\"ns2:Name\":{\"$\":\"River\"},\"ns2:Tag\":[{\"$\":\"my special tag\"},{\"$\":\"danny's tag\"}],\"ns2:Property\":[{\"ns2:Name\":{\"$\":\"example\"},\"ns2:Value\":{\"$\":\"of a property\"}},{\"ns2:Name\":{\"$\":\"another\"},\"ns2:Value\":{\"$\":\"property to look at\"}}],\"ns9:State\":{\"$\":\"Online\"}}}}";
+		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"ns9\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\",\"ns10\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/context\",\"ns2\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/commons\",\"$\":\"http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/pojo\"},\"name\":{\"$\":\"Försäkringskassn\"},\"type\":{\"id\":{\"$\":\"10\"},\"name\":{\"$\":\"{http:\\/\\/www.klistret.com\\/cmdb\\/ci\\/element\\/context}Environment\"}},\"fromTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"createTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"updateTimeStamp\":{\"$\":\"2011-01-07T09:08:20.413+01:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http:\\/\\/www.w3.org\\/2001\\/XMLSchema-instance\"},\"@xsi:type\":\"ns10:Environment\",\"ns2:Name\":{\"$\":\"Försäkringskassan\"},\"ns2:Tag\":[{\"$\":\"my special tag\"},{\"$\":\"danny's tag\"}],\"ns2:Property\":[{\"ns2:Name\":{\"$\":\"example\"},\"ns2:Value\":{\"$\":\"of a property\"}},{\"ns2:Name\":{\"$\":\"another\"},\"ns2:Value\":{\"$\":\"property to look at\"}}],\"ns9:State\":{\"$\":\"Online\"}}}}";
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
@@ -154,7 +163,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	// @Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/relation?expressions="
