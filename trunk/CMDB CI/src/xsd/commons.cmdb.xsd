@@ -121,6 +121,8 @@
 		<xs:sequence>
 			<xs:element name="Id" type="xs:long" maxOccurs="1"
 				minOccurs="1" />
+			<xs:element name="Name" type="xs:string" maxOccurs="1"
+				minOccurs="1" />
 			<xs:element name="QName" type="xs:string" maxOccurs="1"
 				minOccurs="1" />
 		</xs:sequence>

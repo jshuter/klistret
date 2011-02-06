@@ -81,7 +81,7 @@
 	<xs:complexType name="Timeframe">
 		<xs:annotation>
 			<xs:documentation>
-				Long and short terms time frames to represent
+				Long and short term time frames to represent
 				organizational milestones.
 			</xs:documentation>
 		</xs:annotation>

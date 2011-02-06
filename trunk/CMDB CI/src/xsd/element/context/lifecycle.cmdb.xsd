@@ -28,10 +28,10 @@
 		schemaLocation="../context.cmdb.xsd" />
 
 
-	<xs:simpleType name="Phase">
+	<xs:simpleType name="Model">
 		<xs:annotation>
 			<xs:documentation>
-				Lifecycle phase such as alpha, beta, live, etc.
+				Lifecycle model such as waterfall, spiral, agile, and so forth.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -51,8 +51,8 @@
 		<xs:complexContent>
 			<xs:extension base="context:Lifecycle">
 				<xs:sequence>
-					<xs:element name="Phase" type="Phase" maxOccurs="1"
-						minOccurs="1">
+					<xs:element name="Model" type="Model" maxOccurs="1"
+						minOccurs="0">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>
