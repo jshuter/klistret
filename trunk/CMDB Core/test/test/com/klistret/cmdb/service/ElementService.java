@@ -76,10 +76,10 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void get() throws JAXBException {
-		Element element = elementService.get(new Long(274));
+		Element element = elementService.get(new Long(242));
 
 		assertNotNull(element);
 	}
@@ -133,8 +133,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void set2() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
@@ -158,10 +158,10 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void find() {
-		String[] expressions = { "declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"att\")]" };
+		String[] expressions = { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"0001_A01\"]" };
 
 		List<Element> response = elementService.find(
 				Arrays.asList(expressions), 0, 10);

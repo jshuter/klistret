@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -22,11 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 
 /**
@@ -61,11 +65,46 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
+			String alias = hcriteria.getAlias();
+
+			hcriteria.setProjection(Projections.projectionList().add(
+					Projections.property(alias + ".id")).add(
+					Projections.property(alias + ".type")).add(
+					Projections.property(alias + ".name")).add(
+					Projections.property(alias + ".fromTimeStamp")).add(
+					Projections.property(alias + ".toTimeStamp")).add(
+					Projections.property(alias + ".createId")).add(
+					Projections.property(alias + ".createTimeStamp")).add(
+					Projections.property(alias + ".updateTimeStamp")).add(
+					Projections.property(alias + ".configuration")));
 
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
 
-			List<Element> elements = hcriteria.list();
+			Object[] results = hcriteria.list().toArray();
+
+			List<Element> elements = new ArrayList<Element>(results.length);
+			logger.debug("Results length [{}]", results.length);
+
+			for (int index = 0; index < results.length; index++) {
+				Object[] row = (Object[]) results[index];
+
+				Element element = new Element();
+				element.setId((Long) row[0]);
+				element.setType((ElementType) row[1]);
+				element.setName((String) row[2]);
+				element.setFromTimeStamp((Date) row[3]);
+				element.setToTimeStamp((Date) row[4]);
+				element.setCreateId((String) row[5]);
+				element.setCreateTimeStamp((Date) row[6]);
+				element.setUpdateTimeStamp((Date) row[7]);
+				element
+						.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
+
+				elements.add(element);
+			}
+
+			results = null;
 
 			return elements;
 		} catch (HibernateException he) {
@@ -95,7 +134,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						"Element [id: %s] not found", id),
 						new NoSuchElementException());
 
-			return element;
+			return clean(element);
 
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
@@ -125,7 +164,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		}
 
 		logger.info("Save/update element [{}]", element.toString());
-		return element;
+		return clean(element);
 	}
 
 	/**
@@ -158,7 +197,30 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		}
 
 		logger.info("Deleted element [{}]", element);
-		return element;
+		return clean(element);
 	}
 
+	/**
+	 * Necessary to eliminate relation associations which only available to
+	 * query through relationships
+	 * 
+	 * @param other
+	 * @return
+	 */
+	private Element clean(Element other) {
+		Element element = new Element();
+		element.setId(other.getId());
+		element.setType(other.getType());
+		element.setName(other.getName());
+		element.setFromTimeStamp(other.getFromTimeStamp());
+		element.setToTimeStamp(other.getToTimeStamp());
+		element.setCreateId(other.getCreateId());
+		element.setCreateTimeStamp(other.getCreateTimeStamp());
+		element.setUpdateTimeStamp(other.getUpdateTimeStamp());
+		element.setConfiguration(other.getConfiguration());
+
+		other = null;
+
+		return element;
+	}
 }
