@@ -64,7 +64,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
 							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
-								record = this.getStore().getById(this.getValue);
+								record = this.getStore().getById(this.getValue());
 								
 							element['Element']['configuration'][prefix+':Source'] = {
 								'Id' : {
@@ -74,7 +74,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 									'$' : record.get('Name')
 								},
 								'QName' : {
-									'$' : CMDB.Badgerfish.get(record.get('Element'), 'Element/type/name/$')
+									'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
 								}
 							};
 						}
@@ -106,6 +106,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					blankText         : 'Component is required',
 					store             : CMDB.ApplicationSoftwareStore,
 					displayField      : 'Name',
+					valueField        : 'Id',
 					mode              : 'remote',
 					queryParam        : 'expressions',
 					forceSelection    : true,
@@ -121,7 +122,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
 							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
-								record = this.getStore().getById(this.getValue);
+								record = this.getStore().getById(this.getValue());
 								
 							element['Element']['configuration'][prefix+':Destination'] = {
 								'Id' : {
@@ -131,8 +132,12 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 									'$' : record.get('Name')
 								},
 								'QName' : {
-									'$' : CMDB.Badgerfish.get(record.get('Element'), 'Element/type/name/$')
+									'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
 								}
+							};
+							
+							element['Element']['name'] = {
+								'$' : record.get('Name')
 							};
 						}
 						else {
@@ -168,7 +173,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
-							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/process');
 							element['Element']['configuration'][prefix+':State'] = { '$' : this.getValue() };
 						}
 						else {
@@ -201,6 +206,7 @@ CMDB.Installation.Edit = Ext.extend(CMDB.Element.Edit, {
 				{
 					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
 					'ns10' : 'http://www.klistret.com/cmdb/ci/element/component',
+					'ns8'  : 'http://www.klistret.com/cmdb/ci/element/process',
 					'ns11' : 'http://www.klistret.com/cmdb/ci/element/process/change',
 					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
 					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
@@ -321,7 +327,7 @@ CMDB.Installation.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Installation Search',
 			editor      : CMDB.Installation.Edit,
 			
-			elementType : 'Installation',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/process/change}Installation',
 
 			items       : form,
 		

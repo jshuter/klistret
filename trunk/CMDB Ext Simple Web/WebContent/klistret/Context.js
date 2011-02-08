@@ -127,7 +127,7 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Environment Search',
 			editor      : CMDB.Environment.Edit,
 			
-			elementType : 'Environment',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}Environment',
 
 			items       : form,
 		
@@ -303,7 +303,7 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Organization Search',
 			editor      : CMDB.Organization.Edit,
 			
-			elementType : 'Organization',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}Organization',
 
 			items       : form,
 		
@@ -480,7 +480,7 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Module Search',
 			editor      : CMDB.Module.Edit,
 			
-			elementType : 'Module',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}Module',
 
 			items       : form,
 		
@@ -648,7 +648,7 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Software Lifecycle Search',
 			editor      : CMDB.SoftwareLifecycle.Edit,
 			
-			elementType : 'SoftwareLifecycle',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}SoftwareLifecycle',
 
 			items       : form,
 		
@@ -816,7 +816,7 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Timeframe Search',
 			editor      : CMDB.Timeframe.Edit,
 			
-			elementType : 'Timeframe',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}Timeframe',
 
 			items       : form,
 		

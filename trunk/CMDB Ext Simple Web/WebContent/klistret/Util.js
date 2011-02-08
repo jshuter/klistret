@@ -256,28 +256,11 @@ CMDB.RelationTypes =  new Ext.data.Store({
 				mapping          : 'RelationType/name/$'
 			},
 			{
-				name             : 'Namespace',
-				mapping          : 'RelationType/name/$'
-			},
-			{
 				name             : 'RelationType',
 				mapping          : 'RelationType'
 			}
 		]
-	}),
-                                        
-	listeners       : {
-		'load'           : function(store, records, options) {
-			Ext.each(records, function(record) {
-				var name = record.get('Name'),
-					namespace = record.get('Namespace');
-                                                                
-				record.set('Name', name.replace(/\{.*\}(.*)/,"$1"));
-				record.set('Namespace', namespace.replace(/\{(.*)\}.*/,"$1"));
-				record.commit();
-			});
-		}
-	}
+	})
 });
 
 CMDB.RelationTypes.load({
