@@ -94,7 +94,7 @@ public class RestEasyService {
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation/1")
+				.get("/resteasy/element/242")
 				.accept(
 						Arrays
 								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
@@ -144,7 +144,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	// @Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
@@ -163,13 +163,13 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation?expressions="
+				.get("/resteasy/element?expressions="
 						+ URLEncoder
 								.encode(
-										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 1]",
+										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[pojo:id eq 63]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();

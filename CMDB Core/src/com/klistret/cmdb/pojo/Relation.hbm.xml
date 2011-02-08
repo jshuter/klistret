@@ -32,15 +32,16 @@
 			<column name="RELATIONTYPEID" sql-type="INTEGER"
 				not-null="true" />
 		</many-to-one>
-		
-		<many-to-one name="source" class="com.klistret.cmdb.ci.pojo.Element" lazy="false"
-			foreign-key="FK_REL_SOURCE" index="SOURCE_REL_FK">
-			<column name="SOURCEID" sql-type="INTEGER"
-				not-null="true" />
+
+		<many-to-one lazy="false" name="source"
+			class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_SOURCE"
+			index="SOURCE_REL_FK" insert="false" update="false">
+			<column name="SOURCEID" sql-type="INTEGER" not-null="true" />
 		</many-to-one>
-		
-		<many-to-one name="destination" class="com.klistret.cmdb.ci.pojo.Element" lazy="false"
-			foreign-key="FK_REL_DEST" index="DEST_REL_FK">
+
+		<many-to-one lazy="false" name="destination"
+			class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_DEST"
+			index="DEST_REL_FK" insert="false" update="false">
 			<column name="DESTINATIONID" sql-type="INTEGER"
 				not-null="true" />
 		</many-to-one>
