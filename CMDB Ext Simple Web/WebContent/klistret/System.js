@@ -209,6 +209,14 @@ CMDB.Application.Edit = Ext.extend(CMDB.Element.Edit, {
 					xtype       : 'systemGeneralForm'
 				},
 				{
+					xtype       : 'destRelationForm',
+					relations   : [
+						{
+							'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
+						}
+					]
+				},
+				{
 					xtype       : 'propertyForm'
 				}
 			]
@@ -216,5 +224,102 @@ CMDB.Application.Edit = Ext.extend(CMDB.Element.Edit, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Application.Edit.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+
+
+/** 
+ * Application (Search Form)
+ */
+CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
+
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search criteria for Application items'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Composed of an application software named',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination[matches(pojo:name, \"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Underlying application software available',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"{0\"]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Application Search',
+			editor      : CMDB.Application.Edit,
+			
+			elementType : '{http://www.klistret.com/cmdb/ci/element/system}Application',
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : 'Name', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Application.Search.superclass.initComponent.apply(this, arguments);
 	}
 });

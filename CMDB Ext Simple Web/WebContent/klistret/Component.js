@@ -400,7 +400,7 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Application Software Search',
 			editor      : CMDB.ApplicationSoftware.Edit,
 			
-			elementType : 'ApplicationSoftware',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware',
 
 			items       : form,
 		
@@ -460,6 +460,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 		}
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
-		CMDB.Environment.Search.superclass.initComponent.apply(this, arguments);
+		CMDB.ApplicationSoftware.Search.superclass.initComponent.apply(this, arguments);
 	}
 });

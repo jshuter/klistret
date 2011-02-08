@@ -483,7 +483,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			records, 
 			function(record) {
 				Ext.Ajax.request({
-					url           : (CMDB.URL || '') + '/CMDB/resteasy/relation/'+record.id,
+					url           : (CMDB.URL || '') + '/CMDB/resteasy/relation/'+record.get('Id'),
 					method        : 'DELETE',
 							
 					headers        : {
@@ -526,7 +526,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 		Ext.each(
 			records, 
 			function(record) {
-				var destinationType = CMDB.Badgerfish.get(record.json, 'Element/type/name/$').replace(/\{.*\}(.*)/,"$1"),
+				var destinationType = CMDB.Badgerfish.get(record.get('Element'), 'type/name/$'),
 					name = this.getRelationType(destinationType),
 					index = CMDB.RelationTypes.find('Name',name),
 					relationType = CMDB.RelationTypes.getAt(index).get('RelationType');
@@ -1296,7 +1296,7 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
      */
 	beforeSearch   : function() {
 		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"' + this.elementType + '\")]'});
+		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"' + this.elementType + '\"]'});
 	},
 	
 	
@@ -1565,6 +1565,10 @@ CMDB.OrganizationStore = new Ext.data.Store({
 			{
 				name             : 'Name',
 				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
 			}
 		]
 	}),
@@ -1617,6 +1621,10 @@ CMDB.ModuleStore = new Ext.data.Store({
 			{
 				name             : 'Name',
 				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
 			}
 		]
 	}),
@@ -1719,6 +1727,10 @@ CMDB.SoftwareLifecycleStore = new Ext.data.Store({
 			{
 				name             : 'Name',
 				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
 			}
 		]
 	}),
@@ -1768,6 +1780,10 @@ CMDB.TimeframeStore = new Ext.data.Store({
 			{
 				name             : 'Name',
 				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
 			}
 		]
 	}),
@@ -1817,6 +1833,10 @@ CMDB.ApplicationSoftwareStore = new Ext.data.Store({
 			{
 				name             : 'Name',
 				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
 			}
 		]
 	}),
