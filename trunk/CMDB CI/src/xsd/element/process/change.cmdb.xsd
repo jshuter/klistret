@@ -39,8 +39,6 @@
 						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
 					<xs:element name="Destination"
 						type="commons:DestinationReference" maxOccurs="1" minOccurs="1" />
-					<xs:element name="State" type="commons:State"
-						maxOccurs="1" minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>

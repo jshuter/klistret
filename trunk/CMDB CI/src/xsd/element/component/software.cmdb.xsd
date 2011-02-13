@@ -16,12 +16,8 @@
 	xmlns="http://www.klistret.com/cmdb/ci/element/component/software"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/component/software"
 	xmlns:component="http://www.klistret.com/cmdb/ci/element/component"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
-
-	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
-		schemaLocation="../../commons.cmdb.xsd" />
 
 	<xs:import
 		namespace="http://www.klistret.com/cmdb/ci/element/component"

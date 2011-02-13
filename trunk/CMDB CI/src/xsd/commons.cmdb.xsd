@@ -49,16 +49,6 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
-	<xs:simpleType name="Version">
-		<xs:annotation>
-			<xs:documentation>
-				Keeps track of incrementally different versions of base
-				instances
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
-
 	<xs:simpleType name="Description">
 		<xs:annotation>
 			<xs:documentation>
@@ -77,6 +67,26 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
+	<xs:complexType name="Contact">
+		<xs:annotation>
+			<xs:documentation>Contact information</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="Telephone" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="EMail" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="Location" type="xs:string" minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
 	<xs:complexType name="Ownership">
 		<xs:annotation>
 			<xs:documentation>
@@ -89,6 +99,7 @@
 					<xs:documentation>Contact name</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Contact" type="Contact"></xs:element>
 		</xs:choice>
 	</xs:complexType>
 
@@ -166,6 +177,7 @@
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
+		<xs:attribute name="CIVersion" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="Element" abstract="true">
