@@ -14,6 +14,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 		'Element' : {
 			'@xmlns' : 
 				{
+					'ns8'  : 'http://www.klistret.com/cmdb/ci/commons',
 					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
 					'ns10' : 'http://www.klistret.com/cmdb/ci/element/context',
 					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
@@ -41,7 +42,10 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 				'@xmlns' : {
 					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 				},
-				'@xsi:type' : 'ns10:Environment'
+				'@xsi:type' : 'ns10:Environment',
+				'ns8:Ownership' : {
+					'ns8:Contact' : {}
+				}
 			}
 		}
 	},
@@ -73,6 +77,10 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 						['Sandbox'],
 						['POC']
 					]
+				},
+				{
+					xtype       : 'contactForm',
+					helpInfo    : 'Contact or ownership information is not required but helpful in locating responsibility for the Environment CI.  The contact name may also be an organization.'
 				},
 				{
 					xtype       : 'propertyForm'
@@ -112,13 +120,21 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Contact Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration/commons:Ownership/commons:Contact[matches(commons:Name,\"{0}\")]',
+					wildcard          : '.*'
 				}
 			]
 		});
@@ -141,12 +157,20 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/name/$'
 				},
 				{
-					name        : 'Description', 
-					mapping     : 'Element/configuration/Description/$'
+					name        : 'Contact Name', 
+					mapping     : 'Element/configuration/Ownership/Contact/Name/$'
 				},
 				{
 					name        : 'Tag', 
-					mapping     : 'Element/configuration/Tag/$'
+					mapping     : 'Element/configuration/Tag',
+					afterAccess : function(values) {
+						var formated = null;
+						
+						Ext.each(values, function(value) {
+							formated = formated == null ? value : formated + ',' + value;
+						});
+						return formated;
+					}
 				},
 				{
 					name        : 'Element',
@@ -168,10 +192,10 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					dataIndex   : 'Tag'
 				},
 				{
-					header      : "Description", 
+					header      : "Contact Name", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Description'
+					dataIndex   : 'Contact Name'
 				}
 			]
 		}

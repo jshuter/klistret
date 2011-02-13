@@ -1,20 +1,22 @@
-/**
- * Name-spaces
-*/
 Ext.namespace('CMDB.Element');
 
 
 
 /**
- * Plugin to help out marshall search fields into expressions
+ * Testing the usage of plugins through a simple plugin
+ * that jacks into search parameters to identify them
+ * and marshall the field's parameter.
+ *
+ * Note: Wildcard "*" is replaced by the "%" character
  */
 Ext.Element.SearchParameterPlugin = (function() {
 
 	return {
 
+		// init method is required by the plugin framework
 		init       : function(item) {
-		
 			Ext.apply(item, {
+				// property marks the field as a searchable parameter
 				elementdata      : true,
 				
 				getParameter     : function() {
@@ -22,7 +24,7 @@ Ext.Element.SearchParameterPlugin = (function() {
 				
 					if (this.getXType() == 'textfield') {
 						return Ext.urlEncode({
-							expressions : String.format(this.expression, this.getValue().replace(/\*/g, '%'))
+							expressions : this.wildcard ? String.format(this.expression, this.getValue().replace(/\*/g, this.wildcard)) : String.format(this.expression, this.getValue())
 						});
 					}
 					
@@ -47,6 +49,7 @@ Ext.Element.SearchParameterPlugin = (function() {
 */
 CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 
+	// Initializes the tags field
 	tags           : [],
 
 	initComponent  : function() {
@@ -60,21 +63,24 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 			},
 			
 			items       : [
+				// Header text for the form
 				{
 					xtype             : 'displayfield',
 					width             : 'auto',
 					'html'            : this.helpInfo || 'Element editor window'
 				},
+				
+				// Name field
 				{
 					xtype             : 'textfield',
 					elementdata       : true,
 					fieldLabel        : 'Name',
 					allowBlank        : false,
-					blankText         : 'Enter a unique name',
+					blankText         : 'Enter a unique name for the CI element',
 					
 					// Read from object into JSON
 					marshall          : function(element) {
-						if (this.getValue() && element['Element']) {
+						if (this.getValue()) {
 							element['Element']['name'] = { '$' : this.getValue() };
 						}
 						else {
@@ -88,6 +94,8 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 						this.setValue(value);
 					}
 				},
+				
+				// Tags field
 				{
 					xtype             : 'superboxselect',
 					elementdata       : true,
@@ -95,7 +103,7 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					
 					// Read from object into JSON
 					marshall          : function(element) {
-						if (!Ext.isEmpty(this.getValueEx()) && element['Element']['configuration']) {
+						if (!Ext.isEmpty(this.getValueEx())) {
 							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons')
 								tags = [];
 								
@@ -142,6 +150,7 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 						this.setValueEx(formated);
 					},
 					
+					// Combo box store
 					store             : new Ext.data.SimpleStore({
 						fields           : [
 							'name'
@@ -172,22 +181,25 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
                     	}			
 					}
 				},
+				// Description field
 				{
 					xtype             : 'textarea',
 					elementdata       : true,
 					fieldLabel        : 'Description',
 					height            : 50,
 					blankText         : 'Description of the Environment',
+					
 					// Read from object into JSON
 					marshall          : function(element) {
-						if (this.getValue() && element['Element']['configuration']) {
-							var commons = commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+						if (this.getValue()) {
+							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
 							element['Element']['configuration'][commons+':Description'] = { '$' : this.getValue() };
 						}
 						else {
 							CMDB.Badgerfish.remove(element, 'Element/configuration/Description');
 						}
 					},
+					
 					// Read from JSON into object
 					unmarshall        : function(element) {
 						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Description/$');
@@ -202,6 +214,151 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 	}
 });
 Ext.reg('generalForm', CMDB.Element.GeneralForm);
+
+
+
+/**
+ * Contact information form
+ */
+CMDB.Element.ContactForm = Ext.extend(Ext.form.FormPanel, {
+
+	initComponent  : function() {
+		var config = {
+			title       : 'Contact',
+			autoScroll  : true,
+			labelAlign  : 'top',
+			bodyStyle   : 'padding:10px; background-color:white;',
+			defaults    : {
+				width             : 300
+			},
+			
+			items       : [
+				// Header information to this form
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : this.helpInfo || 'Contact information regarding the CI'
+				},
+				
+				// Contact name
+				{
+					xtype             : 'textfield',
+					elementdata       : true,
+					fieldLabel        : 'Contact name',
+					allowBlank        : true,
+					
+					// Read from object into JSON
+					marshall          : function(element) {
+						if (this.getValue()) {
+							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+											
+							element['Element']['configuration'][commons + ':Ownership'][commons + ':Contact'][commons + ':Name'] = {		 
+								'$' : this.getValue() 
+							};
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Ownership/Contact/Name');
+						}
+					},
+					
+					// Read from JSON into object
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Ownership/Contact/Name/$');					
+						this.setValue(value);
+					}
+				},
+				
+				// Contact telephone
+				{
+					xtype             : 'textfield',
+					elementdata       : true,
+					fieldLabel        : 'Telephone',
+					allowBlank        : true,
+					
+					// Read from object into JSON
+					marshall          : function(element) {
+						if (this.getValue()) {
+							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+											
+							element['Element']['configuration'][commons + ':Ownership'][commons + ':Contact'][commons + ':Telephone'] = {		 
+								'$' : this.getValue() 
+							};
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Ownership/Contact/Telephone');
+						}
+					},
+					
+					// Read from JSON into object
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Ownership/Contact/Telephone/$');					
+						this.setValue(value);
+					}
+				},
+				
+				// Contact email
+				{
+					xtype             : 'textfield',
+					elementdata       : true,
+					fieldLabel        : 'EMail',
+					allowBlank        : true,
+					
+					// Read from object into JSON
+					marshall          : function(element) {
+						if (this.getValue()) {
+							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+											
+							element['Element']['configuration'][commons + ':Ownership'][commons + ':Contact'][commons + ':EMail'] = {		 
+								'$' : this.getValue() 
+							};
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Ownership/Contact/EMail');
+						}
+					},
+					
+					// Read from JSON into object
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Ownership/Contact/EMail/$');					
+						this.setValue(value);
+					}
+				},
+				
+				// Contact location
+				{
+					xtype             : 'textfield',
+					elementdata       : true,
+					fieldLabel        : 'Location',
+					allowBlank        : true,
+					
+					// Read from object into JSON
+					marshall          : function(element) {
+						if (this.getValue()) {
+							var commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons');
+											
+							element['Element']['configuration'][commons + ':Ownership'][commons + ':Contact'][commons + ':Location'] = {		 
+								'$' : this.getValue() 
+							};
+						}
+						else {
+							CMDB.Badgerfish.remove(element, 'Element/configuration/Ownership/Contact/Location');
+						}
+					},
+					
+					// Read from JSON into object
+					unmarshall        : function(element) {
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Ownership/Contact/Location/$');					
+						this.setValue(value);
+					}
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.Element.ContactForm.superclass.initComponent.apply(this, arguments);
+	}
+});
+Ext.reg('contactForm', CMDB.Element.ContactForm);
 
 
 
