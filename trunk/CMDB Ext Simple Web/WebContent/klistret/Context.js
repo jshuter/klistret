@@ -7,7 +7,7 @@ Ext.namespace('CMDB.Timeframe');
 
 
 /**
- * Environment (Editor) 
+ * Environment Editor 
  */
 CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -96,7 +96,7 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 /**
- * Environment (Seach)
+ * Environment Search
  */
 CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 
@@ -163,12 +163,15 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					name        : 'Tag', 
 					mapping     : 'Element/configuration/Tag',
-					afterAccess : function(values) {
-						var formated = null;
+					formating   : function(values) {
+						var formated = '';
 						
-						Ext.each(values, function(value) {
-							formated = formated == null ? value : formated + ',' + value;
-						});
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
 						return formated;
 					}
 				},
@@ -208,7 +211,7 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 
 
 /**
- * Organization (Editor)
+ * Organization Editor
  */
 CMDB.Organization.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -288,7 +291,7 @@ CMDB.Organization.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 /**
- * Organization (Search)
+ * Organization Search
  */
 CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 
@@ -312,13 +315,14 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
 				}
 			]
 		});
@@ -346,7 +350,18 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 				},
 				{
 					name        : 'Tag', 
-					mapping     : 'Element/configuration/Tag/$'
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
 				},
 				{
 					name        : 'Element',
@@ -384,7 +399,7 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 
 
 /**
- * Module (Editor)
+ * Module Editor
  */
 CMDB.Module.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {
@@ -465,7 +480,7 @@ CMDB.Module.Edit = Ext.extend(CMDB.Element.Edit, {
 
 
 /**
- * Module (Search)
+ * Module Search
  */
 CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 
@@ -489,13 +504,14 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
 				}
 			]
 		});
@@ -523,7 +539,18 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 				},
 				{
 					name        : 'Tag', 
-					mapping     : 'Element/configuration/Tag/$'
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
 				},
 				{
 					name        : 'Element',
@@ -561,7 +588,7 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 
 
 /**
- * Software Lifecyle (Editor)
+ * Software Lifecyle Editor
  */
 CMDB.SoftwareLifecycle.Edit = Ext.extend(CMDB.Element.Edit, {
 	element        : {

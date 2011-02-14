@@ -173,7 +173,7 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					
 					listeners         : {
 						newitem             : function(bs, v, f) {
-							v = v.slice(0,1).toUpperCase() + v.slice(1).toLowerCase();
+							//v = v.slice(0,1).toUpperCase() + v.slice(1).toLowerCase();
 							var newObj = {
 								name: v
 							};
@@ -1478,7 +1478,8 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 	iconCls        : 'icon-grid',
 	
 	/**
-	 *
+	 * Added listeners to the store to enable
+	 * custom formatting on the record items (like tags)
 	 */
 	initComponent  : function() {
 		var fields = this.fields || [];
@@ -1504,7 +1505,45 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 		
 		var store = new Ext.data.Store({
 			proxy         : proxy,
-        	reader        : reader
+        	reader        : reader,
+        	
+        	listeners     : {
+        		/** 
+        		  * Not using the set method in the Record bypasses
+        		  * the dirty flag and does not change the store's
+        		  * modify records (ie. disables the update event).
+        		 */
+				'load'           : function(store, records, options) {
+					Ext.each(records, function(record) {
+						record.fields.each(
+							function(item, index, length) {
+								if (Ext.isFunction(item.formating)) {
+									this.data[item.name] = item.formating(this.get(item.name));
+								}
+							},
+							record
+						);
+						
+						record.commit();
+					});
+				},
+				
+				/**
+				 * No commit is issued (apparently not necessary)
+				 */
+				'add'           : function(store, records, index) {
+					Ext.each(records, function(record) {
+						record.fields.each(
+							function(item, index, length) {
+								if (Ext.isFunction(item.formating)) {
+									this.data[item.name] = item.formating(this.get(item.name));
+								}
+							},
+							record
+						);
+					});
+				}
+			}
         });
         
         var grid = new Ext.grid.GridPanel({
