@@ -41,6 +41,8 @@ public class ElementIdentification {
 	
 	private static final String activeQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]";
 
+	private String typeQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name = \"%s\"]";
+	
 	public void setUrl(URL url) {
 		this.ciIdentification = new CIIdentification(url);
 	}
@@ -65,6 +67,8 @@ public class ElementIdentification {
 		}
 
 		criterion.add(activeQuery);
+		criterion.add(String.format(typeQuery, element.getType().getName()));
+		
 		List<Element> results = elementService.find(criterion, 0, 10);
 
 		if (element.getId() == null && !results.isEmpty()) {

@@ -95,21 +95,21 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void set() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
 
 		Element element = new Element();
-		element.setName("Production");
+		element.setName("tm907");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Environment environment = new Environment();
-		environment.setName("Production");
+		environment.setName("tm907");
 		environment.setWatermark("Testing");
 
 		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
@@ -125,6 +125,11 @@ public class ElementService extends
 		environment.setProperty(Arrays.asList(properties));
 
 		environment.setTag(Arrays.asList(new String[] { "my litte", "bears" }));
+		
+		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
+		com.klistret.cmdb.ci.commons.Contact contact = new com.klistret.cmdb.ci.commons.Contact();
+		ownership.setContact(contact);
+		environment.setOwnership(ownership);
 
 		element.setConfiguration(environment);
 
@@ -158,8 +163,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void find() {
 		String[] expressions = { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"0001_A01\"]" };
 
