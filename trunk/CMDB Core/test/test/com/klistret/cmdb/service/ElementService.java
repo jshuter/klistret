@@ -16,6 +16,7 @@ package test.com.klistret.cmdb.service;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,27 +77,35 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void get() throws JAXBException {
 		Element element = elementService.get(new Long(242));
 
 		assertNotNull(element);
 	}
-	
-	//@Test
-	//@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void getAndSet() {
 		Element element = elementService.get(new Long(181));
-		
-		element.getConfiguration().setTag(Arrays.asList(new String[] { "Development" }));
+
+		element.getConfiguration().setTag(
+				Arrays.asList(new String[] { "Development" }));
 		elementService.update(element);
-		
+
 		assertNotNull(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	// @Test
+	public void dummy() {
+		System.out.println("file.encoding: "
+				+ System.getProperty("file.encoding"));
+		System.out.println("Charset: " + Charset.defaultCharset());
+	}
+
+	// @Test
+	// @Rollback(value = false)
 	public void set() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
@@ -124,8 +133,8 @@ public class ElementService extends
 				property1, property2 };
 		environment.setProperty(Arrays.asList(properties));
 
-		environment.setTag(Arrays.asList(new String[] { "my litte", "bears" }));
-		
+		environment.setTag(Arrays.asList(new String[] { "my litte", "ät" }));
+
 		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
 		com.klistret.cmdb.ci.commons.Contact contact = new com.klistret.cmdb.ci.commons.Contact();
 		ownership.setContact(contact);
@@ -138,8 +147,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void set2() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
@@ -155,7 +164,7 @@ public class ElementService extends
 		application.setName("EÄH");
 		application.setWatermark("Testing");
 		application.setState("Online");
-		
+
 		element.setConfiguration(application);
 
 		elementService.create(element);
@@ -163,8 +172,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void find() {
 		String[] expressions = { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"0001_A01\"]" };
 
@@ -208,15 +217,17 @@ public class ElementService extends
 		assertNotNull(relation);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void findRelation() {
 		String[] expressions = {
 				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
-				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 3]" };
+				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 241]" };
 
 		List<Relation> response = relationService.find(Arrays
 				.asList(expressions), 0, 10);
+		System.out.println("response size: " + response == null ? "empty"
+				: response.size());
 
 		assertNotNull(response);
 	}

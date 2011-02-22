@@ -14,16 +14,21 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.Relation;
+import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
@@ -56,11 +61,48 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			Criteria hcriteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
+			String alias = hcriteria.getAlias();
+
+			hcriteria.setProjection(Projections.projectionList().add(
+					Projections.property(alias + ".id")).add(
+					Projections.property(alias + ".type")).add(
+					Projections.property(alias + ".source")).add(
+					Projections.property(alias + ".destination")).add(
+					Projections.property(alias + ".fromTimeStamp")).add(
+					Projections.property(alias + ".toTimeStamp")).add(
+					Projections.property(alias + ".createId")).add(
+					Projections.property(alias + ".createTimeStamp")).add(
+					Projections.property(alias + ".updateTimeStamp")).add(
+					Projections.property(alias + ".configuration")));
 
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
 
-			List<Relation> relations = hcriteria.list();
+			Object[] results = hcriteria.list().toArray();
+
+			List<Relation> relations = new ArrayList<Relation>(results.length);
+			logger.debug("Results length [{}]", results.length);
+
+			for (int index = 0; index < results.length; index++) {
+				Object[] row = (Object[]) results[index];
+
+				Relation relation = new Relation();
+				relation.setId((Long) row[0]);
+				relation.setType((RelationType) row[1]);
+				relation.setSource(clean((Element) row[2]));
+				relation.setDestination(clean((Element) row[3]));
+				relation.setFromTimeStamp((Date) row[4]);
+				relation.setToTimeStamp((Date) row[5]);
+				relation.setCreateId((String) row[6]);
+				relation.setCreateTimeStamp((Date) row[7]);
+				relation.setUpdateTimeStamp((Date) row[8]);
+				relation
+						.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[9]);
+
+				relations.add(relation);
+			}
+
+			results = null;
 
 			return relations;
 		} catch (HibernateException he) {
@@ -161,7 +203,31 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		int count = getSession().createQuery(hqlElementDeletion).setLong(
 				"sourceId", id).setLong("destinationId", id).executeUpdate();
 		logger.info("Deleted {} relations to element [{}]", count, id);
-		
+
 		return count;
+	}
+	
+	/**
+	 * Necessary to eliminate relation associations which only available to
+	 * query through relationships
+	 * 
+	 * @param other
+	 * @return
+	 */
+	private Element clean(Element other) {
+		Element element = new Element();
+		element.setId(other.getId());
+		element.setType(other.getType());
+		element.setName(other.getName());
+		element.setFromTimeStamp(other.getFromTimeStamp());
+		element.setToTimeStamp(other.getToTimeStamp());
+		element.setCreateId(other.getCreateId());
+		element.setCreateTimeStamp(other.getCreateTimeStamp());
+		element.setUpdateTimeStamp(other.getUpdateTimeStamp());
+		element.setConfiguration(other.getConfiguration());
+
+		other = null;
+
+		return element;
 	}
 }

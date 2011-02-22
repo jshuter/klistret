@@ -3,6 +3,7 @@ package test.com.klistret.cmdb.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -144,7 +145,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	// @Test
+	//@Test
 	public void create() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.post("/resteasy/element");
@@ -154,6 +155,9 @@ public class RestEasyService {
 
 		request.contentType(MediaType.APPLICATION_JSON);
 		request.content(requestBodyAsString.getBytes("UTF-8"));
+		
+		System.out.println("file.encoding: " + System.getProperty("file.encoding"));
+		System.out.println("Charset: " + Charset.defaultCharset());
 
 		dispatcher.invoke(request, response);
 		System.out.println(String.format(
@@ -166,10 +170,10 @@ public class RestEasyService {
 	@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element?expressions="
+				.get("/resteasy/relation?expressions="
 						+ URLEncoder
 								.encode(
-										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[pojo:id eq 63]",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 241]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
