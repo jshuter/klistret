@@ -456,6 +456,10 @@ public class XPathCriteria {
 			if (pn.equals(name))
 				return hcm.getPropertyType(name);
 		}
+		
+		if (hcm.getIdentifierPropertyName() != null && hcm.getIdentifierPropertyName().equals(name))
+			return hcm.getIdentifierType();
+		
 		return null;
 	}
 }
