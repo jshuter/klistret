@@ -17,7 +17,6 @@ CMDB.Environment.Edit = Ext.extend(CMDB.Element.Edit, {
 					'ns8'  : 'http://www.klistret.com/cmdb/ci/commons',
 					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
 					'ns10' : 'http://www.klistret.com/cmdb/ci/element/context',
-					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
 					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
 				},
 			
@@ -684,7 +683,8 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
@@ -852,7 +852,8 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
