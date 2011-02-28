@@ -45,6 +45,8 @@ CMDB.System.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					mode              : 'remote',
 					forceSelection    : true,
 					
+					allowAddNewData   : true,
+										
 					extraItemCls: 'x-tag',
 								
 					// Edit the query for the combo into an expression
@@ -254,20 +256,27 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					fieldLabel        : 'Name (wildcard * allowed)',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Composed of an application software named',
+					fieldLabel        : 'Composed of an application software named (regular expression allowed)',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination[matches(pojo:name, \"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Underlying application software available',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"{0\"]'
+					fieldLabel        : 'Version of related appliation software (regular expression allowed)',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[matches(sw:Version, \"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Environment (regular expression allowed)',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration/element:Environment[matches(text(), \"{0}\")]'
 				},
 				{
 					xtype             : 'datefield',
@@ -304,6 +313,25 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/name/$'
 				},
 				{
+					name        : 'Environment', 
+					mapping     : 'Element/configuration/Environment',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
+				},
+				{
+					name        : 'State',
+					mapping     : 'Element/configuration/State/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -315,6 +343,18 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'Name'
+				},
+				{
+					header      : "Environments", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Environment'
+				},
+				{
+					header      : "State", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'State'
 				}
 			]
 		}
