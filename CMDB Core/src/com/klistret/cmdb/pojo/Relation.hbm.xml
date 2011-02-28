@@ -22,7 +22,7 @@
 	<class name="Relation" table="RELATION">
 
 		<id name="id" type="long">
-			<column name="RELATIONID" sql-type="INTEGER" />
+			<column name="RELATIONID" sql-type="INTEGER"/>
 			<generator class="identity"></generator>
 		</id>
 

@@ -39,6 +39,7 @@ import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.ci.relation.Aggregation;
+import com.klistret.cmdb.ci.relation.Composition;
 
 /**
  * Element services are tested directly
@@ -217,8 +218,8 @@ public class ElementService extends
 		assertNotNull(relation);
 	}
 
-	@Test
-	@Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void findRelation() {
 		String[] expressions = {
 				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
@@ -242,5 +243,28 @@ public class ElementService extends
 	// @Rollback(value = false)
 	public void delete() {
 		elementService.delete(new Long(4));
+	}
+	
+	@Test
+	@Rollback(value = false)
+	public void settingRelations() {
+		Element kui = elementService.get(new Long(241));
+		Element kui_0001_a01 = elementService.get(new Long(242));
+		
+		RelationType type = relationTypeService.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
+		Relation relation = new Relation();
+		relation.setType(type);
+		relation.setDestination(kui_0001_a01);
+		relation.setFromTimeStamp(new java.util.Date());
+		relation.setCreateTimeStamp(new java.util.Date());
+		relation.setUpdateTimeStamp(new java.util.Date());
+		
+		Composition composition = new Composition();
+		composition.setName("242 against 241");
+		
+		relation.setConfiguration(composition);
+		
+		kui.setSourceRelations(Arrays.asList(relation));
+		elementService.update(kui);
 	}
 }
