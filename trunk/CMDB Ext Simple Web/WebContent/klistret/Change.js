@@ -53,6 +53,8 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					queryParam        : 'expressions',
 					forceSelection    : true,
 					
+					allowAddNewData   : true,
+					
 					// Edit the query for the combo into an expression
 					listeners         : {
 						'beforequery'       : function(e) {
@@ -110,6 +112,8 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					mode              : 'remote',
 					queryParam        : 'expressions',
 					forceSelection    : true,
+					
+					allowAddNewData   : true,
 					
 					// Edit the query for the combo into an expression
 					listeners         : {
