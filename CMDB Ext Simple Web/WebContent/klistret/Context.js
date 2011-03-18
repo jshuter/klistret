@@ -699,7 +699,7 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Software Lifecycle Search',
 			editor      : CMDB.SoftwareLifecycle.Edit,
 			
-			elementType : '{http://www.klistret.com/cmdb/ci/element/context}SoftwareLifecycle',
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle',
 
 			items       : form,
 		
@@ -718,7 +718,18 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 				},
 				{
 					name        : 'Tag', 
-					mapping     : 'Element/configuration/Tag/$'
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
 				},
 				{
 					name        : 'Element',
@@ -887,7 +898,18 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 				},
 				{
 					name        : 'Tag', 
-					mapping     : 'Element/configuration/Tag/$'
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
 				},
 				{
 					name        : 'Element',

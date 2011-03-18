@@ -263,19 +263,19 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Composed of an application software named (regular expression allowed)',
+					fieldLabel        : 'Composed of an application software named',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination[matches(pojo:name, \"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Version of related appliation software (regular expression allowed)',
+					fieldLabel        : 'Version of related appliation software',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[matches(sw:Version, \"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Environment (regular expression allowed)',
+					fieldLabel        : 'Environment',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration/element:Environment[matches(text(), \"{0}\")]'
 				},
 				{

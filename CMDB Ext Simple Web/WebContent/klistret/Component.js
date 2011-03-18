@@ -365,7 +365,8 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
 				},
 				{
 					xtype             : 'textfield',
