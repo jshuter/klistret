@@ -121,4 +121,21 @@
 
 	<xs:element name="Environment" type="Environment"></xs:element>
 	<!-- end of Environment -->
+
+
+
+	<!-- start of Organization Software Type -->
+	<xs:complexType name="OrganizationSoftwareType">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="OrganizationSoftwareType"
+		type="OrganizationSoftwareType">
+	</xs:element>
+	<!-- end of Organization Software Type -->
 </xs:schema>
