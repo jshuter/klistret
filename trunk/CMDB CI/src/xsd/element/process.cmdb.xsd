@@ -101,10 +101,10 @@
 						minOccurs="1">
 					</xs:element>
 					<xs:element name="Origin" type="Origin"
-						maxOccurs="1" minOccurs="1">
+						maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Responsible" type="Responsible"
-						maxOccurs="1" minOccurs="1">
+						maxOccurs="1" minOccurs="0">
 					</xs:element>
 					<xs:element name="Schedule" type="Schedule"
 						maxOccurs="1" minOccurs="0">
