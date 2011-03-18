@@ -50,4 +50,21 @@
 				method="remove" />
 		</aop:aspect>
 	</aop:config>
+	
+	<bean id="applicationRelation"
+		class="com.klistret.cmdb.plugin.installation.aspect.ApplicationRelation">
+		<property name="relationService" ref="relationService" />
+		<property name="elementService" ref="elementService" />
+		<property name="state" value="Completed" />
+		<property name="elementType" value="{http://www.klistret.com/cmdb/ci/element/process/change}Installation" />
+	</bean>
+	
+	<aop:config>
+		<aop:aspect ref="applicationRelation">
+			<aop:pointcut id="arPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
+			<aop:after-returning pointcut-ref="arPointcut"
+				method="relate" />
+		</aop:aspect>
+	</aop:config>
 </beans>
