@@ -51,6 +51,7 @@
 		</aop:aspect>
 	</aop:config>
 	
+	<!-- 
 	<bean id="applicationRelation"
 		class="com.klistret.cmdb.plugin.installation.aspect.ApplicationRelation">
 		<property name="relationService" ref="relationService" />
@@ -67,4 +68,5 @@
 				method="relate" />
 		</aop:aspect>
 	</aop:config>
+	 -->
 </beans>

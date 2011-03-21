@@ -403,7 +403,9 @@ public class PathExpression {
 		}
 
 		/**
-		 * Setup step information (ie only types of root, step or irresolute)
+		 * Set step information (ie only types of root, step or irresolute)
+		 * assigning this path expression, the current XPath, depth and
+		 * next step.
 		 */
 		int depth = relativePath.size() - 1;
 		if (depth >= 0 && depth < xpathSplit.length) {
@@ -413,7 +415,7 @@ public class PathExpression {
 			step.setXPath(depth == 0 ? "/" : xpathSplit[depth]);
 			step.setDepth(depth);
 
-			if (depth != 0)
+			if (depth != 0) 
 				((Step) relativePath.get(depth - 1)).setNext(step);
 		}
 	}

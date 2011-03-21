@@ -36,6 +36,11 @@ public abstract class Step extends Expr {
 	 */
 	protected PathExpression pathExpression;
 
+	/**
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	public Step(Expression expression, Configuration configuration) {
 		super(expression, configuration);
 	}
@@ -76,15 +81,17 @@ public abstract class Step extends Expr {
 		this.depth = depth;
 	}
 
-	/*
+	/**
 	 * Next step in the regular expression
+	 * 
+	 * @return Step
 	 */
 	public Step getNext() {
 		return this.next;
 	}
 
 	/**
-	 * Set step
+	 * Set next step
 	 * 
 	 * @param next
 	 */

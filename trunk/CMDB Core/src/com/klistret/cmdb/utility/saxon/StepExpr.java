@@ -271,6 +271,15 @@ public class StepExpr extends Step {
 	}
 
 	/**
+	 * Get Axis name (prefix:local part) without filter
+	 * 
+	 * @return
+	 */
+	public String getAxisName() {
+		return String.format("%s:%s", qname.getPrefix(), qname.getLocalPart());
+	}
+
+	/**
 	 * Returns predicate which may be null
 	 * 
 	 * @return Expr

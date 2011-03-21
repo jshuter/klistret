@@ -14,7 +14,9 @@
 
 package com.klistret.cmdb.utility.hibernate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -65,19 +67,20 @@ public class XPathCriteria {
 	private Session session;
 
 	/**
-	 * Hibernate criteria
+	 * Context step expression (common for all xpath expressions)
 	 */
-	private Criteria criteria;
-
-	/**
-	 * 
-	 */
-	private BeanMetadata contextBean;
+	private StepExpr contextStepExpr;
 
 	/**
 	 * CI metadata
 	 */
 	private CIContext ciContext = CIContext.getCIContext();
+
+	/**
+	 * Criteria store to allow for duplicate association paths (steps only) by
+	 * not recreating criteria
+	 */
+	private Map<String, Criteria> criteriaStore = new HashMap<String, Criteria>();
 
 	/**
 	 * 
@@ -110,12 +113,12 @@ public class XPathCriteria {
 	}
 
 	/**
-	 * Get Hibernate criteria based on xpath expressions
+	 * Get Hibernate criteria based on the contextBean
 	 * 
 	 * @return Hibernate criteria
 	 */
 	public Criteria getCriteria() {
-		return criteria;
+		return criteriaStore.get(contextStepExpr.getAxisName());
 	}
 
 	/**
@@ -159,30 +162,38 @@ public class XPathCriteria {
 			 * Initial step must be an element with valid qname with bean
 			 * metadata
 			 */
-			StepExpr contextStepExpr = (StepExpr) expression.getExpr(1);
-			if (contextStepExpr.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
-					|| contextStepExpr.getQName() == null) {
+			StepExpr initialStepExpr = (StepExpr) expression.getExpr(1);
+			if (initialStepExpr.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
+					|| initialStepExpr.getQName() == null) {
 				throw new ApplicationException(
 						String
 								.format(
-										"Context step [%s] must be an element with valid qname",
+										"Initial step [%s] must be an element with valid qname",
 										expression.getXPath()),
 						new UnsupportedOperationException());
 			}
 
 			/**
-			 * Create criteria based on context bean (initial)
+			 * Create criteria based on the initial step expression (create root
+			 * criteria if non-existent and save the initial step in a
+			 * place-holder)
 			 */
-			BeanMetadata bm = ciContext.getBean(contextStepExpr.getQName());
-			if (criteria == null && contextBean == null) {
+			BeanMetadata bm = ciContext.getBean(initialStepExpr.getQName());
+			if (!criteriaStore.containsKey(initialStepExpr.getAxisName())
+					&& contextStepExpr == null) {
 				logger.debug("Hibernate criteria created on java class [{}]",
 						bm.getJavaClass());
 
-				contextBean = bm;
-				criteria = session.createCriteria(contextBean.getJavaClass());
+				contextStepExpr = initialStepExpr;
+				criteriaStore.put(initialStepExpr.getAxisName(), session
+						.createCriteria(bm.getJavaClass()));
 			}
 
-			if (!contextBean.equals(bm)) {
+			/**
+			 * Initial steps must be unique across all xpath expressions
+			 */
+			if (!contextStepExpr.getAxisName().equals(
+					initialStepExpr.getAxisName())) {
 				throw new ApplicationException(
 						String
 								.format(
@@ -194,11 +205,13 @@ public class XPathCriteria {
 			/**
 			 * Handle predicate then recursively translate if next step exists
 			 */
-			for (Expr predicate : contextStepExpr.getPredicates())
-				criteria.add(translatePredicate(contextBean, predicate));
+			for (Expr predicate : initialStepExpr.getPredicates())
+				criteriaStore.get(initialStepExpr.getAxisName()).add(
+						translatePredicate(bm, predicate));
 
-			if (contextStepExpr.getNext() != null)
-				translateStep(criteria, contextStepExpr.getNext(), bm);
+			if (initialStepExpr.getNext() != null)
+				translateStep(initialStepExpr.getAxisName(), initialStepExpr
+						.getNext(), bm);
 		}
 	}
 
@@ -209,7 +222,7 @@ public class XPathCriteria {
 	 * @param criteria
 	 * @param step
 	 */
-	private void translateStep(Criteria criteria, Step step, BeanMetadata pm) {
+	private void translateStep(String axisExpression, Step step, BeanMetadata pm) {
 		switch (step.getType()) {
 		case Step:
 			logger.debug("Translating step [{}] at depth [{}]", step, step
@@ -261,31 +274,44 @@ public class XPathCriteria {
 							"Step [%s] has no corresponding bean metadata",
 							step));
 
-				Criteria nextCriteria = criteria.createCriteria(step.getQName()
-						.getLocalPart());
+				String nextAxisExpression = String.format("%s/%s",
+						axisExpression, ((StepExpr) step).getAxisName());
+				if (!criteriaStore.containsKey(nextAxisExpression)) {
+					logger.debug("Adding critera [{}] to store",
+							nextAxisExpression);
+					criteriaStore.put(nextAxisExpression, criteriaStore.get(
+							axisExpression).createCriteria(
+							step.getQName().getLocalPart()));
+				}
 
 				for (Expr predicate : ((StepExpr) step).getPredicates())
-					nextCriteria.add(translatePredicate(bm, predicate));
+					criteriaStore.get(nextAxisExpression).add(
+							translatePredicate(bm, predicate));
 
 				if (step.getNext() != null)
-					translateStep(nextCriteria, step.getNext(), bm);
+					translateStep(nextAxisExpression, step.getNext(), bm);
 			}
 
 			if (propertyType.getName().equals(JAXBUserType.class.getName())) {
 				logger.debug("Property [{}] is a JAXBUserType type", step
 						.getQName().getLocalPart());
 
-				criteria.add(new XPathRestriction(step.getQName()
-						.getLocalPart(), step));
+				criteriaStore.get(axisExpression).add(
+						new XPathRestriction(step.getQName().getLocalPart(),
+								step));
 
 			}
 
 			break;
 		case Irresolute:
-			break;
-		/**
-		 * Relative paths only contain root, steps or non-resolute
-		 */
+			throw new ApplicationException(
+					String
+							.format(
+									"Irresolue expressions [%s] currently not supported",
+									step), new UnsupportedOperationException());
+			/**
+			 * Relative paths only contain root, steps or non-resolute
+			 */
 		default:
 			throw new ApplicationException(String.format(
 					"Unexpected expr [%s] type for step", step),
@@ -456,10 +482,12 @@ public class XPathCriteria {
 			if (pn.equals(name))
 				return hcm.getPropertyType(name);
 		}
-		
-		if (hcm.getIdentifierPropertyName() != null && hcm.getIdentifierPropertyName().equals(name))
+
+		if (hcm.getIdentifierPropertyName() != null
+				&& hcm.getIdentifierPropertyName().equals(name))
 			return hcm.getIdentifierType();
-		
+
 		return null;
 	}
+
 }
