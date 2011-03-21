@@ -173,13 +173,17 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void find() {
-		String[] expressions = { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"0001_A01\"]" };
+		List<Element> response = elementService
+				.find(
+						Arrays
+								.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Version eq \"0001_A02\"]" }),
+						0, 10);
 
-		List<Element> response = elementService.find(
-				Arrays.asList(expressions), 0, 10);
+		System.out.println("response size: " + response == null ? "empty"
+				: response.size());
 
 		assertNotNull(response);
 	}
@@ -218,15 +222,20 @@ public class ElementService extends
 		assertNotNull(relation);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void findRelation() {
-		String[] expressions = {
-				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
-				"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 241]" };
+		List<Relation> response = relationService
+				.find(
+						Arrays
+								.asList(new String[] {
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:name = \"KUI\"]/pojo:type[pojo:name = \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation/pojo:source/pojo:configuration/element:Environment[text() = \"Production\"]",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Relation/pojo:destination/pojo:configuration[sw:Type = \"Version\" and sw:Module = \"KUI\" and sw:Organization = \"Försäkringskassan\"]" }),
+						0, 25);
 
-		List<Relation> response = relationService.find(Arrays
-				.asList(expressions), 0, 10);
 		System.out.println("response size: " + response == null ? "empty"
 				: response.size());
 
@@ -244,26 +253,27 @@ public class ElementService extends
 	public void delete() {
 		elementService.delete(new Long(4));
 	}
-	
-	@Test
-	@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void settingRelations() {
 		Element kui = elementService.get(new Long(241));
 		Element kui_0001_a01 = elementService.get(new Long(242));
-		
-		RelationType type = relationTypeService.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
+
+		RelationType type = relationTypeService
+				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
 		Relation relation = new Relation();
 		relation.setType(type);
 		relation.setDestination(kui_0001_a01);
 		relation.setFromTimeStamp(new java.util.Date());
 		relation.setCreateTimeStamp(new java.util.Date());
 		relation.setUpdateTimeStamp(new java.util.Date());
-		
+
 		Composition composition = new Composition();
 		composition.setName("242 against 241");
-		
+
 		relation.setConfiguration(composition);
-		
+
 		kui.setSourceRelations(Arrays.asList(relation));
 		elementService.update(kui);
 	}
