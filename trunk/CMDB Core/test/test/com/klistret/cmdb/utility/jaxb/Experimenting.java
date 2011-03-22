@@ -180,7 +180,6 @@ public class Experimenting {
 		com.klistret.cmdb.ci.pojo.Relation rel = new com.klistret.cmdb.ci.pojo.Relation();
 		rel.setId(new Long(1));
 		rel.setType(relType);
-		rel.setName("rel");
 		rel.setFromTimeStamp(new java.util.Date());
 		rel.setCreateTimeStamp(new java.util.Date());
 		rel.setUpdateTimeStamp(new java.util.Date());

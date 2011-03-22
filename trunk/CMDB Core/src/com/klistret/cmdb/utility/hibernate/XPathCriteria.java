@@ -181,8 +181,11 @@ public class XPathCriteria {
 			BeanMetadata bm = ciContext.getBean(initialStepExpr.getQName());
 			if (!criteriaStore.containsKey(initialStepExpr.getAxisName())
 					&& contextStepExpr == null) {
-				logger.debug("Hibernate criteria created on java class [{}]",
-						bm.getJavaClass());
+				logger
+						.debug(
+								"Hibernate criteria created on java class [{}] and stored by key [{}]",
+								bm.getJavaClass(), initialStepExpr
+										.getAxisName());
 
 				contextStepExpr = initialStepExpr;
 				criteriaStore.put(initialStepExpr.getAxisName(), session
