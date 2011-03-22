@@ -222,10 +222,23 @@ CMDB.ApplicationSoftware.LifecycleForm = Ext.extend(Ext.form.FormPanel, {
 					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'combo',
 					elementdata       : true,
-					fieldLabel        : 'Organizational type',
-					allowBlank        : true,
+					fieldLabel        : 'Organization Software Type',
+					allowBlank        : false,
+					blankText         : 'Organization software type is required',
+					store             : CMDB.OrganizationSoftwareTypeStore,
+					displayField      : 'Name',
+					mode              : 'remote',
+					queryParam        : 'expressions',
+					forceSelection    : true,
+					
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					},
 					
 					// Marshall combo into the element
 					marshall          : function(element) {
@@ -240,7 +253,7 @@ CMDB.ApplicationSoftware.LifecycleForm = Ext.extend(Ext.form.FormPanel, {
 					
 					// Unmarshall element value into the combo
 					unmarshall        : function(element) {
-						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Type/$');					
+						var value = CMDB.Badgerfish.get(element, 'Element/configuration/Type/$');
 						this.setValue(value);
 					}
 				}
@@ -381,6 +394,12 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Module,\"{0}\")]'
 				},
 				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Environment (association through applications)',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration/element:Environment[matches(text(), \"{0}\")]'
+				},
+				{
 					xtype             : 'datefield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Created after',
@@ -427,6 +446,10 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/configuration/Version/$'
 				},
 				{
+					name        : 'OrganizationSoftwareType',
+					mapping     : 'Element/configuration/Type/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -456,6 +479,12 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'Version'
+				},
+				{
+					header      : 'Organization Software Type', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'OrganizationSoftwareType'
 				}
 			]
 		}

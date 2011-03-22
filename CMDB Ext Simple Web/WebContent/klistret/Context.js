@@ -1,6 +1,7 @@
 Ext.namespace('CMDB.Environment');
 Ext.namespace('CMDB.Organization');
 Ext.namespace('CMDB.Module');
+Ext.namespace('CMDB.OrganizationSoftwareType');
 Ext.namespace('CMDB.SoftwareLifecycle');
 Ext.namespace('CMDB.Timeframe');
 
@@ -941,5 +942,188 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Timeframe.Search.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+/**
+ * Organization Editor
+ */
+CMDB.OrganizationSoftwareType.Edit = Ext.extend(CMDB.Element.Edit, {
+	element        : {
+		'Element' : {
+			'@xmlns' : 
+				{
+					'ns9'  : 'http://www.klistret.com/cmdb/ci/element',
+					'ns10' : 'http://www.klistret.com/cmdb/ci/element/context',
+					'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+					'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
+				},
+			
+			'type' : {
+				'id' : {
+					'$' : null
+				},
+				'name' : {
+					'$' : null
+				}
+			},
+			'fromTimeStamp' : {
+				'$' : new Date()
+			},
+			'createTimeStamp' : {
+				'$' : new Date()
+			},
+			'updateTimeStamp' : {
+				'$' : new Date()
+			},
+			'configuration' : { 
+				'@xmlns' : {
+					'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+				},
+				'@xsi:type' : 'ns10:OrganizationSoftwareType'
+			}
+		}
+	},
+
+	/**
+	 *
+	 */
+	initComponent  : function() {
+		var index = CMDB.ElementTypes.find('Name','OrganizationSoftwareType'),
+			type = CMDB.ElementTypes.getAt(index).get('ElementType');
+		
+		this.element['Element']['type']['id']['$'] = type['id']['$'];
+		this.element['Element']['type']['name']['$'] = type['name']['$'];
+		
+		var config = {
+			title       : 'Organization Software Type Editor',
+			
+			layout      : 'accordion',
+			
+			items       : [
+				{
+					xtype       : 'generalForm',
+					helpInfo    : 'Organizations may privately type software to denote delivery or packaging characteristics internal to the organization.  For example, a database update script might be typed as DBSCRIPT.',
+					tags        : [
+						['Packaging'],
+						['Delivery']
+					]
+				},
+				{
+					xtype       : 'propertyForm'
+				}
+			]
+		};
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.OrganizationSoftwareType.Edit.superclass.initComponent.apply(this, arguments);
+	}
+});
+
+
+/**
+ * Organization Search
+ */
+CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
+
+	initComponent  : function() {
+		var form = new Ext.form.FormPanel({
+			border          : false,
+			bodyStyle       : 'padding:10px; background-color:white;',
+			baseCls         : 'x-plain',
+			labelAlign      : 'top',        	
+			defaults        : {
+				width            : 300
+			},
+			
+			items           : [
+				{
+					xtype             : 'displayfield',
+					width             : 'auto',
+					'html'            : 'Search for Organization Software types'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Name',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+					wildcard          : '%'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+				}
+			]
+		});
+	
+		var config = {
+			title       : 'Organization Software Type Search',
+			editor      : CMDB.OrganizationSoftwareType.Edit,
+			
+			elementType : '{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType',
+
+			items       : form,
+		
+			fields      : [
+				{
+					name        : 'Id', 
+		 			mapping     : 'Element/id/$'
+		 		},
+				{
+					name        : 'Name', 
+					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
+					name        : 'Tag', 
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
+				},
+				{
+					name        : 'Element',
+					mapping     : 'Element'
+				}
+			],
+			
+			columns        : [
+				{
+					header      : "Name", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Name'
+				},
+				{
+					header      : "Tags", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Description'
+				}
+			]
+		}
+	
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+		CMDB.OrganizationSoftwareType.Search.superclass.initComponent.apply(this, arguments);
 	}
 });

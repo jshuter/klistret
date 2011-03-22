@@ -65,19 +65,19 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					// Marshall combo into the element
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
-							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
+							var change = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/process/change'),
+								commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
 								record = this.getStore().getById(this.getValue());
 								
-							element['Element']['configuration'][prefix+':Source'] = {
-								'Id' : {
-									'$' : record.get('Id')
-								},
-								'Name' : {
-									'$' : record.get('Name')
-								},
-								'QName' : {
-									'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
-								}
+							element['Element']['configuration'][change+':Source'] = {};
+							element['Element']['configuration'][change+':Source'][commons + ':Id'] = {
+								'$' : record.get('Id')
+							};
+							element['Element']['configuration'][change+':Source'][commons + ':Name'] = {
+								'$' : record.get('Name')
+							};
+							element['Element']['configuration'][change+':Source'][commons + ':QName'] = {
+								'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
 							};
 						}
 						else {
@@ -94,7 +94,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 								'Element' : CMDB.Badgerfish.get(element, 'Element')
 							};
 						
-						var record = new this.getStore().recordType(data, id);	
+						var record = new (this.store.reader).recordType(data, id);	
 						this.getStore().insert(0, record);
 						
 						this.setValue(id);
@@ -125,19 +125,19 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					// Marshall combo into the element
 					marshall          : function(element) {
 						if (this.getValue() && element['Element']['configuration']) {
-							var prefix = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
+							var change = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/element/process/change'),
+								commons = CMDB.Badgerfish.getPrefix(element, 'http://www.klistret.com/cmdb/ci/commons'),
 								record = this.getStore().getById(this.getValue());
 								
-							element['Element']['configuration'][prefix+':Destination'] = {
-								'Id' : {
-									'$' : record.get('Id')
-								},
-								'Name' : {
-									'$' : record.get('Name')
-								},
-								'QName' : {
-									'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
-								}
+							element['Element']['configuration'][change+':Destination'] = {};
+							element['Element']['configuration'][change+':Destination'][commons + ':Id'] = {
+								'$' : record.get('Id')
+							};
+							element['Element']['configuration'][change+':Destination'][commons + ':Name'] = {
+								'$' : record.get('Name')
+							};
+							element['Element']['configuration'][change+':Destination'][commons + ':QName'] = {
+								'$' : CMDB.Badgerfish.get(record.get('Element'), 'type/name/$')
 							};
 							
 							element['Element']['name'] = {
@@ -158,7 +158,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 								'Element' : CMDB.Badgerfish.get(element, 'Element')
 							};
 						
-						var record = new this.getStore().recordType(data, id);	
+						var record = new (this.getStore().reader).recordType(data, id);	
 						this.getStore().insert(0, record);
 						
 						this.setValue(id);
@@ -173,6 +173,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					store             : CMDB.Change.StateStore,
 					displayField      : 'Name',
 					mode              : 'local',
+					value             : 'Planned',
 					forceSelection    : true,
 					
 					marshall          : function(element) {
@@ -266,6 +267,10 @@ CMDB.Installation.Edit = Ext.extend(CMDB.Element.Edit, {
 	
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 		CMDB.Installation.Edit.superclass.initComponent.apply(this, arguments);
+	},
+	
+	afterLoad : function(a,b,c) {
+		var dummy = "";
 	}
 });
 

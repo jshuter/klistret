@@ -224,23 +224,88 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
             menu     : {
                 items      : [
                 	{
-                		text     : 'Organization',
-                		menu     : {
-							items      : [
-								{
-									text     : 'Create',
-									handler  : this.openCreateWindow,
-									scope    : this,
-									config   : CMDB.Organization.Edit
-								},
-								{
-									text     : 'Search',
-									handler  : this.openSearchWindow,
-									scope    : this,
-									config   : CMDB.Organization.Search
-								}
-							]
-						}
+                		text    : 'Collections',
+                		menu    : {
+                			items     : [
+                				{
+                					text     : 'Organization',
+                					menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.Organization.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.Organization.Search
+											}
+										]
+									}
+                				},
+                				{
+									text     : 'Environment',
+									menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.Environment.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.Environment.Search
+											}
+										]
+									}
+                				},
+                				{
+                					text     : 'Module',
+                					menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.Module.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.Module.Search
+											}
+										]
+									}
+                				}
+                				,
+                				{
+                					text     : 'Organization Software Type',
+                					menu     : {
+										items      : [
+											{
+												text     : 'Create',
+												handler  : this.openCreateWindow,
+												scope    : this,
+												config   : CMDB.OrganizationSoftwareType.Edit
+											},
+											{
+												text     : 'Search',
+												handler  : this.openSearchWindow,
+												scope    : this,
+												config   : CMDB.OrganizationSoftwareType.Search
+											}
+										]
+									}
+                				}
+                			]
+                		} // end menu Collections
                 	},
                 	{
                 		text     : 'Planning',
@@ -286,44 +351,6 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
                     			}
                     		]
                     	} // end menu Planing
-                	},
-                	{
-						text     : 'Environment',
-						menu     : {
-							items      : [
-								{
-									text     : 'Create',
-									handler  : this.openCreateWindow,
-									scope    : this,
-									config   : CMDB.Environment.Edit
-								},
-								{
-									text     : 'Search',
-									handler  : this.openSearchWindow,
-									scope    : this,
-									config   : CMDB.Environment.Search
-								}
-							]
-						}
-                	},
-                	{
-                		text     : 'Module',
-                		menu     : {
-							items      : [
-								{
-									text     : 'Create',
-									handler  : this.openCreateWindow,
-									scope    : this,
-									config   : CMDB.Module.Edit
-								},
-								{
-									text     : 'Search',
-									handler  : this.openSearchWindow,
-									scope    : this,
-									config   : CMDB.Module.Search
-								}
-							]
-						}
                 	}
                 ]
 			}// end menu Process
