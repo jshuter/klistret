@@ -100,11 +100,26 @@ public class ApplicationRelation {
 
 				logger
 						.debug(
-								"Found {} software relations to the applications [{}] associated to the environment",
-								applicationSoftwareRelations.size(),
-								applicationSoftware.getModule());
-				for (Relation relation : applicationSoftwareRelations)
+								"Found {} software relations to the applications [{}] associated to environment [{}]",
+								new Object[] {
+										applicationSoftwareRelations.size(),
+										applicationSoftware.getModule(),
+										installation.getSource().getName() });
+
+				/**
+				 * Delete similar relationships to application software that are
+				 * likely another version
+				 */
+				for (Relation relation : applicationSoftwareRelations) {
+					logger
+							.debug(
+									"Deleting relation [{}] between software [{}] and application [{}]",
+									new Object[] {
+											relation.getId(),
+											relation.getDestination().getName(),
+											relation.getSource().getName() });
 					relationService.delete(relation.getId());
+				}
 
 				List<Element> applicationElements = elementService
 						.find(
@@ -119,8 +134,14 @@ public class ApplicationRelation {
 																.getSource()
 																.getName()
 														+ "\"]" }), 0, 25);
+				logger
+						.debug(
+								"Found {} applications by name [{}] and associated to environment [{}]",
+								new Object[] { applicationElements.size(),
+										applicationSoftware.getModule(),
+										installation.getSource().getName() });
 
-				RelationType composition = relationTypeService
+				RelationType compositionType = relationTypeService
 						.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
 
 				for (Element applicationElement : applicationElements) {
@@ -129,14 +150,21 @@ public class ApplicationRelation {
 							+ applicationSoftwareElement.getName());
 
 					Relation relation = new Relation();
-					relation.setName("");
-					relation.setType(composition);
+					relation.setType(compositionType);
 					relation.setSource(applicationElement);
 					relation.setDestination(applicationSoftwareElement);
-					relation.setUpdateTimeStamp(new java.util.Date());
 					relation.setCreateTimeStamp(new java.util.Date());
 					relation.setFromTimeStamp(new java.util.Date());
 					relation.setConfiguration(config);
+
+					relationService.create(relation);
+					logger
+							.debug(
+									"Created relation [{}] between software [{}] and application [{}]",
+									new Object[] {
+											relation.getId(),
+											relation.getDestination().getName(),
+											relation.getSource().getName() });
 				}
 			}
 		}

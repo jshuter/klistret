@@ -34,11 +34,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.klistret.cmdb.ci.element.context.Environment;
 import com.klistret.cmdb.ci.element.system.Application;
+import com.klistret.cmdb.ci.element.process.change.Installation;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.ci.pojo.RelationType;
-import com.klistret.cmdb.ci.relation.Aggregation;
 import com.klistret.cmdb.ci.relation.Composition;
 
 /**
@@ -148,22 +148,24 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void set2() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
 
 		Element element = new Element();
-		element.setName("EÄH");
+		element.setName("PRO");
 		element.setType(elementType);
 		element.setFromTimeStamp(new java.util.Date());
 		element.setCreateTimeStamp(new java.util.Date());
 		element.setUpdateTimeStamp(new java.util.Date());
 
 		Application application = new Application();
-		application.setName("EÄH");
+		application.setName("PRO");
 		application.setWatermark("Testing");
+		application
+				.setEnvironment(Arrays.asList(new String[] { "Production" }));
 		application.setState("Online");
 
 		element.setConfiguration(application);
@@ -173,8 +175,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	@Test
-	@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void find() {
 		List<Element> response = elementService
 				.find(
@@ -188,27 +190,27 @@ public class ElementService extends
 		assertNotNull(response);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void relate() {
 		RelationType type = relationTypeService
-				.get("{http://www.klistret.com/cmdb/ci/relation}Aggregation");
+				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
 
-		Element software = elementService.get(new Long(404));
-		Element environment = elementService.get(new Long(364));
+		Element application = elementService.get(new Long(241));
+		Element software = elementService.get(new Long(342));
 
 		Relation relation = new Relation();
 		relation.setType(type);
-		relation.setSource(environment);
+		relation.setSource(application);
 		relation.setDestination(software);
 		relation.setFromTimeStamp(new java.util.Date());
 		relation.setCreateTimeStamp(new java.util.Date());
 		relation.setUpdateTimeStamp(new java.util.Date());
 
-		Aggregation aggregation = new Aggregation();
-		aggregation.setName("364 against 404");
+		Composition composition = new Composition();
+		composition.setName(software.getName());
 
-		relation.setConfiguration(aggregation);
+		relation.setConfiguration(composition);
 
 		relationService.create(relation);
 
@@ -253,6 +255,12 @@ public class ElementService extends
 	public void delete() {
 		elementService.delete(new Long(4));
 	}
+	
+	@Test
+	@Rollback(value = false)
+	public void delete2() {
+		relationService.delete(new Long(146));
+	}
 
 	// @Test
 	// @Rollback(value = false)
@@ -276,5 +284,14 @@ public class ElementService extends
 
 		kui.setSourceRelations(Arrays.asList(relation));
 		elementService.update(kui);
+	}
+
+	//@Test
+	//@Rollback(value=false)
+	public void plugin() {
+		Element element = elementService.get(new Long(343));
+		((Installation) element.getConfiguration()).setState("Completed");
+
+		elementService.update(element);
 	}
 }

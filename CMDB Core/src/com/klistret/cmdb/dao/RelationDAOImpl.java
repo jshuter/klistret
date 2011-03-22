@@ -130,8 +130,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						"Relation [id: %s] not found", id),
 						new NoSuchElementException());
 
+			relation.setSource(clean(relation.getSource()));
+			relation.setDestination(clean(relation.getDestination()));
 			return relation;
-
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
@@ -148,13 +149,18 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		relation.setUpdateTimeStamp(new java.util.Date());
 
 		try {
-			getSession().saveOrUpdate("Relation", relation);
+			if (relation.getId() != null)
+				getSession().merge("Relation", relation);
+			else
+				getSession().saveOrUpdate("Relation", relation);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
 		logger.info("Save/update relation [{}]", relation.toString());
 
+		relation.setSource(clean(relation.getSource()));
+		relation.setDestination(clean(relation.getDestination()));
 		return relation;
 	}
 
@@ -182,12 +188,14 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		relation.setUpdateTimeStamp(new java.util.Date());
 
 		try {
-			getSession().update("Relation", relation);
+			getSession().merge("Relation", relation);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
 		logger.info("Deleted relation [{}]", relation);
+		relation.setSource(clean(relation.getSource()));
+		relation.setDestination(clean(relation.getDestination()));
 		return relation;
 	}
 
@@ -206,7 +214,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		return count;
 	}
-	
+
 	/**
 	 * Necessary to eliminate relation associations which only available to
 	 * query through relationships
