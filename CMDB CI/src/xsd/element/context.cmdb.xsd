@@ -127,7 +127,14 @@
 	<!-- start of Organization Software Type -->
 	<xs:complexType name="OrganizationSoftwareType">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>
+				An organization may denote software with a private type
+				system. For example, some software may be a tar archive
+				for database scripts and hence typed as DBSCRIPT.
+				Currently, support only for one private type but there
+				is no logical limit rather practical coding that needs
+				to be redone.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="element:Context" />

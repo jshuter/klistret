@@ -78,8 +78,6 @@
 	<xs:complexType name="Base" abstract="true">
 		<xs:sequence>
 			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1" />
-			<xs:element name="name" type="name" maxOccurs="1"
-				minOccurs="1" />
 			<xs:element name="fromTimeStamp" type="fromTimeStamp"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="toTimeStamp"
@@ -126,6 +124,8 @@
 		<xs:complexContent>
 			<xs:extension base="Base">
 				<xs:sequence>
+					<xs:element name="name" type="name" maxOccurs="1"
+						minOccurs="1" />
 					<xs:element name="type" type="ElementType"
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="configuration"
@@ -218,7 +218,12 @@
 		</xs:annotation>
 
 		<xs:complexContent>
-			<xs:extension base="Base"></xs:extension>
+			<xs:extension base="Base">
+				<xs:sequence>
+					<xs:element name="name" type="name" maxOccurs="1"
+						minOccurs="1" />
+				</xs:sequence>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="RelationType">
@@ -254,7 +259,12 @@
 		</xs:annotation>
 
 		<xs:complexContent>
-			<xs:extension base="Base"></xs:extension>
+			<xs:extension base="Base">
+				<xs:sequence>
+					<xs:element name="name" type="name" maxOccurs="1"
+						minOccurs="1" />
+				</xs:sequence>
+			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 </xs:schema>
