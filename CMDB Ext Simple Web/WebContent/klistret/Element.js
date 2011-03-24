@@ -668,7 +668,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 					},
 					failure       : function ( result, request ) {
 						var bbar = this.Grid.getBottomToolbar();
-						bbar.Status.setText('Failed deleting.');
+						bbar.Status.setText('Failed deleting.' + (result.responseText ? result.responseText : ""));
 					}
 				});
 			},
@@ -1200,7 +1200,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 				},
 				failure       : function ( result, request ) {
 					this.updateMask.hide();
-					this.Status.setText("Failed saving.");
+					this.Status.setText("Failed saving. " + (result.responseText ? result.responseText : ""));
 					this.fireEvent('requestfailure', this, result);
 				}
 			});
@@ -1262,7 +1262,7 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 				},
 				failure       : function ( result, request ) {
 					this.updateMask.hide();
-					this.Status.setText("Failed deleting.");
+					this.Status.setText("Failed deleting." + (result.responseText ? result.responseText : ""));
 					this.fireEvent('requestfailure', this, result);
 				}
 			});
@@ -1710,7 +1710,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 					},
 					failure       : function ( result, request ) {
 						var bbar = this.Grid.getBottomToolbar();
-						bbar.Status.setText('Failed deleting.');
+						bbar.Status.setText('Failed deleting.' + (result.responseText ? result.responseText : ""));
 					}
 				});
 			},
