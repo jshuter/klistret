@@ -587,7 +587,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
                         'DestName'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/name/$'),
                         'DestType'   : CMDB.Badgerfish.get(msg.relation, 'Relation/destination/type/name/$').replace(/\{.*\}(.*)/,"$1"),
                         'Relation'   : CMDB.Badgerfish.get(msg.relation, 'Relation')
-                	});
+                	},
+                	CMDB.Badgerfish.get(msg.relation, 'Relation/id/$')
+                	);
                 	
                 	this.Grid.store.add(record);
 				}
@@ -685,74 +687,77 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			function(record) {
 				var destinationType = CMDB.Badgerfish.get(record.get('Element'), 'type/name/$'),
 					name = this.getRelationType(destinationType),
-					index = CMDB.RelationTypes.find('Name',name),
-					relationType = CMDB.RelationTypes.getAt(index).get('RelationType');
+					index = CMDB.RelationTypes.find('Name',name);
+					
+				if (index >= 0) {
+					var relationType = CMDB.RelationTypes.getAt(index).get('RelationType');
 				
-				var relation = {
-					'Relation' : {
-						'@xmlns' : {
-							'ns9'  : 'http://www.klistret.com/cmdb/ci/relation',
-							'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
-							'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
-						},
-						'type' : {
-							'id' : {
-								'$' : relationType['id']['$']
-							},
-							'name' : {
-								'$' : relationType['name']['$']
-							}
-						},
-						'source' : this.ownerCt.element['Element'],
-						'destination' : record.json['Element'],
-						'fromTimeStamp' : {
-							'$' : new Date()
-						},
-						'createTimeStamp' : {
-							'$' : new Date()
-						},
-						'updateTimeStamp' : {
-							'$' : new Date()
-						},
-						'configuration' : { 
+					var relation = {
+						'Relation' : {
 							'@xmlns' : {
-								'rel' : relationType['name']['$'].replace(/\{(.*)\}.*/,"$1"),
-								'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+								'ns9'  : 'http://www.klistret.com/cmdb/ci/relation',
+								'ns2'  : 'http://www.klistret.com/cmdb/ci/commons',
+								'$'    : 'http://www.klistret.com/cmdb/ci/pojo'
 							},
-							'@xsi:type' : 'rel:' + relationType['name']['$'].replace(/\{.*\}(.*)/,"$1"),
-							'ns2:Name' : {
-								'$' : 'whatever'
+							'type' : {
+								'id' : {
+									'$' : relationType['id']['$']
+								},
+								'name' : {
+									'$' : relationType['name']['$']
+								}
+							},
+							'source' : this.ownerCt.element['Element'],
+							'destination' : record.json['Element'],
+							'fromTimeStamp' : {
+								'$' : new Date()
+							},
+							'createTimeStamp' : {
+								'$' : new Date()
+							},
+							'updateTimeStamp' : {
+								'$' : new Date()
+							},
+							'configuration' : { 
+								'@xmlns' : {
+									'rel' : relationType['name']['$'].replace(/\{(.*)\}.*/,"$1"),
+									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+								},
+								'@xsi:type' : 'rel:' + relationType['name']['$'].replace(/\{.*\}(.*)/,"$1"),
+								'ns2:Name' : {
+									'$' : CMDB.Badgerfish.get(record.get('Element'), 'name/$')
+								}
 							}
 						}
-					}
-				};
+					};
 				
-				Ext.Ajax.request({
-					url           : (CMDB.URL || '') + '/CMDB/resteasy/relation',
-					method        : 'POST',
-				
-					headers       : {
-						'Accept'        : 'application/json,application/xml,text/*',
-						'Content-Type'  : 'application/json'
-					},
+					Ext.Ajax.request({
+						url           : (CMDB.URL || '') + '/CMDB/resteasy/relation',
+						method        : 'POST',
+					
+						headers       : {
+							'Accept'        : 'application/json,application/xml,text/*',
+							'Content-Type'  : 'application/json'
+						},
 			
-					jsonData      : Ext.encode(relation),
-					scope         : this,
+						jsonData      : Ext.encode(relation),
+						scope         : this,
 				
-					success       : function ( result, request ) {
-						var data = Ext.util.JSON.decode(result.responseText);
+						success       : function ( result, request ) {
+							var data = Ext.util.JSON.decode(result.responseText);
 				
-						PageBus.publish(	
-							'CMDB.Relation.Save', 
-							{
-								state         : 'success', 
-								relation      : data 
-							}
-						);
-					},
-					failure       : function ( result, request ) {
-					}
-				});
+							PageBus.publish(	
+								'CMDB.Relation.Save', 
+								{
+									state         : 'success', 
+									relation      : data 
+								}
+							);
+						},
+						failure       : function ( result, request ) {
+						}
+					});
+				}
 			},
 			this
 		);

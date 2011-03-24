@@ -341,6 +341,14 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 					xtype       : 'applicationLifecycleForm'
 				},
 				{
+					xtype       : 'destRelationForm',
+					relations   : [
+						{
+							'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
+						}
+					]
+				},
+				{
 					xtype       : 'propertyForm'
 				}
 			]
