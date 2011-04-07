@@ -668,7 +668,9 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 					},
 					failure       : function ( result, request ) {
 						var bbar = this.Grid.getBottomToolbar();
-						bbar.Status.setText('Failed deleting.' + (result.responseText ? result.responseText : ""));
+						bbar.Status.setText('Failed deleting.');
+						
+						CMDB.Message.msg('Failure', (result.responseText ? result.responseText : "Test unable to show message"));
 					}
 				});
 			},
@@ -746,7 +748,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 						success       : function ( result, request ) {
 							var data = Ext.util.JSON.decode(result.responseText);
 				
-							PageBus.publish(	
+							PageBus.publish(
 								'CMDB.Relation.Save', 
 								{
 									state         : 'success', 
@@ -755,6 +757,7 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 							);
 						},
 						failure       : function ( result, request ) {
+							CMDB.Message.msg('Failure', (result.responseText ? result.responseText : "Test unable to show message"));
 						}
 					});
 				}
@@ -1200,8 +1203,10 @@ CMDB.Element.Edit = Ext.extend(Ext.Window, {
 				},
 				failure       : function ( result, request ) {
 					this.updateMask.hide();
-					this.Status.setText("Failed saving. " + (result.responseText ? result.responseText : ""));
+					this.Status.setText("Failed saving. ");
 					this.fireEvent('requestfailure', this, result);
+					
+					CMDB.Message.msg('Failure', (result.responseText ? result.responseText : "Test unable to show message"));
 				}
 			});
 		}
