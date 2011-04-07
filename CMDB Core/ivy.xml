@@ -125,7 +125,7 @@
 		
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.4" conf="test->master"/>
-
+	
 		<!-- CI -->
 		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->master;runtime->master"/>
 	

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,7 @@ import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.ci.relation.Composition;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 
 /**
  * Element services are tested directly
@@ -78,18 +80,22 @@ public class ElementService extends
 	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	// @Test
-	// @Rollback(value = false)
+	//@Test
+	//@Rollback(value = false)
 	public void get() throws JAXBException {
-		Element element = elementService.get(new Long(242));
+		Element element = elementService.get(new Long(224));
+		System.out.println(element.getConfiguration().getClass().getName());
+		System.out.println(CIContext.getCIContext().getBean(
+				QName.valueOf(element.getType().getName())).getJavaClass()
+				.getName());
 
 		assertNotNull(element);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	@Test
+	@Rollback(value = false)
 	public void getAndSet() {
-		Element element = elementService.get(new Long(181));
+		Element element = elementService.get(new Long(224));
 
 		element.getConfiguration().setTag(
 				Arrays.asList(new String[] { "Development" }));
@@ -148,8 +154,8 @@ public class ElementService extends
 		assertNotNull(element);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void set2() {
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
@@ -190,8 +196,8 @@ public class ElementService extends
 		assertNotNull(response);
 	}
 
-	//@Test
-	//@Rollback(value = false)
+	// @Test
+	// @Rollback(value = false)
 	public void relate() {
 		RelationType type = relationTypeService
 				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
@@ -255,9 +261,9 @@ public class ElementService extends
 	public void delete() {
 		elementService.delete(new Long(4));
 	}
-	
-	@Test
-	@Rollback(value = false)
+
+	// @Test
+	// @Rollback(value = false)
 	public void delete2() {
 		relationService.delete(new Long(146));
 	}
@@ -286,8 +292,8 @@ public class ElementService extends
 		elementService.update(kui);
 	}
 
-	//@Test
-	//@Rollback(value=false)
+	// @Test
+	// @Rollback(value=false)
 	public void plugin() {
 		Element element = elementService.get(new Long(343));
 		((Installation) element.getConfiguration()).setState("Completed");
