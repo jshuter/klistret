@@ -5,3 +5,14 @@
 .deleteButton {
 	background-image: url(../images/deleteButton.gif) !important;
 }
+
+.msg .x-box-mc {
+    font-size:14px;
+}
+#msg-div {
+    position:absolute;
+    left:35%;
+    top:10px;
+    width:250px;
+    z-index:20000;
+}
