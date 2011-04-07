@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.xml.namespace.QName;
+
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Projections;
@@ -32,6 +34,7 @@ import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 
 /**
  * 
@@ -147,6 +150,21 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		 * record current time when updating
 		 */
 		relation.setUpdateTimeStamp(new java.util.Date());
+
+		/**
+		 * pojo type matches the configuration qname
+		 */
+		String typeClassName = CIContext.getCIContext().getBean(
+				QName.valueOf(relation.getType().getName())).getJavaClass()
+				.getName();
+		if (!typeClassName.equals(relation.getConfiguration().getClass()
+				.getName()))
+			throw new ApplicationException(
+					String
+							.format(
+									"Pojo element type [%s] does not match the configuration type [%s]",
+									typeClassName, relation.getConfiguration()
+											.getClass().getName()));
 
 		try {
 			if (relation.getId() != null)

@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.xml.namespace.QName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,7 @@ import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 
 /**
  * 
@@ -153,6 +156,21 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		 * record current time when updating
 		 */
 		element.setUpdateTimeStamp(new java.util.Date());
+
+		/**
+		 * pojo type matches the configuration qname
+		 */
+		String typeClassName = CIContext.getCIContext().getBean(
+				QName.valueOf(element.getType().getName())).getJavaClass()
+				.getName();
+		if (!typeClassName.equals(element.getConfiguration().getClass()
+				.getName()))
+			throw new ApplicationException(
+					String
+							.format(
+									"Pojo element type [%s] does not match the configuration type [%s]",
+									typeClassName, element.getConfiguration()
+											.getClass().getName()));
 
 		try {
 			if (element.getId() != null)
