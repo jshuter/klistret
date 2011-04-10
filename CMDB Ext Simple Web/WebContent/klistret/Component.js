@@ -319,6 +319,9 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 		var config = {
 			title       : 'Application Software Editor',
 			
+			height         : 550,
+			width          : 600,
+			
 			layout      : 'accordion',
 			
 			items       : [
@@ -380,7 +383,7 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'displayfield',
 					width             : 'auto',
-					'html'            : 'Search criteria for Application Software items'
+					'html'            : 'Search criteria for Application Software items.  Regular expressions may be used with all of the text fields below except for the name field.  For example, when searching after software of JUnit and Spring modules one can enter \"JUnit|Spring\".'
 				},
 				{
 					xtype             : 'textfield',
@@ -388,6 +391,12 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					fieldLabel        : 'Name',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
 					wildcard          : '%'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
@@ -404,8 +413,20 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Environment (association through applications)',
+					fieldLabel        : 'Environment (through application assoications)',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration/element:Environment[matches(text(), \"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Availability',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Availability,\"{0}\")]'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Organizational software type',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Type,\"{0}\")]'
 				},
 				{
 					xtype             : 'datefield',
@@ -427,6 +448,9 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 		var config = {
 			title       : 'Application Software Search',
 			editor      : CMDB.ApplicationSoftware.Edit,
+			
+			height         : 600,
+			width          : 600,
 			
 			elementType : '{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware',
 
@@ -458,6 +482,18 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/configuration/Type/$'
 				},
 				{
+					name        : 'Availability',
+					mapping     : 'Element/configuration/Availability/$'
+				},
+				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -466,13 +502,13 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : 'Name', 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : 'Organization', 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Organization'
 				},
@@ -493,6 +529,28 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'OrganizationSoftwareType'
+				},
+				{
+					header      : 'Availability', 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Availability'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}

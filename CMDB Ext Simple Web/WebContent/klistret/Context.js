@@ -135,6 +135,20 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					fieldLabel        : 'Contact Name',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration/commons:Ownership/commons:Contact[matches(commons:Name,\"{0}\")]',
 					wildcard          : '.*'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -157,6 +171,10 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/name/$'
 				},
 				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
 					name        : 'Contact Name', 
 					mapping     : 'Element/configuration/Ownership/Contact/Name/$'
 				},
@@ -176,6 +194,14 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -184,21 +210,43 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : "Name", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Tags", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 200, 
+					sortable    : true, 
+					dataIndex   : 'Description'
 				},
 				{
 					header      : "Contact Name", 
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'Contact Name'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
@@ -323,6 +371,20 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -364,6 +426,14 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -372,21 +442,37 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : "Name", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Tags", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Tag'
 				},
 				{
 					header      : "Description", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
@@ -512,6 +598,20 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -553,6 +653,14 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -561,21 +669,37 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : "Name", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Tags", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Tag'
 				},
 				{
 					header      : "Description", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
@@ -692,6 +816,20 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -733,6 +871,14 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -741,21 +887,37 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : "Name", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Tags", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Tag'
 				},
 				{
 					header      : "Description", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
@@ -872,6 +1034,20 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -913,6 +1089,14 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -936,6 +1120,22 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
@@ -1055,6 +1255,20 @@ CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created after',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+				},
+				{
+					xtype             : 'datefield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Created before',
+					format            : 'Y-m-d',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
 				}
 			]
 		});
@@ -1096,6 +1310,14 @@ CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -1104,21 +1326,37 @@ CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : "Name", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Tags", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Tag'
 				},
 				{
 					header      : "Description", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}

@@ -251,14 +251,20 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'displayfield',
 					width             : 'auto',
-					'html'            : 'Search criteria for Application items'
+					'html'            : 'Search criteria for Application items.  Regular expressions may used used with all text fields other than the name field.'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Name (wildcard * allowed)',
+					fieldLabel        : 'Name',
 					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
 					wildcard          : '%'
+				},
+				{
+					xtype             : 'textfield',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Tags',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
@@ -269,8 +275,8 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Version of related appliation software',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[matches(sw:Version, \"{0}\")]'
+					fieldLabel        : 'Availability of related appliation software',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[matches(sw:Availability, \"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
@@ -299,6 +305,9 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Application Search',
 			editor      : CMDB.Application.Edit,
 			
+			height         : 550,
+			width          : 600,
+			
 			elementType : '{http://www.klistret.com/cmdb/ci/element/system}Application',
 
 			items       : form,
@@ -311,6 +320,25 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					name        : 'Name', 
 					mapping     : 'Element/name/$'
+				},
+				{
+					name        : 'Description', 
+					mapping     : 'Element/configuration/Description/$'
+				},
+				{
+					name        : 'Tag', 
+					mapping     : 'Element/configuration/Tag',
+					formating   : function(values) {
+						var formated = '';
+						
+						Ext.each(
+							values, 
+							function(value) {
+								formated = Ext.isEmpty(formated) ? value['$'] : formated + ', ' + value['$'] ;
+							}
+						);
+						return formated;
+					}
 				},
 				{
 					name        : 'Environment', 
@@ -332,6 +360,14 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/configuration/State/$'
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -340,13 +376,13 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 			columns        : [
 				{
 					header      : 'Name', 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Name'
 				},
 				{
 					header      : "Environments", 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Environment'
 				},
@@ -355,6 +391,34 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'State'
+				},
+				{
+					header      : "Tags", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Tag'
+				},
+				{
+					header      : "Description", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Description'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}

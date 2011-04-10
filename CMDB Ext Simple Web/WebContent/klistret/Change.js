@@ -42,6 +42,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 				},
 				{
 					xtype             : 'combo',
+					ref               : 'Environment',
 					elementdata       : true,
 					fieldLabel        : 'Targeted context or system',
 					allowBlank        : false,
@@ -102,6 +103,7 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 				},
 				{
 					xtype             : 'combo',
+					ref               : 'Software',
 					elementdata       : true,
 					fieldLabel        : 'Application software to be installed',
 					allowBlank        : false,
@@ -166,6 +168,9 @@ CMDB.Installation.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 				},
 				{
 					xtype             : 'combo',
+					
+					ref               : 'State',
+					
 					elementdata       : true,
 					fieldLabel        : 'State',
 					allowBlank        : false,
@@ -257,7 +262,8 @@ CMDB.Installation.Edit = Ext.extend(CMDB.Element.Edit, {
 			
 			items       : [
 				{
-					xtype       : 'installationGeneralForm'
+					xtype       : 'installationGeneralForm',
+					ref         : 'InstallationGeneralForm'
 				},
 				{
 					xtype       : 'propertyForm'
@@ -270,7 +276,15 @@ CMDB.Installation.Edit = Ext.extend(CMDB.Element.Edit, {
 	},
 	
 	afterLoad : function(a,b,c) {
-		var dummy = "";
+		if (this.element && CMDB.Badgerfish.get(this.element,"Element/id/$")) {
+			this.InstallationGeneralForm.Environment.disable();
+			this.InstallationGeneralForm.Software.disable();
+			this.InstallationGeneralForm.State.enable();
+		} else {
+			this.InstallationGeneralForm.Environment.enable();
+			this.InstallationGeneralForm.Software.enable();
+			this.InstallationGeneralForm.State.disable();
+		}
 	}
 });
 
@@ -301,19 +315,19 @@ CMDB.Installation.Search = Ext.extend(CMDB.Element.Search, {
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Environment',
-					expression        : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration/commons:Source[matches(commons:Name,\"{0}\")]'
+					expression        : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Source[matches(commons:Name,\"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Application Software',
-					expression        : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration/commons:Destination[matches(commons:Name,\"{0}\")]'
+					expression        : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Destination[matches(commons:Name,\"{0}\")]'
 				},
 				{
 					xtype             : 'textfield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'State',
-					expression        : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[matches(commons:State,\"{0}\")]'
+					expression        : 'declare namespace process=\"http://www.klistret.com/cmdb/ci/element/process\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[matches(process:State,\"{0}\")]'
 				},
 				{
 					xtype             : 'datefield',
@@ -362,6 +376,14 @@ CMDB.Installation.Search = Ext.extend(CMDB.Element.Search, {
 					mapping     : 'Element/configuration/State/$'
 				},
 				{
+					name        : 'Created', 
+					mapping     : 'Element/createTimeStamp/$'
+				},
+				{
+					name        : 'Updated', 
+					mapping     : 'Element/updateTimeStamp/$'
+				},
+				{
 					name        : 'Element',
 					mapping     : 'Element'
 				}
@@ -369,20 +391,14 @@ CMDB.Installation.Search = Ext.extend(CMDB.Element.Search, {
 			
 			columns        : [
 				{
-					header      : 'Name', 
-					width       : 120, 
-					sortable    : true, 
-					dataIndex   : 'Name'
-				},
-				{
 					header      : 'Environment', 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Source'
 				},
 				{
 					header      : 'Application Software', 
-					width       : 120, 
+					width       : 200, 
 					sortable    : true, 
 					dataIndex   : 'Destination'
 				},
@@ -391,6 +407,22 @@ CMDB.Installation.Search = Ext.extend(CMDB.Element.Search, {
 					width       : 120, 
 					sortable    : true, 
 					dataIndex   : 'State'
+				},
+				{
+					header      : "Created", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Created',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
+				},
+				{
+					header      : "Last Updated", 
+					width       : 120, 
+					sortable    : true, 
+					dataIndex   : 'Updated',
+					xtype       : 'datecolumn', 
+					format      : 'Y-n-d H:i:s'
 				}
 			]
 		}
