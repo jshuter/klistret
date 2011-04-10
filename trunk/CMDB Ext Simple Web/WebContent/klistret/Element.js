@@ -760,6 +760,8 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 							CMDB.Message.msg('Failure', (result.responseText ? result.responseText : "Test unable to show message"));
 						}
 					});
+				} else {
+					CMDB.Message.msg("Invalid relationship","Relationship is not valid for this CI.");
 				}
 			},
 			this
@@ -1462,8 +1464,8 @@ CMDB.Element.Search = Ext.extend(Ext.Window, {
      * Automatically called by event beforesearch (careful when overriding)
      */
 	beforeSearch   : function() {
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'});
-		this.expressions = this.expressions + "&" + Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"' + this.elementType + '\"]'});
+		this.expressions = Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'}) + "&" + this.expressions;
+		this.expressions = Ext.urlEncode({expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"' + this.elementType + '\"]'}) + "&" + this.expressions;
 	},
 	
 	
@@ -1482,7 +1484,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 	title          : 'Search Results',
 	
 	height         : 450,
-	width          : 600,
+	width          : 800,
 	
 	layout         : 'fit',
 	iconCls        : 'icon-grid',
@@ -1512,6 +1514,13 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 				'Content-Type'    : 'application/json'
 			}
         });
+        
+        proxy.on(
+        	'exception',
+        	function(dp, type, action, options, response, arguments) {
+        		CMDB.Message.msg("Query failure", (response.statusText ? response.statusText : "Test unable to show message"));
+        	}
+        );
 		
 		var store = new Ext.data.Store({
 			proxy         : proxy,
@@ -1566,7 +1575,7 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 			enableDragDrop: true,
 			
 			viewConfig    : {
-				forceFit       : true
+				//forceFit       : true
 			},
 			
 			bbar: new Ext.PagingToolbar({
@@ -1685,6 +1694,8 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 	doDelete       : function() {
 		var records = this.Grid.getSelectionModel().getSelections();
 		
+		this.Grid.loadMask.show();
+		
 		Ext.each(
 			records, 
 			function(record) {
@@ -1712,10 +1723,14 @@ CMDB.Element.Results = Ext.extend(Ext.Window, {
 					
 						var bbar = this.Grid.getBottomToolbar();
 						bbar.Status.setText('Deletion successful');
+						
+						this.Grid.loadMask.hide();
 					},
 					failure       : function ( result, request ) {
 						var bbar = this.Grid.getBottomToolbar();
 						bbar.Status.setText('Failed deleting.' + (result.responseText ? result.responseText : ""));
+						
+						this.Grid.loadMask.hide();
 					}
 				});
 			},
@@ -1787,7 +1802,7 @@ CMDB.OrganizationStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Organization\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Organization\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1843,7 +1858,7 @@ CMDB.ModuleStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Module\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1899,7 +1914,7 @@ CMDB.OrganizationSoftwareTypeStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"OrganizationSoftwareType\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1952,7 +1967,7 @@ CMDB.EnvironmentStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Environment\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Environment\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2005,7 +2020,7 @@ CMDB.SoftwareLifecycleStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"SoftwareLifecycle\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2058,7 +2073,7 @@ CMDB.TimeframeStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"Timeframe\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Timeframe\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2111,7 +2126,7 @@ CMDB.ApplicationSoftwareStore = new Ext.data.Store({
 				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[matches(pojo:name,\"ApplicationSoftware\")]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
