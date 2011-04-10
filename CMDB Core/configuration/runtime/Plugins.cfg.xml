@@ -56,6 +56,7 @@
 		<property name="relationService" ref="relationService" />
 		<property name="relationTypeService" ref="relationTypeService" />
 		<property name="elementService" ref="elementService" />
+		<property name="elementTypeService" ref="elementTypeService" />
 		<property name="state" value="Completed" />
 		<property name="elementType" value="{http://www.klistret.com/cmdb/ci/element/process/change}Installation" />
 	</bean>

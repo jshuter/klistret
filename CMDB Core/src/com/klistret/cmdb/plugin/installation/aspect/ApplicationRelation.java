@@ -1,6 +1,7 @@
 package com.klistret.cmdb.plugin.installation.aspect;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -8,11 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.ci.element.component.software.ApplicationSoftware;
 import com.klistret.cmdb.ci.element.process.change.Installation;
+import com.klistret.cmdb.ci.element.system.Application;
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.ci.relation.Composition;
 import com.klistret.cmdb.service.ElementService;
+import com.klistret.cmdb.service.ElementTypeService;
 import com.klistret.cmdb.service.RelationService;
 import com.klistret.cmdb.service.RelationTypeService;
 
@@ -26,6 +30,8 @@ public class ApplicationRelation {
 	private RelationTypeService relationTypeService;
 
 	private ElementService elementService;
+
+	private ElementTypeService elementTypeService;
 
 	private String state;
 
@@ -43,6 +49,10 @@ public class ApplicationRelation {
 		this.elementService = elementService;
 	}
 
+	public void setElementTypeService(ElementTypeService elementTypeService) {
+		this.elementTypeService = elementTypeService;
+	}
+
 	public void setState(String state) {
 		this.state = state;
 	}
@@ -51,6 +61,14 @@ public class ApplicationRelation {
 		this.elementType = elementType;
 	}
 
+	/**
+	 * Two stages. First all existing relationships of software to applications
+	 * tied to a particular environment are deleted. Then all applications tied
+	 * to an environment and a module name are associated to the assigned
+	 * software. If no application exists then one is created.
+	 * 
+	 * @param element
+	 */
 	public void relate(Element element) {
 		if (element.getType().getName().equals(elementType)) {
 
@@ -121,6 +139,10 @@ public class ApplicationRelation {
 					relationService.delete(relation.getId());
 				}
 
+				/**
+				 * Find all applications tied to a particular environment with a
+				 * name corresponding to the software's module.
+				 */
 				List<Element> applicationElements = elementService
 						.find(
 								Arrays
@@ -140,6 +162,32 @@ public class ApplicationRelation {
 								new Object[] { applicationElements.size(),
 										applicationSoftware.getModule(),
 										installation.getSource().getName() });
+
+				/**
+				 * Create a new application if none exists
+				 */
+				if (applicationElements.size() == 0) {
+					ElementType type = elementTypeService
+							.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
+
+					Element applicationElement = new Element();
+					applicationElement.setName(applicationSoftware.getModule());
+					applicationElement.setType(type);
+					applicationElement.setFromTimeStamp(new Date());
+					applicationElement.setCreateTimeStamp(new Date());
+
+					Application configuration = new Application();
+					configuration.setName(applicationSoftware.getModule());
+					configuration.getEnvironment().add(
+							installation.getSource().getName());
+					configuration.setState("Online");
+
+					applicationElement.setConfiguration(configuration);
+
+					elementService.create(applicationElement);
+
+					applicationElements.add(applicationElement);
+				}
 
 				RelationType compositionType = relationTypeService
 						.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
