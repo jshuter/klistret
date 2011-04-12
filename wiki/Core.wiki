@@ -1,0 +1,12 @@
+#labels Phase-Design
+The Core component is in layman's terms a wrapper of services around the CI XML hierarchy.
+
+== Overview ==
+
+== Road map ==
+
+=== 6 months ===
+
+=== Year ahead ===
+
+== Design ==
