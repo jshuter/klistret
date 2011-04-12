@@ -2,6 +2,7 @@
 The Core component is in layman's terms a wrapper of services around the CI XML hierarchy.
 
 == Overview ==
+A CMDB is a collection of configuration elements and relationship between elements.  John Singer's [http://www.tdan.com/view-articles/6904 article] does a good job of explaining the CMDB model.  Distilled John explains the CIs are the building blocks of a CMDB and the hardest thing is categorizing CIs into logical groups.  The Core component in Klistret does not place any hard coded restrictions on the CI hierarchy only pluggable identification and relationship controls.  The Core essentially provides [http://en.wikipedia.org/wiki/Create,_read,_update_and_delete CRUD] services and the capability to search with XPath expressions.  Outside of CRUD services and a search motor the Core is intended to work in any Java container (even without thanks to great mock frameworks latent to Spring and Resteasy), deployable with minimal configuration plus integrate to [http://www.informit.com/articles/article.aspx?p=1329141&seqNum=4 CMDB federations].
 
 == Road map ==
 
