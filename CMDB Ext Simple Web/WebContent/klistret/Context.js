@@ -124,10 +124,38 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'textfield',
@@ -236,17 +264,13 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}
@@ -367,10 +391,38 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -462,17 +514,13 @@ CMDB.Organization.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}
@@ -594,10 +642,38 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -689,17 +765,13 @@ CMDB.Module.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}
@@ -812,10 +884,38 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -907,17 +1007,13 @@ CMDB.SoftwareLifecycle.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}
@@ -1030,10 +1126,38 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -1125,17 +1249,13 @@ CMDB.Timeframe.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}
@@ -1251,10 +1371,38 @@ CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = \"{0}\"]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -1346,17 +1494,13 @@ CMDB.OrganizationSoftwareType.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}

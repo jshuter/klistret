@@ -96,9 +96,9 @@ Ext.ux.form.SuperBoxSelect = Ext.extend(Ext.ux.form.SuperBoxSelect,Ext.form.Comb
     /**
      * @cfg {String} classField The underlying data field that will be used to supply an additional class to each item.
      */
-    classField: null,
-
-    /**
+    classField: null                                      ,
+                   
+    /**                                                  
      * @cfg {String} clearBtnCls An additional class to add to the in-field clear button.
      */
     clearBtnCls: '',
