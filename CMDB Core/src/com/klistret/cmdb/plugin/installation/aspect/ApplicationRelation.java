@@ -100,7 +100,7 @@ public class ApplicationRelation {
 												"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation/pojo:source[pojo:name = \""
 														+ applicationSoftware
 																.getModule()
-														+ "\"]/pojo:configuration/element:Environment[text() = \""
+														+ "\"]/pojo:configuration[element:Environment = \""
 														+ installation
 																.getSource()
 																.getName()
@@ -151,7 +151,7 @@ public class ApplicationRelation {
 												"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name = \""
 														+ applicationSoftware
 																.getModule()
-														+ "\"]/pojo:configuration/element:Environment[text() = \""
+														+ "\"]/pojo:configuration[element:Environment = \""
 														+ installation
 																.getSource()
 																.getName()
