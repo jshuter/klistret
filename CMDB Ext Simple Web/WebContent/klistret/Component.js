@@ -437,8 +437,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -460,9 +458,7 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
-										
+															
 					extraItemCls: 'x-tag',
 								
 					// Edit the query for the combo into an expression
@@ -483,8 +479,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -506,8 +500,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -529,8 +521,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -552,8 +542,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								

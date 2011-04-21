@@ -305,8 +305,6 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -328,8 +326,6 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
@@ -351,8 +347,6 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 					valueField        : 'Name',
 					mode              : 'remote',
 					forceSelection    : true,
-					
-					allowAddNewData   : true,
 										
 					extraItemCls: 'x-tag',
 								
