@@ -91,11 +91,11 @@ public class RestEasyService {
 		dispatcher.setLanguageMappings(lm);
 	}
 
-	// @Test
+	@Test
 	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/242")
+				.get("/resteasy/element/78941")
 				.accept(
 						Arrays
 								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
@@ -167,7 +167,7 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
+	//@Test
 	public void query() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/relation?expressions="

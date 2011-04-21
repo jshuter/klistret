@@ -51,16 +51,6 @@ import com.klistret.cmdb.utility.jaxb.CIContext;
  */
 public class JAXBUserType implements UserType {
 
-	/**
-	 * JAXB marshaller
-	 */
-	private Marshaller marshaller;
-
-	/**
-	 * JAXB unmarshaller
-	 */
-	private Unmarshaller unmarshaller;
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(JAXBUserType.class);
 
@@ -147,27 +137,24 @@ public class JAXBUserType implements UserType {
 	 * @return Unmarshaller
 	 */
 	protected Unmarshaller getUnmarshaller() {
-		if (unmarshaller == null) {
+		try {
+			JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-			try {
-				JAXBContext jaxbContext = CIContext.getCIContext()
-						.getJAXBContext();
-				unmarshaller = jaxbContext.createUnmarshaller();
+			unmarshaller.setSchema(CIContext.getCIContext().getSchema());
+			unmarshaller.setEventHandler(new ValidationEventHandler() {
+				public boolean handleEvent(ValidationEvent event) {
+					logger.debug("Validation error: {}", event);
+					return false;
+				}
+			});
 
-				unmarshaller.setSchema(CIContext.getCIContext().getSchema());
-				unmarshaller.setEventHandler(new ValidationEventHandler() {
-					public boolean handleEvent(ValidationEvent event) {
-						logger.debug("Validation error: {}", event);
-						return false;
-					}
-				});
-			} catch (JAXBException e) {
-				logger.error("Unable to create JAXB ummarshaller: {}", e);
-				throw new InfrastructureException(String.format(
-						"Unable to create JAXB ummarshaller: %s", e));
-			}
+			return unmarshaller;
+		} catch (JAXBException e) {
+			logger.error("Unable to create JAXB ummarshaller: {}", e);
+			throw new InfrastructureException(String.format(
+					"Unable to create JAXB ummarshaller: %s", e));
 		}
-		return unmarshaller;
 	}
 
 	/**
@@ -176,27 +163,25 @@ public class JAXBUserType implements UserType {
 	 * @return Marshaller
 	 */
 	protected Marshaller getMarshaller() {
-		if (marshaller == null) {
+		try {
+			JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
+			Marshaller marshaller = jaxbContext.createMarshaller();
 
-			try {
-				JAXBContext jaxbContext = CIContext.getCIContext()
-						.getJAXBContext();
-				marshaller = jaxbContext.createMarshaller();
+			marshaller.setSchema(CIContext.getCIContext().getSchema());
+			marshaller.setEventHandler(new ValidationEventHandler() {
+				public boolean handleEvent(ValidationEvent event) {
+					logger.debug("Validation error: {}", event);
+					return false;
+				}
+			});
 
-				marshaller.setSchema(CIContext.getCIContext().getSchema());
-				marshaller.setEventHandler(new ValidationEventHandler() {
-					public boolean handleEvent(ValidationEvent event) {
-						logger.debug("Validation error: {}", event);
-						return false;
-					}
-				});
-			} catch (JAXBException e) {
-				logger.error("Unable to create JAXB marshaller: {}", e);
-				throw new InfrastructureException(String.format(
-						"Unable to create JAXB marshaller: %s", e));
-			}
+			return marshaller;
+		} catch (JAXBException e) {
+			logger.error("Unable to create JAXB marshaller: {}", e);
+			throw new InfrastructureException(String.format(
+					"Unable to create JAXB marshaller: %s", e));
 		}
-		return marshaller;
+
 	}
 
 	/**
