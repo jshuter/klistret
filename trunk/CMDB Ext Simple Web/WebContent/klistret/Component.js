@@ -383,7 +383,7 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 				{
 					xtype             : 'displayfield',
 					width             : 'auto',
-					'html'            : 'Search criteria for Application Software items.  Regular expressions may be used with all of the text fields below except for the name field.  For example, when searching after software of JUnit and Spring modules one can enter \"JUnit|Spring\".'
+					'html'            : 'Search criteria for Application Software items.'
 				},
 				{
 					xtype             : 'textfield',
@@ -393,40 +393,176 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					wildcard          : '%'
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Tags',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[matches(commons:Tag,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'local',
+					
+					// Combo box store
+					store             : new Ext.data.SimpleStore({
+						fields           : [
+							'Name'
+						],
+						sortInfo         : {
+							field             : 'Name', 
+							direction         : 'ASC'
+						}
+					}),
+					
+					allowAddNewData   : true,
+					addNewDataOnBlur  : true,
+					
+					extraItemCls: 'x-tag',
+					
+					listeners         : {
+						newitem             : function(bs, v, f) {
+							var newObj = {
+								Name: v
+							};
+							bs.addItem(newObj);
+                    	}			
+					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Organization',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Organization,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Organization = {0}]',
+					store             : CMDB.OrganizationStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Module',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Module,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = {0}]',
+					store             : CMDB.ModuleStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Environment (through application assoications)',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration/element:Environment[matches(text(), \"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration[element:Environment = {0}]',
+					store             : CMDB.EnvironmentStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Availability',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Availability,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = {0}]',
+					store             : CMDB.TimeframeStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
 				},
 				{
-					xtype             : 'textfield',
+					xtype             : 'superboxselect',
+					plugins           : [new Ext.Element.SearchParameterPlugin()],
+					fieldLabel        : 'Lifecycle',
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Phase = {0}]',
+					store             : CMDB.SoftwareLifecycleStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
+				},
+				{
+					xtype             : 'superboxselect',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Organizational software type',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[matches(sw:Type,\"{0}\")]'
+					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Type = {0}]',
+					store             : CMDB.OrganizationSoftwareTypeStore,
+					queryParam        : 'expressions',
+					displayField      : 'Name',
+					valueField        : 'Name',
+					mode              : 'remote',
+					forceSelection    : true,
+					
+					allowAddNewData   : true,
+										
+					extraItemCls: 'x-tag',
+								
+					// Edit the query for the combo into an expression
+					listeners         : {
+						'beforequery'       : function(e) {
+							e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"' + e.query + '%\")]';
+						}
+					}
 				},
 				{
 					xtype             : 'datefield',
@@ -449,7 +585,7 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Application Software Search',
 			editor      : CMDB.ApplicationSoftware.Edit,
 			
-			height         : 600,
+			height         : 675,
 			width          : 600,
 			
 			elementType : '{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware',
@@ -540,17 +676,13 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 					header      : "Created", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Created',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Created'
 				},
 				{
 					header      : "Last Updated", 
 					width       : 120, 
 					sortable    : true, 
-					dataIndex   : 'Updated',
-					xtype       : 'datecolumn', 
-					format      : 'Y-n-d H:i:s'
+					dataIndex   : 'Updated'
 				}
 			]
 		}

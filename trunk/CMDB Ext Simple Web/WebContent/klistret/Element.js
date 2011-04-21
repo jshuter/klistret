@@ -33,6 +33,23 @@ Ext.Element.SearchParameterPlugin = (function() {
 							expressions : String.format(this.expression, this.getValue().format('Y-m-d\\TH:i:s.uP'))
 						});
 					}
+					
+					if (this.getXType() == 'superboxselect') {
+						var values;
+							
+						Ext.each(
+							this.getValueEx(), 
+							function(value) {
+								var formated = String.format("\"{0}\"", value[this.valueField]);
+								values = values == null ? formated  : values + "," + formated;
+							},
+							this
+						);
+							
+						return Ext.urlEncode({							
+							expressions : String.format(this.expression, "(" + values + ")")
+						});
+					}
 				
 					return null;
 				}
@@ -173,7 +190,6 @@ CMDB.Element.GeneralForm = Ext.extend(Ext.form.FormPanel, {
 					
 					listeners         : {
 						newitem             : function(bs, v, f) {
-							//v = v.slice(0,1).toUpperCase() + v.slice(1).toLowerCase();
 							var newObj = {
 								name: v
 							};
@@ -384,6 +400,14 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			mapping         : 'Relation/destination/type/name/$'
 		},
 		{
+			name        	: 'Created', 
+			mapping     	: 'Relation/createTimeStamp/$'
+		},
+		{
+			name        	: 'Updated', 
+			mapping     	: 'Relation/updateTimeStamp/$'
+		},
+		{
 			name            : 'Relation',
 			mapping         : 'Relation'
 		}
@@ -407,6 +431,18 @@ CMDB.Element.DestRelationForm = Ext.extend(Ext.form.FormPanel, {
 			width           : 150, 
 			sortable        : true, 
 			dataIndex       : 'DestName'
+		},
+		{
+			header      	: "Created", 
+			width       	: 120, 
+			sortable		: true, 
+			dataIndex		: 'Created'
+		},
+		{
+			header      	: "Last Updated", 
+			width       	: 120, 
+			sortable		: true, 
+			dataIndex		: 'Updated'
 		}
 	],  
 
@@ -1798,11 +1834,8 @@ CMDB.OrganizationStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Organization\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Organization\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1854,11 +1887,8 @@ CMDB.ModuleStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1910,11 +1940,8 @@ CMDB.OrganizationSoftwareTypeStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -1963,11 +1990,8 @@ CMDB.EnvironmentStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Environment\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Environment\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2016,11 +2040,8 @@ CMDB.SoftwareLifecycleStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2069,11 +2090,57 @@ CMDB.TimeframeStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
+			expressions = expressions + "&" + Ext.urlEncode({
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Timeframe\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Timeframe\"]'
+				expressions : store.baseParams.expressions
+			});
+			
+			options.params = "start=0&limit=10&"+expressions;	
+		}
+	}
+});
+
+
+CMDB.ApplicationStore = new Ext.data.Store({
+	proxy        : new Ext.data.HttpProxy({
+		url            : (CMDB.URL || '') + '/CMDB/resteasy/element',
+		method         : 'GET',
+                                        
+		headers        : {
+			'Accept'          : 'application/json,application/xml,text/html',
+			'Content-Type'    : 'application/json'
+		}
+	}),
+	
+	reader      : new CMDB.JsonReader({
+		totalProperty       : 'total',
+		successProperty     : 'successful',
+		idProperty          : 'Element/id/$',
+		root                : 'rows',
+		fields              : [
+			{
+				name             : 'Id',
+				mapping          : 'Element/id/$'
+			},
+			{
+				name             : 'Name',
+				mapping          : 'Element/name/$'
+			},
+			{
+				name             : 'Element',
+				mapping          : 'Element'
+			}
+		]
+	}),
+	
+	listeners         : {
+		'beforeload'       : function(store, options) {
+			var expressions;
+			
+			expressions = expressions + "&" + Ext.urlEncode({
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
@@ -2122,11 +2189,8 @@ CMDB.ApplicationSoftwareStore = new Ext.data.Store({
 		'beforeload'       : function(store, options) {
 			var expressions;
 			
-			expressions = Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
-			});
 			expressions = expressions + "&" + Ext.urlEncode({
-				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]'
+				expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]'
 			});
 			expressions = expressions + "&" + Ext.urlEncode({
 				expressions : store.baseParams.expressions
