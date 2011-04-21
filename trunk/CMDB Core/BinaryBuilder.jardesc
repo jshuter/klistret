@@ -11,7 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <folder path="/CMDB Core/configuration/runtime"/>
         <javaElement handleIdentifier="=CMDB Core/src"/>
     </selectedElements>
 </jardesc>
