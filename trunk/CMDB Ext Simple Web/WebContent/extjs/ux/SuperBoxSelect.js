@@ -1565,10 +1565,15 @@ Ext.ux.form.SuperBoxSelect = Ext.extend(Ext.ux.form.SuperBoxSelect,Ext.form.Comb
         }
     },
     onStoreLoad : function(store, records, options){
+    	//altered to handle when the store is empty [2011-04-26] by exiting the method when the store is empty
+    	if (this.store == null)
+    		return;
+    
         //accomodating for bug in Ext 3.0.0 where options.params are empty
         var q = options.params[this.queryParam] || store.baseParams[this.queryParam] || "",
             isValuesQuery = options.params[this.queryValuesIndicator] || store.baseParams[this.queryValuesIndicator];
         
+        //altered to handle when the store is empty [2011-04-26] by adding the AND clause to the first if-condition
         if(this.removeValuesFromStore){
             this.store.each(function(record) {
                 if(this.usedRecords.containsKey(record.get(this.valueField))){

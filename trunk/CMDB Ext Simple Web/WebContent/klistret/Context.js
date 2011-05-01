@@ -158,13 +158,6 @@ CMDB.Environment.Search = Ext.extend(CMDB.Element.Search, {
 					}
 				},
 				{
-					xtype             : 'textfield',
-					plugins           : [new Ext.Element.SearchParameterPlugin()],
-					fieldLabel        : 'Contact Name',
-					expression        : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration/commons:Ownership/commons:Contact[matches(commons:Name,\"{0}\")]',
-					wildcard          : '.*'
-				},
-				{
 					xtype             : 'datefield',
 					plugins           : [new Ext.Element.SearchParameterPlugin()],
 					fieldLabel        : 'Created after',
