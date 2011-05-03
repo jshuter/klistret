@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
  * @author Matthew Young
  * 
  */
-public class PropertyMetadata {
+public class CIProperty {
 	/**
 	 * Types are restricted to simple or complex element and attributes.
 	 * 
@@ -113,5 +113,9 @@ public class PropertyMetadata {
 
 	public String getAnnotation() {
 		return annotation;
+	}
+
+	public String toString() {
+		return String.format("name: %s, type: %s", name, type);
 	}
 }

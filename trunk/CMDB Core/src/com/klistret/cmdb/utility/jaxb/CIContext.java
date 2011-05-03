@@ -13,8 +13,8 @@
  */
 package com.klistret.cmdb.utility.jaxb;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashSet;
@@ -24,11 +24,7 @@ import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchema;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
@@ -38,13 +34,8 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.SAXException;
 
 import com.klistret.cmdb.annotations.ci.Bean;
@@ -52,21 +43,6 @@ import com.klistret.cmdb.annotations.ci.Element;
 import com.klistret.cmdb.annotations.ci.Relation;
 import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.exception.InfrastructureException;
-import com.sun.org.apache.xerces.internal.impl.xs.XMLSchemaLoader;
-import com.sun.org.apache.xerces.internal.xs.XSAnnotation;
-import com.sun.org.apache.xerces.internal.xs.XSAttributeDeclaration;
-import com.sun.org.apache.xerces.internal.xs.XSAttributeGroupDefinition;
-import com.sun.org.apache.xerces.internal.xs.XSAttributeUse;
-import com.sun.org.apache.xerces.internal.xs.XSComplexTypeDefinition;
-import com.sun.org.apache.xerces.internal.xs.XSConstants;
-import com.sun.org.apache.xerces.internal.xs.XSElementDeclaration;
-import com.sun.org.apache.xerces.internal.xs.XSModel;
-import com.sun.org.apache.xerces.internal.xs.XSModelGroup;
-import com.sun.org.apache.xerces.internal.xs.XSObject;
-import com.sun.org.apache.xerces.internal.xs.XSObjectList;
-import com.sun.org.apache.xerces.internal.xs.XSParticle;
-import com.sun.org.apache.xerces.internal.xs.XSSimpleTypeDefinition;
-import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
 
 /**
  * Singleton class that locates all of the CI beans (elements, relations, and
@@ -82,14 +58,14 @@ import com.sun.org.apache.xerces.internal.xs.XSTypeDefinition;
  * 
  */
 public class CIContext {
+	private static final Logger logger = LoggerFactory
+			.getLogger(CIContext.class);
+
 	/**
 	 * Based on
 	 * http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html
 	 */
 	private volatile static CIContext ciContext;
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(CIContext.class);
 
 	/**
 	 * Selects all schema files with suffix cmdb.xsd
@@ -128,9 +104,9 @@ public class CIContext {
 	private Set<Class<?>> contextPath;
 
 	/**
-	 * 
+	 * Set of metadata beans
 	 */
-	private Set<BeanMetadata> beans;
+	private Set<CIBean> beans;
 
 	/**
 	 * JABContext
@@ -142,533 +118,60 @@ public class CIContext {
 	 */
 	private Schema schemaGrammers;
 
-	/**
-	 * Extends the StreamSource with a placeholder for a XSModel
-	 * 
-	 * @author Matthew Young
-	 * 
-	 */
-	private class SchemaStreamSource extends StreamSource {
-
-		private XSModel xsModel;
-
-		public SchemaStreamSource(String resource) {
-			super(Utils.getContextClassLoader().getResource(resource)
-					.toString());
-		}
-
-		public XSModel getXSModel() {
-			if (xsModel == null) {
-				xsModel = new XMLSchemaLoader().loadURI(getSystemId());
-			}
-
-			return xsModel;
-		}
-	}
-
-	/**
-	 * More information about this resolver at
-	 * http://stackoverflow.com/questions/3558333/jaxb-schemafactory-source-order-must-follow-import-order-between-schemas/3830649#3830649
-	 */
-	private class SimpleResolver implements LSResourceResolver {
-
-		private Set<SchemaStreamSource> schemaStreamSources;
-
-		/**
-		 * Constructor accepts a set of SchemaSource objects (which are really
-		 * extensions of the Source class)
-		 * 
-		 * @param streams
-		 */
-		public SimpleResolver(Set<SchemaStreamSource> schemaStreamSources) {
-			this.schemaStreamSources = schemaStreamSources;
-		}
-
-		/**
-		 * Resource name
-		 * 
-		 * @param path
-		 * @return
-		 */
-		private String getResourceName(String path) {
-			int lastIndexOf = path.lastIndexOf("/");
-
-			if (lastIndexOf == -1)
-				return path;
-
-			if (lastIndexOf == path.length())
-				return null;
-
-			return path.substring(lastIndexOf + 1, path.length());
-		}
-
-		@Override
-		public LSInput resolveResource(String type, String namespaceURI,
-				String publicId, String systemId, String baseURI) {
-			DOMImplementationRegistry registry;
-			try {
-				/**
-				 * Still unsure about the different types of implementations
-				 * that need to be loaded
-				 */
-				registry = DOMImplementationRegistry.newInstance();
-				DOMImplementationLS domImplementationLS = (DOMImplementationLS) registry
-						.getDOMImplementation("LS 3.0");
-
-				LSInput ret = domImplementationLS.createLSInput();
-
-				/**
-				 * Spin through the available streams to find keyed by systemId
-				 * and namespace a match to resolve
-				 */
-				for (SchemaStreamSource schemaStreamSource : schemaStreamSources) {
-					if (getResourceName(schemaStreamSource.getSystemId())
-							.equals(getResourceName(systemId))
-							&& schemaStreamSource.getXSModel().getNamespaces()
-									.contains(namespaceURI)) {
-
-						logger.debug(
-								"Resolved systemid [{}] with namespace [{}]",
-								getResourceName(systemId), namespaceURI);
-
-						URL url = new URL(schemaStreamSource.getSystemId());
-						URLConnection uc = url.openConnection();
-
-						/**
-						 * InputStream must a newly created (ie. not previously
-						 * read)
-						 */
-						ret.setByteStream(uc.getInputStream());
-						ret.setSystemId(systemId);
-						return ret;
-					}
-				}
-
-			} catch (ClassCastException e) {
-				logger.error(e.getMessage());
-			} catch (ClassNotFoundException e) {
-				logger.error(e.getMessage());
-			} catch (InstantiationException e) {
-				logger.error(e.getMessage());
-			} catch (IllegalAccessException e) {
-				logger.error(e.getMessage());
-			} catch (FileNotFoundException e) {
-				logger.error(e.getMessage());
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-			}
-
-			logger.error("No stream found for system id [{}]", systemId);
-			throw new InfrastructureException(String.format(
-					"No stream found for system id [%s]", systemId));
-		}
-
-	}
-
-	/**
-	 * Find bean namespace by looking first at the class annotation XmlType,
-	 * thereafter the class annotation XmlRootElement and finally the package
-	 * annotation XmlSchema. The resulting value together with the local part of
-	 * the bean makes up the QName describing the bean's type.
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private String findBeanNamespace(Class<?> javaClass) {
-		/**
-		 * Local element (complex type) schema mapping (By default, this is the
-		 * target namespace to which the package containing the class is
-		 * mapped.)
-		 */
-		XmlType xt = javaClass.getAnnotation(XmlType.class);
-		if (xt != null && !xt.namespace().equals("##default")) {
-			logger.debug(
-					"XmlType annotation on class [{}] defines namespace [{}]",
-					javaClass.getName(), xt.namespace());
-			return xt.namespace();
-		}
-
-		/**
-		 * A global element of an anonymous type
-		 */
-		XmlRootElement xre = javaClass.getAnnotation(XmlRootElement.class);
-		if (xre != null && !xre.namespace().equals("##default")) {
-			logger
-					.debug(
-							"XmlRootElement annotation on class [{}] defines namespace [{}]",
-							javaClass.getName(), xre.namespace());
-			return xre.namespace();
-		}
-
-		/**
-		 * Package level
-		 */
-		XmlSchema xs = javaClass.getPackage().getAnnotation(XmlSchema.class);
-		if (xs != null && !xs.namespace().equals("")) {
-			logger
-					.debug(
-							"XmlSchema annotation on package [{}] defines namespace [{}]",
-							javaClass.getPackage().getName(), xs.namespace());
-			return xs.namespace();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Find the local name first in the class annotation XmlType and thereafter
-	 * the class annotation XmlRootElement. Together with the namespace the
-	 * local part makes up the QName denoting the bean's type.
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private String findBeanLocalName(Class<?> javaClass) {
-		XmlType xt = javaClass.getAnnotation(XmlType.class);
-		if (xt != null && !xt.name().equals("##default")) {
-			logger.debug(
-					"XmlType annotation on class [{}] defines local name [{}]",
-					javaClass.getName(), xt.name());
-			return xt.name();
-		}
-
-		XmlRootElement xre = javaClass.getAnnotation(XmlRootElement.class);
-		if (xre != null && !xre.name().equals("##default")) {
-			logger
-					.debug(
-							"XmlRootElement annotation on class [{}] defines local name [{}]",
-							javaClass.getName(), xre.name());
-			return xre.name();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get the type definition as defined by the Schema validation based on the
-	 * QName. The definition represents a complex or simple type.
-	 * 
-	 * @param localName
-	 * @param namespace
-	 * @return
-	 */
-	private XSTypeDefinition getXSTypeDefinition(String localName,
-			String namespace) {
-		XSTypeDefinition xstd = null;
-
-		for (SchemaStreamSource schemaStreamSource : schemaStreamSources) {
-			xstd = schemaStreamSource.getXSModel().getTypeDefinition(localName,
-					namespace);
-			if (xstd != null)
-				break;
-		}
-
-		return xstd;
-	}
-
-	/**
-	 * Is the class a CMDB element
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private boolean isElement(Class<?> javaClass) {
-		for (Class<?> other : elements)
-			if (other.getName().equals(javaClass.getName()))
-				return true;
-
-		return false;
-	}
-
-	/**
-	 * Is the class a CMDB relation
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private boolean isRelation(Class<?> javaClass) {
-		for (Class<?> other : relations)
-			if (other.getName().equals(javaClass.getName()))
-				return true;
-
-		return false;
-	}
-
-	/**
-	 * Is the class a CMDB proxy
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private boolean isProxy(Class<?> javaClass) {
-		for (Class<?> other : proxies)
-			if (other.getName().equals(javaClass.getName()))
-				return true;
-
-		return false;
-	}
-
-	/**
-	 * Based on the XSObject passed the different types of element/attribute
-	 * models are traversed to finally create a Java property and add it to the
-	 * passed bean definition.
-	 * 
-	 * @param xsObject
-	 * @param beanMetadata
-	 */
-	private void makePropertyMetadata(XSObject xsObject,
-			BeanMetadata beanMetadata) {
-		short objectType = xsObject.getType();
-
-		switch (xsObject.getType()) {
-		/**
-		 * Schema particle is the entry-point for element definitions with a
-		 * schema term that is either a model group, element declaration or
-		 * wildcard.
-		 */
-		case XSConstants.PARTICLE:
-			makePropertyMetadata(((XSParticle) xsObject).getTerm(),
-					beanMetadata);
-			break;
-		/**
-		 * Model groups are element groupings like sequences or choice
-		 * constructs. The grouping is a list of particles where the min/max
-		 * constraints are located. What is left here to-do is capture
-		 * sequence/choice groupings.
-		 */
-		case XSConstants.MODEL_GROUP:
-			XSObjectList particles = ((XSModelGroup) xsObject).getParticles();
-			for (int pIndex = 0; pIndex < particles.getLength(); pIndex++) {
-				XSParticle elementParticle = (XSParticle) particles
-						.item(pIndex);
-				makePropertyMetadata(elementParticle, beanMetadata);
-
-				PropertyMetadata last = beanMetadata.properties
-						.get(beanMetadata.properties.size() - 1);
-				last.maxOccurs = elementParticle.getMaxOccurs();
-				last.minOccurs = elementParticle.getMinOccurs();
-				last.maxOccursUnbounded = elementParticle
-						.getMaxOccursUnbounded();
-			}
-			break;
-		/**
-		 * Singular element declaration which is either a simple or complex
-		 * type. The QName keys for identification within the context of the
-		 * bean and the type are the essentials.
-		 */
-		case XSConstants.ELEMENT_DECLARATION:
-			XSElementDeclaration elementDeclaration = ((XSElementDeclaration) xsObject);
-
-			// QName keys
-			PropertyMetadata elementMetadata = new PropertyMetadata();
-			elementMetadata.name = new QName(elementDeclaration.getNamespace(),
-					elementDeclaration.getName());
-
-			/**
-			 * Element type (simple/complex) as QName keys with simple elements
-			 * associated to their primitives (like strings/int so forth).
-			 */
-			XSTypeDefinition elementTypeDefinition = elementDeclaration
-					.getTypeDefinition();
-			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.ComplexElement;
-
-				elementMetadata.type = new QName(elementTypeDefinition
-						.getNamespace(), elementTypeDefinition.getName());
-			}
-			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
-				elementMetadata.typeCategory = PropertyMetadata.TypeCategory.SimpleElement;
-
-				XSTypeDefinition primitiveElementTypeDefinition = ((XSSimpleTypeDefinition) elementTypeDefinition)
-						.getPrimitiveType();
-
-				elementMetadata.type = new QName(primitiveElementTypeDefinition
-						.getNamespace(), primitiveElementTypeDefinition
-						.getName());
-			}
-
-			elementMetadata.nillable = elementDeclaration.getNillable();
-
-			elementMetadata.annotation = elementDeclaration.getAnnotation() == null ? null
-					: elementDeclaration.getAnnotation().getAnnotationString();
-
-			beanMetadata.properties.add(elementMetadata);
-			break;
-		/**
-		 * Groups of attributes
-		 */
-		case XSConstants.ATTRIBUTE_GROUP:
-			XSObjectList attributes = ((XSAttributeGroupDefinition) xsObject)
-					.getAttributeUses();
-			for (int aIndex = 0; aIndex < attributes.getLength(); aIndex++) {
-				makePropertyMetadata(attributes.item(aIndex), beanMetadata);
-			}
-			break;
-		/**
-		 * Usage information surrounding an attribute
-		 */
-		case XSConstants.ATTRIBUTE_USE:
-			XSAttributeUse attributeUse = (XSAttributeUse) xsObject;
-
-			makePropertyMetadata((attributeUse).getAttrDeclaration(),
-					beanMetadata);
-
-			PropertyMetadata last = beanMetadata.properties
-					.get(beanMetadata.properties.size() - 1);
-			last.required = attributeUse.getRequired();
-
-			break;
-		/**
-		 * Singular attibute declaration which is processed just like simple
-		 * elements.
-		 */
-		case XSConstants.ATTRIBUTE_DECLARATION:
-			XSAttributeDeclaration attributeDeclaration = ((XSAttributeDeclaration) xsObject);
-
-			PropertyMetadata attributeMetadata = new PropertyMetadata();
-			attributeMetadata.name = new QName(attributeDeclaration
-					.getNamespace(), attributeDeclaration.getName());
-
-			attributeMetadata.typeCategory = PropertyMetadata.TypeCategory.Attribute;
-
-			XSSimpleTypeDefinition attributeTypeDefinition = attributeDeclaration
-					.getTypeDefinition();
-
-			XSTypeDefinition primativeAttributeTypeDefinition = attributeTypeDefinition
-					.getPrimitiveType();
-			attributeMetadata.type = new QName(primativeAttributeTypeDefinition
-					.getNamespace(), primativeAttributeTypeDefinition.getName());
-
-			attributeMetadata.annotation = attributeDeclaration.getAnnotation() == null ? null
-					: attributeDeclaration.getAnnotation()
-							.getAnnotationString();
-
-			beanMetadata.properties.add(attributeMetadata);
-			break;
-		/**
-		 * Wildcards are not handled at the moment
-		 */
-		case XSConstants.WILDCARD:
-			break;
-		default:
-			throw new InfrastructureException(
-					String
-							.format(
-									"Unknown XSObject [type: %s] neither a model group, element declaration or wildcard",
-									objectType));
-		}
-	}
-
-	/**
-	 * Beans are any class generated from schema grammers
-	 * 
-	 * @param javaClass
-	 * @return
-	 */
-	private void makeBeanMetadata(Class<?> javaClass) {
-		BeanMetadata beanMetadata = new BeanMetadata();
-		beanMetadata.javaClass = javaClass;
-
-		String typeNamespace = findBeanNamespace(javaClass);
-		String typeLocalName = findBeanLocalName(javaClass);
-		beanMetadata.type = new QName(typeNamespace, typeLocalName);
-
-		XSTypeDefinition xstd = getXSTypeDefinition(typeLocalName,
-				typeNamespace);
-		if (xstd == null)
-			throw new InfrastructureException(
-					String
-							.format(
-									"Schema type definition not found by namespace [%s] and local name [%s]",
-									typeNamespace, typeLocalName));
-
-		/**
-		 * Complex types
-		 */
-		if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
-			beanMetadata.typeCategory = BeanMetadata.TypeCategory.Complex;
-			beanMetadata.abstraction = ((XSComplexTypeDefinition) xstd)
-					.getAbstract();
-
-			/**
-			 * Element are wrapped in a tree of XSParticle types (model group,
-			 * element declaration and wildcards) and the recursive code drills
-			 * down to the element declarations to make properties
-			 */
-			XSObject elements = ((XSComplexTypeDefinition) xstd).getParticle();
-			makePropertyMetadata(elements, beanMetadata);
-
-			/**
-			 * Attributes can be directly pulled into a flat XSObject list
-			 */
-			XSObjectList attributes = ((XSComplexTypeDefinition) xstd)
-					.getAttributeUses();
-			for (int attributesIndex = 0; attributesIndex < attributes
-					.getLength(); attributesIndex++)
-				makePropertyMetadata(attributes.item(attributesIndex),
-						beanMetadata);
-
-			/**
-			 * Annotations
-			 */
-			XSObjectList annotations = ((XSComplexTypeDefinition) xstd)
-					.getAnnotations();
-			for (int annotationsIndex = 0; annotationsIndex < annotations
-					.getLength(); annotationsIndex++) {
-				XSAnnotation annotation = (XSAnnotation) annotations
-						.item(annotationsIndex);
-
-				beanMetadata.annotations.add(annotation.getAnnotationString());
-			}
-
-		}
-
-		/**
-		 * Simple types
-		 */
-		if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE)
-			throw new InfrastructureException(String.format(
-					"Bean [%s] can not be a simple element", javaClass
-							.getName()));
-
-		/**
-		 * CMDB category (Element, Proxy, Relation)
-		 */
-		if (isElement(javaClass))
-			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Element;
-		if (isRelation(javaClass))
-			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Relation;
-		if (isProxy(javaClass))
-			beanMetadata.cmdbCategory = BeanMetadata.CMDBCategory.Proxy;
-
-		/**
-		 * Base
-		 */
-		XSTypeDefinition baseTypeDefinition = xstd.getBaseType();
-		String baseNamespace = baseTypeDefinition.getNamespace();
-		String baseLocalName = baseTypeDefinition.getName();
-		beanMetadata.base = new QName(baseNamespace, baseLocalName);
-
-		logger
-				.debug(
-						"Created bean metadata [class: {}, local name: {}, namespace: {}]",
-						new Object[] { javaClass.getName(), typeLocalName,
-								typeNamespace });
-		beans.add(beanMetadata);
-	}
 
 	/**
 	 * Singleton constructor
 	 */
 	private CIContext() {
 		/**
+		 * Eliminate invalid URLs (tested the Commons Validate suite but the
+		 * file schema was not supported)
+		 */
+		Set<URL> candidates = ClasspathHelper.getUrlsForCurrentClasspath();
+		Set<URL> validations = new HashSet<URL>();
+		for (URL candidate : candidates) {
+			try {
+				URLConnection connection = candidate.openConnection();
+				connection.connect();
+
+				if (connection instanceof HttpURLConnection) {
+					HttpURLConnection httpConnection = (HttpURLConnection) connection;
+					int code = httpConnection.getResponseCode();
+
+					if (code == HttpURLConnection.HTTP_OK)
+						validations.add(candidate);
+					else
+						logger
+								.warn(
+										"URL [{}] connection response code [{}] elimated from valid URLs for Scannoation",
+										candidate.toString(), code);
+				} else {
+					if (connection.getContentLength() > 0)
+						validations.add(candidate);
+					else
+						logger
+								.warn(
+										"URL [{}] content length [{}] elimated from valid URLs for Scannoation",
+										candidate.toString(), connection
+												.getContentLength());
+				}
+			} catch (IOException e) {
+				logger
+						.warn(
+								"URL [{}] connect failed [{}] elimated from valid URLs for Scannoation",
+								candidate.toString(), e.getMessage());
+			}
+		}
+		logger.warn("{} URLs elimated from {} candidates", candidates.size()
+				- validations.size(), candidates.size());
+
+		/**
 		 * Using scannotation model to find classes with particular annotations
 		 * (noteworthly if the SubTypesScanner isn't included then the Inherited
 		 * annotation is not utilized)
 		 */
 		Reflections reflections = new Reflections(new ConfigurationBuilder()
-				.setUrls(ClasspathHelper.getUrlsForCurrentClasspath())
-				.setScanners(new TypeAnnotationsScanner(),
+				.setUrls(validations).setScanners(new TypeAnnotationsScanner(),
 						new SubTypesScanner(), new ResourcesScanner()));
 
 		/**
@@ -750,9 +253,10 @@ public class CIContext {
 		 */
 		Set<Class<?>> beanClasses = reflections
 				.getTypesAnnotatedWith(Bean.class);
-		beans = new HashSet<BeanMetadata>(beanClasses.size());
-		for (Class<?> javaClass : beanClasses)
-			makeBeanMetadata(javaClass);
+		CIModel ciModel = new CIModel(schemaStreamSources
+				.toArray(new SchemaStreamSource[0]), beanClasses
+				.toArray(new Class<?>[0]));
+		beans = ciModel.getCIBeans();
 	}
 
 	/**
@@ -793,7 +297,7 @@ public class CIContext {
 	 * 
 	 * @return
 	 */
-	public Set<BeanMetadata> getBeans() {
+	public Set<CIBean> getBeans() {
 		return beans;
 	}
 
@@ -803,8 +307,8 @@ public class CIContext {
 	 * @param qname
 	 * @return
 	 */
-	public BeanMetadata getBean(QName type) {
-		for (BeanMetadata bean : beans)
+	public CIBean getBean(QName type) {
+		for (CIBean bean : beans)
 			if (bean.type.equals(type))
 				return bean;
 
@@ -818,8 +322,8 @@ public class CIContext {
 	 * @param localPart
 	 * @return
 	 */
-	public BeanMetadata getBean(String namespaceURI, String localPart) {
-		for (BeanMetadata bean : beans)
+	public CIBean getBean(String namespaceURI, String localPart) {
+		for (CIBean bean : beans)
 			if (bean.type.getLocalPart().equals(localPart)
 					&& bean.type.getNamespaceURI().equals(namespaceURI))
 				return bean;
@@ -833,8 +337,8 @@ public class CIContext {
 	 * @param className
 	 * @return
 	 */
-	public BeanMetadata getBean(String className) {
-		for (BeanMetadata bean : beans)
+	public CIBean getBean(String className) {
+		for (CIBean bean : beans)
 			if (bean.getJavaClass().getName().equals(className))
 				return bean;
 
@@ -848,7 +352,7 @@ public class CIContext {
 	 * @return
 	 */
 	public boolean isBean(QName type) {
-		for (BeanMetadata bean : beans)
+		for (CIBean bean : beans)
 			if (bean.type.equals(type))
 				return true;
 
