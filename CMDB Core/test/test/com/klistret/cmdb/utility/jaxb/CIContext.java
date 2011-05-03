@@ -10,7 +10,7 @@ import javax.xml.bind.ValidationEventHandler;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.klistret.cmdb.utility.jaxb.BeanMetadata;
+import com.klistret.cmdb.utility.jaxb.CIBean;
 
 public class CIContext {
 	com.klistret.cmdb.ci.pojo.Element element;
@@ -66,8 +66,8 @@ public class CIContext {
 
 	//@Test
 	public void checkBeans() {
-		Set<BeanMetadata> beans = helper.getBeans();
-		for (BeanMetadata bean : beans) {
+		Set<CIBean> beans = helper.getBeans();
+		for (CIBean bean : beans) {
 			System.out.println(String.format(
 					"Bean [class: %s, namespace: %s, name: %s]", bean
 							.getJavaClass().getName(), bean.getType()

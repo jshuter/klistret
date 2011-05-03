@@ -52,7 +52,7 @@ import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.plugin.persistence.pojo.Criterion;
 import com.klistret.cmdb.plugin.persistence.pojo.Persistence;
-import com.klistret.cmdb.utility.jaxb.BeanMetadata;
+import com.klistret.cmdb.utility.jaxb.CIBean;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
@@ -305,7 +305,7 @@ public class CIIdentification {
 	 * 
 	 * @param bean
 	 */
-	private void addCriteria(BeanMetadata bean) {
+	private void addCriteria(CIBean bean) {
 		/**
 		 * Determine the class names for the bean and ancestors (extend the
 		 * persistence rules defined to the bean's base types)
@@ -314,7 +314,7 @@ public class CIIdentification {
 
 		QName baseQName = bean.getBase();
 		while (CIContext.getCIContext().isBean(baseQName)) {
-			BeanMetadata base = CIContext.getCIContext().getBean(baseQName);
+			CIBean base = CIContext.getCIContext().getBean(baseQName);
 
 			selfAndBaseClassNames = selfAndBaseClassNames.concat(String.format(
 					",\'%s\'", base.getType()));
@@ -335,7 +335,7 @@ public class CIIdentification {
 	 * @param bean
 	 * @return Criteria
 	 */
-	private synchronized List<PathExpression[]> getCriteria(BeanMetadata bean) {
+	private synchronized List<PathExpression[]> getCriteria(CIBean bean) {
 		if (!isCached(bean.getType()))
 			addCriteria(bean);
 
@@ -349,7 +349,7 @@ public class CIIdentification {
 	 * @return Criteria
 	 */
 	protected List<PathExpression[]> getCriteria(QName qname) {
-		BeanMetadata bean = CIContext.getCIContext().getBean(qname);
+		CIBean bean = CIContext.getCIContext().getBean(qname);
 
 		return getCriteria(bean);
 	}
@@ -361,7 +361,7 @@ public class CIIdentification {
 	 * @return Criteria
 	 */
 	protected List<PathExpression[]> getCriteria(String className) {
-		BeanMetadata bean = CIContext.getCIContext().getBean(className);
+		CIBean bean = CIContext.getCIContext().getBean(className);
 
 		return getCriteria(bean);
 	}
@@ -397,7 +397,7 @@ public class CIIdentification {
 			JAXBSource jaxbSource = new JAXBSource(CIContext.getCIContext()
 					.getJAXBContext(), pojo);
 
-			BeanMetadata bean = null;
+			CIBean bean = null;
 			Matcher typeMatcher = typeSyntax.matcher(type);
 			if (typeMatcher.find()) {
 				String namespaceURI = typeMatcher.group(1);

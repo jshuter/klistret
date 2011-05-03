@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.utility.jaxb.BeanMetadata;
+import com.klistret.cmdb.utility.jaxb.CIBean;
 import com.klistret.cmdb.utility.jaxb.CIContext;
-import com.klistret.cmdb.utility.jaxb.PropertyMetadata;
+import com.klistret.cmdb.utility.jaxb.CIProperty;
 import com.klistret.cmdb.utility.saxon.AndExpr;
 import com.klistret.cmdb.utility.saxon.ComparisonExpr;
 import com.klistret.cmdb.utility.saxon.Expr;
@@ -178,7 +178,7 @@ public class XPathCriteria {
 			 * criteria if non-existent and save the initial step in a
 			 * place-holder)
 			 */
-			BeanMetadata bm = ciContext.getBean(initialStepExpr.getQName());
+			CIBean bm = ciContext.getBean(initialStepExpr.getQName());
 			if (!criteriaStore.containsKey(initialStepExpr.getAxisName())
 					&& contextStepExpr == null) {
 				logger
@@ -225,7 +225,7 @@ public class XPathCriteria {
 	 * @param criteria
 	 * @param step
 	 */
-	private void translateStep(String axisExpression, Step step, BeanMetadata pm) {
+	private void translateStep(String axisExpression, Step step, CIBean pm) {
 		switch (step.getType()) {
 		case Step:
 			logger.debug("Translating step [{}] at depth [{}]", step, step
@@ -265,13 +265,13 @@ public class XPathCriteria {
 						.debug(
 								"Property [name: {}] is a Hibernate entity/association type",
 								step.getQName().getLocalPart());
-				PropertyMetadata propertyMetadata = pm.getPropertyByName(step
+				CIProperty propertyMetadata = pm.getPropertyByName(step
 						.getQName());
 
 				/**
 				 * Does step have corresponding bean Metadata?
 				 */
-				BeanMetadata bm = ciContext.getBean(propertyMetadata.getType());
+				CIBean bm = ciContext.getBean(propertyMetadata.getType());
 				if (bm == null)
 					throw new ApplicationException(String.format(
 							"Step [%s] has no corresponding bean metadata",
@@ -332,7 +332,7 @@ public class XPathCriteria {
 	 * @param expr
 	 * @return
 	 */
-	private Criterion translatePredicate(BeanMetadata bm, Expr expr) {
+	private Criterion translatePredicate(CIBean bm, Expr expr) {
 		logger.debug("Adding predicate of type [{}] to java class [{}]", expr
 				.getType(), bm.getJavaClass());
 

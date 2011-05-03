@@ -294,6 +294,11 @@ public class Experimenting {
 	}
 
 	@Test
+	public void ciModel() {
+		com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
+	}
+
+	// @Test
 	public void stringTest() {
 		String example = "xsd/commons.xsd";
 

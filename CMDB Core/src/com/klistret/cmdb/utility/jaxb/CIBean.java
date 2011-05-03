@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
  * @author Matthew Young
  * 
  */
-public class BeanMetadata {
+public class CIBean {
 
 	/**
 	 * Types are reduced to either complex or simple types
@@ -86,9 +86,14 @@ public class BeanMetadata {
 	protected List<String> annotations = new ArrayList<String>();
 
 	/**
+	 * Lexical string list if Enumeration
+	 */
+	protected List<String> enumerations = new ArrayList<String>();
+
+	/**
 	 * Properties
 	 */
-	protected List<PropertyMetadata> properties = new ArrayList<PropertyMetadata>();
+	protected List<CIProperty> properties = new ArrayList<CIProperty>();
 
 	public Class<?> getJavaClass() {
 		return javaClass;
@@ -118,20 +123,20 @@ public class BeanMetadata {
 		return annotations;
 	}
 
-	public List<PropertyMetadata> getProperties() {
+	public List<CIProperty> getProperties() {
 		return properties;
 	}
 
-	public PropertyMetadata getPropertyByName(QName name) {
-		for (PropertyMetadata property : properties)
+	public CIProperty getPropertyByName(QName name) {
+		for (CIProperty property : properties)
 			if (property.name.equals(name))
 				return property;
 
 		return null;
 	}
 
-	public PropertyMetadata getPropertyByType(QName type) {
-		for (PropertyMetadata property : properties)
+	public CIProperty getPropertyByType(QName type) {
+		for (CIProperty property : properties)
 			if (property.type.equals(type))
 				return property;
 
@@ -139,7 +144,7 @@ public class BeanMetadata {
 	}
 
 	public boolean hasPropertyByName(QName name) {
-		for (PropertyMetadata property : properties)
+		for (CIProperty property : properties)
 			if (property.name.equals(name))
 				return true;
 
@@ -147,7 +152,7 @@ public class BeanMetadata {
 	}
 
 	public boolean hasPropertyByType(QName type) {
-		for (PropertyMetadata property : properties)
+		for (CIProperty property : properties)
 			if (property.type.equals(type))
 				return true;
 
@@ -164,18 +169,15 @@ public class BeanMetadata {
 		if (this.javaClass == null)
 			return false;
 
-		if (!(other instanceof BeanMetadata))
+		if (!(other instanceof CIBean))
 			return false;
 
-		final BeanMetadata that = (BeanMetadata) other;
+		final CIBean that = (CIBean) other;
 
 		return this.javaClass.getName().equals(that.javaClass.getName());
 	}
 
 	public String toString() {
-		return String
-				.format("class: %s, type localName: %s, type namespace: %s",
-						javaClass.getName(), type.getLocalPart(), type
-								.getNamespaceURI());
+		return String.format("class: %s, type: %s", javaClass.getName(), type);
 	}
 }
