@@ -177,6 +177,9 @@ public class CIBean {
 		return this.javaClass.getName().equals(that.javaClass.getName());
 	}
 
+	/**
+	 * Override toString method
+	 */
 	public String toString() {
 		return String.format("class: %s, type: %s", javaClass.getName(), type);
 	}
