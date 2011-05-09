@@ -46,7 +46,7 @@ public class PathExpression {
 
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Valid namespace declarations
 	 */
@@ -60,15 +60,18 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 		} catch (ApplicationException e) {
-			fail(String.format("Application expression caught [%s]", e));
+			assertNotNull(String.format(
+					"Application exception expected [xpath: %s]", xpath), e);
 		} catch (InfrastructureException e) {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertNotNull(pathExpression);
+		assertNotNull(String.format(
+				"Expression should not be valid [xpath: %s]", xpath),
+				pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
@@ -82,17 +85,19 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 		} catch (ApplicationException e) {
-			// expected
+			assertNotNull(String.format(
+					"Application exception expected [xpath: %s]", xpath), e);
 		} catch (InfrastructureException e) {
-			fail(String.format("Intfrastructure expression caught [%s]", e));
+			fail(String.format("Intfrastructure exception caught [%s]", e));
 		}
 
-		assertNull(pathExpression);
+		assertNull(String.format("Expression should not be valid [xpath: %s]",
+				xpath), pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
-	 * Missing namespace declaration for prefix a
+	 * Missing namespace declaration for prefix "a"
 	 */
 	public void invalidNamespace2() {
 		String xpath = String.format(
@@ -103,17 +108,19 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 		} catch (ApplicationException e) {
-			// expected
+			assertNotNull(String.format(
+					"Application exception expected [xpath: %s]", xpath), e);
 		} catch (InfrastructureException e) {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertNull(pathExpression);
+		assertNull(String.format("Expression should not be valid [xpath: %s]",
+				xpath), pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
-	 * Missing semicolon between prefix a and prefix b
+	 * Missing semicolon between prefix "a" and prefix "b"
 	 */
 	public void syntaxError() {
 		String xpath = String
@@ -125,15 +132,17 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 		} catch (ApplicationException e) {
-			// expected
+			assertNotNull(String.format(
+					"Application exception expected [xpath: %s]", xpath), e);
 		} catch (InfrastructureException e) {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertNull(pathExpression);
+		assertNull(String.format("Expression should not be valid [xpath: %s]",
+				xpath), pathExpression);
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that a root exists
 	 */
@@ -152,10 +161,11 @@ public class PathExpression {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertTrue(pathExpression.hasRoot());
+		assertTrue(String.format("Path expression [%s] has root step", xpath),
+				pathExpression.hasRoot());
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that a root does not exist
 	 */
@@ -174,10 +184,12 @@ public class PathExpression {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertFalse(pathExpression.hasRoot());
+		assertFalse(String.format(
+				"Path expression [xpath: %s] does not have root step", xpath),
+				pathExpression.hasRoot());
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that only step expressions are present and that mappings
 	 * declarations are accepted.
@@ -203,7 +215,7 @@ public class PathExpression {
 		}
 	}
 
-	// @Test
+	@Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions

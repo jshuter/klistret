@@ -1,4 +1,21 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
+
 package test.com.klistret.cmdb.utility.jaxb;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.StringWriter;
 import java.util.Set;
@@ -46,13 +63,16 @@ public class CIContext {
 	}
 
 	@Test
+	/**
+	 * Marshall then validate the environment object
+	 */
 	public void marshallAndValidate() throws Exception {
 		Marshaller m = helper.getJAXBContext().createMarshaller();
 
 		m.setSchema(helper.getSchema());
 		m.setEventHandler(new ValidationEventHandler() {
 			public boolean handleEvent(ValidationEvent event) {
-				System.out.println(event);
+				fail(String.format("Validation failed: %s", event));
 				return false;
 			}
 		});
@@ -62,16 +82,25 @@ public class CIContext {
 		sw.close();
 
 		System.out.println(sw.toString());
+		assertNotNull(String.format(
+				"Environment marshalled and validated [xml: %s]", sw), sw);
 	}
 
-	//@Test
-	public void checkBeans() {
+	@Test
+	/**
+	 * Get CI beans
+	 */
+	public void getBeans() {
 		Set<CIBean> beans = helper.getBeans();
+
 		for (CIBean bean : beans) {
 			System.out.println(String.format(
 					"Bean [class: %s, namespace: %s, name: %s]", bean
 							.getJavaClass().getName(), bean.getType()
 							.getNamespaceURI(), bean.getType().getLocalPart()));
 		}
+
+		assertNotNull(String.format("CI beans [%d] generated", beans.size()),
+				beans);
 	}
 }

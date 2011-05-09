@@ -118,7 +118,6 @@ public class CIContext {
 	 */
 	private Schema schemaGrammers;
 
-
 	/**
 	 * Singleton constructor
 	 */
@@ -127,52 +126,15 @@ public class CIContext {
 		 * Eliminate invalid URLs (tested the Commons Validate suite but the
 		 * file schema was not supported)
 		 */
-		Set<URL> candidates = ClasspathHelper.getUrlsForCurrentClasspath();
-		Set<URL> validations = new HashSet<URL>();
-		for (URL candidate : candidates) {
-			try {
-				URLConnection connection = candidate.openConnection();
-				connection.connect();
-
-				if (connection instanceof HttpURLConnection) {
-					HttpURLConnection httpConnection = (HttpURLConnection) connection;
-					int code = httpConnection.getResponseCode();
-
-					if (code == HttpURLConnection.HTTP_OK)
-						validations.add(candidate);
-					else
-						logger
-								.warn(
-										"URL [{}] connection response code [{}] elimated from valid URLs for Scannoation",
-										candidate.toString(), code);
-				} else {
-					if (connection.getContentLength() > 0)
-						validations.add(candidate);
-					else
-						logger
-								.warn(
-										"URL [{}] content length [{}] elimated from valid URLs for Scannoation",
-										candidate.toString(), connection
-												.getContentLength());
-				}
-			} catch (IOException e) {
-				logger
-						.warn(
-								"URL [{}] connect failed [{}] elimated from valid URLs for Scannoation",
-								candidate.toString(), e.getMessage());
-			}
-		}
-		logger.warn("{} URLs elimated from {} candidates", candidates.size()
-				- validations.size(), candidates.size());
+		Set<URL> validations = pruneURLs(ClasspathHelper
+				.getUrlsForCurrentClasspath());
 
 		/**
 		 * Using scannotation model to find classes with particular annotations
 		 * (noteworthly if the SubTypesScanner isn't included then the Inherited
 		 * annotation is not utilized)
 		 */
-		Reflections reflections = new Reflections(new ConfigurationBuilder()
-				.setUrls(validations).setScanners(new TypeAnnotationsScanner(),
-						new SubTypesScanner(), new ResourcesScanner()));
+		Reflections reflections = getReflections(validations);
 
 		/**
 		 * JAXB context path
@@ -224,29 +186,12 @@ public class CIContext {
 		/**
 		 * Construct binding Schema
 		 */
-		SchemaFactory factory = SchemaFactory
-				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		factory.setResourceResolver(new SimpleResolver(schemaStreamSources));
-		try {
-			schemaGrammers = factory.newSchema(schemaStreamSources
-					.toArray(new SchemaStreamSource[0]));
-		} catch (SAXException e) {
-			throw new InfrastructureException(
-					String
-							.format("Generating binding schema from streamed XSD sources"),
-					e);
-		}
+		schemaGrammers = getSchema(schemaStreamSources);
 
 		/**
 		 * Construct the JAXContext
 		 */
-		try {
-			jaxbContext = JAXBContext.newInstance(contextPath
-					.toArray(new Class[0]));
-			logger.debug("Created JAXB context");
-		} catch (JAXBException e) {
-			throw new InfrastructureException("Unable to create JAXBContext", e);
-		}
+		jaxbContext = getJAXBContext(contextPath);
 
 		/**
 		 * Create metadata for all generated classes
@@ -257,6 +202,102 @@ public class CIContext {
 				.toArray(new SchemaStreamSource[0]), beanClasses
 				.toArray(new Class<?>[0]));
 		beans = ciModel.getCIBeans();
+	}
+
+	/**
+	 * Eliminate invalid URL candidates from the URL result set (otherwise
+	 * unnecessary exceptions are thrown in the container)
+	 * 
+	 * @param candidates
+	 * @return
+	 */
+	private Set<URL> pruneURLs(Set<URL> candidates) {
+		Set<URL> validations = new HashSet<URL>();
+
+		for (URL candidate : candidates) {
+			try {
+				URLConnection connection = candidate.openConnection();
+				connection.connect();
+
+				if (connection instanceof HttpURLConnection) {
+					HttpURLConnection httpConnection = (HttpURLConnection) connection;
+					int code = httpConnection.getResponseCode();
+
+					if (code == HttpURLConnection.HTTP_OK)
+						validations.add(candidate);
+					else
+						logger
+								.warn(
+										"URL [{}] connection response code [{}] elimated from valid URLs for Scannoation",
+										candidate.toString(), code);
+				} else {
+					if (connection.getContentLength() > 0)
+						validations.add(candidate);
+					else
+						logger
+								.warn(
+										"URL [{}] content length [{}] elimated from valid URLs for Scannoation",
+										candidate.toString(), connection
+												.getContentLength());
+				}
+			} catch (IOException e) {
+				logger
+						.warn(
+								"URL [{}] connect failed [{}] elimated from valid URLs for Scannoation",
+								candidate.toString(), e.getMessage());
+			}
+		}
+		logger.warn("{} URLs elimated from {} candidates", candidates.size()
+				- validations.size(), candidates.size());
+
+		return validations;
+	}
+
+	/**
+	 * Separate method to allow for monitoring
+	 * 
+	 * @param validations
+	 * @return
+	 */
+	private Reflections getReflections(Set<URL> validations) {
+		return new Reflections(new ConfigurationBuilder().setUrls(validations)
+				.setScanners(new TypeAnnotationsScanner(),
+						new SubTypesScanner(), new ResourcesScanner()));
+	}
+
+	/**
+	 * Separate method to allow for monitoring
+	 * 
+	 * @param schemaStreamSources
+	 * @return
+	 */
+	private Schema getSchema(Set<SchemaStreamSource> schemaStreamSources) {
+		SchemaFactory factory = SchemaFactory
+				.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		factory.setResourceResolver(new SimpleResolver(schemaStreamSources));
+		try {
+			return factory.newSchema(schemaStreamSources
+					.toArray(new SchemaStreamSource[0]));
+		} catch (SAXException e) {
+			throw new InfrastructureException(
+					String
+							.format("Generating binding schema from streamed XSD sources"),
+					e);
+		}
+	}
+
+	/**
+	 * Separate method to allow for monitoring
+	 * 
+	 * @param contextPath
+	 * @return
+	 */
+	private JAXBContext getJAXBContext(Set<Class<?>> contextPath) {
+		try {
+			return JAXBContext.newInstance(contextPath.toArray(new Class[0]));
+		} catch (JAXBException e) {
+			throw new InfrastructureException("Unable to create JAXBContext", e);
+		}
 	}
 
 	/**

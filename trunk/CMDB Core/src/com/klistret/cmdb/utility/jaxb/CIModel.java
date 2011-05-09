@@ -1,3 +1,16 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
 package com.klistret.cmdb.utility.jaxb;
 
 import java.util.HashSet;
@@ -12,7 +25,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.jaxb.SchemaStreamSource;
 import com.sun.org.apache.xerces.internal.xs.StringList;
 import com.sun.org.apache.xerces.internal.xs.XSAttributeDeclaration;
@@ -52,7 +65,7 @@ public class CIModel {
 	static final String NS_SCHEMA_XSD = "http://www.w3.org/2001/XMLSchema";
 
 	/**
-	 * Constructor
+	 * Constructor that automatically starts adding CI beans
 	 * 
 	 * @param streamSources
 	 * @param jaxbClasses
@@ -66,14 +79,29 @@ public class CIModel {
 
 	}
 
+	/**
+	 * Get XML StreamSource (schema documents)
+	 * 
+	 * @return
+	 */
 	public StreamSource[] getStreamSources() {
 		return scheamStreamSources;
 	}
 
+	/**
+	 * Get CI JAXB classes
+	 * 
+	 * @return
+	 */
 	public Class<?>[] getJAXBClasses() {
 		return jaxbClasses;
 	}
 
+	/**
+	 * Get CI Beans
+	 * 
+	 * @return
+	 */
 	public Set<CIBean> getCIBeans() {
 		return beans;
 	}
@@ -97,7 +125,7 @@ public class CIModel {
 		String namespace = getNamespace(jaxbClass);
 		String localName = getLocalName(jaxbClass);
 		if (NS_SCHEMA_XSD.equals(namespace) && "anyType".equals(localName))
-			throw new InfrastructureException(String.format(
+			throw new ApplicationException(String.format(
 					"JAXB Class has W3C namespace and local name anyTime",
 					namespace, localName));
 
@@ -108,29 +136,38 @@ public class CIModel {
 		 */
 		XSTypeDefinition xstd = getXSTypeDefinition(namespace, localName);
 		if (xstd == null)
-			throw new InfrastructureException(
+			throw new ApplicationException(
 					String
 							.format(
 									"Schema type definition not found by namespace [%s] and local name [%s]",
 									namespace, localName));
 
 		/**
-		 * Handle complex type
+		 * Handle complex and simple types only
 		 */
-		if (xstd.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE)
+		switch (xstd.getTypeCategory()) {
+		case XSTypeDefinition.COMPLEX_TYPE:
 			doType((XSComplexTypeDefinition) xstd, bean);
-
-		/**
-		 * Handle simple type
-		 */
-		if (xstd.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE)
+			break;
+		case XSTypeDefinition.SIMPLE_TYPE:
 			doType((XSSimpleTypeDefinition) xstd, bean);
+			break;
+		default:
+			throw new ApplicationException(
+					String
+							.format("CI Beans may only be either complex or simple types"));
+		}
 
 		/**
 		 * Base (extending) reference
 		 */
 		XSTypeDefinition xstdBase = xstd.getBaseType();
 		bean.base = new QName(xstdBase.getNamespace(), xstdBase.getName());
+		
+		/**
+		 * Add bean 
+		 */
+		beans.add(bean);
 	}
 
 	/**
@@ -148,7 +185,7 @@ public class CIModel {
 			doContentTypeElement(xsctd, bean);
 			break;
 		default:
-			throw new InfrastructureException(
+			throw new ApplicationException(
 					String
 							.format(
 									"Complex type definitions [%s] other than Element not yet supported for CIBean",
@@ -167,19 +204,20 @@ public class CIModel {
 
 		switch (derivationMethod) {
 		case XSConstants.DERIVATION_EXTENSION:
+			doPropertyAttributes(xsctd, bean);
+			doPropertyElements(xsctd, bean);
 			break;
 		case XSConstants.DERIVATION_RESTRICTION:
+			doPropertyAttributes(xsctd, bean);
+			doPropertyElements(xsctd, bean);
 			break;
 		default:
-			throw new InfrastructureException(
+			throw new ApplicationException(
 					String
 							.format(
 									"Complex type definitions [%s] with derivations other than Extension/Restriction not yet supported for CIBean",
 									xsctd));
 		}
-
-		doPropertyAttributes(xsctd, bean);
-		doPropertyElements(xsctd, bean);
 	}
 
 	/**
@@ -266,13 +304,15 @@ public class CIModel {
 			 */
 			XSTypeDefinition elementTypeDefinition = elementDeclaration
 					.getTypeDefinition();
-			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.COMPLEX_TYPE) {
+
+			switch (elementTypeDefinition.getTypeCategory()) {
+			case XSTypeDefinition.COMPLEX_TYPE:
 				elementProperty.typeCategory = CIProperty.TypeCategory.ComplexElement;
 
 				elementProperty.type = new QName(elementTypeDefinition
 						.getNamespace(), elementTypeDefinition.getName());
-			}
-			if (elementTypeDefinition.getTypeCategory() == XSTypeDefinition.SIMPLE_TYPE) {
+				break;
+			case XSTypeDefinition.SIMPLE_TYPE:
 				elementProperty.typeCategory = CIProperty.TypeCategory.SimpleElement;
 
 				XSTypeDefinition primitiveElementTypeDefinition = ((XSSimpleTypeDefinition) elementTypeDefinition)
@@ -281,6 +321,11 @@ public class CIModel {
 				elementProperty.type = new QName(primitiveElementTypeDefinition
 						.getNamespace(), primitiveElementTypeDefinition
 						.getName());
+				break;
+			default:
+				throw new ApplicationException(
+						String
+								.format("CI Properties represented by elements may only be either complex or simple types"));
 			}
 
 			elementProperty.nillable = elementDeclaration.getNillable();
@@ -347,7 +392,7 @@ public class CIModel {
 		case XSConstants.WILDCARD:
 			break;
 		default:
-			throw new InfrastructureException(
+			throw new ApplicationException(
 					String
 							.format(
 									"Unknown XSObject [type: %s] neither a model group, element declaration or wildcard",
@@ -378,7 +423,7 @@ public class CIModel {
 			}
 			break;
 		default:
-			throw new InfrastructureException(
+			throw new ApplicationException(
 					String
 							.format(
 									"CIBean [%s] simple type definition other than enumerations are not supported",
