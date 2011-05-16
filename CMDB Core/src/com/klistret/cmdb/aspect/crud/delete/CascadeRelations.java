@@ -11,19 +11,19 @@
  ** copy of the GNU General Public License along with Klistret. If not,
  ** see <http://www.gnu.org/licenses/>
  */
-
-package com.klistret.cmdb.plugin.deletion.aspect;
-
+package com.klistret.cmdb.aspect.crud.delete;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.integration.Message;
 
+import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.service.RelationService;
 
-public class ElementDeletion {
+public class CascadeRelations {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(ElementDeletion.class);
+			.getLogger(CascadeRelations.class);
 
 	private RelationService relationService;
 
@@ -31,9 +31,14 @@ public class ElementDeletion {
 		this.relationService = relationService;
 	}
 
-	public void remove(Long id) {
-		int count = relationService.cascade(id);
+	public void receive(Message<Element> message) {
+		if (message.getHeaders().get("function").equals("DELETE")) {
+			int count = relationService.cascade(message.getPayload().getId());
 
-		logger.debug("Deletion of {} relations complete", count);
+			logger
+					.debug(
+							"Cascaded delete of element [id: {}] to source/destination relations [count: {}]",
+							message.getPayload().getId(), count);
+		}
 	}
 }

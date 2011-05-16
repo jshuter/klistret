@@ -15,38 +15,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-	     http://www.springframework.org/schema/beans/spring-beans.xsd">
-	<!-- JDBC (active in non-container) *edit installation parameter -->
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName">
-			<value>${cmdb.database.driver}</value>
-		</property>
-		<property name="url">
-			<value>${cmdb.database.url}</value>
-		</property>
-		<property name="username">
-			<value>${cmdb.database.user}</value>
-		</property>
-		<property name="password">
-			<value>${cmdb.database.password}</value>
-		</property>
-	</bean>
-	<!-- Datasource (active in J2EE container) *edit installation parameter -->
-	<!--
-		<bean id="dataSource"
-		class="org.springframework.jndi.JndiObjectFactoryBean"> <property
-		name="jndiName"><value>${cmdb.datasource.name}</value></property>
-		</bean>
-	-->
-	<!-- Hibernate SessionFactory -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="configLocation">
-			<value>classpath:Hibernate.cfg.xml</value>
-		</property>
-	</bean>
+	     http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
 	<!-- DAO -->
 	<bean id="elementTypeDAO"
 		class="com.klistret.cmdb.dao.ElementTypeDAOImpl">
@@ -64,4 +34,115 @@
 		class="com.klistret.cmdb.dao.RelationTypeDAOImpl">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
+
+	<!-- Development Hibernate beans (session factory, data source) -->
+	<beans profile="development">
+		<bean id="dataSource"
+			class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName">
+				<value>${cmdb.database.driver}</value>
+			</property>
+			<property name="url">
+				<value>${cmdb.database.url}</value>
+			</property>
+			<property name="username">
+				<value>${cmdb.database.user}</value>
+			</property>
+			<property name="password">
+				<value>${cmdb.database.password}</value>
+			</property>
+		</bean>
+
+		<bean id="sessionFactory"
+			class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource" />
+
+			<property name="hibernateProperties">
+				<props>
+					<prop key="hibernate.dialect">
+						${cmdb.hibernate.dialect}
+					</prop>
+					<prop key="hibernate.show_sql">true</prop>
+				</props>
+			</property>
+
+			<property name="mappingResources">
+				<list>
+					<value>
+						com/klistret/cmdb/pojo/Element.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/ElementType.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/Relation.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/RelationType.hbm.xml
+					</value>
+				</list>
+			</property>
+		</bean>
+	</beans>
+
+	<!-- Live Hibernate beans (session factory, data source) -->
+	<beans profile="live">
+		<bean id="dataSource"
+			class="org.springframework.jndi.JndiObjectFactoryBean">
+			<property name="jndiName">
+				<value>${cmdb.datasource.name}</value>
+			</property>
+		</bean>
+
+		<bean id="sessionFactory"
+			class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource" />
+
+			<property name="hibernateProperties">
+				<props>
+					<prop key="hibernate.dialect">
+						${cmdb.hibernate.dialect}
+					</prop>
+					<prop key="transaction.factory_class">
+						org.hibernate.transaction.JTATransactionFactory
+					</prop>
+					<prop key="transaction.manager_lookup_class">
+						${cmdb.hibernate.tx.manager}
+					</prop>
+					<prop
+						key="hibernate.transaction.flush_before_completion">
+						true
+					</prop>
+					<prop
+						key="hibernate.transaction.auto_close_session">
+						true
+					</prop>
+					<prop
+						key="hibernate.current_session_context_class">
+						jta
+					</prop>
+					<prop key="hibernate.connection.release_mode">
+						auto
+					</prop>
+				</props>
+			</property>
+
+			<property name="mappingResources">
+				<list>
+					<value>
+						com/klistret/cmdb/pojo/Element.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/ElementType.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/Relation.hbm.xml
+					</value>
+					<value>
+						com/klistret/cmdb/pojo/RelationType.hbm.xml
+					</value>
+				</list>
+			</property>
+		</bean>
+	</beans>
 </beans>
