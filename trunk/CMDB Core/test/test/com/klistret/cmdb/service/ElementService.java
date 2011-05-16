@@ -16,32 +16,19 @@ package test.com.klistret.cmdb.service;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import com.klistret.cmdb.ci.element.context.Environment;
-import com.klistret.cmdb.ci.element.system.Application;
-import com.klistret.cmdb.ci.element.process.change.Installation;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.RelationType;
-import com.klistret.cmdb.ci.relation.Composition;
-import com.klistret.cmdb.utility.jaxb.CIContext;
 
 /**
  * Element services are tested directly
@@ -49,83 +36,59 @@ import com.klistret.cmdb.utility.jaxb.CIContext;
  * @author Matthew Young
  * 
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
-@TransactionConfiguration
-@Transactional
-public class ElementService extends
-		AbstractTransactionalJUnit4SpringContextTests {
+public class ElementService {
+
+	private Element dummyElement;
 
 	/**
 	 * Element Service
 	 */
-	@Autowired
 	protected com.klistret.cmdb.service.ElementService elementService;
 
 	/**
 	 * Element Type Services
 	 */
-	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
 	/**
 	 * Relation Service
 	 */
-	@Autowired
 	protected com.klistret.cmdb.service.RelationService relationService;
 
 	/**
 	 * Relation Type Services
 	 */
-	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
-	//@Test
-	//@Rollback(value = false)
-	public void get() throws JAXBException {
-		Element element = elementService.get(new Long(224));
-		System.out.println(element.getConfiguration().getClass().getName());
-		System.out.println(CIContext.getCIContext().getBean(
-				QName.valueOf(element.getType().getName())).getJavaClass()
-				.getName());
-
-		assertNotNull(element);
-	}
-
-	//@Test
-	//@Rollback(value = false)
-	public void getAndSet() {
-		Element element = elementService.get(new Long(224));
-
-		element.getConfiguration().setTag(
-				Arrays.asList(new String[] { "Development" }));
-		elementService.update(element);
-
-		assertNotNull(element);
-	}
-
-	// @Test
-	public void dummy() {
-		System.out.println("file.encoding: "
-				+ System.getProperty("file.encoding"));
-		System.out.println("Charset: " + Charset.defaultCharset());
-	}
-
-	// @Test
-	// @Rollback(value = false)
-	public void set() {
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+		ctx.getEnvironment().setActiveProfiles("development");
+		ctx.load("classpath:Spring.cfg.xml");
+		ctx.refresh();
+		
+		elementService = ctx.getBean(com.klistret.cmdb.service.ElementService.class);
+		relationService = ctx.getBean(com.klistret.cmdb.service.RelationService.class);
+		
+		elementTypeService = ctx.getBean(com.klistret.cmdb.service.ElementTypeService.class);
+		relationTypeService = ctx.getBean(com.klistret.cmdb.service.RelationTypeService.class);
+		
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
 
-		Element element = new Element();
-		element.setName("tm907");
-		element.setType(elementType);
-		element.setFromTimeStamp(new java.util.Date());
-		element.setCreateTimeStamp(new java.util.Date());
-		element.setUpdateTimeStamp(new java.util.Date());
+		dummyElement = new Element();
+		dummyElement.setName("Dummy");
+		dummyElement.setType(elementType);
+		dummyElement.setFromTimeStamp(new java.util.Date());
+		dummyElement.setCreateTimeStamp(new java.util.Date());
+		dummyElement.setUpdateTimeStamp(new java.util.Date());
 
 		Environment environment = new Environment();
-		environment.setName("tm907");
+		environment.setName("Dummy");
 		environment.setWatermark("Testing");
 
 		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
@@ -147,92 +110,72 @@ public class ElementService extends
 		ownership.setContact(contact);
 		environment.setOwnership(ownership);
 
-		element.setConfiguration(environment);
-
-		elementService.create(element);
-
-		assertNotNull(element);
+		dummyElement.setConfiguration(environment);
 	}
 
-	// @Test
-	// @Rollback(value = false)
-	public void set2() {
-		ElementType elementType = elementTypeService
-				.get("{http://www.klistret.com/cmdb/ci/element/system}Application");
-
-		Element element = new Element();
-		element.setName("PRO");
-		element.setType(elementType);
-		element.setFromTimeStamp(new java.util.Date());
-		element.setCreateTimeStamp(new java.util.Date());
-		element.setUpdateTimeStamp(new java.util.Date());
-
-		Application application = new Application();
-		application.setName("PRO");
-		application.setWatermark("Testing");
-		application
-				.setEnvironment(Arrays.asList(new String[] { "Production" }));
-		application.setState("Online");
-
-		element.setConfiguration(application);
-
-		elementService.create(element);
-
-		assertNotNull(element);
-	}
-
+	/**
+	 * Get element
+	 * 
+	 * @throws JAXBException
+	 */
 	@Test
-	@Rollback(value = false)
-	public void find() {
+	public void getElement() throws JAXBException {
+		Element element = elementService.get(new Long(78941));
+
+		assertNotNull(element);
+	}
+
+	/**
+	 * Update element
+	 */
+	//@Test
+	public void updateElement() {
+		Element element = elementService.get(new Long(78941));
+		elementService.update(element);
+
+		assertNotNull(element);
+	}
+
+	/**
+	 * Create element then delete
+	 */
+	//@Test
+	public void createElement() {
+		elementService.create(dummyElement);
+		elementService.delete(dummyElement.getId());
+
+		assertNotNull(dummyElement);
+	}
+
+	/**
+	 * Find elements
+	 */
+	//@Test
+	public void findElement() {
 		List<Element> response = elementService
 				.find(
 						Arrays
-								.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
-										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")]"}),
+								.asList(new String[] {
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")]" }),
 						0, 10);
-
-		System.out.println("response size: " + response == null ? "empty"
-				: response.size());
 
 		assertNotNull(response);
 	}
 
-	// @Test
-	// @Rollback(value = false)
-	public void relate() {
-		RelationType type = relationTypeService
-				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
-
-		Element application = elementService.get(new Long(241));
-		Element software = elementService.get(new Long(342));
-
-		Relation relation = new Relation();
-		relation.setType(type);
-		relation.setSource(application);
-		relation.setDestination(software);
-		relation.setFromTimeStamp(new java.util.Date());
-		relation.setCreateTimeStamp(new java.util.Date());
-		relation.setUpdateTimeStamp(new java.util.Date());
-
-		Composition composition = new Composition();
-		composition.setName(software.getName());
-
-		relation.setConfiguration(composition);
-
-		relationService.create(relation);
-
-		assertNotNull(relation);
-	}
-
-	// @Test
-	// @Rollback(value = false)
+	/**
+	 * Get relation
+	 */
+	//@Test
 	public void getRelation() {
 		Relation relation = relationService.get(new Long(1));
 		assertNotNull(relation);
 	}
 
-	// @Test
-	// @Rollback(value = false)
+	/**
+	 * Find relations
+	 */
+	//@Test
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(
@@ -245,60 +188,6 @@ public class ElementService extends
 										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Relation/pojo:destination/pojo:configuration[sw:Type = \"Version\" and sw:Module = \"KUI\" and sw:Organization = \"Försäkringskassan\"]" }),
 						0, 25);
 
-		System.out.println("response size: " + response == null ? "empty"
-				: response.size());
-
 		assertNotNull(response);
-	}
-
-	// @Test
-	// @Rollback(value = false)
-	public void cascade() {
-		relationService.cascade(new Long(1));
-	}
-
-	// @Test
-	// @Rollback(value = false)
-	public void delete() {
-		elementService.delete(new Long(4));
-	}
-
-	// @Test
-	// @Rollback(value = false)
-	public void delete2() {
-		relationService.delete(new Long(146));
-	}
-
-	// @Test
-	// @Rollback(value = false)
-	public void settingRelations() {
-		Element kui = elementService.get(new Long(241));
-		Element kui_0001_a01 = elementService.get(new Long(242));
-
-		RelationType type = relationTypeService
-				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
-		Relation relation = new Relation();
-		relation.setType(type);
-		relation.setDestination(kui_0001_a01);
-		relation.setFromTimeStamp(new java.util.Date());
-		relation.setCreateTimeStamp(new java.util.Date());
-		relation.setUpdateTimeStamp(new java.util.Date());
-
-		Composition composition = new Composition();
-		composition.setName("242 against 241");
-
-		relation.setConfiguration(composition);
-
-		kui.setSourceRelations(Arrays.asList(relation));
-		elementService.update(kui);
-	}
-
-	// @Test
-	// @Rollback(value=false)
-	public void plugin() {
-		Element element = elementService.get(new Long(343));
-		((Installation) element.getConfiguration()).setState("Completed");
-
-		elementService.update(element);
 	}
 }

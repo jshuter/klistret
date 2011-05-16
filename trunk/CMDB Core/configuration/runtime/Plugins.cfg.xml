@@ -16,8 +16,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
- http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd ">
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd ">
 
+	<!-- Identification remains until Blueprints module is available -->
 	<bean id="elementIdentification"
 		class="com.klistret.cmdb.plugin.persistence.aspect.ElementIdentification">
 		<property name="url" value="classpath:persistence.rules.xml" />
@@ -30,43 +33,8 @@
 				expression="execution(* com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
 			<aop:pointcut id="createPointcut"
 				expression="execution(* com.klistret.cmdb.service.ElementService.create(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
-			<aop:before pointcut-ref="updatePointcut"
-				method="identify" />
-			<aop:before pointcut-ref="createPointcut"
-				method="identify" />
-		</aop:aspect>
-	</aop:config>
-	
-	<bean id="elementDeletion"
-		class="com.klistret.cmdb.plugin.deletion.aspect.ElementDeletion">
-		<property name="relationService" ref="relationService" />
-	</bean>
-	
-	<aop:config>
-		<aop:aspect ref="elementDeletion">
-			<aop:pointcut id="deletePointcut"
-				expression="execution(* com.klistret.cmdb.service.ElementService.delete(Long)) and args(id)" />
-			<aop:after-returning pointcut-ref="deletePointcut"
-				method="remove" />
-		</aop:aspect>
-	</aop:config>
-	
-	<bean id="applicationRelation"
-		class="com.klistret.cmdb.plugin.installation.aspect.ApplicationRelation">
-		<property name="relationService" ref="relationService" />
-		<property name="relationTypeService" ref="relationTypeService" />
-		<property name="elementService" ref="elementService" />
-		<property name="elementTypeService" ref="elementTypeService" />
-		<property name="state" value="Completed" />
-		<property name="elementType" value="{http://www.klistret.com/cmdb/ci/element/process/change}Installation" />
-	</bean>
-	
-	<aop:config>
-		<aop:aspect ref="applicationRelation">
-			<aop:pointcut id="applicationRelationPointcut"
-				expression="execution(* com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
-			<aop:after-returning pointcut-ref="applicationRelationPointcut"
-				method="relate" />
+			<aop:before pointcut-ref="updatePointcut" method="identify" />
+			<aop:before pointcut-ref="createPointcut" method="identify" />
 		</aop:aspect>
 	</aop:config>
 </beans>

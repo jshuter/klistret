@@ -32,8 +32,7 @@ import org.jboss.resteasy.plugins.spring.SpringResourceFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.HttpResponseCodes;
@@ -58,7 +57,7 @@ public class RestEasyService {
 	/**
 	 * Spring application context
 	 */
-	private ConfigurableApplicationContext factory;
+	private GenericXmlApplicationContext ctx;
 
 	/**
 	 * Sets up the RestEasy Mock framework
@@ -73,21 +72,25 @@ public class RestEasyService {
 		// Load up the processor and build a spring factory
 		SpringBeanProcessor processor = new SpringBeanProcessor(dispatcher,
 				null, null);
-		factory = new ClassPathXmlApplicationContext("Spring.cfg.xml");
-		factory.addBeanFactoryPostProcessor(processor);
+		
+		ctx = new GenericXmlApplicationContext();
+		ctx.getEnvironment().setActiveProfiles("development");
+		ctx.load("classpath:Spring.cfg.xml");
+		ctx.refresh();
+		ctx.addBeanFactoryPostProcessor(processor);
 
 		// Add service to the dispatcher
 		SpringResourceFactory elementService = new SpringResourceFactory(
-				"elementService", factory,
+				"elementService", ctx,
 				com.klistret.cmdb.service.ElementService.class);
 		SpringResourceFactory relationService = new SpringResourceFactory(
-				"relationService", factory,
+				"relationService", ctx,
 				com.klistret.cmdb.service.RelationService.class);
 		SpringResourceFactory elementTypeService = new SpringResourceFactory(
-				"elementTypeService", factory,
+				"elementTypeService", ctx,
 				com.klistret.cmdb.service.ElementTypeService.class);
 		SpringResourceFactory relationTypeService = new SpringResourceFactory(
-				"relationTypeService", factory,
+				"relationTypeService", ctx,
 				com.klistret.cmdb.service.RelationTypeService.class);
 		dispatcher.getRegistry().addResourceFactory(elementService);
 		dispatcher.getRegistry().addResourceFactory(relationService);
@@ -141,8 +144,8 @@ public class RestEasyService {
 	 * @throws UnsupportedEncodingException
 	 */
 	@Test
-	public void deleteElement() throws URISyntaxException, JAXBException,
-			UnsupportedEncodingException {
+	public void deleteElementExpect404() throws URISyntaxException,
+			JAXBException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.delete("/resteasy/element/0");
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -191,15 +194,15 @@ public class RestEasyService {
 	}
 
 	/**
-	 * Get a known element then resend as POSt which is expected to fail
+	 * Get a known element then resend as POST which is expected to fail
 	 * 
 	 * @throws URISyntaxException
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
 	@Test
-	public void createElement() throws URISyntaxException, JAXBException,
-			UnsupportedEncodingException {
+	public void createElementExpect403() throws URISyntaxException,
+			JAXBException, UnsupportedEncodingException {
 		MockHttpRequest getRequest = MockHttpRequest
 				.get("/resteasy/element/78941")
 				.accept(
@@ -261,4 +264,57 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
+	/**
+	 * Find elements expected to return nothing due to a misspelling of an
+	 * element name
+	 * 
+	 * @throws URISyntaxException
+	 * @throws UnsupportedEncodingException
+	 */
+	@Test
+	public void findElementExpect200() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element?expressions="
+						+ URLEncoder
+								.encode(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Modul = (\"KUI\")]",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+	}
+
+	/**
+	 * Find elements expected to fail (400) due to bad comparison operator
+	 * 
+	 * @throws URISyntaxException
+	 * @throws UnsupportedEncodingException
+	 */
+	@Test
+	public void findElementExpect400() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element?expressions="
+						+ URLEncoder
+								.encode(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module == (\"KUI\")]",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+
+		Assert.assertEquals(HttpResponseCodes.SC_BAD_REQUEST, response
+				.getStatus());
+	}
 }

@@ -39,23 +39,26 @@
 	</publications>
 	<dependencies>
 		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
-		<dependency org="org.springframework" name="org.springframework.core" rev="2.5.6.SEC02" conf="compile->compile;runtime->aspectj">
+		<dependency org="org.springframework" name="org.springframework.core" rev="3.1.0.M1" conf="compile->compile;runtime->aspectj">
 		</dependency>
 		
 		<!-- Spring context (4): context, aopalliance, aop, beans -->
-		<dependency org="org.springframework" name="org.springframework.context" rev="2.5.6.SEC02" conf="compile->compile;runtime->runtime"/>
+		<dependency org="org.springframework" name="org.springframework.context" rev="3.1.0.M1" conf="compile->compile;runtime->runtime"/>
 		
 		<!-- Spring orm (3): orm, jdbc, transaction -->
-		<dependency org="org.springframework" name="org.springframework.orm" rev="2.5.6.SEC02" conf="compile->compile;runtime->compile"/>
+		<dependency org="org.springframework" name="org.springframework.orm" rev="3.1.0.M1" conf="compile->compile;runtime->compile"/>
 		
 		<!-- Spring web (1): web -->
-		<dependency org="org.springframework" name="org.springframework.web" rev="2.5.6.SEC02" conf="runtime->compile"/>
+		<dependency org="org.springframework" name="org.springframework.web" rev="3.1.0.M1" conf="runtime->compile"/>
 		
 		<!-- Spring test (1): test -->
-		<dependency org="org.springframework" name="org.springframework.test" rev="2.5.6.SEC02" conf="compile->compile;runtime->compile"/>
+		<dependency org="org.springframework" name="org.springframework.test" rev="3.1.0.M1" conf="compile->compile;runtime->compile"/>
+		
+		<!-- Spring integration (1): core (otherwise there are forced dependencies on a specific version of Spring Core) -->
+		<dependency org="org.springframework.integration" name="spring-integration-core" rev="2.0.3.RELEASE" conf="compile->master;runtime->master"/>
 		
 		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, jta, javaassist -->
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.3.2.GA" conf="compile->runtime,master,optional;runtime->runtime,master,optional">
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.4.Final" conf="compile->runtime,master,optional;runtime->runtime,master,optional">
 			<exclude module="xml-apis"/>
             <exclude module="slf4j-api"/>
             <exclude module="jass"/>
@@ -124,7 +127,7 @@
 		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc3" conf="runtime->*"/>
 		
 		<!-- JUnit (1): junit -->
-		<dependency org="junit" name="junit" rev="4.4" conf="test->master"/>
+		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
 	
 		<!-- CI -->
 		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->master;runtime->master"/>
