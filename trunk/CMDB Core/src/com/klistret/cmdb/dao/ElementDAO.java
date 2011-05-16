@@ -51,13 +51,23 @@ public interface ElementDAO {
 	List<Element> find(List<String> expressions, int start, int limit);
 
 	/**
+	 * Identical to the find method except the row count is returned
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	Integer count(List<String> expressions);
+
+	/**
 	 * CRUD save/update
 	 * 
 	 * @param element
 	 * @return Element
 	 */
 	Element set(Element element);
-	
+
 	/**
 	 * CRUD delete
 	 * 

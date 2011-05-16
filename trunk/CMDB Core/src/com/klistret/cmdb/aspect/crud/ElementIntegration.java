@@ -21,6 +21,15 @@ import org.springframework.integration.support.MessageBuilder;
 
 import com.klistret.cmdb.ci.pojo.Element;
 
+/**
+ * Publishes messages upon CRUD function calls (using AOP). The payload is the
+ * element object and the header is populated with a function attribute denoting
+ * the CRUD type. Currently, reads are not handled prior to checking out the
+ * performance impacts of using Spring integration to do EDA.
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class ElementIntegration {
 
 	private static final Logger logger = LoggerFactory
@@ -68,7 +77,7 @@ public class ElementIntegration {
 
 	public void read(Long id, Element element) {
 		logger
-				.warn(
+				.debug(
 						"Message for CRUD function Get on element [id: {}] not supported",
 						element.getId());
 	}

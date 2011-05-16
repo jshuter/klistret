@@ -116,6 +116,27 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	}
 
 	/**
+	 * Query count of XPath expressions
+	 */
+	public Integer count(List<String> expressions) {
+		try {
+			logger.debug("Query count of XPath expressions");
+
+			if (expressions == null)
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
+
+			Criteria hcriteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
+			hcriteria.setProjection(Projections.rowCount());
+
+			return ((Long) hcriteria.list().get(0)).intValue();
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
+	/**
 	 * Another proxy (shallow copy of the object) is returned to avoid Hibernate
 	 * lazy exceptions in the RestEasy layer. A generic approach to transferring
 	 * properties would be better/safer to mapping/POJO changes.

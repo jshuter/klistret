@@ -70,13 +70,17 @@ public class ElementService {
 		ctx.getEnvironment().setActiveProfiles("development");
 		ctx.load("classpath:Spring.cfg.xml");
 		ctx.refresh();
-		
-		elementService = ctx.getBean(com.klistret.cmdb.service.ElementService.class);
-		relationService = ctx.getBean(com.klistret.cmdb.service.RelationService.class);
-		
-		elementTypeService = ctx.getBean(com.klistret.cmdb.service.ElementTypeService.class);
-		relationTypeService = ctx.getBean(com.klistret.cmdb.service.RelationTypeService.class);
-		
+
+		elementService = ctx
+				.getBean(com.klistret.cmdb.service.ElementService.class);
+		relationService = ctx
+				.getBean(com.klistret.cmdb.service.RelationService.class);
+
+		elementTypeService = ctx
+				.getBean(com.klistret.cmdb.service.ElementTypeService.class);
+		relationTypeService = ctx
+				.getBean(com.klistret.cmdb.service.RelationTypeService.class);
+
 		ElementType elementType = elementTypeService
 				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
 
@@ -118,7 +122,7 @@ public class ElementService {
 	 * 
 	 * @throws JAXBException
 	 */
-	@Test
+	// @Test
 	public void getElement() throws JAXBException {
 		Element element = elementService.get(new Long(78941));
 
@@ -128,7 +132,7 @@ public class ElementService {
 	/**
 	 * Update element
 	 */
-	//@Test
+	// @Test
 	public void updateElement() {
 		Element element = elementService.get(new Long(78941));
 		elementService.update(element);
@@ -139,7 +143,7 @@ public class ElementService {
 	/**
 	 * Create element then delete
 	 */
-	//@Test
+	// @Test
 	public void createElement() {
 		elementService.create(dummyElement);
 		elementService.delete(dummyElement.getId());
@@ -150,7 +154,7 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-	//@Test
+	// @Test
 	public void findElement() {
 		List<Element> response = elementService
 				.find(
@@ -164,9 +168,24 @@ public class ElementService {
 	}
 
 	/**
+	 * Count elements
+	 */
+	@Test
+	public void countElement() {
+		Integer response = elementService
+				.count(Arrays
+						.asList(new String[] {
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")]" }));
+
+		System.out.println(String.format("Count [%s]", response));
+		assertNotNull(response);
+	}
+
+	/**
 	 * Get relation
 	 */
-	//@Test
+	// @Test
 	public void getRelation() {
 		Relation relation = relationService.get(new Long(1));
 		assertNotNull(relation);
@@ -175,7 +194,7 @@ public class ElementService {
 	/**
 	 * Find relations
 	 */
-	//@Test
+	// @Test
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(
