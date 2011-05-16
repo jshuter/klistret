@@ -20,6 +20,13 @@ import org.springframework.integration.Message;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.service.RelationService;
 
+/**
+ * When an element is deleted all source and destination relationships are
+ * deleted (cascade).
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class CascadeRelations {
 
 	private static final Logger logger = LoggerFactory

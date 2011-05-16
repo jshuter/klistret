@@ -102,19 +102,23 @@ public class JAXBUserType implements UserType {
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner)
 			throws HibernateException, SQLException {
+		// TODO - Fix deprecated
 		String xmlString = (String) Hibernate.TEXT.nullSafeGet(rs, names[0]);
 
 		logger.debug("getting xml data [{}] as Object", xmlString);
 		return fromXMLString(xmlString);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void nullSafeSet(PreparedStatement st, Object value, int index)
 			throws HibernateException, SQLException {
 		logger.debug("setting Object [{}] as xml", value);
 
 		String xmlString = toXMLString(value);
+		// TODO - Fix deprecated
 		Hibernate.TEXT.nullSafeSet(st, xmlString, index);
 	}
 

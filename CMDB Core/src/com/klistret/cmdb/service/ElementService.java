@@ -74,6 +74,18 @@ public interface ElementService {
 	int limit);
 
 	/**
+	 * Same as the find method except a row count is returned
+	 * 
+	 * @param expressions
+	 * @return
+	 */
+	@BadgerFish
+	@GET
+	@Path("/element/count")
+	Integer count(@QueryParam("expressions")
+	List<String> expressions);
+
+	/**
 	 * Creating an element is subject to AOP checks
 	 * 
 	 * @param element
@@ -82,7 +94,8 @@ public interface ElementService {
 	@BadgerFish
 	@POST
 	@Path("/element")
-	Element create(@BadgerFish Element element);
+	Element create(@BadgerFish
+	Element element);
 
 	/**
 	 * Updating an element is subject to AOP checks
@@ -93,7 +106,8 @@ public interface ElementService {
 	@BadgerFish
 	@PUT
 	@Path("/element")
-	Element update(@BadgerFish Element element);
+	Element update(@BadgerFish
+	Element element);
 
 	/**
 	 * Delete an element (soft-delete)

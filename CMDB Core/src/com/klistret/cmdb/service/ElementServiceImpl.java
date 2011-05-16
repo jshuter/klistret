@@ -87,6 +87,15 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	/**
+	 * Row count by criteria (XPath)
+	 * 
+	 * @return Integer
+	 */
+	public Integer count(List<String> expressions) {
+		return elementDAO.count(expressions);
+	}
+
+	/**
 	 * Create an element if the id property is null
 	 * 
 	 * @param element
