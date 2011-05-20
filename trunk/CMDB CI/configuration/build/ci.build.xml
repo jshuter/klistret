@@ -11,7 +11,7 @@
 
 
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
-	<ivy:cachepath pathid="classpath.IVY" conf="compile" file="${project-basedir}/ivy.xml" type="jar" />
+	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar, bundle" />
 
 	<target name="xjc:plugin" description="Generate XJC extensions">
 		<delete dir="${tmp-destdir}" failonerror="false" />
@@ -21,6 +21,8 @@
 			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 			<include name="com/sun/tools/xjc/addon/ci/*.java" />
+			<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.java" />
+
 			<classpath>
 				<path refid="classpath.IVY" />
 			</classpath>
@@ -30,11 +32,18 @@
 			<fileset dir="${project-basedir}/src/META-INF" />
 		</copy>
 
+		<copy todir="${tmp-destdir}">
+			<fileset dir="${project-basedir}/src" includes="com/sun/tools/xjc/addon/collection_setter_injector/localstrings.properties" />
+		</copy>
+
 		<jar destfile="${tmp-destdir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
 				<include name="com/klistret/cmdb/annotations/ci/*.class" />
 				<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 				<include name="com/sun/tools/xjc/addon/ci/*.class" />
+				<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.class" />
+
+				<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.properties" />
 			</fileset>
 			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
 		</jar>
@@ -91,7 +100,7 @@
 	</target>
 
 	<target name="ci:publish" depends="ci:create">
-		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="runtime,compile" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.ci-[revision].[ext]" />
 		</ivy:publish>
 	</target>
