@@ -122,7 +122,7 @@ public class ElementService {
 	 * 
 	 * @throws JAXBException
 	 */
-	// @Test
+	@Test
 	public void getElement() throws JAXBException {
 		Element element = elementService.get(new Long(78941));
 
@@ -170,7 +170,7 @@ public class ElementService {
 	/**
 	 * Count elements
 	 */
-	@Test
+	//@Test
 	public void countElement() {
 		Integer response = elementService
 				.count(Arrays

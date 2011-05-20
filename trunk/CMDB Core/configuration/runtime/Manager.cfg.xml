@@ -71,7 +71,7 @@
 		</bean>
 	</beans>
 
-	<beans profile="live">
+	<beans profile="test,production">
 		<bean id="transactionManager" class="${cmdb.spring.tx.manager}" />
 	</beans>
 </beans>
