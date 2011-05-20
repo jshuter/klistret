@@ -27,92 +27,70 @@
         status="integration">
 	</info>
 	<configurations>  
-		<conf name="local" visibility="private" />  
-		<conf name="compile" description="used for building" />  
-		<conf name="test" extends="compile" description="used for testing" />  
-		<conf name="runtime" description="used for running" />  
-		<conf name="master" description="used for publishing" />  
-		<conf name="default" extends="master, runtime" /> 
+		<conf name="compile" visibility="public" description="Compiling" />  
+		<conf name="test" visibility="private" extends="compile" description="Testing" />  
+		<conf name="runtime" visibility="public" extends="compile" description="Running" />   
 	</configurations>
 	<publications>
-		<artifact name="klistret.core" type="jar" ext="jar" conf="master"/>
+		<artifact name="klistret.core" type="jar" ext="jar"/>
 	</publications>
 	<dependencies>
-		<!-- Spring core (4): core, commons-loggning, aspectj-weaver, aspectj-runtime -->
-		<dependency org="org.springframework" name="org.springframework.core" rev="3.1.0.M1" conf="compile->compile;runtime->aspectj">
-		</dependency>
+		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
+		<dependency org="org.springframework" name="org.springframework.core" rev="3.1.0.M1" conf="compile->compile;runtime->aspectj" />
 		
-		<!-- Spring context (4): context, aopalliance, aop, beans -->
-		<dependency org="org.springframework" name="org.springframework.context" rev="3.1.0.M1" conf="compile->compile;runtime->runtime"/>
+		<!-- Spring context (6): context, aopalliance, asm. aop, beans, expression -->
+		<dependency org="org.springframework" name="org.springframework.context" rev="3.1.0.M1" conf="compile->compile"/>
 		
 		<!-- Spring orm (3): orm, jdbc, transaction -->
-		<dependency org="org.springframework" name="org.springframework.orm" rev="3.1.0.M1" conf="compile->compile;runtime->compile"/>
+		<dependency org="org.springframework" name="org.springframework.orm" rev="3.1.0.M1" conf="compile->compile"/>
 		
 		<!-- Spring web (1): web -->
 		<dependency org="org.springframework" name="org.springframework.web" rev="3.1.0.M1" conf="runtime->compile"/>
-		
+
 		<!-- Spring test (1): test -->
-		<dependency org="org.springframework" name="org.springframework.test" rev="3.1.0.M1" conf="compile->compile;runtime->compile"/>
-		
+		<dependency org="org.springframework" name="org.springframework.test" rev="3.1.0.M1" conf="test->compile"/>
+
 		<!-- Spring integration (1): core (otherwise there are forced dependencies on a specific version of Spring Core) -->
-		<dependency org="org.springframework.integration" name="spring-integration-core" rev="2.0.3.RELEASE" conf="compile->master;runtime->master"/>
+		<dependency org="org.springframework.integration" name="spring-integration-core" rev="2.0.3.RELEASE" conf="compile->master"/>
 		
 		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, jta, javaassist -->
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.4.Final" conf="compile->runtime,master,optional;runtime->runtime,master,optional">
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.4.Final" conf="compile->runtime,master,optional">
 			<exclude module="xml-apis"/>
-            <exclude module="slf4j-api"/>
-            <exclude module="jass"/>
-            <exclude module="jacc"/>
-            <exclude module="ant"/>
-            <exclude module="cglib"/>
-            <exclude module="asm"/>
+			<exclude module="slf4j-api"/>
+			<exclude module="jass"/>
+			<exclude module="jacc"/>
+			<exclude module="ant"/>
+			<exclude module="cglib"/>
+			<exclude module="asm"/>
 		</dependency>
-		
+
 		<!-- Saxon (1): saxon-->
 		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*;"/>
-		
+
 		<!-- SLF4J (1): slf4j-api -->
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
-		
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
+	 
 		<!-- SLF4J (1): slf4j-log4j -->
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="runtime->master"/>
 		
-		<!-- Apache Log4j (1): log4j -->
-		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="runtime->master"/>
-		
-		<!-- DB2 LOCAL REPO (2): db2jcc, db2jcc_license -->
-		<dependency org="com.ibm" name="db2" rev="9.5" conf="runtime->master"/>
-		
-		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
-		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="compile->*;runtime->*"/>
-	 
-		<!-- JAXB IMPL (1): jaxb-impl -->
-		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="compile->master;runtime->master"/>
-		
-		<!-- JSR 173 -->
-		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="runtime->*"/>
-
 		<!-- Resteasy restasy-jaxrs (1): -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0.1.GA" conf="compile,runtime->master"/>
-		
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.0.1.GA" conf="compile->master"/>
+
 		<!-- Resteasy jaxrs-api (1): jaxrs-api -->
-		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.0.1.GA" conf="compile,runtime->master"/>
-		
+		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.0.1.GA" conf="compile->master"/>
+
 		<!-- Resteasy resteasy-jaxb-provider (1): resteasy-jaxb-provider -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jaxb-provider" rev="2.0.1.GA" conf="compile,runtime->master"/>
-		
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxb-provider" rev="2.0.1.GA" conf="runtime->master"/>
+
 		<!-- Resteasy resteasy-jettison-provider (1): resteasy-jettison-provider -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider" rev="2.0.1.GA" conf="compile,runtime->master"/>
-		
+		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider" rev="2.0.1.GA" conf="runtime->master"/>
+
 		<!-- Resteasy resteasy-spring (1): resteasy-spring -->
-		<dependency org="org.jboss.resteasy" name="resteasy-spring" rev="2.0.1.GA" conf="compile,runtime->master"/>
+		<dependency org="org.jboss.resteasy" name="resteasy-spring" rev="2.0.1.GA" conf="compile->master"/>
 
-		<!-- Resteasy resteasy-jsapi (1): resteasy-jsapi -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jsapi" rev="2.0.1.GA" conf="runtime->master"/>
+		<!-- Jettison (1): jettison -->
+		<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="runtime->master"/>
 
-		<!-- Jettison LOCAL REPO (1) which is a dependency of RestEASY jettison provider -->
-		<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="runtime->*"/>
-		
 		<!-- Jakarta HTTPCLIENT -->
 		<dependency org="commons-codec" name="commons-codec" rev="1.4" conf="test->master"/>
 		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="test->master"/>
@@ -122,15 +100,14 @@
 		
 		<!-- Reflections -->
 		<dependency org="org.reflections" name="reflections" rev="0.9.5-RC2" conf="compile->*"/>
-		
+
 		<!-- Google collections (used by Reflections but not in the Maven pom) -->
 		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc3" conf="runtime->*"/>
-		
+			
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
-	
+		
 		<!-- CI -->
-		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->master;runtime->master"/>
-	
+		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->runtime;"/>
 	</dependencies>
 </ivy-module>

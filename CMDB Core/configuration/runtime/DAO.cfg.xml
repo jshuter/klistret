@@ -86,7 +86,7 @@
 	</beans>
 
 	<!-- Live Hibernate beans (session factory, data source) -->
-	<beans profile="live">
+	<beans profile="test,production">
 		<bean id="dataSource"
 			class="org.springframework.jndi.JndiObjectFactoryBean">
 			<property name="jndiName">

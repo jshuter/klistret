@@ -40,25 +40,50 @@
 		class="com.klistret.cmdb.aspect.crud.ElementIntegration">
 		<property name="channel" ref="crudIntegrationChannel" />
 	</bean>
+	<bean id="relationIntegration"
+		class="com.klistret.cmdb.aspect.crud.RelationIntegration">
+		<property name="channel" ref="crudIntegrationChannel" />
+	</bean>
 
 	<aop:config>
 		<aop:aspect ref="elementIntegration">
-			<aop:pointcut id="readPointcut"
+			<aop:pointcut id="readElementPointcut"
 				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.get(Long)) and args(id)" />
-			<aop:pointcut id="deletePointcut"
+			<aop:pointcut id="deleteElementPointcut"
 				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.delete(Long)) and args(id)" />
-			<aop:pointcut id="updatePointcut"
+			<aop:pointcut id="updateElementPointcut"
 				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
-			<aop:pointcut id="createPointcut"
+			<aop:pointcut id="createElementPointcut"
 				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.create(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
 
-			<aop:after-returning pointcut-ref="readPointcut"
+			<aop:after-returning pointcut-ref="readElementPointcut"
 				method="read" returning="element" />
-			<aop:after-returning pointcut-ref="deletePointcut"
+			<aop:after-returning pointcut-ref="deleteElementPointcut"
 				method="delete" returning="element" />
-			<aop:after-returning pointcut-ref="updatePointcut"
+			<aop:after-returning pointcut-ref="updateElementPointcut"
 				method="update" />
-			<aop:after-returning pointcut-ref="createPointcut"
+			<aop:after-returning pointcut-ref="createElementPointcut"
+				method="create" />
+		</aop:aspect>
+	</aop:config>
+	<aop:config>
+		<aop:aspect ref="relationIntegration">
+			<aop:pointcut id="readRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.get(Long)) and args(id)" />
+			<aop:pointcut id="deleteRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.delete(Long)) and args(id)" />
+			<aop:pointcut id="updateRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.update(com.klistret.cmdb.ci.pojo.Relation)) and args(relation)" />
+			<aop:pointcut id="createRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.create(com.klistret.cmdb.ci.pojo.Relation)) and args(relation)" />
+
+			<aop:after-returning pointcut-ref="readRelationPointcut"
+				method="read" returning="relation" />
+			<aop:after-returning pointcut-ref="deleteRelationPointcut"
+				method="delete" returning="relation" />
+			<aop:after-returning pointcut-ref="updateRelationPointcut"
+				method="update" />
+			<aop:after-returning pointcut-ref="createRelationPointcut"
 				method="create" />
 		</aop:aspect>
 	</aop:config>
