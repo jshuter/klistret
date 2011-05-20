@@ -26,48 +26,33 @@
         status="integration">
 	</info>
 	<configurations>  
-		<conf name="local" visibility="private" />  
-		<conf name="compile" description="used for building" />  
-		<conf name="test" extends="compile" description="used for testing" />  
-		<conf name="runtime" description="used for running" />  
-		<conf name="master" description="used for publishing" />  
-		<conf name="default" extends="master, runtime" /> 
+		<conf name="compile" visibility="public" description="Compiling" />  
+		<conf name="test" visibility="private" extends="compile" description="Testing" />  
+		<conf name="runtime" visibility="public" extends="compile" description="Running" />   
 	</configurations>
 	<publications>
-		<artifact name="klistret.ci" type="jar" ext="jar" conf="master"/>
+		<artifact name="klistret.ci" type="jar" ext="jar" conf="runtime"/>
 	</publications>
 	<dependencies>
+		<!-- Apache Log4j (1): log4j -->
+		<dependency org="log4j" name="log4j" rev="1.2.16" conf="runtime->master"/>
+		
 		<!-- SLF4J (1): slf4j-api -->
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master;runtime->master"/>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
 	 
 		<!-- SLF4J (1): slf4j-log4j -->
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="compile->master;runtime->master"/>
-		
-		<!-- Apache Log4j (1): log4j -->
-		<dependency org="apache-log4j" name="log4j" rev="1.2.15" conf="compile->master;runtime->master"/>
-		
-		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
-		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="compile->master;runtime->master"/>
-	 
-		<!-- JAXB IMPL (1): jaxb-impl -->
-		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="compile->master;runtime->master"/>
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="runtime->master"/>
 		
 		<!-- JAXB XJC (1): jaxb-xjc -->
-		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="compile->master;runtime->master"/>
+		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="compile->master"/>
 		
-		<!-- JSR 173 -->
-		<dependency org="javax.xml.bind" name="jsr173_api" rev="1.0" conf="compile->master;runtime->master"/>
+		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="runtime->master"/>
 		
-		<!-- JAXB2 commons local repo (1): collection-setter-injector -->
-		<dependency org="net.java.dev" name="jaxb2-commons" rev="unknown" conf="compile,runtime->*"/>
+		<!-- JAXB IMPL (1): jaxb-impl -->
+		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="runtime->master"/>
 		
-		<!-- Activation (1): activation -->
-		<dependency org="javax.activation" name="activation" rev="1.1" conf="compile,runtime->*"/>
-		
-		<!-- Resteasy resteasy-jettison-provider (1): resteasy-jettison-provider -->
-		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider" rev="2.0.1.GA" conf="compile,runtime->master"/>
-			
 		<!-- JUnit (1): junit -->
-		<dependency org="junit" name="junit" rev="4.4" conf="test->master"/>
+		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
 	</dependencies>
 </ivy-module>
