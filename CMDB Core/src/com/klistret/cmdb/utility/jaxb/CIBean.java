@@ -16,6 +16,11 @@ package com.klistret.cmdb.utility.jaxb;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.namespace.QName;
 
 /**
@@ -28,6 +33,9 @@ import javax.xml.namespace.QName;
  * @author Matthew Young
  * 
  */
+@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlType(name = "Bean")
+@XmlRootElement(name = "Bean")
 public class CIBean {
 
 	/**
@@ -38,16 +46,6 @@ public class CIBean {
 	 */
 	public enum TypeCategory {
 		Complex, Simple
-	};
-
-	/**
-	 * Category of CMDB either an element, relation or proxy.
-	 * 
-	 * @author Matthew Young
-	 * 
-	 */
-	public enum CMDBCategory {
-		Proxy, Element, Relation
 	};
 
 	/**
@@ -64,11 +62,6 @@ public class CIBean {
 	 * Type category
 	 */
 	protected TypeCategory typeCategory;
-
-	/**
-	 * CMDB category
-	 */
-	protected CMDBCategory cmdbCategory;
 
 	/**
 	 * Base schema type (extended)
@@ -99,30 +92,66 @@ public class CIBean {
 		return javaClass;
 	}
 
+	@XmlElement(name = "JavaName")
+	public String getJavaName() {
+		return javaClass.getName();
+	}
+
 	public QName getType() {
 		return type;
+	}
+
+	@XmlElement(name = "TypeLocalPart")
+	public String getTypeLocalPart() {
+		return type.getLocalPart();
+	}
+
+	@XmlElement(name = "TypeNamespaceURI")
+	public String getTypeNamespaceURI() {
+		return type.getNamespaceURI();
 	}
 
 	public TypeCategory getTypeCategory() {
 		return typeCategory;
 	}
 
-	public CMDBCategory getCMDBCategory() {
-		return cmdbCategory;
+	@XmlElement(name = "TypeCategoryName")
+	public String getTypeCategoryName() {
+		switch (typeCategory) {
+		case Complex:
+			return "Complex";
+		case Simple:
+			return "Simple";
+		}
+		
+		return null;
 	}
 
 	public QName getBase() {
 		return base;
 	}
+	
+	@XmlElement(name = "BaseLocalPart")
+	public String getBaseLocalPart() {
+		return base.getLocalPart();
+	}
 
+	@XmlElement(name = "BaseNamespaceURI")
+	public String getBaseNamespaceURI() {
+		return base.getNamespaceURI();
+	}
+
+	@XmlElement(name = "Abstract")
 	public Boolean isAbstraction() {
 		return abstraction;
 	}
 
+	@XmlElement(name = "Annotation")
 	public List<String> getAnnotations() {
 		return annotations;
 	}
 
+	@XmlElement(name = "Property")
 	public List<CIProperty> getProperties() {
 		return properties;
 	}
