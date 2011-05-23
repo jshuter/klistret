@@ -13,6 +13,11 @@
  */
 package com.klistret.cmdb.utility.jaxb;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
 /**
@@ -23,6 +28,9 @@ import javax.xml.namespace.QName;
  * @author Matthew Young
  * 
  */
+@XmlAccessorType(XmlAccessType.PROPERTY)
+@XmlType(name = "Property")
+@XmlRootElement(name = "Property")
 public class CIProperty {
 	/**
 	 * Types are restricted to simple or complex element and attributes.
@@ -82,15 +90,41 @@ public class CIProperty {
 	public QName getName() {
 		return name;
 	}
+	
+	@XmlElement(name = "NameLocalPart")
+	public String getNameLocalPart() {
+		return name.getLocalPart();
+	}
+	
+	@XmlElement(name = "NameNamespaceURI")
+	public String getNameNamespaceURI() {
+		return name.getNamespaceURI();
+	}
 
 	public TypeCategory getTypeCategory() {
 		return typeCategory;
 	}
+	
+	@XmlElement(name = "TypeCategoryName")
+	public String getTypeCategoryName() {
+		switch (typeCategory) {
+		case ComplexElement:
+			return "ComplexElement";
+		case SimpleElement:
+			return "SimpleElement";
+		case Attribute:
+			return "Attribute";
+		}
+		
+		return null;
+	}
 
+	@XmlElement(name = "Required")
 	public Boolean isRequired() {
 		return required;
 	}
 
+	@XmlElement(name = "Nillable")
 	public Boolean isNillable() {
 		return nillable;
 	}
@@ -98,19 +132,33 @@ public class CIProperty {
 	public QName getType() {
 		return type;
 	}
+	
+	@XmlElement(name = "TypeLocalPart")
+	public String getTypeLocalPart() {
+		return type.getLocalPart();
+	}
 
+	@XmlElement(name = "TypeNamespaceURI")
+	public String getTypeNamespaceURI() {
+		return type.getNamespaceURI();
+	}
+
+	@XmlElement(name = "MaxOccurs")
 	public Integer getMaxOccurs() {
 		return maxOccurs;
 	}
 
+	@XmlElement(name = "MinOccurs")
 	public Integer getMinOccurs() {
 		return minOccurs;
 	}
 
+	@XmlElement(name = "Unbounded")
 	public Boolean isUnbounded() {
 		return maxOccursUnbounded;
 	}
 
+	@XmlElement(name = "Annotation")
 	public String getAnnotation() {
 		return annotation;
 	}

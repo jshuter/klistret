@@ -20,6 +20,8 @@ import static org.junit.Assert.fail;
 import java.io.StringWriter;
 import java.util.Set;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
@@ -62,7 +64,7 @@ public class CIContext {
 		helper = com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Marshall then validate the environment object
 	 */
@@ -86,7 +88,7 @@ public class CIContext {
 				"Environment marshalled and validated [xml: %s]", sw), sw);
 	}
 
-	@Test
+	//@Test
 	/**
 	 * Get CI beans
 	 */
@@ -102,5 +104,20 @@ public class CIContext {
 
 		assertNotNull(String.format("CI beans [%d] generated", beans.size()),
 				beans);
+	}
+
+	@Test
+	public void marshall() throws JAXBException {
+		JAXBContext context = JAXBContext
+				.newInstance(new Class[] { com.klistret.cmdb.utility.jaxb.CIBean.class });
+		Marshaller m = context.createMarshaller();
+
+		Set<CIBean> beans = helper.getBeans();
+
+		for (CIBean bean : beans) {
+			StringWriter sw = new StringWriter();
+			m.marshal(bean, sw);
+			System.out.println(sw.toString());
+		}
 	}
 }

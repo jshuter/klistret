@@ -18,8 +18,7 @@
    under the License.    
 -->
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
-       xmlns:m="http://ant.apache.org/ivy/maven">
+       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
     <info
         organisation="com.klistret.cmdb"
         module="core"
@@ -32,7 +31,7 @@
 		<conf name="runtime" visibility="public" extends="compile" description="Running" />   
 	</configurations>
 	<publications>
-		<artifact name="klistret.core" type="jar" ext="jar"/>
+		<artifact name="klistret.core" type="jar" ext="jar" conf="runtime"/>
 	</publications>
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
@@ -65,7 +64,7 @@
 		</dependency>
 
 		<!-- Saxon (1): saxon-->
-		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*;"/>
+		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*"/>
 
 		<!-- SLF4J (1): slf4j-api -->
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
@@ -108,6 +107,6 @@
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
 		
 		<!-- CI -->
-		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->runtime;"/>
+		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->runtime"/>
 	</dependencies>
 </ivy-module>

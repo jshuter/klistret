@@ -3,13 +3,13 @@
 	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
 
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
-	<ivy:cachepath pathid="classpath.IVY" conf="compile, runtime" file="${project-basedir}/ivy.xml" type="jar" />
+	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar" />
 
 	<!-- Creates the Core package -->
 	<target name="core:publish">
 		<copy file="${tmp-destdir}/klistret.core.jar" tofile="${tmp-destdir}/klistret.core-${ivy.revision}.jar" />
 
-		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="runtime,compile,test" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.core-[revision].[ext]" />
 		</ivy:publish>
 	</target>
