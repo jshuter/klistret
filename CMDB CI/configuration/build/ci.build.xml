@@ -100,7 +100,7 @@
 	</target>
 
 	<target name="ci:publish" depends="ci:create">
-		<ivy:publish conf="runtime,compile" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="runtime,compile,test" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.ci-[revision].[ext]" />
 		</ivy:publish>
 	</target>
