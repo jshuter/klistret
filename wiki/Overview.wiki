@@ -8,6 +8,9 @@ The basic idea is to reverse the existing paradigm with CMDB repositories from a
 
 At the heart of Klistret is a hierarchy of configuration items constructed in a series of extending XML schema.  This tree structure of CIs represents configuration elements, their relations and their transportation proxies.  The XML schema is rolled into POJOs suitable for marshaling from the database model through the [http://en.wikipedia.org/wiki/Representational_State_Transfer REST] services externally into a wide variety of media formats (types).  Since the underlying data model is XML searching is implemented with [http://www.w3.org/TR/xpath20 XPath].  CI metadata and relationships can be quite complex and the simplicity of XPath makes searching straightforward as well clearly readable.  The ability to expose CIs through REST services with any reasonable media type eases integration without changing the service layer.  The following sections describe the major Klistret components and how they facilitate CIs to end users after an end user's needs.
 
+== CI ==
+Identical to commercial solutions there is a hierarchy of configuration items representing well established element and there interconnected relationships.  The [CI CI] module is a set XML schema documents that embody configuration items as POJO objects.
+
 == Core ==
 The [Core Core] is responsible for marshaling the XML hierarchy of CIs not only from the database but out through the REST gateway, an interface for searching, CI identification as well relationships rules and integration with other CMDB solutions.
 
