@@ -1,0 +1,8 @@
+#labels Phase-Design
+Configuration items (CI) are not flat objects with a bunch of properties in Klistret.  Instead, a CI is initially a XML schema and later realized as POJO classes.
+
+== Overview ==
+Most definitions of a configuration item say an entity is made up of a attributes and entities are linked together by relationships.  [http://dmtf.org/standards/cim DMTF] common information model is better since classes can have properties rather than simple attributes.  Structuring CIs as XML has advantages with inheritance and search through the XPath syntax.  This page outlines how CIs are categorized.
+
+== Building blocks ==
+John Singer does a good job of [http://www.tdan.com/view-articles/6904 grouping] CIs into major building blocks.  Singer basically buckets CIs into 3 layers: service, system, and component.  Surrounding that stack of conceptual CIs are what Singer defines as contextual CIs.  What is the difference?  Conceptual CIs are the meat-and-potatoes of the CMDB whereas contextual CI do exactly what the classification suggests by providing a context for conceptual CIs to reside.  A great example of this is the need for organizational information that usually is housed in other management tools.  People and roles are usefully when writing change requests but defined as full fledged entities is overkill.  Environments are another good case but in a gray zone where the line between conceptual and contextual is fuzzy.  Here the deciding factor for or against contextual representation is ease of implementation.
