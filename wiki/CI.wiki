@@ -13,14 +13,16 @@ Singer packed in ITIL processes under the contextual umbrella.  ITIL processes a
 Again conceptual entities are conglomeration of services, systems, and components.  Together these entities describe what functionality an organization offers in a runtime landscape configured out of a flora of hardware and software deliverables.
 
 === Service ===
-An organization supplies functionality to users or other systems as services.  Another way to express services is that they are logical end-points for what should be done by the underlying computer system.  Services build on other services in scope and are related to a runtime system.
+An organization supplies functionality to users or other systems as services.  Another way to express [ServiceCI services] is that they are logical end-points for what should be done by the underlying computer system.  Services build on other services in scope and are related to a runtime system.
 
 === System ===
-Congruent with services there is substantial layering inherient to systems whereby one system encompases smallar child systems of a more denormalized type.  The DMTF and commerical CMDB frameworks tend to have base system entity called a computer system.  Unfortunately attributes on ComputerSystem classes get overloaded to denote subtypes.  Klistret tries not to overpopulate the base system schema with optional properties and definitely not properties as substitues for type information.  Additionaly, having the ComputerSystem as a base classes makes inherited entities like Application somewhat confusing.  
+Congruent with services there is substantial layering inherient to systems whereby one system encompases smallar child systems of a more denormalized type.  The DMTF and commerical CMDB frameworks tend to have base system entity called a computer system.  Unfortunately attributes on [ComputerSystemCI ComputerSystem] classes get overloaded to denote subtypes.  Klistret tries not to overpopulate the [SystemCI base system] schema with optional properties and definitely not properties as substitues for type information.  Additionaly, having the ComputerSystem as a base classes makes inherited entities like [ApplicationCI Application] somewhat confusing.  
 
 === Component ===
-Inanimate items signalize compoents.  [SoftwareCI Software] is inoperative until it is configured and deployed.  [HardwareCI Hardware] is just wires and bolts until it is booted up.  Components are inert while systems are what components become when active.
+Inanimate items signalize [ComponentCI compoents].  [SoftwareCI Software] is inoperative until it is configured and deployed.  [HardwareCI Hardware] is just wires and bolts until it is booted up.  Components are inert while systems are what components become when active.  Components are inventory.
 
 == Contextual ==
+One of the driving forces behnd Klistret is the idea of describing how stuff should be configured and associated.  Contextual entities help filter inventory meant for installation in systems also screaned by context that do work for particular services by context.  Contexts are filters generally sourced from external tools.  Major contextual entities are [OrganizationCI organizations], [ModuleCI modules], [OrganizationSoftwareTypeCI software types], [EnvironmentCI environments], [LifecycleCI lifecyles] and [TimeframeCI timeframes] to name a few. 
 
 == Process ==
+ITIL has cornerstone processes such as change, incident, and problem.  Klistret is geared more to the changes process but in the future may even encapsulate (via federation) incident and problem.
