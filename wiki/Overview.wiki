@@ -19,3 +19,6 @@ The [Core Core] is responsible for marshaling the XML hierarchy of CIs not only 
 
 == Web Interface ==
 Here is where the majority of end users engage Klistret.  The goal of the [Extjs web interface] is be browser non-specific, provide a desktop like interaction and have a variety of graphical representations of CIs to give a visual picture of the CMDB.
+
+== Spin-off projects ==
+Klistret is meant to describe how entities are _supposed to be_ setup.  There will be spin-off projects that integrate with Klistret that perform platform specific configurations.  For example, the configuration of Weblogic domains based on Klistret metadata will shortly be published.
