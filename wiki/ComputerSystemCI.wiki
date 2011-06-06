@@ -8,10 +8,12 @@ Computer systems are derived from [ManagedSystemCI managed systems] and model op
 This section contains characteristics that make the entity specific.
 
 ==== Capability ====
-
+The capability of a computer system is a wrapper for functionality offered by the computer system with weight or order in regard to secondary functions.
 
 == Usage ==
+This CI is not convention in Klistet.  Describing applications are the main focus with systems leaving computers system more to system management.
 
 == Relations ==
 
 == Blueprint ==
+Compute systems fall into the [ComplexBlueprint complex] category.
