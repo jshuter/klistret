@@ -1,0 +1,12 @@
+Applications are application software that is runable.  An application is a managed system (ie. applications may be running or dorment or offline but always have the potential to be animate unlike software). 
+
+== Description ==
+
+
+=== Specific ===
+
+== Usage ==
+
+== Relations ==
+
+== Blueprint ==
