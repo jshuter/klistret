@@ -1,7 +1,7 @@
 Applications are application software that is runable.  An application is a managed system (ie. applications may be running or dorment or offline but always have the potential to be animate unlike software). 
 
 == Description ==
-
+Klistret has different levels of complexity.  The [BasicBlueprint basic blueprint] overwhelms the application CI with too much responsiblity.  A complex application model would cleave an application into software products, software features, and software elements populating an application system.  Long before an organization gets to the point of actually distilling the runtime environment into software features the essential urgency is conveying what software is running in a particular context.  An application is any application software that is managable.
 
 === Specific ===
 
