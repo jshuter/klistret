@@ -6,4 +6,5 @@
         	<java-charset-name>UTF-8</java-charset-name> 
     	</input-charset> 
 	</charset-params>
+    <context-root>CMDB</context-root>
 </weblogic-web-app>
