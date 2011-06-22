@@ -1,5 +1,4 @@
 <project default="ci:publish" xmlns:ivy="antlib:org.apache.ivy.ant">
-	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" />
 
 	<!-- edit: properties are specific to local environment -->
 	<property name="tmp-destdir" location="C:/temp/cmdb-ci" />
