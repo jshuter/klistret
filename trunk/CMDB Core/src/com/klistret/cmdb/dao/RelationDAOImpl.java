@@ -50,7 +50,6 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * Finds relations based on XPath expressions
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Relation> find(List<String> expressions, int start, int limit) {
 		try {
 			logger

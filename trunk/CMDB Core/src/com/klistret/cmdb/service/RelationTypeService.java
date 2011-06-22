@@ -44,6 +44,8 @@ public interface RelationTypeService {
 	List<RelationType> find(@QueryParam("name")
 	String name);
 	
+	RelationType create(RelationType relationType);
+	
 	/**
 	 * Preflighed requests
 	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain

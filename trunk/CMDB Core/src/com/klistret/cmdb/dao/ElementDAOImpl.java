@@ -54,7 +54,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 * @see com.klistret.cmdb.dao.ElementDAO.findByCriteria
 	 * @return Collection
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Element> find(List<String> expressions, int start, int limit) {
 		try {
 			logger

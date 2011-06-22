@@ -40,5 +40,11 @@ public interface ElementTypeDAO {
 	 * @return Collection
 	 */
 	List<ElementType> find(String name);
-
+	
+	/**
+	 * CRUD create
+	 * @param elementType
+	 * @return
+	 */
+	ElementType set(ElementType elementType);
 }

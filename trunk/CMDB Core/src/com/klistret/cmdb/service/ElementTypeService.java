@@ -50,6 +50,13 @@ public interface ElementTypeService {
 	String name);
 	
 	/**
+	 * 
+	 * @param elementType
+	 * @return
+	 */
+	ElementType create(ElementType elementType);
+	
+	/**
 	 * Preflighed requests
 	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain
 	 * access necessary for local testing

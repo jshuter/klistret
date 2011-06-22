@@ -14,6 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -91,4 +92,22 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 		}
 	}
 
+	/**
+	 * 
+	 */
+	public ElementType set(ElementType elementType) {
+		elementType.setUpdateTimeStamp(new Date());
+		
+		try {
+			if (elementType.getId() != null)
+				getSession().merge("ElementType", elementType);
+			else
+				getSession().saveOrUpdate("ElementType", elementType);
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+		
+		logger.info("Save/update element type [{}]", elementType.toString());
+		return elementType;
+	}
 }

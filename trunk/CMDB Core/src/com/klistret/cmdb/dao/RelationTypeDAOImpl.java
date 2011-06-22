@@ -14,6 +14,7 @@
 
 package com.klistret.cmdb.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -57,8 +58,8 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 			RelationType relationType = (RelationType) criteria.uniqueResult();
 
 			if (relationType != null)
-				logger.debug("Found relation type [{}]", relationType
-						.toString());
+				logger.debug("Found relation type [{}]",
+						relationType.toString());
 
 			return relationType;
 		} catch (HibernateException he) {
@@ -91,5 +92,24 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public RelationType set(RelationType relationType) {
+		relationType.setUpdateTimeStamp(new Date());
+
+		try {
+			if (relationType.getId() != null)
+				getSession().merge("RelationType", relationType);
+			else
+				getSession().saveOrUpdate("RelationType", relationType);
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+
+		logger.info("Save/update relation type [{}]", relationType.toString());
+		return relationType;
 	}
 }

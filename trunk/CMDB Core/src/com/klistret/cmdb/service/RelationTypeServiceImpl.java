@@ -15,11 +15,13 @@
 package com.klistret.cmdb.service;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.dao.RelationTypeDAO;
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.ci.pojo.RelationType;
 
 /**
@@ -44,6 +46,15 @@ public class RelationTypeServiceImpl implements RelationTypeService {
 
 	public List<RelationType> find(String name) {
 		return relationTypeDAO.find(name);
+	}
+
+	public RelationType create(RelationType relationType) {
+		if (relationType.getId() != null)
+			throw new ApplicationException(String.format(
+					"Create disallowed against persistent relation type [%s]",
+					relationType), new RejectedExecutionException());
+
+		return relationTypeDAO.set(relationType);
 	}
 
 	/**

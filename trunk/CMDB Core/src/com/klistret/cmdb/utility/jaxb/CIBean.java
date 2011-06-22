@@ -64,9 +64,14 @@ public class CIBean {
 	protected TypeCategory typeCategory;
 
 	/**
+	 * Base CIBean (extended)
+	 */
+	protected CIBean base;
+
+	/**
 	 * Base schema type (extended)
 	 */
-	protected QName base;
+	protected QName baseType;
 
 	/**
 	 * Abstract conditional
@@ -123,22 +128,26 @@ public class CIBean {
 		case Simple:
 			return "Simple";
 		}
-		
+
 		return null;
 	}
 
-	public QName getBase() {
+	public CIBean getBase() {
 		return base;
 	}
-	
+
+	public QName getBaseType() {
+		return baseType;
+	}
+
 	@XmlElement(name = "BaseLocalPart")
-	public String getBaseLocalPart() {
-		return base.getLocalPart();
+	public String getBaseTypeLocalPart() {
+		return baseType.getLocalPart();
 	}
 
 	@XmlElement(name = "BaseNamespaceURI")
-	public String getBaseNamespaceURI() {
-		return base.getNamespaceURI();
+	public String getBaseTypeNamespaceURI() {
+		return baseType.getNamespaceURI();
 	}
 
 	@XmlElement(name = "Abstract")
@@ -185,6 +194,16 @@ public class CIBean {
 			if (property.type.equals(type))
 				return true;
 
+		return false;
+	}
+	
+	public boolean isAncestor(QName baseType) {
+		if (this.baseType != null && this.baseType.equals(baseType))
+			return true;
+		
+		if (this.base != null)
+			return this.base.isAncestor(baseType);
+		
 		return false;
 	}
 

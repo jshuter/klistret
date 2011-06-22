@@ -65,6 +65,9 @@
 
 		<!-- Saxon (1): saxon-->
 		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*"/>
+		
+		<!-- Apache Log4j (1): log4j -->
+		<dependency org="log4j" name="log4j" rev="1.2.16" conf="runtime->master"/>
 
 		<!-- SLF4J (1): slf4j-api -->
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
