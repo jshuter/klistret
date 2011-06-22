@@ -1,0 +1,39 @@
+<project default="ext:package" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="tmp-destdir" location="C:/temp" />
+	<property name="cmdb-coredir" location="C:/workshop/klistret/CMDB Core" />
+
+	<ivy:settings file="${cmdb-coredir}/ivysettings.xml" />
+
+	<ivy:cachepath pathid="classpath.ivy.ext" conf="runtime" file="${cmdb-coredir}/ivy.xml" type="jar, bundle" />
+	
+	<target name="ext:package">
+		<property name="packagedir" location="${tmp-destdir}/klistret.cmdb.ext-simple-${ivy.revision}" />
+
+		<delete dir="${packagedir}" failonerror="false" />
+		<mkdir dir="${packagedir}" />
+
+		<mkdir dir="${packagedir}/bin" />
+		<mkdir dir="${packagedir}/lib" />
+		<mkdir dir="${packagedir}/propertes" />
+
+		<copy todir="${packagedir}/lib" flatten="true">
+			<path refid="classpath.ivy.ext" />
+		</copy>
+
+		<copy file="${tmp-destdir}/klistret.ext.simple.ear" todir="${packagedir}/bin" />
+
+		<copy file="${tmp-destdir}/cmdb-core/klistret.core-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${tmp-destdir}/cmdb-ci/klistret.ci-${ivy.revision}.jar" todir="${packagedir}/lib" />
+
+		<copy todir="${packagedir}/propertes">
+			<fileset dir="${cmdb-coredir}/configuration/runtime">
+				<include name="*.cfg.xml" />
+				<include name="CMDB.properties" />
+				<include name="log4j.properties" />
+			</fileset>
+		</copy>
+
+		<tar destfile="${tmp-destdir}/klistret.cmdb.ext-simple-${ivy.revision}.tar" basedir="${packagedir}" />
+	</target>
+</project>
