@@ -15,11 +15,13 @@
 package com.klistret.cmdb.service;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.dao.ElementTypeDAO;
+import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.ci.pojo.ElementType;
 
 /**
@@ -52,6 +54,15 @@ public class ElementTypeServiceImpl implements ElementTypeService {
 
 	public List<ElementType> find(String name) {
 		return elementTypeDAO.find(name);
+	}
+
+	public ElementType create(ElementType elementType) {
+		if (elementType.getId() != null)
+			throw new ApplicationException(String.format(
+					"Create disallowed against persistent element type [%s]",
+					elementType), new RejectedExecutionException());
+
+		return elementTypeDAO.set(elementType);
 	}
 
 	/**

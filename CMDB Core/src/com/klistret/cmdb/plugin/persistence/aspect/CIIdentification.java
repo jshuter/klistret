@@ -312,14 +312,14 @@ public class CIIdentification {
 		 */
 		String selfAndBaseClassNames = String.format("\'%s\'", bean.getType());
 
-		QName baseQName = bean.getBase();
-		while (CIContext.getCIContext().isBean(baseQName)) {
-			CIBean base = CIContext.getCIContext().getBean(baseQName);
+		QName baseType = bean.getBaseType();
+		while (CIContext.getCIContext().isBean(baseType)) {
+			CIBean base = CIContext.getCIContext().getBean(baseType);
 
 			selfAndBaseClassNames = selfAndBaseClassNames.concat(String.format(
 					",\'%s\'", base.getType()));
 
-			baseQName = base.getBase();
+			baseType = base.getBaseType();
 		}
 
 		/**

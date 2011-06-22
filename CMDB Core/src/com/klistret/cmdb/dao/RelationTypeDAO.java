@@ -40,4 +40,11 @@ public interface RelationTypeDAO {
 	 * @return List
 	 */
 	List<RelationType> find(String name);
+	
+	/**
+	 * CRUD set
+	 * @param relationType
+	 * @return
+	 */
+	RelationType set(RelationType relationType);
 }

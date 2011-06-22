@@ -3,7 +3,7 @@
 	<property name="project-basedir" location="C:/workshop/klistret/CMDB Core" />
 
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
-	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar" />
+	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar, bundle" />
 
 	<!-- Creates the Core package -->
 	<target name="core:publish">

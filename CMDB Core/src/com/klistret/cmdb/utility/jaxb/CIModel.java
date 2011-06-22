@@ -74,9 +74,17 @@ public class CIModel {
 		this.scheamStreamSources = streamSources;
 		this.jaxbClasses = jaxbClasses;
 
+		/**
+		 * First pass defines all of the CI beans
+		 */
 		for (Class<?> jaxbClass : jaxbClasses)
 			addCIBean(jaxbClass);
 
+		/**
+		 * Second pass defines the base to the CI beans
+		 */
+		for (CIBean bean : beans)
+			doBase(bean);
 	}
 
 	/**
@@ -113,8 +121,8 @@ public class CIModel {
 	 * @param jaxbClass
 	 */
 	private void addCIBean(Class<?> jaxbClass) {
-		logger.debug("Adding CIBean based on JAXB class [{}]", jaxbClass
-				.getName());
+		logger.debug("Adding CIBean based on JAXB class [{}]",
+				jaxbClass.getName());
 
 		CIBean bean = new CIBean();
 		bean.javaClass = jaxbClass;
@@ -137,10 +145,9 @@ public class CIModel {
 		XSTypeDefinition xstd = getXSTypeDefinition(namespace, localName);
 		if (xstd == null)
 			throw new ApplicationException(
-					String
-							.format(
-									"Schema type definition not found by namespace [%s] and local name [%s]",
-									namespace, localName));
+					String.format(
+							"Schema type definition not found by namespace [%s] and local name [%s]",
+							namespace, localName));
 
 		/**
 		 * Handle complex and simple types only
@@ -154,20 +161,34 @@ public class CIModel {
 			break;
 		default:
 			throw new ApplicationException(
-					String
-							.format("CI Beans may only be either complex or simple types"));
+					String.format("CI Beans may only be either complex or simple types"));
 		}
 
 		/**
 		 * Base (extending) reference
 		 */
 		XSTypeDefinition xstdBase = xstd.getBaseType();
-		bean.base = new QName(xstdBase.getNamespace(), xstdBase.getName());
-		
+		bean.baseType = new QName(xstdBase.getNamespace(), xstdBase.getName());
+
 		/**
-		 * Add bean 
+		 * Add bean
 		 */
 		beans.add(bean);
+	}
+
+	/**
+	 * 
+	 * @param bean
+	 */
+	private void doBase(CIBean bean) {
+		QName baseType = bean.getBaseType();
+
+		if (baseType != null) {
+			for (CIBean base : beans) {
+				if (base.getType().equals(baseType))
+					bean.base = base;
+			}
+		}
 	}
 
 	/**
@@ -179,6 +200,8 @@ public class CIModel {
 	private void doType(XSComplexTypeDefinition xsctd, CIBean bean) {
 		bean.typeCategory = CIBean.TypeCategory.Complex;
 
+		bean.abstraction = xsctd.getAbstract();
+
 		short contentType = xsctd.getContentType();
 		switch (contentType) {
 		case XSComplexTypeDefinition.CONTENTTYPE_ELEMENT:
@@ -186,10 +209,9 @@ public class CIModel {
 			break;
 		default:
 			throw new ApplicationException(
-					String
-							.format(
-									"Complex type definitions [%s] other than Element not yet supported for CIBean",
-									xsctd));
+					String.format(
+							"Complex type definitions [%s] other than Element not yet supported for CIBean",
+							xsctd));
 		}
 	}
 
@@ -213,10 +235,9 @@ public class CIModel {
 			break;
 		default:
 			throw new ApplicationException(
-					String
-							.format(
-									"Complex type definitions [%s] with derivations other than Extension/Restriction not yet supported for CIBean",
-									xsctd));
+					String.format(
+							"Complex type definitions [%s] with derivations other than Extension/Restriction not yet supported for CIBean",
+							xsctd));
 		}
 	}
 
@@ -309,8 +330,9 @@ public class CIModel {
 			case XSTypeDefinition.COMPLEX_TYPE:
 				elementProperty.typeCategory = CIProperty.TypeCategory.ComplexElement;
 
-				elementProperty.type = new QName(elementTypeDefinition
-						.getNamespace(), elementTypeDefinition.getName());
+				elementProperty.type = new QName(
+						elementTypeDefinition.getNamespace(),
+						elementTypeDefinition.getName());
 				break;
 			case XSTypeDefinition.SIMPLE_TYPE:
 				elementProperty.typeCategory = CIProperty.TypeCategory.SimpleElement;
@@ -318,14 +340,13 @@ public class CIModel {
 				XSTypeDefinition primitiveElementTypeDefinition = ((XSSimpleTypeDefinition) elementTypeDefinition)
 						.getPrimitiveType();
 
-				elementProperty.type = new QName(primitiveElementTypeDefinition
-						.getNamespace(), primitiveElementTypeDefinition
-						.getName());
+				elementProperty.type = new QName(
+						primitiveElementTypeDefinition.getNamespace(),
+						primitiveElementTypeDefinition.getName());
 				break;
 			default:
 				throw new ApplicationException(
-						String
-								.format("CI Properties represented by elements may only be either complex or simple types"));
+						String.format("CI Properties represented by elements may only be either complex or simple types"));
 			}
 
 			elementProperty.nillable = elementDeclaration.getNillable();
@@ -366,8 +387,9 @@ public class CIModel {
 			XSAttributeDeclaration attributeDeclaration = ((XSAttributeDeclaration) xsObject);
 
 			CIProperty attributeProperty = new CIProperty();
-			attributeProperty.name = new QName(attributeDeclaration
-					.getNamespace(), attributeDeclaration.getName());
+			attributeProperty.name = new QName(
+					attributeDeclaration.getNamespace(),
+					attributeDeclaration.getName());
 
 			attributeProperty.typeCategory = CIProperty.TypeCategory.Attribute;
 
@@ -376,8 +398,9 @@ public class CIModel {
 
 			XSTypeDefinition primativeAttributeTypeDefinition = attributeTypeDefinition
 					.getPrimitiveType();
-			attributeProperty.type = new QName(primativeAttributeTypeDefinition
-					.getNamespace(), primativeAttributeTypeDefinition.getName());
+			attributeProperty.type = new QName(
+					primativeAttributeTypeDefinition.getNamespace(),
+					primativeAttributeTypeDefinition.getName());
 
 			attributeProperty.annotation = attributeDeclaration.getAnnotation() == null ? null
 					: attributeDeclaration.getAnnotation()
@@ -393,10 +416,9 @@ public class CIModel {
 			break;
 		default:
 			throw new ApplicationException(
-					String
-							.format(
-									"Unknown XSObject [type: %s] neither a model group, element declaration or wildcard",
-									objectType));
+					String.format(
+							"Unknown XSObject [type: %s] neither a model group, element declaration or wildcard",
+							objectType));
 		}
 
 	}
@@ -424,10 +446,9 @@ public class CIModel {
 			break;
 		default:
 			throw new ApplicationException(
-					String
-							.format(
-									"CIBean [%s] simple type definition other than enumerations are not supported",
-									bean.getJavaClass().getName()));
+					String.format(
+							"CIBean [%s] simple type definition other than enumerations are not supported",
+							bean.getJavaClass().getName()));
 		}
 	}
 
@@ -481,10 +502,9 @@ public class CIModel {
 		 */
 		XmlRootElement xre = jaxbClass.getAnnotation(XmlRootElement.class);
 		if (xre != null && !xre.namespace().equals("##default")) {
-			logger
-					.debug(
-							"XmlRootElement annotation on class [{}] defines namespace [{}]",
-							jaxbClass.getName(), xre.namespace());
+			logger.debug(
+					"XmlRootElement annotation on class [{}] defines namespace [{}]",
+					jaxbClass.getName(), xre.namespace());
 			return xre.namespace();
 		}
 
@@ -493,10 +513,9 @@ public class CIModel {
 		 */
 		XmlSchema xs = jaxbClass.getPackage().getAnnotation(XmlSchema.class);
 		if (xs != null && !xs.namespace().equals("")) {
-			logger
-					.debug(
-							"XmlSchema annotation on package [{}] defines namespace [{}]",
-							jaxbClass.getPackage().getName(), xs.namespace());
+			logger.debug(
+					"XmlSchema annotation on package [{}] defines namespace [{}]",
+					jaxbClass.getPackage().getName(), xs.namespace());
 			return xs.namespace();
 		}
 
@@ -522,10 +541,9 @@ public class CIModel {
 
 		XmlRootElement xre = jaxbClass.getAnnotation(XmlRootElement.class);
 		if (xre != null && !xre.name().equals("##default")) {
-			logger
-					.debug(
-							"XmlRootElement annotation on class [{}] defines local name [{}]",
-							jaxbClass.getName(), xre.name());
+			logger.debug(
+					"XmlRootElement annotation on class [{}] defines local name [{}]",
+					jaxbClass.getName(), xre.name());
 			return xre.name();
 		}
 

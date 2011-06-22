@@ -53,7 +53,7 @@ public class LocalSessionFactoryBean extends
 		this.assignablePackages = assignablePackages;
 	}
 
-	@SuppressWarnings("unchecked")
+
 	protected void postProcessMappings(Configuration config)
 			throws HibernateException {
 		logger
@@ -62,12 +62,12 @@ public class LocalSessionFactoryBean extends
 		/**
 		 * http://stackoverflow.com/questions/672063/creating-a-custom-hibernate-usertype-find-out-the-current-entity-table-name
 		 */
-		for (Iterator classMappingIterator = config.getClassMappings(); classMappingIterator
+		for (Iterator<PersistentClass> classMappingIterator = config.getClassMappings(); classMappingIterator
 				.hasNext();) {
 			PersistentClass persistentClass = (PersistentClass) classMappingIterator
 					.next();
 
-			for (Iterator propertyIterator = persistentClass
+			for (Iterator<?> propertyIterator = persistentClass
 					.getPropertyIterator(); propertyIterator.hasNext();) {
 				Property property = (Property) propertyIterator.next();
 

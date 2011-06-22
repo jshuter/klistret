@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=compile%2Ctest%2Cruntime"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="lib" path="configuration/runtime"/>
-	<classpathentry kind="lib" path="C:/workshop/downloads/db2-9.5-java/db2jcc_license_cu.jar"/>
-	<classpathentry kind="lib" path="C:/workshop/downloads/db2-9.5-java/db2jcc.jar"/>
+	<classpathentry kind="lib" path="C:/workshop/downloads/db2-9.5-java/db2jcc_license_cu-9.5.jar"/>
+	<classpathentry kind="lib" path="C:/workshop/downloads/db2-9.5-java/db2jcc-9.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
