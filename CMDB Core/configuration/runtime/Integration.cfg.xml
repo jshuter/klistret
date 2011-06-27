@@ -24,10 +24,11 @@
 		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
 	<!-- Integration CRUD channel (publish subscribe) -->
-	<si:publish-subscribe-channel id="crudIntegrationChannel" />
+	<si:publish-subscribe-channel id="crudElementChannel" />
+	<si:publish-subscribe-channel id="crudRelationChannel" />
 
 	<!-- Core subscribers -->
-	<si:service-activator input-channel="crudIntegrationChannel"
+	<si:service-activator input-channel="crudElementChannel"
 		ref="cascadeRelations" method="receive" />
 
 	<bean id="cascadeRelations"
@@ -38,11 +39,11 @@
 	<!-- Integration CRUD functions (EDA) and the AOP helper for Core publishers -->
 	<bean id="elementIntegration"
 		class="com.klistret.cmdb.aspect.crud.ElementIntegration">
-		<property name="channel" ref="crudIntegrationChannel" />
+		<property name="channel" ref="crudElementChannel" />
 	</bean>
 	<bean id="relationIntegration"
 		class="com.klistret.cmdb.aspect.crud.RelationIntegration">
-		<property name="channel" ref="crudIntegrationChannel" />
+		<property name="channel" ref="crudRelationChannel" />
 	</bean>
 
 	<aop:config>
