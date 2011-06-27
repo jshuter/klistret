@@ -38,8 +38,9 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.HttpResponseCodes;
 
 import com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper;
-import com.klistret.cmdb.utility.resteasy.EncodingInterceptor;
+import com.klistret.cmdb.utility.resteasy.AccessControlInterceptor;
 import com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper;
+import com.klistret.cmdb.utility.resteasy.IntegerMessageBodyWriter;
 
 /**
  * Element services tested through the RestEasy mock servlet
@@ -72,7 +73,7 @@ public class RestEasyService {
 		// Load up the processor and build a spring factory
 		SpringBeanProcessor processor = new SpringBeanProcessor(dispatcher,
 				null, null);
-		
+
 		ctx = new GenericXmlApplicationContext();
 		ctx.getEnvironment().setActiveProfiles("development");
 		ctx.load("classpath:Spring.cfg.xml");
@@ -102,7 +103,8 @@ public class RestEasyService {
 				.getProviderFactory();
 		providerFactory.registerProvider(ApplicationExceptionMapper.class);
 		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
-		providerFactory.registerProvider(EncodingInterceptor.class);
+		providerFactory.registerProvider(AccessControlInterceptor.class);
+		providerFactory.registerProvider(IntegerMessageBodyWriter.class);
 
 		// Language mapper
 		Map<String, String> lm = new HashMap<String, String>();
@@ -117,14 +119,13 @@ public class RestEasyService {
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void getElement() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element/78941")
-				.accept(
-						Arrays
-								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 
 		MockHttpResponse response = new MockHttpResponse();
 
@@ -143,7 +144,7 @@ public class RestEasyService {
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void deleteElementExpect404() throws URISyntaxException,
 			JAXBException, UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.delete("/resteasy/element/0");
@@ -155,8 +156,8 @@ public class RestEasyService {
 				"Response code [%s] with payload [%s]", response.getStatus(),
 				response.getContentAsString()));
 
-		Assert.assertEquals(HttpResponseCodes.SC_NOT_FOUND, response
-				.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_NOT_FOUND,
+				response.getStatus());
 	}
 
 	/**
@@ -166,14 +167,13 @@ public class RestEasyService {
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void putElement() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest getRequest = MockHttpRequest
 				.get("/resteasy/element/78941")
-				.accept(
-						Arrays
-								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 		MockHttpResponse getResponse = new MockHttpResponse();
 		dispatcher.invoke(getRequest, getResponse);
 
@@ -200,14 +200,13 @@ public class RestEasyService {
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void createElementExpect403() throws URISyntaxException,
 			JAXBException, UnsupportedEncodingException {
 		MockHttpRequest getRequest = MockHttpRequest
 				.get("/resteasy/element/78941")
-				.accept(
-						Arrays
-								.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 		MockHttpResponse getResponse = new MockHttpResponse();
 		dispatcher.invoke(getRequest, getResponse);
 
@@ -221,11 +220,11 @@ public class RestEasyService {
 
 		dispatcher.invoke(postRequest, postResponse);
 		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", postResponse
-						.getStatus(), postResponse.getContentAsString()));
+				"Response code [%s] with payload [%s]",
+				postResponse.getStatus(), postResponse.getContentAsString()));
 
-		Assert.assertEquals(HttpResponseCodes.SC_FORBIDDEN, postResponse
-				.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_FORBIDDEN,
+				postResponse.getStatus());
 	}
 
 	/**
@@ -234,24 +233,54 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void findElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="
 						+ URLEncoder
-								.encode(
-										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = (\"KUI\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = (\"KUI\")]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode(
-										"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
+								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
 										"UTF-8")
-						+ "&expressions"
+						+ "&expressions="
 						+ URLEncoder
-								.encode(
-										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = (\"Nov2010R\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = (\"Nov2010R\")]",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+	}
+
+	/**
+	 * Count elements
+	 * 
+	 * @throws URISyntaxException
+	 * @throws UnsupportedEncodingException
+	 */
+	@Test
+	public void countElement() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/count?expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = (\"KUI\")]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = (\"Nov2010R\")]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -271,14 +300,13 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void findElementExpect200() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="
 						+ URLEncoder
-								.encode(
-										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Modul = (\"KUI\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Modul = (\"KUI\")]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -297,14 +325,13 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void findElementExpect400() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element?expressions="
 						+ URLEncoder
-								.encode(
-										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module == (\"KUI\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module == (\"KUI\")]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -314,7 +341,7 @@ public class RestEasyService {
 				"Response code [%s] with payload [%s]", response.getStatus(),
 				response.getContentAsString()));
 
-		Assert.assertEquals(HttpResponseCodes.SC_BAD_REQUEST, response
-				.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_BAD_REQUEST,
+				response.getStatus());
 	}
 }
