@@ -86,7 +86,7 @@
 	</beans>
 
 	<!-- Live Hibernate beans (session factory, data source) -->
-	<beans profile="test,production">
+	<beans profile="production">
 		<bean id="dataSource"
 			class="org.springframework.jndi.JndiObjectFactoryBean">
 			<property name="jndiName">
@@ -107,7 +107,7 @@
 						org.hibernate.transaction.JTATransactionFactory
 					</prop>
 					<prop key="transaction.manager_lookup_class">
-						${cmdb.hibernate.tx.manager}
+						org.hibernate.transaction.WeblogicTransactionManagerLookup
 					</prop>
 					<prop
 						key="hibernate.transaction.flush_before_completion">

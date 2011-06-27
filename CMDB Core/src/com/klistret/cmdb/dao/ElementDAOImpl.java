@@ -56,10 +56,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public List<Element> find(List<String> expressions, int start, int limit) {
 		try {
-			logger
-					.debug(
-							"Finding elements by expression from start position [{}] with limit [{}]",
-							start, limit);
+			logger.debug(
+					"Finding elements by expression from start position [{}] with limit [{}]",
+					start, limit);
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -69,16 +68,16 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.getCriteria();
 			String alias = hcriteria.getAlias();
 
-			hcriteria.setProjection(Projections.projectionList().add(
-					Projections.property(alias + ".id")).add(
-					Projections.property(alias + ".type")).add(
-					Projections.property(alias + ".name")).add(
-					Projections.property(alias + ".fromTimeStamp")).add(
-					Projections.property(alias + ".toTimeStamp")).add(
-					Projections.property(alias + ".createId")).add(
-					Projections.property(alias + ".createTimeStamp")).add(
-					Projections.property(alias + ".updateTimeStamp")).add(
-					Projections.property(alias + ".configuration")));
+			hcriteria.setProjection(Projections.projectionList()
+					.add(Projections.property(alias + ".id"))
+					.add(Projections.property(alias + ".type"))
+					.add(Projections.property(alias + ".name"))
+					.add(Projections.property(alias + ".fromTimeStamp"))
+					.add(Projections.property(alias + ".toTimeStamp"))
+					.add(Projections.property(alias + ".createId"))
+					.add(Projections.property(alias + ".createTimeStamp"))
+					.add(Projections.property(alias + ".updateTimeStamp"))
+					.add(Projections.property(alias + ".configuration")));
 
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
@@ -100,8 +99,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateId((String) row[5]);
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
-				element
-						.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
+				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
 
 				elements.add(element);
 			}
@@ -173,6 +171,15 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public Element set(Element element) {
 		/**
+		 * Validate length of name field
+		 */
+		if (element.getName().length() > 100)
+			throw new ApplicationException(
+					String.format(
+							"Element name [%s] greater than 100 characters [length: %d]",
+							element.getName(), element.getName().length()));
+
+		/**
 		 * record current time when updating
 		 */
 		element.setUpdateTimeStamp(new java.util.Date());
@@ -180,17 +187,16 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		/**
 		 * pojo type matches the configuration qname
 		 */
-		String typeClassName = CIContext.getCIContext().getBean(
-				QName.valueOf(element.getType().getName())).getJavaClass()
-				.getName();
+		String typeClassName = CIContext.getCIContext()
+				.getBean(QName.valueOf(element.getType().getName()))
+				.getJavaClass().getName();
 		if (!typeClassName.equals(element.getConfiguration().getClass()
 				.getName()))
 			throw new ApplicationException(
-					String
-							.format(
-									"Pojo element type [%s] does not match the configuration type [%s]",
-									typeClassName, element.getConfiguration()
-											.getClass().getName()));
+					String.format(
+							"Pojo element type [%s] does not match the configuration type [%s]",
+							typeClassName, element.getConfiguration()
+									.getClass().getName()));
 
 		try {
 			if (element.getId() != null)
