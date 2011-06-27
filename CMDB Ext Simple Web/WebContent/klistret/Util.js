@@ -1,7 +1,7 @@
 Ext.namespace('CMDB');
 
 
-CMDB.URL = 'http://sadbmatrix2:55167';
+CMDB.URL = 'http://sadbmatrix2.sfa.se:55167';
 
 
 // Message
@@ -157,7 +157,7 @@ CMDB.JsonReader = Ext.extend(Ext.data.JsonReader, {
 			throw {message: "JsonReader.read: Json object not found"};
 		}
 		
-		var data = response.status == '200' ? {total: o.length, successful: true, rows: o} : {total: 0, successful: false, rows: []};
+		var data = response.status == '200' ? {total: this.meta.passedCount ? this.meta.passedCount : o.length, successful: true, rows: o} : {total: 0, successful: false, rows: []};
 
 		return CMDB.JsonReader.superclass.readRecords.call(this, data);
 	},
