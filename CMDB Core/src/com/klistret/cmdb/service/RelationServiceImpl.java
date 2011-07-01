@@ -33,16 +33,30 @@ public class RelationServiceImpl implements RelationService {
 	private static final Logger logger = LoggerFactory
 			.getLogger(RelationServiceImpl.class);
 
+	/**
+	 * Relation DAO
+	 */
 	private RelationDAO relationDAO;
 
+	/**
+	 * Dependency injection
+	 * 
+	 * @param relationDAO
+	 */
 	public void setRelationDAO(RelationDAO relationDAO) {
 		this.relationDAO = relationDAO;
 	}
 
+	/**
+	 * Get relation by id
+	 */
 	public Relation get(Long id) {
 		return relationDAO.get(id);
 	}
 
+	/**
+	 * Find relations by criteria (XPath). Results are restricted to 100.
+	 */
 	public List<Relation> find(List<String> expressions, int start, int limit) {
 		if (start < 0)
 			throw new ApplicationException(String.format(
@@ -57,6 +71,32 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.find(expressions, start, limit);
 	}
 
+	/**
+	 * Unique find by expressions
+	 */
+	public Relation unique(List<String> expressions) {
+		List<Relation> results = find(expressions, 0, 2);
+
+		if (results.size() != 1)
+			throw new ApplicationException(String.format(
+					"Find by expressions [%s] is not unique [%s]", expressions,
+					results.size() == 1 ? "zero" : "multiple"));
+
+		return results.get(0);
+	}
+
+	/**
+	 * Row count by criteria (XPath)
+	 * 
+	 * @return Integer
+	 */
+	public Integer count(List<String> expressions) {
+		return relationDAO.count(expressions);
+	}
+
+	/**
+	 * Create an relation if the id property is null
+	 */
 	public Relation create(Relation relation) {
 		if (relation.getId() != null)
 			throw new ApplicationException(String.format(
@@ -66,10 +106,16 @@ public class RelationServiceImpl implements RelationService {
 		return relationDAO.set(relation);
 	}
 
+	/**
+	 * Update an element
+	 */
 	public Relation update(Relation relation) {
 		return relationDAO.set(relation);
 	}
 
+	/**
+	 * Delete an element (soft-delete)
+	 */
 	public Relation delete(Long id) {
 		return relationDAO.delete(id);
 	}

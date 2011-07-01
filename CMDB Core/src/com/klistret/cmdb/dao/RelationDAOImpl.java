@@ -111,6 +111,27 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
+	
+	/**
+	 * Query count of XPath expressions
+	 */
+	public Integer count(List<String> expressions) {
+		try {
+			logger.debug("Query count of XPath expressions");
+
+			if (expressions == null)
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
+
+			Criteria hcriteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
+			hcriteria.setProjection(Projections.rowCount());
+
+			return ((Long) hcriteria.list().get(0)).intValue();
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
 
 	/**
 	 * Get relation by unique ID

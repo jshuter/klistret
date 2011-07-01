@@ -20,6 +20,7 @@
 				<prop key="get">PROPAGATION_REQUIRED,timeout_20</prop>
 				<prop key="find">PROPAGATION_REQUIRED,timeout_20</prop>
 				<prop key="count">PROPAGATION_REQUIRED,timeout_20</prop>
+				<prop key="unique">PROPAGATION_REQUIRED,timeout_20</prop>
 				<prop key="cascade">
 					PROPAGATION_REQUIRED,timeout_20
 				</prop>

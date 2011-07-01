@@ -41,8 +41,8 @@ import com.klistret.cmdb.ci.pojo.Element;
  * @author Matthew Young
  */
 @Path("/resteasy")
-@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface ElementService {
 
 	/**
@@ -51,8 +51,7 @@ public interface ElementService {
 	@BadgerFish
 	@GET
 	@Path("/element/{id}")
-	Element get(@PathParam("id")
-	Long id);
+	Element get(@PathParam("id") Long id);
 
 	/**
 	 * Get elements that fulfill the XPath expressions (criterion) at a start
@@ -66,12 +65,17 @@ public interface ElementService {
 	@BadgerFish
 	@GET
 	@Path("/element")
-	List<Element> find(@QueryParam("expressions")
-	List<String> expressions, @QueryParam("start")
-	@DefaultValue("0")
-	int start, @QueryParam("limit")
-	@DefaultValue("25")
-	int limit);
+	List<Element> find(@QueryParam("expressions") List<String> expressions,
+			@QueryParam("start") @DefaultValue("0") int start,
+			@QueryParam("limit") @DefaultValue("25") int limit);
+
+	/**
+	 * Find an unique element by expressions
+	 */
+	@BadgerFish
+	@GET
+	@Path("/element/unique")
+	Element unique(@QueryParam("expressions") List<String> expressions);
 
 	/**
 	 * Same as the find method except a row count is returned
@@ -82,8 +86,7 @@ public interface ElementService {
 	@BadgerFish
 	@GET
 	@Path("/element/count")
-	Integer count(@QueryParam("expressions")
-	List<String> expressions);
+	Integer count(@QueryParam("expressions") List<String> expressions);
 
 	/**
 	 * Creating an element is subject to AOP checks
@@ -94,8 +97,7 @@ public interface ElementService {
 	@BadgerFish
 	@POST
 	@Path("/element")
-	Element create(@BadgerFish
-	Element element);
+	Element create(@BadgerFish Element element);
 
 	/**
 	 * Updating an element is subject to AOP checks
@@ -106,8 +108,7 @@ public interface ElementService {
 	@BadgerFish
 	@PUT
 	@Path("/element")
-	Element update(@BadgerFish
-	Element element);
+	Element update(@BadgerFish Element element);
 
 	/**
 	 * Delete an element (soft-delete)
@@ -117,8 +118,7 @@ public interface ElementService {
 	@BadgerFish
 	@DELETE
 	@Path("/element/{id}")
-	Element delete(@PathParam("id")
-	Long id);
+	Element delete(@PathParam("id") Long id);
 
 	/**
 	 * Preflighed requests
@@ -128,6 +128,6 @@ public interface ElementService {
 	 */
 	@OPTIONS
 	@Path("/{var:.*}")
-	@Produces( { MediaType.TEXT_HTML })
+	@Produces({ MediaType.TEXT_HTML })
 	String preflighted();
 }

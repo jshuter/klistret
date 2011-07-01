@@ -34,24 +34,42 @@ import org.jboss.resteasy.annotations.providers.jaxb.json.BadgerFish;
 import com.klistret.cmdb.ci.pojo.Relation;
 
 @Path("/resteasy")
-@Produces( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-@Consumes( { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public interface RelationService {
 	@BadgerFish
 	@GET
 	@Path("/relation/{id}")
-	Relation get(@PathParam("id")
-	Long id);
+	Relation get(@PathParam("id") Long id);
 
 	@BadgerFish
 	@GET
 	@Path("/relation")
-	List<Relation> find(@QueryParam("expressions")
-	List<String> expressions, @QueryParam("start")
-	@DefaultValue("0")
-	int start, @QueryParam("limit")
-	@DefaultValue("10")
-	int limit);
+	List<Relation> find(@QueryParam("expressions") List<String> expressions,
+			@QueryParam("start") @DefaultValue("0") int start,
+			@QueryParam("limit") @DefaultValue("10") int limit);
+
+	/**
+	 * Same as the find method except a row count is returned
+	 * 
+	 * @param expressions
+	 * @return
+	 */
+	@BadgerFish
+	@GET
+	@Path("/relation/count")
+	Integer count(@QueryParam("expressions") List<String> expressions);
+
+	/**
+	 * Find an unique relation by expressions
+	 * 
+	 * @param expressions
+	 * @return
+	 */
+	@BadgerFish
+	@GET
+	@Path("/relation/unique")
+	Relation unique(@QueryParam("expressions") List<String> expressions);
 
 	/**
 	 * Create a relation
@@ -83,9 +101,8 @@ public interface RelationService {
 	@BadgerFish
 	@DELETE
 	@Path("/relation/{id}")
-	Relation delete(@BadgerFish @PathParam("id")
-	Long id);
-	
+	Relation delete(@BadgerFish @PathParam("id") Long id);
+
 	/**
 	 * Preflighed requests
 	 * (https://developer.mozilla.org/En/HTTP_access_control) for cross domain
@@ -94,9 +111,9 @@ public interface RelationService {
 	 */
 	@OPTIONS
 	@Path("/{var:.*}")
-	@Produces( { MediaType.TEXT_HTML })
+	@Produces({ MediaType.TEXT_HTML })
 	String preflighted();
-	
+
 	/**
 	 * DML-style casade deletion of element relations
 	 * 
