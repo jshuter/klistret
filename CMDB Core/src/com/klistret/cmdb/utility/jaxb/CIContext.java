@@ -147,8 +147,8 @@ public class CIContext {
 		elements = reflections.getTypesAnnotatedWith(Element.class);
 		for (Class<?> element : elements) {
 			if (contextPath.add(element))
-				logger.debug("Adding element {} to JAXB context path", element
-						.getName());
+				logger.debug("Adding element {} to JAXB context path",
+						element.getName());
 		}
 
 		/**
@@ -167,8 +167,8 @@ public class CIContext {
 		proxies = reflections.getTypesAnnotatedWith(Proxy.class);
 		for (Class<?> proxy : proxies) {
 			if (contextPath.add(proxy))
-				logger.debug("Adding proxy {} to JAXB context path", proxy
-						.getName());
+				logger.debug("Adding proxy {} to JAXB context path",
+						proxy.getName());
 		}
 
 		/**
@@ -198,9 +198,9 @@ public class CIContext {
 		 */
 		Set<Class<?>> beanClasses = reflections
 				.getTypesAnnotatedWith(Bean.class);
-		CIModel ciModel = new CIModel(schemaStreamSources
-				.toArray(new SchemaStreamSource[0]), beanClasses
-				.toArray(new Class<?>[0]));
+		CIModel ciModel = new CIModel(
+				schemaStreamSources.toArray(new SchemaStreamSource[0]),
+				beanClasses.toArray(new Class<?>[0]));
 		beans = ciModel.getCIBeans();
 	}
 
@@ -226,25 +226,22 @@ public class CIContext {
 					if (code == HttpURLConnection.HTTP_OK)
 						validations.add(candidate);
 					else
-						logger
-								.warn(
-										"URL [{}] connection response code [{}] elimated from valid URLs for Scannoation",
-										candidate.toString(), code);
+						logger.warn(
+								"URL [{}] connection response code [{}] elimated from valid URLs for Scannoation",
+								candidate.toString(), code);
 				} else {
 					if (connection.getContentLength() > 0)
 						validations.add(candidate);
 					else
-						logger
-								.warn(
-										"URL [{}] content length [{}] elimated from valid URLs for Scannoation",
-										candidate.toString(), connection
-												.getContentLength());
+						logger.warn(
+								"URL [{}] content length [{}] elimated from valid URLs for Scannoation",
+								candidate.toString(),
+								connection.getContentLength());
 				}
 			} catch (IOException e) {
-				logger
-						.warn(
-								"URL [{}] connect failed [{}] elimated from valid URLs for Scannoation",
-								candidate.toString(), e.getMessage());
+				logger.warn(
+						"URL [{}] connect failed [{}] elimated from valid URLs for Scannoation",
+						candidate.toString(), e.getMessage());
 			}
 		}
 		logger.warn("{} URLs elimated from {} candidates", candidates.size()
@@ -280,8 +277,7 @@ public class CIContext {
 					.toArray(new SchemaStreamSource[0]));
 		} catch (SAXException e) {
 			throw new InfrastructureException(
-					String
-							.format("Generating binding schema from streamed XSD sources"),
+					String.format("Generating binding schema from streamed XSD sources"),
 					e);
 		}
 	}
@@ -395,6 +391,19 @@ public class CIContext {
 	public boolean isBean(QName type) {
 		for (CIBean bean : beans)
 			if (bean.type.equals(type))
+				return true;
+
+		return false;
+	}
+
+	/**
+	 * Is the type associated with a bean
+	 * 
+	 * @return boolean
+	 */
+	public boolean isBean(String type) {
+		for (CIBean bean : beans)
+			if (bean.type.toString().equals(type))
 				return true;
 
 		return false;
