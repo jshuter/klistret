@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Blueprint xmlns="http://www.klistret.com/cmdb/identification">
+    <Criterion Name="NameAndEnvironment">
+        <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
+		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace element="http://www.klistret.com/cmdb/ci/element"; /pojo:Element/pojo:configuration/element:Environment</Expression>
+    </Criterion>
+	<Criterion Name="Name">
+        <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
+    </Criterion>
+	<Identification Type="{http://www.klistret.com/cmdb/ci/element}System">
+		<CriterionRule Name="NameAndEnvironment"/>
+	</Identification>
+	<Identification Type="{http://www.klistret.com/cmdb/ci/element}Context">
+		<CriterionRule Name="Name"/>
+	</Identification>
+</Blueprint>
