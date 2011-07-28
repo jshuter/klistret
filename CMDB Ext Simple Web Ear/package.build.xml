@@ -2,11 +2,12 @@
 
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="cmdb-coredir" location="C:/workshop/klistret/CMDB Core" />
+	<property name="cmdb-blueprintdir" location="C:/workshop/klistret/CMDB Blueprint" />
 
 	<ivy:settings file="${cmdb-coredir}/ivysettings.xml" />
 
 	<ivy:cachepath pathid="classpath.ivy.ext" conf="runtime" file="${cmdb-coredir}/ivy.xml" type="jar, bundle" />
-	
+
 	<target name="ext:package">
 		<property name="packagedir" location="${tmp-destdir}/klistret.cmdb.ext-simple-${ivy.revision}" />
 
@@ -25,12 +26,21 @@
 
 		<copy file="${tmp-destdir}/cmdb-core/klistret.core-${ivy.revision}.jar" todir="${packagedir}/lib" />
 		<copy file="${tmp-destdir}/cmdb-ci/klistret.ci-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${tmp-destdir}/cmdb-blueprint/klistret.blueprint-${ivy.revision}.jar" todir="${packagedir}/lib" />
 
 		<copy todir="${packagedir}/propertes">
 			<fileset dir="${cmdb-coredir}/configuration/runtime">
 				<include name="*.cfg.xml" />
 				<include name="CMDB.properties" />
 				<include name="log4j.properties" />
+			</fileset>
+		</copy>
+
+		<copy todir="${packagedir}/propertes">
+			<fileset dir="${cmdb-blueprintdir}/configuration/runtime">
+				<include name="Blueprint.cfg.xml" />
+				<include name="taxonomy.xml" />
+				<include name="identification.xml" />
 			</fileset>
 		</copy>
 
