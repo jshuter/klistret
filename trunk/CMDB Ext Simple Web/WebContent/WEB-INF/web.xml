@@ -16,7 +16,8 @@
         	com.klistret.cmdb.utility.resteasy.AccessControlInterceptor,
         	com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper,
         	com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper,
-        	com.klistret.cmdb.utility.resteasy.IntegerMessageBodyWriter
+        	com.klistret.cmdb.utility.resteasy.IntegerMessageBodyWriter,
+        	com.klistret.cmdb.utility.resteasy.ListStringMessageBodyWriter
         </param-value>
     </context-param>
 
