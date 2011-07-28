@@ -114,12 +114,12 @@ public class IdentificationServiceImpl implements IdentificationService {
 	/**
 	 * 
 	 */
-	private String elementTypeQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name = \"%s\"]";
+	private String elementTypeQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"%s\"]";
 
 	/**
 	 * 
 	 */
-	private String elementIdQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:id != %d]";
+	private String elementIdQuery = "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:id ne %d]";
 
 	/**
 	 * QName syntax as a regular expression
