@@ -1266,6 +1266,12 @@ CMDB.Element.Edit = Ext
 							msg : 'Sending. Please wait...'
 						});
 
+						this.identificationMask = new Ext.LoadMask(
+								this.getEl(),
+								{
+									msg : 'Identification check. Please wait...'
+								});
+
 						this.items.each(function(item) {
 							item.relayEvents(this, [ 'afterinsertion' ]);
 						}, this);
@@ -1288,6 +1294,7 @@ CMDB.Element.Edit = Ext
 					beforeDestroy : function() {
 						if (this.rendered) {
 							Ext.destroy(this.updateMask);
+							Ext.destroy(this.identificationMask);
 						}
 
 						CMDB.Element.Edit.superclass.beforeDestroy.apply(this,
@@ -1354,10 +1361,70 @@ CMDB.Element.Edit = Ext
 							});
 
 							if (isValid) {
-								this.saving();
+								this.identification();
 							} else {
 								this.Status.setText("Validation failed.");
 							}
+						}
+					},
+
+					identification : function() {
+						if (this.element) {
+							this.identificationMask.show();
+
+							this.doExtraction();
+
+							Ext.Ajax
+									.request({
+										url : (CMDB.URL || '')
+												+ '/CMDB/resteasy/identification',
+										method : 'POST',
+
+										headers : {
+											'Accept' : 'application/json,application/xml,text/*',
+											'Content-Type' : 'application/json; charset=ISO-8859-1'
+										},
+
+										jsonData : Ext.encode(this.element),
+										scope : this,
+
+										success : function(result, request) {
+											var count = Ext.util.JSON
+													.decode(result.responseText);
+
+											this.identificationMask.hide();
+
+											if (count == 0) {
+												this.Status
+														.setText("Identification passed");
+												this.saving();
+											} else {
+												this.Status
+														.setText("Identification failed. Found "
+																+ count
+																+ " similar element(s).");
+												CMDB.Message
+														.msg(
+																"Identification failed",
+																"Found "
+																		+ count
+																		+ " similar element(s).");
+											}
+										},
+										failure : function(result, request) {
+											this.identificationMask.hide();
+											this.Status
+													.setText("Failed identification. ");
+											this.fireEvent('requestfailure',
+													this, result);
+
+											CMDB.Message
+													.msg(
+															'Failure',
+															(result.responseText ? result.responseText
+																	: "Test unable to show message"));
+										}
+									});
 						}
 					},
 
@@ -1611,7 +1678,7 @@ CMDB.Element.Search = Ext
 							msg : 'Determine result size. Please wait...'
 						});
 					},
-					
+
 					/**
 					 * Prior to destroying destroy child Ext objects
 					 */
@@ -1659,7 +1726,7 @@ CMDB.Element.Search = Ext
 					// private
 					counting : function() {
 						this.updateMask.show();
-						
+
 						Ext.Ajax
 								.request({
 									url : (CMDB.URL || '')

@@ -1,7 +1,7 @@
 Ext.namespace('CMDB');
 
 
-CMDB.URL = 'http://sadbmatrix2.sfa.se:55167';
+CMDB.URL = 'http://vsgtmklistret.sfa.se:50003';
 
 
 // Message
