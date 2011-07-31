@@ -378,9 +378,6 @@ CMDB.Application.Search = Ext.extend(CMDB.Element.Search, {
 			title       : 'Application Search',
 			editor      : CMDB.Application.Edit,
 			
-			height         : 550,
-			width          : 600,
-			
 			elementType : '{http://www.klistret.com/cmdb/ci/element/system}Application',
 
 			items       : form,

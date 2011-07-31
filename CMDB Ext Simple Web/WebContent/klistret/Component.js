@@ -319,9 +319,6 @@ CMDB.ApplicationSoftware.Edit = Ext.extend(CMDB.Element.Edit, {
 		var config = {
 			title       : 'Application Software Editor',
 			
-			height         : 550,
-			width          : 600,
-			
 			layout      : 'accordion',
 			
 			items       : [
@@ -572,9 +569,6 @@ CMDB.ApplicationSoftware.Search = Ext.extend(CMDB.Element.Search, {
 		var config = {
 			title       : 'Application Software Search',
 			editor      : CMDB.ApplicationSoftware.Edit,
-			
-			height         : 675,
-			width          : 600,
 			
 			elementType : '{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware',
 

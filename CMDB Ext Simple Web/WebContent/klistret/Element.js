@@ -1149,6 +1149,8 @@ CMDB.Element.Edit = Ext
 				Ext.Window,
 				{
 					title : 'Element Editor',
+					
+					autoScroll : true,
 
 					dataProperty : 'citype',
 					dataValue : true,
@@ -1625,6 +1627,8 @@ CMDB.Element.Search = Ext
 				Ext.Window,
 				{
 					title : 'Element Search',
+					
+					autoScroll : true,
 
 					height : 450,
 					width : 600,
