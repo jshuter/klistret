@@ -290,6 +290,27 @@ CMDB.Element.ContactForm = Ext
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/commons');
 
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'][commons
+														+ ':Name'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'][commons
+															+ ':Name'] = {};
+
 												element['Element']['configuration'][commons
 														+ ':Ownership'][commons
 														+ ':Contact'][commons
@@ -325,6 +346,27 @@ CMDB.Element.ContactForm = Ext
 												var commons = CMDB.Badgerfish
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/commons');
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'][commons
+														+ ':Name'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'][commons
+															+ ':Telephone'] = {};
 
 												element['Element']['configuration'][commons
 														+ ':Ownership'][commons
@@ -362,6 +404,27 @@ CMDB.Element.ContactForm = Ext
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/commons');
 
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'][commons
+														+ ':Name'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'][commons
+															+ ':EMail'] = {};
+
 												element['Element']['configuration'][commons
 														+ ':Ownership'][commons
 														+ ':Contact'][commons
@@ -397,6 +460,27 @@ CMDB.Element.ContactForm = Ext
 												var commons = CMDB.Badgerfish
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/commons');
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'] = {};
+
+												if (!element['Element']['configuration'][commons
+														+ ':Ownership'][commons
+														+ ':Contact'][commons
+														+ ':Name'])
+													element['Element']['configuration'][commons
+															+ ':Ownership'][commons
+															+ ':Contact'][commons
+															+ ':Location'] = {};
 
 												element['Element']['configuration'][commons
 														+ ':Ownership'][commons
@@ -1149,7 +1233,7 @@ CMDB.Element.Edit = Ext
 				Ext.Window,
 				{
 					title : 'Element Editor',
-					
+
 					autoScroll : true,
 
 					dataProperty : 'citype',
@@ -1627,7 +1711,7 @@ CMDB.Element.Search = Ext
 				Ext.Window,
 				{
 					title : 'Element Search',
-					
+
 					autoScroll : true,
 
 					height : 450,
