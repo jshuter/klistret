@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.dao.ElementDAO;
 import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.exception.InfrastructureException;
 
 /**
  * Element service implementation
@@ -87,17 +88,27 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	/**
-	 * Unique find by expressions
+	 * Unique find by expressions (returns null if no element exists)
 	 */
 	public Element unique(List<String> expressions) {
-		List<Element> results = find(expressions, 0, 2);
+		Integer count = count(expressions);
 
-		if (results.size() != 1)
-			throw new ApplicationException(String.format(
-					"Find by expressions [%s] is not unique [%s]", expressions,
-					results.size() == 1 ? "zero" : "multiple"));
+		if (count == 0)
+			return null;
 
-		return results.get(0);
+		if (count == 1) {
+			List<Element> results = find(expressions, 0, 1);
+			return results.get(0);
+		}
+
+		if (count < 0)
+			throw new InfrastructureException(String.format(
+					"Count from expressions [%s] is negative [%d]",
+					expressions, count));
+
+		throw new ApplicationException(String.format(
+				"Find by expressions [%s] is not unique [%d]", expressions,
+				count));
 	}
 
 	/**
