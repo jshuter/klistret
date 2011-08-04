@@ -207,7 +207,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("Save/update element [{}]", element.toString());
+		logger.info("Save/update element [name: {}, id: {}]",
+				element.getName(), element.getId());
 		return clean(element);
 	}
 
@@ -240,7 +241,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("Deleted element [{}]", element);
+		logger.info("Deleted element [name:{}, id:{}]", element.getName(),
+				element.getId());
 		return clean(element);
 	}
 

@@ -195,7 +195,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("Save/update relation [{}]", relation.toString());
+		logger.info("Save/update relation [id: {}]", relation.getId());
 
 		relation.setSource(clean(relation.getSource()));
 		relation.setDestination(clean(relation.getDestination()));
@@ -231,7 +231,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 
-		logger.info("Deleted relation [{}]", relation);
+		logger.info("Deleted relation [id: {}]", relation.getId());
 		relation.setSource(clean(relation.getSource()));
 		relation.setDestination(clean(relation.getDestination()));
 		return relation;
@@ -248,7 +248,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		int count = getSession().createQuery(hqlElementDeletion).setLong(
 				"sourceId", id).setLong("destinationId", id).executeUpdate();
-		logger.info("Deleted {} relations to element [{}]", count, id);
+		logger.info("Deleted {} relations to element [id: {}]", count, id);
 
 		return count;
 	}
