@@ -666,6 +666,8 @@ CMDB.Element.DestRelationForm = Ext
 									height : 200,
 									store : store,
 									columns : columns,
+									
+									loadMask : true,
 
 									viewConfig : {
 										forceFit : true
@@ -1762,7 +1764,7 @@ CMDB.Element.Search = Ext
 								arguments);
 
 						// Counting mask
-						this.updateMask = new Ext.LoadMask(this.getEl(), {
+						this.countMask = new Ext.LoadMask(this.getEl(), {
 							msg : 'Determine result size. Please wait...'
 						});
 					},
@@ -1772,7 +1774,7 @@ CMDB.Element.Search = Ext
 					 */
 					beforeDestroy : function() {
 						if (this.rendered) {
-							Ext.destroy(this.updateMask);
+							Ext.destroy(this.countMask);
 						}
 
 						CMDB.Element.Edit.superclass.beforeDestroy.apply(this,
@@ -1813,7 +1815,7 @@ CMDB.Element.Search = Ext
 
 					// private
 					counting : function() {
-						this.updateMask.show();
+						this.countMask.show();
 
 						Ext.Ajax
 								.request({
@@ -1827,11 +1829,11 @@ CMDB.Element.Search = Ext
 									},
 									scope : this,
 									success : function(result, request) {
-										this.updateMask.hide();
+										this.countMask.hide();
 										this.searching(result.responseText);
 									},
 									failure : function(result, request) {
-										this.updateMask.hide();
+										this.countMask.hide();
 										this.Status
 												.setText("Failed searching."
 														+ (result.responseText ? result.responseText
