@@ -110,9 +110,6 @@ CMDB.Environment.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
@@ -121,64 +118,98 @@ CMDB.Environment.Search = Ext
 												'html' : 'Search for Environments'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
 						var config = {
 							title : 'Environment Search',
 							editor : CMDB.Environment.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Environment',
 
@@ -366,75 +397,106 @@ CMDB.Organization.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Organizations'
+												'html' : 'Search for Organizations.'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
 						var config = {
 							title : 'Organization Search',
 							editor : CMDB.Organization.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Organization',
 
@@ -616,75 +678,106 @@ CMDB.Module.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Modules'
+												'html' : 'Search for Modules.'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
 						var config = {
 							title : 'Module Search',
 							editor : CMDB.Module.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Module',
 
@@ -859,75 +952,106 @@ CMDB.SoftwareLifecycle.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Software lifecycles'
+												'html' : 'Search for Software lifecycles.'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
 						var config = {
 							title : 'Software Lifecycle Search',
 							editor : CMDB.SoftwareLifecycle.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle',
 
@@ -1102,75 +1226,106 @@ CMDB.Timeframe.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for timeframes'
+												'html' : 'Search for timeframes.'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
 						var config = {
 							title : 'Timeframe Search',
 							editor : CMDB.Timeframe.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Timeframe',
 
@@ -1348,69 +1503,95 @@ CMDB.OrganizationSoftwareType.Search = Ext
 									bodyStyle : 'padding:10px; background-color:white;',
 									baseCls : 'x-plain',
 									labelAlign : 'top',
-									defaults : {
-										width : 300
-									},
 
 									items : [
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Organization Software types'
+												'html' : 'Search for Organization Software types.'
 											},
 											{
-												xtype : 'textfield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Name',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-												wildcard : '%'
-											},
-											{
-												xtype : 'superboxselect',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Tags',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
-												displayField : 'Name',
-												valueField : 'Name',
-												mode : 'local',
+												layout : 'column',
+												border : false,
 
-												// Combo box store
-												store : new Ext.data.SimpleStore(
+												items : [
 														{
-															fields : [ 'Name' ],
-															sortInfo : {
-																field : 'Name',
-																direction : 'ASC'
-															}
-														}),
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
 
-												allowAddNewData : true,
-												addNewDataOnBlur : true,
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
 
-												extraItemCls : 'x-tag',
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
 
-												listeners : {
-													newitem : function(bs, v, f) {
-														var newObj = {
-															Name : v
-														};
-														bs.addItem(newObj);
-													}
-												}
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created after',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
-											},
-											{
-												xtype : 'datefield',
-												plugins : [ new Ext.Element.SearchParameterPlugin() ],
-												fieldLabel : 'Created before',
-												format : 'Y-m-d',
-												expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
 											} ]
 								});
 
@@ -1418,6 +1599,11 @@ CMDB.OrganizationSoftwareType.Search = Ext
 							title : 'Organization Software Type Search',
 							editor : CMDB.OrganizationSoftwareType.Edit,
 
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
+							
 							elementType : '{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType',
 
 							items : form,
