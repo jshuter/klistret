@@ -124,7 +124,7 @@ public class ElementService {
 	 */
 	@Test
 	public void getElement() throws JAXBException {
-		Element element = elementService.get(new Long(78941));
+		Element element = elementService.get(new Long(18437));
 
 		assertNotNull(element);
 	}

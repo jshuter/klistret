@@ -55,7 +55,7 @@ public class Experimenting {
 		element.setConfiguration(environment);
 	}
 
-	// @Test
+
 	public void xquery() {
 		String xquery = String
 				.format(
@@ -81,7 +81,6 @@ public class Experimenting {
 		}
 	}
 
-	@Test
 	public void xpath() {
 		String xpath = "/pojo:Element/pojo:configuration/@Watermark[. = \"1234\"]";
 
@@ -117,7 +116,7 @@ public class Experimenting {
 		}
 	}
 
-	// @Test
+
 	public void third() {
 		Processor processor = new Processor(false);
 
@@ -145,7 +144,7 @@ public class Experimenting {
 		}
 	}
 
-	// @Test
+
 	public void unmarshaller() {
 		StringWriter stringWriter = new StringWriter();
 
@@ -158,5 +157,13 @@ public class Experimenting {
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void dummy() {
+		char letter = 'a';
+		letter++;
+		
+		System.out.println(letter);
 	}
 }

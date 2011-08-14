@@ -106,8 +106,8 @@ public abstract class Step extends Expr {
 	 */
 	public String getRemainingXPath() {
 		return next == null ? null : next.getRemainingXPath() == null ? next
-				.getXPath() : next.getXPath().concat("/").concat(
-				next.getRemainingXPath());
+				.getXPath() : next.getXPath().concat("/")
+				.concat(next.getRemainingXPath());
 	}
 
 	/**
@@ -134,4 +134,5 @@ public abstract class Step extends Expr {
 	 * @return
 	 */
 	public abstract QName getQName();
+
 }

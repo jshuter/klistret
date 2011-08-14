@@ -15,6 +15,7 @@
 package com.klistret.cmdb.utility.saxon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -67,6 +68,11 @@ public class StepExpr extends Step {
 	}
 
 	/**
+	 * Values as strings from the predicates of the step
+	 */
+	protected List<String> values = new ArrayList<String>();
+
+	/**
 	 * Passing a Saxon axis expression means there are no predicates
 	 * 
 	 * @param expression
@@ -94,8 +100,8 @@ public class StepExpr extends Step {
 		 * expression.
 		 */
 		Expression controlling = expression.getControllingExpression();
-		while (controlling.getClass().getName().equals(
-				FilterExpression.class.getName())) {
+		while (controlling.getClass().getName()
+				.equals(FilterExpression.class.getName())) {
 			logger.debug("Adding a predicate [depth: {}]", predicates.size());
 			predicates.add(0, explainPredicate(((FilterExpression) controlling)
 					.getFilter()));
@@ -104,18 +110,17 @@ public class StepExpr extends Step {
 					.getControllingExpression();
 		}
 
-		if (!controlling.getClass().getName().equals(
-				AxisExpression.class.getName())) {
+		if (!controlling.getClass().getName()
+				.equals(AxisExpression.class.getName())) {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Controlling step [%s] in filter expression is not an axis expression",
-									controlling));
+					String.format(
+							"Controlling step [%s] in filter expression is not an axis expression",
+							controlling));
 		}
 
 		setAxisExpression((AxisExpression) controlling);
-		logger.debug("Adding the initial predicate [depth: {}]", predicates
-				.size());
+		logger.debug("Adding the initial predicate [depth: {}]",
+				predicates.size());
 		predicates.add(0, explainPredicate(expression.getFilter()));
 	}
 
@@ -138,16 +143,18 @@ public class StepExpr extends Step {
 		// Finger print = -1 if the node test matches nodes of more than one
 		// name
 		if (fingerprint == -1)
-			throw new IrresoluteException(String
-					.format("Axis expression [%s] has wildcard fingerprint",
+			throw new IrresoluteException(
+					String.format(
+							"Axis expression [%s] has wildcard fingerprint",
 							expression));
 
 		String clarkName = configuration.getNamePool()
 				.getClarkName(fingerprint);
 
 		if (clarkName == null)
-			throw new IrresoluteException(String
-					.format("Axis expression [%s] has an unknown clarkname",
+			throw new IrresoluteException(
+					String.format(
+							"Axis expression [%s] has an unknown clarkname",
 							expression));
 
 		// URI, local name (suggested prefix is really saved internally)
@@ -169,10 +176,9 @@ public class StepExpr extends Step {
 		if (getPrimaryNodeKind() == null || !isAbsolute() || !isForward()
 				|| getQName() == null) {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Axis expression [%s] is either neither not a primary node or is not an absolute step with forward direction or the qname is null (likely a wildcard)",
-									expression));
+					String.format(
+							"Axis expression [%s] is either neither not a primary node or is not an absolute step with forward direction or the qname is null (likely a wildcard)",
+							expression));
 		}
 	}
 
@@ -185,8 +191,8 @@ public class StepExpr extends Step {
 	 * @return
 	 */
 	private Expr explainPredicate(Expression expression) {
-		if (expression.getClass().getName().equals(
-				BooleanExpression.class.getName())) {
+		if (expression.getClass().getName()
+				.equals(BooleanExpression.class.getName())) {
 			logger.debug("Predicate is a boolean expression");
 			switch (((BooleanExpression) expression).getOperator()) {
 
@@ -216,32 +222,31 @@ public class StepExpr extends Step {
 
 			default:
 				throw new IrresoluteException(
-						String
-								.format(
-										"Boolean expression [%s] must either be an AND or OR operation",
-										expression));
+						String.format(
+								"Boolean expression [%s] must either be an AND or OR operation",
+								expression));
 			}
 		}
 
-		else if (expression.getClass().getName().equals(
-				GeneralComparison.class.getName())) {
-			logger.debug("Predicate is a general comparison");
+		else if (expression.getClass().getName()
+				.equals(GeneralComparison.class.getName())) {
+			logger.debug("Predicate is a general comparison, literal values are extracted");
 
-			return new ComparisonExpr((GeneralComparison) expression,
-					configuration);
+			return addValues(new ComparisonExpr((GeneralComparison) expression,
+					configuration));
 		}
 
-		else if (expression.getClass().getName().equals(
-				ValueComparison.class.getName())) {
-			logger.debug("Predicate is a value comparison");
+		else if (expression.getClass().getName()
+				.equals(ValueComparison.class.getName())) {
+			logger.debug("Predicate is a value comparison, literal values are extracted");
 
-			return new ComparisonExpr((ValueComparison) expression,
-					configuration);
+			return addValues(new ComparisonExpr((ValueComparison) expression,
+					configuration));
 		}
 
-		else if (expression.getClass().getName().equals(
-				TraceExpression.class.getName())) {
-			logger.debug("Predicate is a trace or functional expression");
+		else if (expression.getClass().getName()
+				.equals(TraceExpression.class.getName())) {
+			logger.debug("Predicate is a trace or functional expression, no literal values are extracted");
 
 			return new ComparisonExpr((TraceExpression) expression,
 					configuration);
@@ -249,11 +254,28 @@ public class StepExpr extends Step {
 
 		else {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Operand [%s] not a boolean, general or value logical expression",
-									expression));
+					String.format(
+							"Operand [%s] not a boolean, general or value logical expression",
+							expression));
 		}
+	}
+
+	/**
+     *
+    */
+	private ComparisonExpr addValues(ComparisonExpr ce) {
+		for (Expr operand : ce.getOperands()) {
+			if (operand.getClass().getName()
+					.equals(LiteralExpr.class.getName())) {
+				if (((LiteralExpr) operand).isAtomic())
+					values.add(((LiteralExpr) operand).getLiteralAsString());
+				else
+					values.addAll(Arrays.asList(((LiteralExpr) operand)
+							.getLiteralAsStringArray()));
+
+			}
+		}
+		return ce;
 	}
 
 	@Override
@@ -387,12 +409,22 @@ public class StepExpr extends Step {
 		}
 	}
 
+	/**
+	 * Get values as string for all comparison expressions within the step's
+	 * predicates
+	 */
+	public List<String> getValues() {
+		return values;
+	}
+
+	/**
+	 * 
+	 */
 	public String toString() {
 		return String
-				.format(
-						"type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate count [%d]",
+				.format("type [%s], step [%s], node kind [%s], qname [%s], forward [%b], absolute [%b], predicate count [%d]",
 						getType(), expression, getPrimaryNodeKind(),
-						getQName(), isForward(), isAbsolute(), predicates
-								.size());
+						getQName(), isForward(), isAbsolute(),
+						predicates.size());
 	}
 }

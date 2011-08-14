@@ -47,9 +47,19 @@ public class LiteralExpr extends Expr {
 	private String valueAsString;
 
 	/**
+	 * Actual string text of the literal value
+	 */
+	private String literalAsString;
+
+	/**
 	 * Value as an array of strings
 	 */
 	private String[] valueAsStringArray;
+
+	/**
+	 * Actual string text of the literal values
+	 */
+	private String[] literalAsStringArray;
 
 	/**
 	 * Value as object
@@ -102,34 +112,39 @@ public class LiteralExpr extends Expr {
 
 			if (Literal.isEmptySequence(expression))
 				throw new ApplicationException(
-						String
-								.format(
-										"Literal [%s] values are not allowed to be empty sequences",
-										expression));
+						String.format(
+								"Literal [%s] values are not allowed to be empty sequences",
+								expression));
 
 			Value literal = expression.getValue();
 
 			if (literal instanceof AtomicValue) {
 				valueAsString = literal.getStringValue();
+				literalAsString = literal.toString();
 				value = Value.convertToJava(literal.asItem());
 			}
 
 			if (literal instanceof SequenceExtent) {
 				valueAsStringArray = new String[literal.getLength()];
+				literalAsStringArray = new String[literal.getLength()];
 				valueAsArray = new Object[literal.getLength()];
 
 				for (int index = 0; index < literal.getLength(); index++) {
 					Item item = ((SequenceExtent) literal).itemAt(index);
 
+					if (!(item instanceof Value))
+						throw new ApplicationException(
+								"Sequence item is not an instance of Value");
+
 					valueAsStringArray[index] = item.getStringValue();
+					literalAsStringArray[index] = ((Value) item).toString();
 					valueAsArray[index] = Value.convertToJava(item);
 				}
 			}
 		} catch (XPathException e) {
-			logger
-					.warn(
-							"Literal [{}] either had no string representation or could not be converted to Java: {}",
-							expression, e.getCause());
+			logger.warn(
+					"Literal [{}] either had no string representation or could not be converted to Java: {}",
+					expression, e.getCause());
 		}
 	}
 
@@ -166,12 +181,30 @@ public class LiteralExpr extends Expr {
 	}
 
 	/**
+	 * Get the actual string text
+	 * 
+	 * @return String
+	 */
+	public String getLiteralAsString() {
+		return literalAsString;
+	}
+
+	/**
 	 * String array representation of only sequential literals
 	 * 
-	 * @return String array
+	 * @return String[]
 	 */
 	public String[] getValueAsStringArray() {
 		return valueAsStringArray;
+	}
+
+	/**
+	 * Get the actual string texts
+	 * 
+	 * @return String[]
+	 */
+	public String[] getLiteralAsStringArray() {
+		return literalAsStringArray;
 	}
 
 	/**
@@ -183,6 +216,9 @@ public class LiteralExpr extends Expr {
 		return atomic;
 	}
 
+	/**
+	 * 
+	 */
 	public String toString() {
 		return String.format("type [%s], comparison [%s], value [%s]",
 				getType(), expression, value);

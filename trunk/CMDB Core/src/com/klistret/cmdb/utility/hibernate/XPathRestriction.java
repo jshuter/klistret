@@ -36,6 +36,9 @@ import com.klistret.cmdb.utility.saxon.Step;
  * given a Step. The initial step's name is switched out with a wildcard since
  * the underlying schema type is unknown.
  * 
+ * 
+ * TODO Postgresql/Oracle have to be integrated soon.
+ * 
  * @author Matthew Young
  * 
  */
@@ -53,6 +56,11 @@ public class XPathRestriction implements Criterion {
 	 * Expression step
 	 */
 	private final Step step;
+
+	/**
+	 * Potential values from comparison expression with the step's predicate
+	 */
+	private String[] values;
 
 	/**
 	 * Variable reference that associates the database column to the XPath.
@@ -78,9 +86,7 @@ public class XPathRestriction implements Criterion {
 	 * @param step
 	 */
 	public XPathRestriction(String propertyName, Step step) {
-		this.propertyName = propertyName;
-		this.step = step;
-		this.variableReference = "this";
+		this(propertyName, step, "this");
 	}
 
 	/**
@@ -95,6 +101,11 @@ public class XPathRestriction implements Criterion {
 		this.propertyName = propertyName;
 		this.step = step;
 		this.variableReference = variableReference;
+
+		/**
+		 * Find potential values
+		 */
+		values = step.getPathExpression().getValues(step.getDepth());
 	}
 
 	/**
@@ -113,10 +124,9 @@ public class XPathRestriction implements Criterion {
 				propertyName);
 
 		if (columns.length != 1) {
-			logger
-					.error(
-							"XMLEXISTS may only be used with single-column properties [property: {}]",
-							propertyName);
+			logger.error(
+					"XMLEXISTS may only be used with single-column properties [property: {}]",
+					propertyName);
 			throw new HibernateException(
 					"XMLEXISTS may only be used with single-column properties");
 		}
@@ -136,13 +146,12 @@ public class XPathRestriction implements Criterion {
 			xpath = String.format("%s/%s/%s", xpath, step.getXPath()
 					.replaceFirst(axis, "*"), step.getRemainingXPath());
 		else
-			xpath = String.format("%s/%s", xpath, step.getXPath().replaceFirst(
-					axis, "*"));
+			xpath = String.format("%s/%s", xpath,
+					step.getXPath().replaceFirst(axis, "*"));
 
-		logger
-				.debug(
-						"XPath [{}] prior prefixing default function declaration and namespace declarations",
-						xpath);
+		logger.debug(
+				"XPath [{}] prior prefixing default function declaration and namespace declarations",
+				xpath);
 
 		/**
 		 * Concatenate namespace declarations
@@ -162,18 +171,59 @@ public class XPathRestriction implements Criterion {
 		 * funtion namespace
 		 */
 		if (dialect instanceof DB2Dialect) {
+			/**
+			 * DB2 only allows SQL with double quotes (or at least that is the
+			 * extend of my knowledge)
+			 */
 			Matcher sq = singleQuotes.matcher(xpath);
 			if (sq.find()) {
 				throw new ApplicationException(
-						String
-								.format(
-										"XPath [%s] contains surrounding single quotes which DB2 does not allow",
-										xpath),
-						new UnsupportedOperationException());
+						String.format(
+								"XPath [%s] contains surrounding single quotes which DB2 does not allow",
+								xpath), new UnsupportedOperationException());
 			}
 
-			return String.format("XMLEXISTS(\'%s\' PASSING %s AS \"%s\")",
-					xpath, columns[0], variableReference);
+			/**
+			 * Passing clause
+			 */
+			String passing = String.format("PASSING %s AS \"%s\"", columns[0],
+					variableReference);
+
+			/**
+			 * Replace comparison values
+			 */
+			if (values != null) {
+				char prefix = 'a';
+
+				for (String value : values) {
+					int first = xpath.indexOf(value);
+
+					if (first == -1)
+						throw new ApplicationException(
+								String.format(
+										"Value [%s] not found in xpath expression [%s]",
+										value, xpath));
+
+					xpath = String.format(
+							"%s$%s%s",
+							xpath.substring(0, first),
+							prefix,
+							xpath.substring(first + value.length(),
+									xpath.length()));
+					passing = String.format("%s, XMLCAST(%s as XML) as \"%s\"",
+							passing, value.replace("\"", "\'"), prefix);
+
+					prefix++;
+					if (prefix == 'a')
+						throw new ApplicationException(
+								"Contact development, revise code");
+				}
+			}
+
+			/**
+			 * Return the XMLEXISTS predicate
+			 */
+			return String.format("XMLEXISTS(\'%s\' %s)", xpath, passing);
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
@@ -200,8 +250,7 @@ public class XPathRestriction implements Criterion {
 	 */
 	public String toString() {
 		return String
-				.format(
-						"XPath [%s] against property [%s] with variable reference [%s]",
+				.format("XPath [%s] against property [%s] with variable reference [%s]",
 						step.getRemainingXPath(), propertyName,
 						variableReference);
 	}

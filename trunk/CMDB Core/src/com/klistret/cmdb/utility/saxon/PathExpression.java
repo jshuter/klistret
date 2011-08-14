@@ -240,10 +240,9 @@ public class PathExpression {
 			String key = String.format("%s:%s", md.group(1), md.group(2));
 			String value = String.format("%s:%s", md.group(3), md.group(4));
 
-			logger
-					.debug(
-							"Identified mapping declaration JTA property [{}], document type [{}]",
-							key, value);
+			logger.debug(
+					"Identified mapping declaration JTA property [{}], document type [{}]",
+					key, value);
 
 			if (md.end() > prologOffset)
 				prologOffset = md.end();
@@ -252,18 +251,16 @@ public class PathExpression {
 
 			if (getNamespace(md.group(1)) == null) {
 				throw new ApplicationException(
-						String
-								.format(
-										"JTA property prefix [%s] has no cooresponding namespace declaration",
-										md.group(1)));
+						String.format(
+								"JTA property prefix [%s] has no cooresponding namespace declaration",
+								md.group(1)));
 			}
 
 			if (getNamespace(md.group(3)) == null) {
 				throw new ApplicationException(
-						String
-								.format(
-										"Document type prefix [%s] has no cooresponding namespace declaration",
-										md.group(3)));
+						String.format(
+								"Document type prefix [%s] has no cooresponding namespace declaration",
+								md.group(3)));
 			}
 
 			typeMappings.put(key, value);
@@ -310,16 +307,14 @@ public class PathExpression {
 			explain(expression);
 		} catch (XPathException e) {
 			throw new ApplicationException(
-					String
-							.format(
-									"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
-									xpath, prologOffset), e);
+					String.format(
+							"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
+							xpath, prologOffset), e);
 		} catch (ClassCastException e) {
 			throw new ApplicationException(
-					String
-							.format(
-									"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
-									xpath, prologOffset), e);
+					String.format(
+							"Unable to create Saxon expression from xpath [%s], start character [%d] after prolog (ie declarations)",
+							xpath, prologOffset), e);
 		}
 	}
 
@@ -344,8 +339,8 @@ public class PathExpression {
 			 * Slash expressions always consist of a controlling and controlled
 			 * expression that can be further explained.
 			 */
-			if (expression.getClass().getName().equals(
-					SlashExpression.class.getName())) {
+			if (expression.getClass().getName()
+					.equals(SlashExpression.class.getName())) {
 				logger.debug("Explaining a Saxon slash expression");
 				Expression controlling = ((SlashExpression) expression)
 						.getControllingExpression();
@@ -358,8 +353,8 @@ public class PathExpression {
 			/**
 			 * Root expression ("/") automatically end up as the first step
 			 */
-			else if (expression.getClass().getName().equals(
-					RootExpression.class.getName())) {
+			else if (expression.getClass().getName()
+					.equals(RootExpression.class.getName())) {
 				logger.debug("Explaining a Saxon root expression");
 				relativePath.add(new RootExpr((RootExpression) expression,
 						staticContext.getConfiguration()));
@@ -371,8 +366,8 @@ public class PathExpression {
 			 * those that can't be processed into a simple step are translated
 			 * into irresolute expressions
 			 */
-			else if (expression.getClass().getName().equals(
-					AxisExpression.class.getName())) {
+			else if (expression.getClass().getName()
+					.equals(AxisExpression.class.getName())) {
 				logger.debug("Explaining a Saxon axis expression");
 				relativePath.add(new StepExpr((AxisExpression) expression,
 						staticContext.getConfiguration()));
@@ -381,8 +376,8 @@ public class PathExpression {
 			/**
 			 * Same as axis expressions but Saxon filters also for predicates
 			 */
-			else if (expression.getClass().getName().equals(
-					FilterExpression.class.getName())) {
+			else if (expression.getClass().getName()
+					.equals(FilterExpression.class.getName())) {
 				logger.debug("Explaining a Saxon filter expression");
 				relativePath.add(new StepExpr((FilterExpression) expression,
 						staticContext.getConfiguration()));
@@ -397,6 +392,7 @@ public class PathExpression {
 				throw new IrresoluteException("Captured unresolved expression");
 			}
 		} catch (IrresoluteException e) {
+			logger.debug("Captured expression as irresolute");
 			relativePath.add(new IrresoluteExpr(expression, staticContext
 					.getConfiguration()));
 			hasIrresolute = true;
@@ -404,8 +400,8 @@ public class PathExpression {
 
 		/**
 		 * Set step information (ie only types of root, step or irresolute)
-		 * assigning this path expression, the current XPath, depth and
-		 * next step.
+		 * assigning this path expression, the current XPath, depth and next
+		 * step.
 		 */
 		int depth = relativePath.size() - 1;
 		if (depth >= 0 && depth < xpathSplit.length) {
@@ -415,7 +411,7 @@ public class PathExpression {
 			step.setXPath(depth == 0 ? "/" : xpathSplit[depth]);
 			step.setDepth(depth);
 
-			if (depth != 0) 
+			if (depth != 0)
 				((Step) relativePath.get(depth - 1)).setNext(step);
 		}
 	}
@@ -581,6 +577,11 @@ public class PathExpression {
 		return this.hasRoot;
 	}
 
+	/**
+	 * Existence of an irresolute path
+	 * 
+	 * @return
+	 */
 	public boolean hasIrresolute() {
 		return this.hasIrresolute;
 	}
@@ -592,5 +593,29 @@ public class PathExpression {
 	 */
 	public int getDepth() {
 		return relativePath.size();
+	}
+
+	/**
+	 * Get values as strings from comparison expressions in order from the depth
+	 * downwards
+	 */
+	public String[] getValues(int depth) {
+		if (depth >= getDepth())
+			return null;
+
+		if (depth < 0)
+			return null;
+
+		List<String> values = new ArrayList<String>();
+		for (int index = depth; index < getDepth(); index++) {
+			Expr expr = getExpr(index);
+			if (expr.getType().equals(Expr.Type.Step))
+				values.addAll(((StepExpr) expr).getValues());
+		}
+
+		if (values.size() == 0)
+			return null;
+
+		return values.toArray(new String[0]);
 	}
 }

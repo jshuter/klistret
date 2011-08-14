@@ -71,6 +71,9 @@ public abstract class Expr {
 	 */
 	public abstract Type getType();
 
+	/**
+	 * 
+	 */
 	public String toString() {
 		return String.format("type [%s], saxon expression [%s]", getType(),
 				expression);
