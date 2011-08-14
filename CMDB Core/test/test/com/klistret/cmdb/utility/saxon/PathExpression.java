@@ -35,7 +35,7 @@ public class PathExpression {
 
 	static final String validXPathWithoutDeclaresOrRoot = "a:google/a:without/b:microsoft";
 
-	static final String validXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
+	static final String validXPathStepsOnly = "a:google[@id = (2,'hello',4)]/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
 
 	static final String invalidXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[contains(@name,'yes')]";
 
@@ -46,14 +46,12 @@ public class PathExpression {
 
 	}
 
-	@Test
 	/**
 	 * Valid namespace declarations
 	 */
 	public void validNamespace() {
 		String xpath = String
-				.format(
-						"declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathWithoutDeclares);
 
 		try {
@@ -71,14 +69,12 @@ public class PathExpression {
 				pathExpression);
 	}
 
-	@Test
 	/**
 	 * First namespace declaration is missing a "e" in the namespace token
 	 */
 	public void invalidNamespace1() {
 		String xpath = String
-				.format(
-						"declare namespac a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespac a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathWithoutDeclares);
 
 		try {
@@ -95,7 +91,6 @@ public class PathExpression {
 				xpath), pathExpression);
 	}
 
-	@Test
 	/**
 	 * Missing namespace declaration for prefix "a"
 	 */
@@ -118,14 +113,12 @@ public class PathExpression {
 				xpath), pathExpression);
 	}
 
-	@Test
 	/**
 	 * Missing semicolon between prefix "a" and prefix "b"
 	 */
 	public void syntaxError() {
 		String xpath = String
-				.format(
-						"declare namespace a=\"http://www.google.com/a\" declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespace a=\"http://www.google.com/a\" declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathWithoutDeclares);
 
 		try {
@@ -142,14 +135,12 @@ public class PathExpression {
 				xpath), pathExpression);
 	}
 
-	@Test
 	/**
 	 * Validate that a root exists
 	 */
 	public void typeValidation1() {
 		String xpath = String
-				.format(
-						"declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathWithoutDeclares);
 
 		try {
@@ -165,14 +156,12 @@ public class PathExpression {
 				pathExpression.hasRoot());
 	}
 
-	@Test
 	/**
 	 * Validate that a root does not exist
 	 */
 	public void typeValidation2() {
 		String xpath = String
-				.format(
-						"declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathWithoutDeclaresOrRoot);
 
 		try {
@@ -189,15 +178,13 @@ public class PathExpression {
 				pathExpression.hasRoot());
 	}
 
-	@Test
 	/**
 	 * Validate that only step expressions are present and that mappings
 	 * declarations are accepted.
 	 */
 	public void typeValidation3() {
 		String xpath = String
-				.format(
-						"declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						validXPathStepsOnly);
 
 		try {
@@ -215,15 +202,13 @@ public class PathExpression {
 		}
 	}
 
-	@Test
 	/**
 	 * Validate that the relative path does not have homogeneous step
 	 * expressions
 	 */
 	public void typeValidation4() {
 		String xpath = String
-				.format(
-						"declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
 						invalidXPathStepsOnly);
 
 		try {
@@ -238,11 +223,9 @@ public class PathExpression {
 		assertEquals(IrresoluteExpr.class, pathExpression.getExpr(2).getClass());
 	}
 
-	@Test
 	public void xsiType() {
 		String xpath = String
-				.format(
-						"declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\";   %s",
+				.format("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\";   %s",
 						"/a:google/a:whatever[@Name=\"yes\"][@Type=\"no\"]/b:microsoft[.=\"block\"]");
 
 		try {
@@ -256,6 +239,26 @@ public class PathExpression {
 			System.out.println(pathExpression.getExpr(3));
 
 			System.out.println(pathExpression.substringXPath(3));
+		} catch (ApplicationException e) {
+			fail(String.format("Application expression caught [%s]", e));
+		} catch (InfrastructureException e) {
+			fail(String.format("Intfrastructure expression caught [%s]", e));
+		}
+	}
+
+	@Test
+	public void getValues() {
+		String xpath = String
+				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+						validXPathStepsOnly);
+
+		try {
+			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
+					xpath);
+
+			String[] values = pathExpression.getValues(0);
+			for (String value : values)
+				System.out.println(value);
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {

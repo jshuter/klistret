@@ -105,6 +105,11 @@
 
 		<!-- Google collections (used by Reflections but not in the Maven pom) -->
 		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc3" conf="runtime->*"/>
+		
+		<!-- Pooling -->
+		<!-- 
+		<dependency org="commons-pool" name="commons-pool" rev="1.5.6" conf="runtime->*"/>
+		-->
 			
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>

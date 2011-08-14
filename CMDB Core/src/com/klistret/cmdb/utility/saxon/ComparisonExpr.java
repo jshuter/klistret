@@ -49,12 +49,21 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ComparisonExpr.class);
 
+	/**
+	 * 
+	 */
 	public enum Operator {
 		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, Empty, Exists, Matches
 	};
 
+	/**
+	 * 
+	 */
 	private Operator operator;
 
+	/**
+	 * 
+	 */
 	private Boolean functional = false;
 
 	/**
@@ -301,6 +310,9 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 		return functional;
 	}
 
+	/**
+	 * 
+	 */
 	public String toString() {
 		return String.format(
 				"type [%s], comparison [%s], operands [%s], operator [%s]",
