@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
@@ -25,6 +26,7 @@ import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
+import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +107,7 @@ public class XPathRestriction implements Criterion {
 		/**
 		 * Find potential values
 		 */
-		values = step.getPathExpression().getValues(step.getDepth());
+		// values = step.getPathExpression().getValues(step.getDepth());
 	}
 
 	/**
@@ -211,7 +213,7 @@ public class XPathRestriction implements Criterion {
 							xpath.substring(first + value.length(),
 									xpath.length()));
 					passing = String.format("%s, XMLCAST(%s as XML) as \"%s\"",
-							passing, value.replace("\"", "\'"), prefix);
+							passing, "?", prefix);
 
 					prefix++;
 					if (prefix == 'a')
@@ -240,6 +242,20 @@ public class XPathRestriction implements Criterion {
 	 */
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
+		if (values == null || values.length == 0)
+			return NO_TYPED_VALUES;
+
+		Dialect dialect = criteriaQuery.getFactory().getDialect();
+		if (dialect instanceof DB2Dialect) {
+			TypedValue[] typedValues = new TypedValue[values.length];
+			for (int index = 0; index < values.length; index++) {
+				typedValues[index] = new TypedValue(StringType.INSTANCE,
+						values[index].replace("\"", "'"), EntityMode.POJO);
+			}
+
+			return typedValues;
+		}
+
 		return NO_TYPED_VALUES;
 	}
 
