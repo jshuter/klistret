@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -64,11 +65,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				throw new ApplicationException("Expressions parameter is null",
 						new IllegalArgumentException());
 
-			Criteria hcriteria = new XPathCriteria(expressions, getSession())
+			Criteria criteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-			String alias = hcriteria.getAlias();
+			String alias = criteria.getAlias();
 
-			hcriteria.setProjection(Projections.projectionList()
+			criteria.setProjection(Projections.projectionList()
 					.add(Projections.property(alias + ".id"))
 					.add(Projections.property(alias + ".type"))
 					.add(Projections.property(alias + ".name"))
@@ -79,10 +80,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.add(Projections.property(alias + ".updateTimeStamp"))
 					.add(Projections.property(alias + ".configuration")));
 
-			hcriteria.setFirstResult(start);
-			hcriteria.setMaxResults(limit);
+			criteria.setFirstResult(start);
+			criteria.setMaxResults(limit);
 
-			Object[] results = hcriteria.list().toArray();
+			Object[] results = criteria.list().toArray();
 
 			List<Element> elements = new ArrayList<Element>(results.length);
 			logger.debug("Results length [{}]", results.length);
@@ -109,6 +110,31 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			return elements;
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
+	/**
+	 * Unique get off of XPath expressions
+	 */
+	public Element unique(List<String> expressions) {
+		try {
+			logger.debug("Query count of XPath expressions");
+
+			if (expressions == null)
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
+
+			Criteria criteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
+
+			Element element = (Element) criteria.uniqueResult();
+
+			return element == null ? null : clean(element);
+		} catch (NonUniqueResultException e) {
+			throw new ApplicationException(String.format(
+					"Expressions criteria was not unique: %s", e.getMessage()));
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e.getCause());
 		}
 	}
 

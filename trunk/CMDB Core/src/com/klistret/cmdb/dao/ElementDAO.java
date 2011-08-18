@@ -43,12 +43,24 @@ public interface ElementDAO {
 	 * CRUD find by criteria where the criteria is a list of XPath expressions
 	 * and start/limit parameters.
 	 * 
-	 * @param XPath[]
+	 * @param XPath
+	 *            []
 	 * @param start
 	 * @param limit
 	 * @return List
 	 */
 	List<Element> find(List<String> expressions, int start, int limit);
+
+	/**
+	 * Identical to the find method except only a single Element is returned if
+	 * unique otherwise an exception is raised.
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	Element unique(List<String> expressions);
 
 	/**
 	 * Identical to the find method except the row count is returned
