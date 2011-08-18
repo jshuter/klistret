@@ -75,14 +75,7 @@ public class RelationServiceImpl implements RelationService {
 	 * Unique find by expressions
 	 */
 	public Relation unique(List<String> expressions) {
-		List<Relation> results = find(expressions, 0, 2);
-
-		if (results.size() != 1)
-			throw new ApplicationException(String.format(
-					"Find by expressions [%s] is not unique [%s]", expressions,
-					results.size() == 1 ? "zero" : "multiple"));
-
-		return results.get(0);
+		return relationDAO.unique(expressions);
 	}
 
 	/**

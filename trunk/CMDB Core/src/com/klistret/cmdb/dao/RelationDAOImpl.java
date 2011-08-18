@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.NonUniqueResultException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -52,10 +53,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 */
 	public List<Relation> find(List<String> expressions, int start, int limit) {
 		try {
-			logger
-					.debug(
-							"Finding relations by expression from start position [{}] with limit [{}]",
-							start, limit);
+			logger.debug(
+					"Finding relations by expression from start position [{}] with limit [{}]",
+					start, limit);
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -65,17 +65,17 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					.getCriteria();
 			String alias = hcriteria.getAlias();
 
-			hcriteria.setProjection(Projections.projectionList().add(
-					Projections.property(alias + ".id")).add(
-					Projections.property(alias + ".type")).add(
-					Projections.property(alias + ".source")).add(
-					Projections.property(alias + ".destination")).add(
-					Projections.property(alias + ".fromTimeStamp")).add(
-					Projections.property(alias + ".toTimeStamp")).add(
-					Projections.property(alias + ".createId")).add(
-					Projections.property(alias + ".createTimeStamp")).add(
-					Projections.property(alias + ".updateTimeStamp")).add(
-					Projections.property(alias + ".configuration")));
+			hcriteria.setProjection(Projections.projectionList()
+					.add(Projections.property(alias + ".id"))
+					.add(Projections.property(alias + ".type"))
+					.add(Projections.property(alias + ".source"))
+					.add(Projections.property(alias + ".destination"))
+					.add(Projections.property(alias + ".fromTimeStamp"))
+					.add(Projections.property(alias + ".toTimeStamp"))
+					.add(Projections.property(alias + ".createId"))
+					.add(Projections.property(alias + ".createTimeStamp"))
+					.add(Projections.property(alias + ".updateTimeStamp"))
+					.add(Projections.property(alias + ".configuration")));
 
 			hcriteria.setFirstResult(start);
 			hcriteria.setMaxResults(limit);
@@ -98,8 +98,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				relation.setCreateId((String) row[6]);
 				relation.setCreateTimeStamp((Date) row[7]);
 				relation.setUpdateTimeStamp((Date) row[8]);
-				relation
-						.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[9]);
+				relation.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[9]);
 
 				relations.add(relation);
 			}
@@ -111,7 +110,32 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
 	}
-	
+
+	/**
+	 * Query unique over XPath expressions
+	 */
+	public Relation unique(List<String> expressions) {
+		try {
+			logger.debug("Query unique over XPath expressions");
+
+			if (expressions == null)
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
+
+			Criteria criteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
+
+			Relation relation = (Relation) criteria.uniqueResult();
+
+			return relation == null ? null : relation;
+		} catch (NonUniqueResultException e) {
+			throw new ApplicationException(String.format(
+					"Expressions criteria was not unique: %s", e.getMessage()));
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
 	/**
 	 * Query count of XPath expressions
 	 */
@@ -174,17 +198,16 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		/**
 		 * pojo type matches the configuration qname
 		 */
-		String typeClassName = CIContext.getCIContext().getBean(
-				QName.valueOf(relation.getType().getName())).getJavaClass()
-				.getName();
+		String typeClassName = CIContext.getCIContext()
+				.getBean(QName.valueOf(relation.getType().getName()))
+				.getJavaClass().getName();
 		if (!typeClassName.equals(relation.getConfiguration().getClass()
 				.getName()))
 			throw new ApplicationException(
-					String
-							.format(
-									"Pojo element type [%s] does not match the configuration type [%s]",
-									typeClassName, relation.getConfiguration()
-											.getClass().getName()));
+					String.format(
+							"Pojo element type [%s] does not match the configuration type [%s]",
+							typeClassName, relation.getConfiguration()
+									.getClass().getName()));
 
 		try {
 			if (relation.getId() != null)
@@ -246,8 +269,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	public int cascade(Long id) {
 		String hqlElementDeletion = "update Relation r set r.toTimeStamp = current_timestamp() where (r.source.id = :sourceId or r.destination.id = :destinationId) and r.toTimeStamp is null";
 
-		int count = getSession().createQuery(hqlElementDeletion).setLong(
-				"sourceId", id).setLong("destinationId", id).executeUpdate();
+		int count = getSession().createQuery(hqlElementDeletion)
+				.setLong("sourceId", id).setLong("destinationId", id)
+				.executeUpdate();
 		logger.info("Deleted {} relations to element [id: {}]", count, id);
 
 		return count;
