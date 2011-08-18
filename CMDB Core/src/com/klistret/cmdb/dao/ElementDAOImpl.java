@@ -118,7 +118,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public Element unique(List<String> expressions) {
 		try {
-			logger.debug("Query count of XPath expressions");
+			logger.debug("Query unique over XPath expressions");
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",

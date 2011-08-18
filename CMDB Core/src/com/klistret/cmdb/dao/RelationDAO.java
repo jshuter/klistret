@@ -44,6 +44,16 @@ public interface RelationDAO {
 	List<Relation> find(List<String> expressions, int start, int limit);
 
 	/**
+	 * Identical to the find method except a unique Relation is returned
+	 * 
+	 * @param expressions
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	Relation unique(List<String> expressions);
+	
+	/**
 	 * Identical to the find method except the row count is returned
 	 * 
 	 * @param expressions
