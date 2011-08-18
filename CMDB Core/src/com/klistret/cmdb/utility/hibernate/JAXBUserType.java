@@ -30,8 +30,8 @@ import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.transform.stream.StreamSource;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.usertype.UserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,8 +105,7 @@ public class JAXBUserType implements UserType {
 	@SuppressWarnings("deprecation")
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner)
 			throws HibernateException, SQLException {
-		// TODO - Fix deprecated
-		String xmlString = (String) Hibernate.TEXT.nullSafeGet(rs, names[0]);
+		String xmlString = (String) StandardBasicTypes.STRING.nullSafeGet(rs, names[0]);
 
 		logger.debug("getting xml data [{}] as Object", xmlString);
 		return fromXMLString(xmlString);
@@ -118,8 +117,7 @@ public class JAXBUserType implements UserType {
 		logger.debug("setting Object [{}] as xml", value);
 
 		String xmlString = toXMLString(value);
-		// TODO - Fix deprecated
-		Hibernate.TEXT.nullSafeSet(st, xmlString, index);
+		StandardBasicTypes.STRING.nullSafeSet(st, xmlString, index);
 	}
 
 	public Object replace(Object original, Object target, Object owner)

@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Criteria;
-import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
@@ -26,7 +25,6 @@ import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle9iDialect;
 import org.hibernate.engine.TypedValue;
-import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +56,6 @@ public class XPathRestriction implements Criterion {
 	 * Expression step
 	 */
 	private final Step step;
-
-	/**
-	 * Potential values from comparison expression with the step's predicate
-	 */
-	private String[] values;
 
 	/**
 	 * Variable reference that associates the database column to the XPath.
@@ -103,11 +96,6 @@ public class XPathRestriction implements Criterion {
 		this.propertyName = propertyName;
 		this.step = step;
 		this.variableReference = variableReference;
-
-		/**
-		 * Find potential values
-		 */
-		// values = step.getPathExpression().getValues(step.getDepth());
 	}
 
 	/**
@@ -192,37 +180,6 @@ public class XPathRestriction implements Criterion {
 					variableReference);
 
 			/**
-			 * Replace comparison values
-			 */
-			if (values != null) {
-				char prefix = 'a';
-
-				for (String value : values) {
-					int first = xpath.indexOf(value);
-
-					if (first == -1)
-						throw new ApplicationException(
-								String.format(
-										"Value [%s] not found in xpath expression [%s]",
-										value, xpath));
-
-					xpath = String.format(
-							"%s$%s%s",
-							xpath.substring(0, first),
-							prefix,
-							xpath.substring(first + value.length(),
-									xpath.length()));
-					passing = String.format("%s, XMLCAST(%s as XML) as \"%s\"",
-							passing, "?", prefix);
-
-					prefix++;
-					if (prefix == 'a')
-						throw new ApplicationException(
-								"Contact development, revise code");
-				}
-			}
-
-			/**
 			 * Return the XMLEXISTS predicate
 			 */
 			return String.format("XMLEXISTS(\'%s\' %s)", xpath, passing);
@@ -242,20 +199,6 @@ public class XPathRestriction implements Criterion {
 	 */
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
-		if (values == null || values.length == 0)
-			return NO_TYPED_VALUES;
-
-		Dialect dialect = criteriaQuery.getFactory().getDialect();
-		if (dialect instanceof DB2Dialect) {
-			TypedValue[] typedValues = new TypedValue[values.length];
-			for (int index = 0; index < values.length; index++) {
-				typedValues[index] = new TypedValue(StringType.INSTANCE,
-						values[index].replace("\"", "'"), EntityMode.POJO);
-			}
-
-			return typedValues;
-		}
-
 		return NO_TYPED_VALUES;
 	}
 
