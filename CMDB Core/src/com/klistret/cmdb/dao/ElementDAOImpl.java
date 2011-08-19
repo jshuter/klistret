@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.NonUniqueResultException;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -79,6 +80,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.add(Projections.property(alias + ".createTimeStamp"))
 					.add(Projections.property(alias + ".updateTimeStamp"))
 					.add(Projections.property(alias + ".configuration")));
+			
+			criteria.addOrder(Order.asc("name") );
 
 			criteria.setFirstResult(start);
 			criteria.setMaxResults(limit);

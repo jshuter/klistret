@@ -233,7 +233,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-
+	@Test
 	public void findElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -266,7 +266,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void uniqueElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
