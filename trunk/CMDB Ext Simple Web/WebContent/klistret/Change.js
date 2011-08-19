@@ -25,6 +25,9 @@ CMDB.Installation.GeneralForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
+					// Initializes the tags field
+					tags : [],
+
 					initComponent : function() {
 						var config = {
 							title : 'General',
@@ -256,6 +259,94 @@ CMDB.Installation.GeneralForm = Ext
 															'Element/configuration/State/$');
 											this.setValue(value);
 										}
+									},
+									{
+										xtype : 'superboxselect',
+										elementdata : true,
+										fieldLabel : 'Tags',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (!Ext.isEmpty(this.getValueEx())) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons')
+												tags = [];
+
+												Ext
+														.each(
+																this
+																		.getValueEx(),
+																function(value) {
+																	var tag = {
+																		'$' : value['name']
+																	};
+
+																	tags[tags.length] = tag;
+																});
+
+												element['Element']['configuration'][commons
+														+ ":Tag"] = tags;
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Tag');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var tags = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Tag'), formated = [];
+
+											if (Ext.isArray(tags)) {
+												Ext
+														.each(
+																tags,
+																function(tag) {
+																	formated[formated.length] = {
+																		'name' : tag['$']
+																	};
+																});
+											}
+
+											if (Ext.isObject(tags)) {
+												formated[formated.length] = {
+													'name' : tags['$']
+												};
+											}
+
+											this.setValueEx(formated);
+										},
+
+										// Combo box store
+										store : new Ext.data.SimpleStore({
+											fields : [ 'name' ],
+											data : this.tags,
+											sortInfo : {
+												field : 'name',
+												direction : 'ASC'
+											}
+										}),
+
+										displayField : 'name',
+										valueField : 'name',
+										mode : 'local',
+
+										allowAddNewData : true,
+										addNewDataOnBlur : true,
+
+										extraItemCls : 'x-tag',
+
+										listeners : {
+											newitem : function(bs, v, f) {
+												var newObj = {
+													name : v
+												};
+												bs.addItem(newObj);
+											}
+										}
 									} ]
 						};
 
@@ -478,6 +569,42 @@ CMDB.Installation.Search = Ext
 
 															items : [
 																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
+
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
+
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	},
+																	{
 																		xtype : 'datefield',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Created after',
@@ -528,6 +655,25 @@ CMDB.Installation.Search = Ext
 									{
 										name : 'State',
 										mapping : 'Element/configuration/State/$'
+									},
+									{
+										name : 'Tag',
+										mapping : 'Element/configuration/Tag',
+										formating : function(values) {
+											var formated = '';
+
+											Ext
+													.each(
+															values,
+															function(value) {
+																formated = Ext
+																		.isEmpty(formated) ? value['$']
+																		: formated
+																				+ ', '
+																				+ value['$'];
+															});
+											return formated;
+										}
 									}, {
 										name : 'Created',
 										mapping : 'Element/createTimeStamp/$'
@@ -554,6 +700,11 @@ CMDB.Installation.Search = Ext
 								width : 120,
 								sortable : true,
 								dataIndex : 'State'
+							}, {
+								header : "Tags",
+								width : 120,
+								sortable : true,
+								dataIndex : 'Tag'
 							}, {
 								header : "Created",
 								width : 120,
