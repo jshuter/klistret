@@ -666,7 +666,7 @@ CMDB.Element.DestRelationForm = Ext
 									height : 200,
 									store : store,
 									columns : columns,
-									
+
 									loadMask : true,
 
 									viewConfig : {
@@ -2273,299 +2273,323 @@ CMDB.Element.Results = Ext
 /**
  * Organizations (context) as store
  */
-CMDB.OrganizationStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.OrganizationStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Organization\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Organization\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
 /**
  * Modules (context) as store
  */
-CMDB.ModuleStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.ModuleStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
 /**
  * OrganizationSoftwareType (context) as store
  */
-CMDB.OrganizationSoftwareTypeStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.OrganizationSoftwareTypeStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
-CMDB.EnvironmentStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.EnvironmentStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Environment\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Environment\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
-CMDB.SoftwareLifecycleStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.SoftwareLifecycleStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context/lifecycle}SoftwareLifecycle\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
-CMDB.TimeframeStore = new Ext.data.Store(
-		{
-			proxy : new Ext.data.HttpProxy({
-				url : (CMDB.URL || '') + '/CMDB/resteasy/element',
-				method : 'GET',
+CMDB.TimeframeStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
 
-				headers : {
-					'Accept' : 'application/json,application/xml,text/html',
-					'Content-Type' : 'application/json'
-				}
-			}),
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
 
-			reader : new CMDB.JsonReader({
-				totalProperty : 'total',
-				successProperty : 'successful',
-				idProperty : 'Element/id/$',
-				root : 'rows',
-				fields : [ {
-					name : 'Id',
-					mapping : 'Element/id/$'
-				}, {
-					name : 'Name',
-					mapping : 'Element/name/$'
-				}, {
-					name : 'Element',
-					mapping : 'Element'
-				} ]
-			}),
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
 
-			listeners : {
-				'beforeload' : function(store, options) {
-					var expressions;
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
 
-					expressions = expressions
-							+ "&"
-							+ Ext
-									.urlEncode({
-										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Timeframe\"]'
-									});
-					expressions = expressions + "&" + Ext.urlEncode({
-						expressions : store.baseParams.expressions
-					});
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Timeframe\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
 
-					options.params = "start=0&limit=10&" + expressions;
-				}
-			}
-		});
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
 
 CMDB.ApplicationStore = new Ext.data.Store(
 		{
