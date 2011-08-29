@@ -19,6 +19,7 @@
 <hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
 	<class name="RelationType" table="RELATIONTYPE">
+		<cache usage="read-only"/>
 
 		<id name="id" type="long">
 			<column name="RELATIONTYPEID" sql-type="INTEGER" />

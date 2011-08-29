@@ -62,7 +62,12 @@
 					<prop key="hibernate.dialect">
 						${cmdb.hibernate.dialect}
 					</prop>
-					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.show_sql">
+						true
+					</prop>
+					<prop key="hibernate.cache.region.factory_class">
+						net.sf.ehcache.hibernate.EhCacheRegionFactory
+					</prop>
 				</props>
 			</property>
 
@@ -123,6 +128,9 @@
 					</prop>
 					<prop key="hibernate.connection.release_mode">
 						auto
+					</prop>
+					<prop key="hibernate.cache.region.factory_class">
+						net.sf.ehcache.hibernate.EhCacheRegionFactory
 					</prop>
 				</props>
 			</property>
