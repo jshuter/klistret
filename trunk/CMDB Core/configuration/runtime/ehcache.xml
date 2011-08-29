@@ -6,8 +6,8 @@
 		diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="LRU" />
 
-	<cache name="com.klistret.cmdb.pojo.RelationType"
+	<cache name="com.klistret.cmdb.ci.pojo.RelationType"
 		maxElementsInMemory="100" eternal="true" overflowToDisk="false" />
-	<cache name="com.klistret.cmdb.pojo.ElementType"
+	<cache name="com.klistret.cmdb.ci.pojo.ElementType"
 		maxElementsInMemory="1000" eternal="true" overflowToDisk="false" />
 </ehcache>
