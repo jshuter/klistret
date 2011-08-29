@@ -24,6 +24,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.Oracle9iDialect;
+import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.engine.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,6 @@ import com.klistret.cmdb.utility.saxon.Step;
  * Implements Hibernate Criterion for XPath expressions acting on a property
  * given a Step. The initial step's name is switched out with a wildcard since
  * the underlying schema type is unknown.
- * 
- * 
- * TODO Postgresql/Oracle have to be integrated soon.
  * 
  * @author Matthew Young
  * 
@@ -186,6 +184,11 @@ public class XPathRestriction implements Criterion {
 		}
 
 		if (dialect instanceof Oracle9iDialect) {
+			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
+					xpath, columns[0], variableReference);
+		}
+
+		if (dialect instanceof PostgreSQLDialect) {
 			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
 					xpath, columns[0], variableReference);
 		}
