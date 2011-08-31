@@ -10,7 +10,7 @@ All that is necessary is a Klistret web download (i.e. a web bundle that supplie
 == Database ==
 TO-DO: Link or instruction on database setup
 
-= Directory structure =
+= Configuration =
 
 == Unix (Linux) ==
 Directly under the home directory create a domain map called *dm1*.
@@ -94,6 +94,9 @@ The main spring configuration file is *Spring.cfg.xml* to which the *Blueprint.c
    <import resource="Blueprint.cfg.xml" />
 }}}
 
-= Configuration =
+= Container =
+
+== Weblogic ==
+TODO: Describe the basic resources and show a sample WLST script.
 
 = Test =
