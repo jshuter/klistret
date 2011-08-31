@@ -14,12 +14,34 @@ TO-DO: Link or instruction on database setup
 
 == Unix (Linux) ==
 Directly under the home directory create a domain map called *dm1*.
-     {{{mkdir dm1}}}
+{{{
+  mkdir dm1
+}}}
 
 This is where the entire setup will be housed.  Create the following sub-directories:
-     {{{mkdir application downloads logs managedpid properties scripts settings weblogic-root wlst}}}
+{{{
+  mkdir application downloads logs managedpid properties scripts settings weblogic-root wlst
+}}}
 
-The *application* map will contain 
+The *application* map will contain all of the links to downloaded code (helpful for managing versions) which is unpacked under *downloads*.  Log files are steered to the *logs* map as defined by the LOG4J configuration under the *properties* directory where the other property files are kept.  Start and stop scripts lye in *scripts* and their corresponding settings files next door under *settings*.  Everything pertaining Weblogic's configuration is directed to the *weblogic-root* catalog while how to configuration with the WLST interface under *wlst*.  The last catalog is *managedpid* where the PIDs for the administration and application servers reside.
+
+The first thing to do is unpack the downloads:
+{{{
+  cd $HOME/dm1/downloads
+  mkdir klistret.cmdb.ext-simple-0.1
+  gunzip klistret.cmdb.ext-simple-0.1.tar.gz
+  cd klistret.cmdb.ext-simple-0.1
+  tar xvf ../klistret.cmdb.ext-simple-0.1.tar
+  rm ../klistret.cmdb.ext-simple-0.1.tar
+}}}
+
+Then create links from the *applications* map:
+{{{
+  cd $HOME/dm1/applications
+  ln -s ../downloads/klistret.cmdb.ext-simple-0.1 cmdb
+}}}
+
+Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.
 
 = Configuration =
 
