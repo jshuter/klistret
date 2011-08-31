@@ -2,11 +2,24 @@
 The configuration of Klistret on Weblogic (10+) is described below and the majority is applicable to other containers like Websphere or JBoss.
 
 = Introduction =
-[http://www.oracle.com/technetwork/middleware/weblogic/overview/index.html Weblogic] is a popular Java container that can even be run without cost (i.e. no support) in production.  Klistret has been tested mainly in this contain and all of the default settings are geared to Weblogic.
+[http://www.oracle.com/technetwork/middleware/weblogic/overview/index.html Weblogic] is a popular Java container that can even be run without cost (i.e. no support) in production.  Klistret has been tested mainly in this container and all of the default settings are geared to Weblogic on Unix/Linux.
 
 = Required Software =
+All that is necessary is a Klistret web download (i.e. a web bundle that supplies the graphic interface and the REST services), database drivers, and a database installation (either [http://www-01.ibm.com/software/data/db2/express DB2], [http://www.oracle.com/technetwork/database/express-edition/overview/index.html Oracle], or [http://www.postgresql.org Postgresql]).  None of the Klistret packages (archives) ships with JDBC drivers.  Instead these should be pulled from the database installation.  Future editions of Klistret will provide an open source alternative. 
+
+== Database ==
+TO-DO: Link or instruction on database setup
 
 = Directory structure =
+
+== Unix (Linux) ==
+Directly under the home directory create a domain map called *dm1*.
+     {{{mkdir dm1}}}
+
+This is where the entire setup will be housed.  Create the following sub-directories:
+     {{{mkdir application downloads logs managedpid properties scripts settings weblogic-root wlst}}}
+
+The *application* map will contain 
 
 = Configuration =
 
