@@ -35,13 +35,22 @@ The first thing to do is unpack the downloads:
   rm ../klistret.cmdb.ext-simple-0.1.tar
 }}}
 
+If you are using DB2 then create a JDBC directory och link in the archives from the DB2 installation:
+{{{
+  cd $HOME/dm1/downloads
+  mkdir db2-jdbc-drivers
+  cd db2-jdbc-drivers
+  ln -s <DB2 HOME>/sqllib/java/db2jcc_license_cu.jar .
+  ln -s <DB2 HOME>/sqllib/java/db2jcc.jar .
+}}}
+
 Then create links from the *applications* map:
 {{{
   cd $HOME/dm1/applications
   ln -s ../downloads/klistret.cmdb.ext-simple-0.1 cmdb
 }}}
 
-Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.
+Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.  Example scripts are shipped with the web package and 
 
 = Configuration =
 
