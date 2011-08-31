@@ -1,0 +1,13 @@
+#labels Phase-Deploy,Weblogic
+The configuration of Klistret on Weblogic (10+) is described below and the majority is applicable to other containers like Websphere or JBoss.
+
+= Introduction =
+[http://www.oracle.com/technetwork/middleware/weblogic/overview/index.html Weblogic] is a popular Java container that can even be run without cost (i.e. no support) in production.  Klistret has been tested mainly in this contain and all of the default settings are geared to Weblogic.
+
+= Required Software =
+
+= Directory structure =
+
+= Configuration =
+
+= Test =
