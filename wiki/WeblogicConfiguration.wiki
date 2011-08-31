@@ -53,9 +53,9 @@ Then create links from the *applications* map:
 Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.  Example scripts are shipped with the web package and are tagged with _edit_ text:
 {{{
   cd $HOME/dm1/scripts
-  cp ../downloads/klistret.cmdb.ext-simple-0.1/example/weblogic/*.ksh
+  cp ../applications/cmdb/example/weblogic/*.ksh
   cd $HOME/dm1/settings
-  cp ../downloads/klistret.cmdb.ext-simple-0.1/example/weblogic/*.env
+  cp ../applications/cmdb/example/weblogic/*.env
 }}}
 
 The start/stop scripts should work right out of the box.  They are run as follows:
@@ -67,7 +67,7 @@ The start/stop scripts should work right out of the box.  They are run as follow
 The last thing to do before starting the servers is to gather the property files and edit a couple of settings.
 {{{
   cd $HOME/dm1/properties
-  cp ../downloads/klistret.cmdb.ext-simple-0.1/propertes/* .
+  cp ../applications/cmdb/propertes/* .
 }}}
 
 The major property file is the *CMDB.properties*.  When running in a container a DataSource is used so make sure to edit the *cmdb.datasource.name* property.  As well the Hibernate dialect corresponding to what underlying database is active.  Even the Hibernate transaction manager has to be defined (right now) dependent on the container.
