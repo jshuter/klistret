@@ -20,10 +20,10 @@ Directly under the home directory create a domain map called *dm1*.
 
 This is where the entire setup will be housed.  Create the following sub-directories:
 {{{
-  mkdir application downloads logs managedpid properties scripts settings weblogic-root wlst
+  mkdir applications downloads logs managedpid properties scripts settings weblogic-root wlst
 }}}
 
-The *application* map will contain all of the links to downloaded code (helpful for managing versions) which is unpacked under *downloads*.  Log files are steered to the *logs* map as defined by the LOG4J configuration under the *properties* directory where the other property files are kept.  Start and stop scripts lye in *scripts* and their corresponding settings files next door under *settings*.  Everything pertaining Weblogic's configuration is directed to the *weblogic-root* catalog while how to configuration with the WLST interface under *wlst*.  The last catalog is *managedpid* where the PIDs for the administration and application servers reside.
+The *applicatiosn* map will contain all of the links to downloaded code (helpful for managing versions) which is unpacked under *downloads*.  Log files are steered to the *logs* map as defined by the LOG4J configuration under the *properties* directory where the other property files are kept.  Start and stop scripts lye in *scripts* and their corresponding settings files next door under *settings*.  Everything pertaining Weblogic's configuration is directed to the *weblogic-root* catalog while how to configuration with the WLST interface under *wlst*.  The last catalog is *managedpid* where the PIDs for the administration and application servers reside.
 
 The first thing to do is unpack the downloads:
 {{{
