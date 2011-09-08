@@ -25,7 +25,7 @@
 			description="contains only the artifact published by this module itself, with no transitive dependencies" />
 	</configurations>
 	<publications>
-		<artifact name="klistret.ci" type="jar" ext="jar" conf="master" />
+		<artifact name="klistret.ci" type="jar" ext="jar" conf="runtime,master" />
 	</publications>
 	<dependencies>
 		<!-- Apache Log4j (1): log4j -->
