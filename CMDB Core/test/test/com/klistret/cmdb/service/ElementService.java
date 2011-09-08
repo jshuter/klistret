@@ -122,10 +122,11 @@ public class ElementService {
 	 * 
 	 * @throws JAXBException
 	 */
-
+	@Test
 	public void getElement() throws JAXBException {
-		Element element = elementService.get(new Long(18437));
+		Element element = elementService.get(new Long(9887));
 
+		System.out.println(element.getId());
 		assertNotNull(element);
 	}
 
@@ -169,7 +170,7 @@ public class ElementService {
 	/**
 	 * Count elements
 	 */
-	
+
 	public void countElement() {
 		Integer response = elementService
 				.count(Arrays
@@ -184,7 +185,7 @@ public class ElementService {
 	/**
 	 * Unique elements
 	 */
-	@Test
+
 	public void uniqueElement() {
 		Element element = elementService
 				.unique(Arrays
@@ -192,7 +193,7 @@ public class ElementService {
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")][commons:Name eq \"A37\"]" }));
 		System.out.println(String.format("Element [%s]", element));
-		
+
 		assertNotNull(element);
 	}
 
