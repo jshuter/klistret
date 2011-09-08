@@ -1,58 +1,57 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
-   Licensed to the Apache Software Foundation (ASF) under one
-   or more contributor license agreements.  See the NOTICE file
-   distributed with this work for additional information
-   regarding copyright ownership.  The ASF licenses this file
-   to you under the Apache License, Version 2.0 (the
-   "License"); you may not use this file except in compliance
-   with the License.  You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing,
-   software distributed under the License is distributed on an
-   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-   KIND, either express or implied.  See the License for the
-   specific language governing permissions and limitations
-   under the License.    
--->
-<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-    <info
-        organisation="com.klistret.cmdb"
-        module="ci"
-        revision="0.1"
-        status="integration">
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="com.klistret.cmdb" module="ci" revision="0.1"
+		status="integration">
 	</info>
-	<configurations>  
-		<conf name="compile" visibility="public" description="Compiling" />  
-		<conf name="test" visibility="private" extends="compile" description="Testing" />  
-		<conf name="runtime" visibility="public" extends="compile" description="Running" />   
+	<configurations>
+		<conf name="compile" visibility="public" description="Compiling" />
+		<conf name="test" visibility="private" extends="compile"
+			description="Testing" />
+		<conf name="runtime" visibility="public" extends="compile"
+			description="Running" />
+		<conf name="master" visibility="public"
+			description="contains only the artifact published by this module itself, with no transitive dependencies" />
 	</configurations>
 	<publications>
-		<artifact name="klistret.ci" type="jar" ext="jar" conf="runtime"/>
+		<artifact name="klistret.ci" type="jar" ext="jar" conf="master" />
 	</publications>
 	<dependencies>
 		<!-- Apache Log4j (1): log4j -->
-		<dependency org="log4j" name="log4j" rev="1.2.16" conf="runtime->master"/>
-		
+		<dependency org="log4j" name="log4j" rev="1.2.16" conf="runtime->master" />
+
 		<!-- SLF4J (1): slf4j-api -->
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
-	 
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
+			conf="compile->master" />
+
 		<!-- SLF4J (1): slf4j-log4j -->
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="runtime->master"/>
-		
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
+			conf="runtime->master" />
+
 		<!-- JAXB XJC (1): jaxb-xjc -->
-		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2" conf="compile->master"/>
-		
+		<dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="2.2"
+			conf="compile->master" />
+
 		<!-- JAXB API (3): jaxb-api, stax-api, activation -->
-		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2" conf="runtime->master"/>
-		
+		<dependency org="javax.xml.bind" name="jaxb-api" rev="2.2"
+			conf="runtime->master" />
+
 		<!-- JAXB IMPL (1): jaxb-impl -->
-		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2" conf="runtime->master"/>
-		
+		<dependency org="com.sun.xml.bind" name="jaxb-impl" rev="2.2"
+			conf="runtime->master" />
+
 		<!-- JUnit (1): junit -->
-		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
+		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master" />
 	</dependencies>
 </ivy-module>
