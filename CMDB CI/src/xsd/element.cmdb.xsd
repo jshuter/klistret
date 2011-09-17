@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
@@ -43,10 +37,13 @@
 	<xs:complexType name="Context" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Contextual data like organizations, roles (requester,
+				Contextual data like organizations, roles
+				(requester,
 				receiver, etc.), life cycles and other "positioning"
-				data should really be external but for non-federation
-				solutions this CMDB model includes contextual data.
+				data
+				should really be external but for non-federation
+				solutions this CMDB
+				model includes contextual data.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -63,13 +60,19 @@
 	<xs:complexType name="Component" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				A component is physical. Good examples of components are
-				software or hardware that are inventory. When a company
+				A component is physical. Good examples of
+				components are
+				software or hardware that are inventory. When a
+				company
 				buys in a PC off-line it is just a component with a
-				serial number, capacity in terms of CPU and memory plus
-				other stuff like network cards. It has latent functions
-				but these capabilities aren't important until the
-				component is put in a live situation and suddenly a
+				serial
+				number, capacity in terms of CPU and memory plus
+				other stuff like
+				network cards. It has latent functions
+				but these capabilities aren't
+				important until the
+				component is put in a live situation and suddenly
+				a
 				component becomes a system (or a logical entity).
 			</xs:documentation>
 		</xs:annotation>
@@ -87,10 +90,12 @@
 	<xs:complexType name="Service" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Services are basically a contract (interface) between a
+				Services are basically a contract (interface)
+				between a
 				provider and a consumer. The actually implementation is
 				buried in software components and available through
-				system applications. Services are unique or immutable.
+				system
+				applications. Services are unique or immutable.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -107,18 +112,28 @@
 	<xs:complexType name="System" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				A system is a logical framework constituting a runtime
+				A system is a logical framework constituting a
+				runtime
 				made up of software or hardware components
 				(http://en.wikipedia.org/wiki/System). In secular terms
-				a system is where stuff (services) executes whereas
-				components (the physical stuff) are inventory. For
-				example, a online server provides functions for running
+				a system is
+				where stuff (services) executes whereas
+				components (the physical
+				stuff) are inventory. For
+				example, a online server provides functions
+				for running
 				software and is a computer system. The actual type of
 				server off-line might be a Unix machine. The machine
-				disjointed from it's runtime state is just a machine or
-				component bought in buy an IT department.
+				disjointed from
+				it's runtime state is just a machine or
+				component bought in buy an IT
+				department.
 
-				Systems have states (like being offline or online) and
+				DMTF makes a distinction between Managed Systems and systems which at
+				the moment seems unnecessary.
+
+				Systems have states (like being offline
+				or online) and
 				operate within a context normally known as an
 				environment (such as production or test).
 			</xs:documentation>
@@ -128,8 +143,8 @@
 				<xs:sequence>
 					<xs:element name="Environment" type="xs:string"
 						maxOccurs="unbounded" minOccurs="0" />
-					<xs:element name="State" type="commons:State"
-						maxOccurs="1" minOccurs="1" />
+					<xs:element name="State" type="commons:State" maxOccurs="1"
+						minOccurs="1" />
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>

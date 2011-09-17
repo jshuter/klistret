@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/process"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/process"
-	xmlns:element="http://www.klistret.com/cmdb/ci/element"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified">
+	xmlns:element="http://www.klistret.com/cmdb/ci/element" xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
@@ -29,12 +22,17 @@
 	<xs:complexType name="Origin">
 		<xs:annotation>
 			<xs:documentation>
-				Change requests typically originate from one of five
+				Change requests typically originate from one of
+				five
 				sources: (i) problem reports that identify bugs that
-				must be fixed, which forms the most common source, (ii)
-				system enhancement requests from users, (iii) events in
-				the development of other systems, (iv) changes in
-				underlying structure and or standards (e.g. in software
+				must be
+				fixed, which forms the most common source, (ii)
+				system enhancement
+				requests from users, (iii) events in
+				the development of other
+				systems, (iv) changes in
+				underlying structure and or standards (e.g.
+				in software
 				development this could be a new operating system), and
 				(v) demands from senior management.
 			</xs:documentation>
@@ -53,34 +51,48 @@
 	<xs:complexType name="Responsible">
 		<xs:annotation>
 			<xs:documentation>
-				Who is responsible for the change
+				WHO is Responsible for the build, QA and final
+				change implementation.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:choice>
 			<xs:element name="Name" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>
-						Name delegating responsibility to a project or
-						organisation.
-					</xs:documentation>
+					<xs:documentation>Contact name</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Contact" type="commons:Contact"></xs:element>
+		</xs:choice>
+	</xs:complexType>
+
+	<xs:complexType name="Requester">
+		<xs:annotation>
+			<xs:documentation>
+				WHO is the Requestor.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="Name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Contact name</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Contact" type="commons:Contact"></xs:element>
 		</xs:choice>
 	</xs:complexType>
 
 	<xs:complexType name="Schedule">
 		<xs:annotation>
 			<xs:documentation>
-				Important time aspects like estimated start/finish
-				dates.
+				Schedule with end and start dates.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="EstimatedFinish" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
+			<xs:element name="End" type="xs:dateTime" maxOccurs="1"
+				minOccurs="0">
 			</xs:element>
-			<xs:element name="EstimatedStart" type="xs:dateTime"
-				maxOccurs="1" minOccurs="0">
+			<xs:element name="Start" type="xs:dateTime" maxOccurs="1"
+				minOccurs="0">
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
@@ -88,10 +100,13 @@
 	<xs:complexType name="Change">
 		<xs:annotation>
 			<xs:documentation>
-				A change request is a document containing a call for an
+				A change request is a document containing a call
+				for an
 				adjustment of a system. A change request is declarative,
-				i.e. it states what needs to be accomplished, but leaves
-				out how the change should be carried out.
+				i.e.
+				it states what needs to be accomplished, but leaves
+				out how the
+				change should be carried out.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -100,13 +115,23 @@
 					<xs:element name="State" type="commons:State" maxOccurs="1"
 						minOccurs="1">
 					</xs:element>
-					<xs:element name="Origin" type="Origin"
-						maxOccurs="1" minOccurs="0">
+					<xs:element name="Criticality" type="xs:string"
+						minOccurs="0" maxOccurs="1"></xs:element>
+					<xs:element name="Justification" type="xs:string"
+						minOccurs="0" maxOccurs="1"></xs:element>
+					<xs:element name="Origin" type="Origin" maxOccurs="1"
+						minOccurs="0">
 					</xs:element>
 					<xs:element name="Responsible" type="Responsible"
 						maxOccurs="1" minOccurs="0">
 					</xs:element>
-					<xs:element name="Schedule" type="Schedule"
+					<xs:element name="Requester" type="Requester" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="RequestedSchedule" type="Schedule"
+						maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="ActualSchedule" type="Schedule"
 						maxOccurs="1" minOccurs="0">
 					</xs:element>
 				</xs:sequence>
