@@ -1,31 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http:// www.gnu.org/licenses/>
--->
-<jxb:bindings version="1.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http:// 
+	www.gnu.org/licenses/> -->
+<jxb:bindings version="1.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
 	<jxb:globalBindings>
-		<jxb:javaType name="java.util.Date" xmlType="xs:date" parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseDate" printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printDate" />
+		<jxb:javaType name="java.util.Date" xmlType="xs:date"
+			parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseDate"
+			printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printDate" />
 
-		<jxb:javaType name="java.util.Date" xmlType="xs:time" parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseTime" printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printTime" />
+		<jxb:javaType name="java.util.Date" xmlType="xs:time"
+			parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseTime"
+			printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printTime" />
 
-		<jxb:javaType name="java.util.Date" xmlType="xs:dateTime" parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseDateTime" printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printDateTime" />
-	
+		<jxb:javaType name="java.util.Date" xmlType="xs:dateTime"
+			parseMethod="com.klistret.cmdb.utility.xjc.DateConverter.parseDateTime"
+			printMethod="com.klistret.cmdb.utility.xjc.DateConverter.printDateTime" />
+
 		<jxb:javaType name="java.lang.Long" xmlType="xs:long" />
-		
+
 		<jxb:javaType name="java.lang.Boolean" xmlType="xs:boolean" />
-		
+
 		<jxb:javaType name="java.lang.Integer" xmlType="xs:int" />
 	</jxb:globalBindings>
 
+	<jxb:bindings schemaLocation="../../src/xsd/element/process.cmdb.xsd">
+		<jxb:bindings
+			node="//xs:complexType[@name='Change']/xs:complexContent/xs:extension/xs:sequence/xs:element[@name='Origin']">
+			<jxb:property name="ChangeOrigin" />
+		</jxb:bindings>
+	</jxb:bindings>
 </jxb:bindings>

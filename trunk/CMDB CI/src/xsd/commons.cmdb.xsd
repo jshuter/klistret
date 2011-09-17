@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/commons"
-	targetNamespace="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci" jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="ci" elementFormDefault="qualified">
+	targetNamespace="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="ci"
+	elementFormDefault="qualified">
 
 	<xs:simpleType name="Name">
 		<xs:annotation>
 			<xs:documentation>
-				Name given to the base instance (usually human readable)
+				Name given to the base instance (usually human
+				readable)
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -31,8 +26,27 @@
 	<xs:simpleType name="Namespace">
 		<xs:annotation>
 			<xs:documentation>
-				Namespace associated with the base instance allowing for
-				segregation of data into collections.
+				Namespace in the traditional since to allow unique
+				instances despite the same identifier. An identifier defined in a
+				namespace is associated only with that namespace. The same
+				identifier can be independently defined in multiple namespace. For
+				example, it might useful to have a software CI in a namespace
+				CMDB.EXISTING and an identical CI under CMDB.PLANNED so these two CI
+				during reconciliation. Within any CMDB there is always a couple of
+				worlds. The major are things that can be discovered and things under
+				planing. The bridge between CMDB worlds are processes.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
+	<xs:simpleType name="Collection">
+		<xs:annotation>
+			<xs:documentation>
+				Another word for collection is dataset. This like
+				the namespace attribute is a singular attribute. Collections denote
+				a group of base instances not identification. CMDB.PRODUCTION would
+				be a viable candidate for a collection value.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -41,9 +55,9 @@
 	<xs:simpleType name="Tag">
 		<xs:annotation>
 			<xs:documentation>
-				A non-hierarchical keyword or term assigned to a base
-				instance. Tags enrich search criteria and may be
-				dynamically applied by users.
+				A non-hierarchical keyword or term assigned to a
+				base instance. Tags enrich search criteria and may be dynamically
+				applied by users.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -61,11 +75,42 @@
 	<xs:simpleType name="Annotation">
 		<xs:annotation>
 			<xs:documentation>
-				Notes or shorter comments placed on the base instance
+				Notes or shorter comments placed on the base
+				instance
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
+
+	<xs:complexType name="CompositeId">
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" minOccurs="1"
+				maxOccurs="1"></xs:element>
+			<xs:element name="Value" type="xs:string" minOccurs="1"
+				maxOccurs="1"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="Origin">
+		<xs:annotation>
+			<xs:documentation>Origin of the base instance. Data might have been
+				migrated into the CMDB the creation identification plus the system
+				of the creating system needs to be saved. Often origins are helpful
+				for book keeping or reconciliation of coming updates.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="Identification" type="xs:string"
+				minOccurs="1" maxOccurs="1"></xs:element>
+			<xs:element name="Composite" type="CompositeId" minOccurs="1"
+				maxOccurs="unbounded"></xs:element>
+		</xs:choice>
+		<xs:attribute name="Name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>Name of the system</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
 
 	<xs:complexType name="Contact">
 		<xs:annotation>
@@ -81,8 +126,11 @@
 			<xs:element name="EMail" type="xs:string" minOccurs="0"
 				maxOccurs="1">
 			</xs:element>
-			<xs:element name="Location" type="xs:string" minOccurs="0"
-				maxOccurs="1">
+			<xs:element name="Organization" type="xs:string"
+				minOccurs="0" maxOccurs="1">
+			</xs:element>
+			<xs:element name="Function" type="xs:string" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
@@ -105,7 +153,8 @@
 
 	<xs:simpleType name="State">
 		<xs:annotation>
-			<xs:documentation>State or status</xs:documentation>
+			<xs:documentation>State or status of a base instance.
+			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
@@ -115,7 +164,8 @@
 			<xs:documentation>
 				General attribute (or property) of
 				elements/relationships not modeled allowing the end-user
-				to pin "extra" data to the CIs.
+				to pin
+				"extra" data to the CIs.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
@@ -163,27 +213,32 @@
 			<xs:element name="Namespace" type="Namespace" minOccurs="0"
 				maxOccurs="1">
 			</xs:element>
-			<xs:element name="Tag" type="Tag" minOccurs="0"
-				maxOccurs="unbounded">
+			<xs:element name="Collection" type="Collection" minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element name="Tag" type="Tag" minOccurs="0" maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Description" type="Description"
 				minOccurs="0" maxOccurs="unbounded">
 			</xs:element>
-			<xs:element name="Annotation" type="Annotation"
-				minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Annotation" type="Annotation" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Property" type="Property" minOccurs="0"
 				maxOccurs="unbounded">
 			</xs:element>
+			<xs:element name="Origin" type="Origin" minOccurs="0"
+				maxOccurs="1"></xs:element>
 		</xs:sequence>
 		<xs:attribute name="Watermark" type="xs:string"></xs:attribute>
-		<xs:attribute name="CIVersion" type="xs:string"></xs:attribute>
+		<xs:attribute name="Revision" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="Element" abstract="true">
 		<xs:annotation>
 			<xs:documentation>
-				Root CI for core (services, systems, and components) and
+				Root CI for core (services, systems, and
+				components) and
 				process (change, problem, incident) elements.
 			</xs:documentation>
 			<xs:appinfo>
@@ -193,8 +248,8 @@
 		<xs:complexContent>
 			<xs:extension base="Base">
 				<xs:sequence>
-					<xs:element name="Ownership" type="Ownership"
-						maxOccurs="1" minOccurs="0">
+					<xs:element name="Ownership" type="Ownership" maxOccurs="1"
+						minOccurs="0">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>

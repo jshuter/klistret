@@ -1,49 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
-<xs:schema
-	xmlns="http://www.klistret.com/cmdb/ci/element/process/change"
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
+<xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/process/change"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/process/change"
 	xmlns:process="http://www.klistret.com/cmdb/ci/element/process"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../../commons.cmdb.xsd" />
 
-	<xs:import
-		namespace="http://www.klistret.com/cmdb/ci/element/process"
+	<xs:import namespace="http://www.klistret.com/cmdb/ci/element/process"
 		schemaLocation="../process.cmdb.xsd" />
 
-	<!-- start of Installation -->
-	<xs:complexType name="Installation">
+	<!-- start of SoftwareInstallation -->
+	<xs:complexType name="SoftwareInstallation">
 		<xs:annotation>
-			<xs:documentation></xs:documentation>
+			<xs:documentation>This is a very specific and temporary type of
+				change request for the installation of software against an
+				environment. Once the process side of the CMDB is built upp then
+				this CI will likely be deprecated.</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="process:Change">
 				<xs:sequence>
-					<xs:element name="Source"
-						type="commons:SourceReference" maxOccurs="1" minOccurs="1" />
-					<xs:element name="Destination"
-						type="commons:DestinationReference" maxOccurs="1" minOccurs="1" />
+					<xs:element name="Environment" type="commons:SourceReference"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Software" type="commons:DestinationReference"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Type" type="xs:string" minOccurs="0"
+						maxOccurs="1"></xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Installation" type="Installation"></xs:element>
+	<xs:element name="SoftwareInstallation" type="SoftwareInstallation"></xs:element>
 	<!-- end of Installation -->
 </xs:schema>
