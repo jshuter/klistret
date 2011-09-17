@@ -16,7 +16,7 @@
 		<CriterionRule Name="Name" />
 	</Identification>
 	<Identification
-		Type="{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware">
+		Type="{http://www.klistret.com/cmdb/ci/element/component/software}Software">
 		<CriterionRule Name="Name" />
 	</Identification>
 </Blueprint>
