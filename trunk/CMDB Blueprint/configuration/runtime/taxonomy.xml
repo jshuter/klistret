@@ -5,7 +5,7 @@
 			<Element
 				Type="{http://www.klistret.com/cmdb/ci/element/system}Application">
 				<Relation Type="{http://www.klistret.com/cmdb/ci/relation}Composition"
-					Destination="{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware" />
+					Destination="{http://www.klistret.com/cmdb/ci/element/component/software}ASoftware" />
 				<Property
 					Type="{http://www.klistret.com/cmdb/ci/element/context}Environment">
 					<Expression>declare namespace
