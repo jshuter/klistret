@@ -9,6 +9,11 @@
 	<Criterion Name="Name">
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
 	</Criterion>
+	<Criterion Name="Software">
+		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
+		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Organization</Expression>
+		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Version</Expression>
+	</Criterion>
 	<Identification Type="{http://www.klistret.com/cmdb/ci/element}System">
 		<CriterionRule Name="NameAndEnvironment" />
 	</Identification>
@@ -16,7 +21,7 @@
 		<CriterionRule Name="Name" />
 	</Identification>
 	<Identification
-		Type="{http://www.klistret.com/cmdb/ci/element/component/software}Software">
-		<CriterionRule Name="Name" />
+		Type="{http://www.klistret.com/cmdb/ci/element/component}Software">
+		<CriterionRule Name="Software" />
 	</Identification>
 </Blueprint>
