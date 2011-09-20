@@ -127,7 +127,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			Relation relation = (Relation) criteria.uniqueResult();
 
-			return relation == null ? null : relation;
+			return relation == null ? null : clean(relation);
 		} catch (NonUniqueResultException e) {
 			throw new ApplicationException(String.format(
 					"Expressions criteria was not unique: %s", e.getMessage()));
@@ -177,9 +177,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						"Relation [id: %s] not found", id),
 						new NoSuchElementException());
 
-			relation.setSource(clean(relation.getSource()));
-			relation.setDestination(clean(relation.getDestination()));
-			return relation;
+			return clean(relation);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
@@ -220,9 +218,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		logger.info("Save/update relation [id: {}]", relation.getId());
 
-		relation.setSource(clean(relation.getSource()));
-		relation.setDestination(clean(relation.getDestination()));
-		return relation;
+		return clean(relation);
 	}
 
 	/**
@@ -255,9 +251,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		}
 
 		logger.info("Deleted relation [id: {}]", relation.getId());
-		relation.setSource(clean(relation.getSource()));
-		relation.setDestination(clean(relation.getDestination()));
-		return relation;
+		return clean(relation);
 	}
 
 	/**
@@ -275,6 +269,12 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		logger.info("Deleted {} relations to element [id: {}]", count, id);
 
 		return count;
+	}
+	
+	private Relation clean(Relation other) {
+		other.setSource(clean(other.getSource()));
+		other.setDestination(clean(other.getDestination()));
+		return other;
 	}
 
 	/**
