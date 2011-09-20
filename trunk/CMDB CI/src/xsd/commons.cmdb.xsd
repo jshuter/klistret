@@ -63,6 +63,16 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
+	<xs:simpleType name="Usage">
+		<xs:annotation>
+			<xs:documentation>
+				A non-hierarchical keyword or term assigned to a
+				base instance. Usage defines purpose.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
 	<xs:simpleType name="Description">
 		<xs:annotation>
 			<xs:documentation>
@@ -217,6 +227,9 @@
 				maxOccurs="1">
 			</xs:element>
 			<xs:element name="Tag" type="Tag" minOccurs="0" maxOccurs="unbounded">
+			</xs:element>
+			<xs:element name="Usage" type="Usage" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Description" type="Description"
 				minOccurs="0" maxOccurs="unbounded">
