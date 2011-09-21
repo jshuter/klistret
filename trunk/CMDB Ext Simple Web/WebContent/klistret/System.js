@@ -236,7 +236,7 @@ CMDB.Application.Edit = Ext
 									{
 										xtype : 'destRelationForm',
 										relations : [ {
-											'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
+											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
 										} ]
 									}, {
 										xtype : 'propertyForm'
@@ -331,9 +331,9 @@ CMDB.Application.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Composed of an application software named',
+																		fieldLabel : 'Composed of software modules',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination[pojo:name = {0}]',
-																		store : CMDB.ApplicationSoftwareStore,
+																		store : new CMDB.ModuleStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',
@@ -354,8 +354,8 @@ CMDB.Application.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Availability of related appliation software',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[sw:Availability = {0}]',
+																		fieldLabel : 'Availability of related software',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination/pojo:configuration[component:Availability = {0}]',
 																		store : new CMDB.TimeframeStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
@@ -431,7 +431,7 @@ CMDB.Application.Search = Ext
 
 							height : 400,
 							width : 800,
-							
+
 							autoScroll : false,
 
 							elementType : '{http://www.klistret.com/cmdb/ci/element/system}Application',

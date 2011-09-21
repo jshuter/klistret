@@ -1,17 +1,168 @@
-Ext.namespace('CMDB.ApplicationSoftware');
+Ext.namespace('CMDB.Software');
 
 /**
- * Application Software - Software form forcing associations to organizations,
- * modules and a timeframe.
+ * Software - General form
+ */
+CMDB.Software.GeneralForm = Ext
+		.extend(
+				Ext.form.FormPanel,
+				{
+					tags : [],
+
+					initComponent : function() {
+						var config = {
+							title : 'General',
+							autoScroll : true,
+							labelAlign : 'top',
+							bodyStyle : 'padding:10px; background-color:white;',
+							defaults : {
+								width : 300
+							},
+
+							items : [
+									// Tags field
+									{
+										xtype : 'superboxselect',
+										elementdata : true,
+										fieldLabel : 'Tags',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (!Ext.isEmpty(this.getValueEx())) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons')
+												tags = [];
+
+												Ext
+														.each(
+																this
+																		.getValueEx(),
+																function(value) {
+																	var tag = {
+																		'$' : value['name']
+																	};
+
+																	tags[tags.length] = tag;
+																});
+
+												element['Element']['configuration'][commons
+														+ ":Tag"] = tags;
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Tag');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var tags = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Tag'), formated = [];
+
+											if (Ext.isArray(tags)) {
+												Ext
+														.each(
+																tags,
+																function(tag) {
+																	formated[formated.length] = {
+																		'name' : tag['$']
+																	};
+																});
+											}
+
+											if (Ext.isObject(tags)) {
+												formated[formated.length] = {
+													'name' : tags['$']
+												};
+											}
+
+											this.setValueEx(formated);
+										},
+
+										// Combo box store
+										store : new Ext.data.SimpleStore({
+											fields : [ 'name' ],
+											data : this.tags,
+											sortInfo : {
+												field : 'name',
+												direction : 'ASC'
+											}
+										}),
+
+										displayField : 'name',
+										valueField : 'name',
+										mode : 'local',
+
+										allowAddNewData : true,
+										addNewDataOnBlur : true,
+
+										extraItemCls : 'x-tag',
+
+										listeners : {
+											newitem : function(bs, v, f) {
+												var newObj = {
+													name : v
+												};
+												bs.addItem(newObj);
+											}
+										}
+									},
+									// Description field
+									{
+										xtype : 'textarea',
+										elementdata : true,
+										fieldLabel : 'Description',
+										height : 50,
+										blankText : 'Description of the Environment',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (this.getValue()) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons');
+												element['Element']['configuration'][commons
+														+ ':Description'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Description');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Description/$');
+											this.setValue(value);
+										}
+									} ]
+						};
+
+						Ext.apply(this, Ext.apply(this.initialConfig, config));
+						CMDB.Software.GeneralForm.superclass.initComponent
+								.apply(this, arguments);
+					}
+				});
+Ext.reg('softwareGeneralForm', CMDB.Software.GeneralForm);
+
+/**
+ * Software - Software form forcing associations to organizations, modules and a
+ * timeframe.
  * 
  */
-CMDB.ApplicationSoftware.SoftwareForm = Ext
+CMDB.Software.IdentificationForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
 					initComponent : function() {
 						var config = {
-							title : 'Software',
+							title : 'Identification',
 							autoScroll : true,
 							labelAlign : 'top',
 							bodyStyle : 'padding:10px; background-color:white;',
@@ -23,7 +174,7 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										'html' : 'Similar to Ivy and Maven appliation software is produced by an organization (group) and ships as a module thereafter further decorated with version number, artifact ids and so forth.'
+										'html' : 'Similar to Ivy and Maven software is produced by an organization (group) and ships as a module thereafter further decorated with version number.'
 									},
 									{
 										xtype : 'combo',
@@ -52,7 +203,7 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Organization'] = {
 													'$' : this.getValue()
@@ -76,9 +227,9 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 									{
 										xtype : 'combo',
 										elementdata : true,
-										fieldLabel : 'Module',
+										fieldLabel : 'Name (a registered module)',
 										allowBlank : false,
-										blankText : 'Module is required',
+										blankText : 'Name is required',
 										store : new CMDB.ModuleStore(),
 										displayField : 'Name',
 										mode : 'remote',
@@ -100,7 +251,7 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Module'] = {
 													'$' : this.getValue()
@@ -134,7 +285,7 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Version'] = {
 													'$' : this.getValue()
@@ -154,20 +305,53 @@ CMDB.ApplicationSoftware.SoftwareForm = Ext
 															'Element/configuration/Version/$');
 											this.setValue(value);
 										}
+									},
+									{
+										xtype : 'textfield',
+										elementdata : true,
+										fieldLabel : 'Labels are like aliases but not necessary (should mirror a combination of the module and version)',
+										allowBlank : true,
+
+										// Marshall combo into the element
+										marshall : function(element) {
+											if (this.getValue()
+													&& element['Element']['configuration']) {
+												var prefix = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/element/component');
+												element['Element']['configuration'][prefix
+														+ ':Version'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Label');
+											}
+										},
+
+										// Unmarshall element value into the
+										// combo
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Label/$');
+											this.setValue(value);
+										}
 									} ]
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.ApplicationSoftware.SoftwareForm.superclass.initComponent
+						CMDB.Software.IdentificationForm.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});
-Ext.reg('applicationSoftwareForm', CMDB.ApplicationSoftware.SoftwareForm);
+Ext.reg('softwareIdentificationForm', CMDB.Software.IdentificationForm);
 
 /**
  * 
  */
-CMDB.ApplicationSoftware.LifecycleForm = Ext
+CMDB.Software.LifecycleForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
@@ -332,16 +516,16 @@ CMDB.ApplicationSoftware.LifecycleForm = Ext
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.ApplicationSoftware.LifecycleForm.superclass.initComponent
+						CMDB.Software.LifecycleForm.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});
-Ext.reg('applicationLifecycleForm', CMDB.ApplicationSoftware.LifecycleForm);
+Ext.reg('softwareLifecycleForm', CMDB.Software.LifecycleForm);
 
 /**
- * Application Software (Editor Form)
+ * Software (Editor Form)
  */
-CMDB.ApplicationSoftware.Edit = Ext
+CMDB.Software.Edit = Ext
 		.extend(
 				CMDB.Element.Edit,
 				{
@@ -350,7 +534,6 @@ CMDB.ApplicationSoftware.Edit = Ext
 							'@xmlns' : {
 								'ns9' : 'http://www.klistret.com/cmdb/ci/element',
 								'ns10' : 'http://www.klistret.com/cmdb/ci/element/component',
-								'ns11' : 'http://www.klistret.com/cmdb/ci/element/component/software',
 								'ns2' : 'http://www.klistret.com/cmdb/ci/commons',
 								'$' : 'http://www.klistret.com/cmdb/ci/pojo'
 							},
@@ -376,7 +559,7 @@ CMDB.ApplicationSoftware.Edit = Ext
 								'@xmlns' : {
 									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 								},
-								'@xsi:type' : 'ns11:ApplicationSoftware'
+								'@xsi:type' : 'ns11:Software'
 							}
 						}
 					},
@@ -384,8 +567,8 @@ CMDB.ApplicationSoftware.Edit = Ext
 					initComponent : function() {
 						var index = CMDB.ElementTypes
 								.findBy(function(record, id) {
-									if (record.get('Name') == 'ApplicationSoftware'
-											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/component/software')
+									if (record.get('Name') == 'Software'
+											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/component')
 										return true;
 									else
 										return false;
@@ -396,14 +579,16 @@ CMDB.ApplicationSoftware.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Application Software Editor',
+							title : 'Software Editor',
 
 							layout : 'accordion',
 
 							items : [
 									{
-										xtype : 'generalForm',
-										helpInfo : 'Application software is software designed to help users or even business processes to perform singular or multiple related specific tasks.  This CI is what makes up logical applications.',
+										xtype : 'softwareIdentificationForm'
+									},
+									{
+										xtype : 'softwareGeneralForm',
 										tags : [ [ 'Third party' ],
 												[ 'Open source' ],
 												[ 'Commercial' ],
@@ -411,15 +596,12 @@ CMDB.ApplicationSoftware.Edit = Ext
 												[ 'Freeware' ], [ 'Firmware' ] ]
 									},
 									{
-										xtype : 'applicationSoftwareForm'
-									},
-									{
-										xtype : 'applicationLifecycleForm'
+										xtype : 'softwareLifecycleForm'
 									},
 									{
 										xtype : 'destRelationForm',
 										relations : [ {
-											'{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
+											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Dependency'
 										} ]
 									}, {
 										xtype : 'propertyForm'
@@ -427,15 +609,15 @@ CMDB.ApplicationSoftware.Edit = Ext
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.ApplicationSoftware.Edit.superclass.initComponent
-								.apply(this, arguments);
+						CMDB.Software.Edit.superclass.initComponent.apply(this,
+								arguments);
 					}
 				});
 
 /**
- * Application Software (Search Form)
+ * Software (Search Form)
  */
-CMDB.ApplicationSoftware.Search = Ext
+CMDB.Software.Search = Ext
 		.extend(
 				CMDB.Element.Search,
 				{
@@ -452,7 +634,7 @@ CMDB.ApplicationSoftware.Search = Ext
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search criteria for Application Software items.'
+												'html' : 'Search criteria for Software items.'
 											},
 											{
 												layout : 'column',
@@ -469,12 +651,110 @@ CMDB.ApplicationSoftware.Search = Ext
 
 															items : [
 																	{
-																		xtype : 'textfield',
+																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Name',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
-																		wildcard : '%'
+																		fieldLabel : 'Organization',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = {0}]',
+																		store : new CMDB.OrganizationStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
 																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name (a registered module)',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = {0}]',
+																		store : new CMDB.ModuleStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Version',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = {0}]',
+																		store : new CMDB.SoftwareStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Label',
+																		valueField : 'Label',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : {
+																				fn : function(
+																						e) {
+																					e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\";  declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[matches(pojo:name,\"\")]/pojo:configuration[matches(component:Version,\"'
+																							+ e.query
+																							+ '\")]';
+																				},
+																				scope : this
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Organizational software type',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Type = {0}]',
+																		store : new CMDB.OrganizationSoftwareTypeStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
@@ -514,85 +794,6 @@ CMDB.ApplicationSoftware.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Organization',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Organization = {0}]',
-																		store : new CMDB.OrganizationStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Module',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = {0}]',
-																		store : new CMDB.ModuleStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Organizational software type',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Type = {0}]',
-																		store : new CMDB.OrganizationSoftwareTypeStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	} ]
-														},
-														{
-															columnWidth : .5,
-															layout : 'form',
-															border : false,
-															defaults : {
-																width : 300
-															},
-
-															items : [
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Environment (through application assoications)',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration[element:Environment = {0}]',
 																		store : new CMDB.EnvironmentStore(),
@@ -617,31 +818,8 @@ CMDB.ApplicationSoftware.Search = Ext
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Availability',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = {0}]',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = {0}]',
 																		store : new CMDB.TimeframeStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Lifecycle',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Phase = {0}]',
-																		store : new CMDB.SoftwareLifecycleStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',
@@ -678,15 +856,15 @@ CMDB.ApplicationSoftware.Search = Ext
 								});
 
 						var config = {
-							title : 'Application Software Search',
-							editor : CMDB.ApplicationSoftware.Edit,
+							title : 'Software Search',
+							editor : CMDB.Software.Edit,
 
 							height : 450,
 							width : 800,
 
 							autoScroll : false,
 
-							elementType : '{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware',
+							elementType : '{http://www.klistret.com/cmdb/ci/element/component}Software',
 
 							items : form,
 
@@ -773,7 +951,7 @@ CMDB.ApplicationSoftware.Search = Ext
 						}
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.ApplicationSoftware.Search.superclass.initComponent
-								.apply(this, arguments);
+						CMDB.Software.Search.superclass.initComponent.apply(
+								this, arguments);
 					}
 				});
