@@ -61,11 +61,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				throw new ApplicationException("Expressions parameter is null",
 						new IllegalArgumentException());
 
-			Criteria hcriteria = new XPathCriteria(expressions, getSession())
+			Criteria criteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-			String alias = hcriteria.getAlias();
+			String alias = criteria.getAlias();
 
-			hcriteria.setProjection(Projections.projectionList()
+			criteria.setProjection(Projections.projectionList()
 					.add(Projections.property(alias + ".id"))
 					.add(Projections.property(alias + ".type"))
 					.add(Projections.property(alias + ".source"))
@@ -77,10 +77,10 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					.add(Projections.property(alias + ".updateTimeStamp"))
 					.add(Projections.property(alias + ".configuration")));
 
-			hcriteria.setFirstResult(start);
-			hcriteria.setMaxResults(limit);
+			criteria.setFirstResult(start);
+			criteria.setMaxResults(limit);
 
-			Object[] results = hcriteria.list().toArray();
+			Object[] results = criteria.list().toArray();
 
 			List<Relation> relations = new ArrayList<Relation>(results.length);
 			logger.debug("Results length [{}]", results.length);

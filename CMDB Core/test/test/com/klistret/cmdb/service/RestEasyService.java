@@ -299,7 +299,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+	
 	public void countElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -378,17 +378,17 @@ public class RestEasyService {
 				response.getStatus());
 	}
 
-	
+	@Test
 	public void findRelations() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation?expressions="
+				.get("/resteasy/relation/unique?expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq 8788]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation/pojo:configuration/commons:Origin[@Name eq \"Matrix\" and commons:Identification eq \"177088\"]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
