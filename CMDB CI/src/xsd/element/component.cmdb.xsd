@@ -111,6 +111,10 @@
 				Name attribute) with dependencies to
 				other modules and may have
 				publications (artifacts).
+
+				This CI diverges from Ivy with the introduction of the Phase attribute
+				(which might switch names later). Phase tells what stage in the
+				development cycle the software targets. 
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
