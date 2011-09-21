@@ -107,20 +107,20 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
                     	menu     : {
                     		items     : [
                     			{
-                    				text     : 'Application Software',
+                    				text     : 'Software',
                     				menu     : {
                     					items      : [
                     						{
                     							text     : 'Create',
                     							handler  : this.openCreateWindow,
                     							scope    : this,
-                    							config   : CMDB.ApplicationSoftware.Edit
+                    							config   : CMDB.Software.Edit
                     						},
                     						{
                     							text     : 'Search',
                     							handler  : this.openSearchWindow,
                     							scope    : this,
-                    							config   : CMDB.ApplicationSoftware.Search
+                    							config   : CMDB.Software.Search
                     						}
                     					]
                     				}
@@ -164,20 +164,20 @@ CMDB.ProcessMenuModule = Ext.extend(Ext.app.Module, {
                 		menu     : {
                     		items     : [
                     			{
-                    				text     : 'Installation',
+                    				text     : 'Software Installation',
                     				menu     : {
                     					items      : [
                     						{
                     							text     : 'Create',
                     							handler  : this.openCreateWindow,
                     							scope    : this,
-                    							config   : CMDB.Installation.Edit
+                    							config   : CMDB.SoftwareInstallation.Edit
                     						},
                     						{
                     							text     : 'Search',
                     							handler  : this.openSearchWindow,
                     							scope    : this,
-                    							config   : CMDB.Installation.Search
+                    							config   : CMDB.SoftwareInstallation.Search
                     						}
                     					]
                     				}
@@ -331,7 +331,7 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
 									}
                     			},
                     			{
-                    				text     : 'Timeframes',
+                    				text     : 'Timeframe',
                     				menu     : {
 										items      : [
 											{

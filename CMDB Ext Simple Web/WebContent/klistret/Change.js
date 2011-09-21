@@ -1,5 +1,5 @@
 Ext.namespace('CMDB.Change');
-Ext.namespace('CMDB.Installation');
+Ext.namespace('CMDB.SoftwareInstallation');
 
 /**
  * System states as store
@@ -18,10 +18,10 @@ CMDB.Change.StateStore = new Ext.data.ArrayStore(
 		});
 
 /**
- * Installation (general form)
+ * Software Installation (general form)
  * 
  */
-CMDB.Installation.GeneralForm = Ext
+CMDB.SoftwareInstallation.GeneralForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
@@ -42,13 +42,13 @@ CMDB.Installation.GeneralForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										'html' : 'An installation targets usually a component to either a context (such as an environment) or logical system for integration.'
+										'html' : 'A software installation (simple version) targets an environment where software is to be instllated.'
 									},
 									{
 										xtype : 'combo',
 										ref : 'Environment',
 										elementdata : true,
-										fieldLabel : 'Targeted context or system',
+										fieldLabel : 'Target environment',
 										allowBlank : false,
 										blankText : 'Target is required',
 										store : new CMDB.EnvironmentStore(),
@@ -125,97 +125,6 @@ CMDB.Installation.GeneralForm = Ext
 											};
 
 											var record = new (this.store.reader).recordType(
-													data, id);
-											this.getStore().insert(0, record);
-
-											this.setValue(id);
-										}
-									},
-									{
-										xtype : 'combo',
-										ref : 'Software',
-										elementdata : true,
-										fieldLabel : 'Application software to be installed',
-										allowBlank : false,
-										blankText : 'Component is required',
-										store : CMDB.ApplicationSoftwareStore,
-										displayField : 'Name',
-										valueField : 'Id',
-										mode : 'remote',
-										queryParam : 'expressions',
-										forceSelection : true,
-
-										allowAddNewData : true,
-
-										// Edit the query for the combo into an
-										// expression
-										listeners : {
-											'beforequery' : function(e) {
-												e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-														+ e.query + '%\")]';
-											}
-										},
-
-										// Marshall combo into the element
-										marshall : function(element) {
-											if (this.getValue()
-													&& element['Element']['configuration']) {
-												var change = CMDB.Badgerfish
-														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/process/change'), commons = CMDB.Badgerfish
-														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/commons'), record = this
-														.getStore()
-														.getById(
-																this.getValue());
-
-												element['Element']['configuration'][change
-														+ ':Destination'] = {};
-												element['Element']['configuration'][change
-														+ ':Destination'][commons
-														+ ':Id'] = {
-													'$' : record.get('Id')
-												};
-												element['Element']['configuration'][change
-														+ ':Destination'][commons
-														+ ':Name'] = {
-													'$' : record.get('Name')
-												};
-												element['Element']['configuration'][change
-														+ ':Destination'][commons
-														+ ':QName'] = {
-													'$' : CMDB.Badgerfish
-															.get(
-																	record
-																			.get('Element'),
-																	'type/name/$')
-												};
-
-												element['Element']['name'] = {
-													'$' : record.get('Name')
-												};
-											} else {
-												CMDB.Badgerfish
-														.remove(element,
-																'Element/configuration/Destination');
-											}
-										},
-
-										// Unmarshall element value into the
-										// combo
-										unmarshall : function(element) {
-											var id = CMDB.Badgerfish
-													.get(element,
-															'Element/configuration/Destination/Id/$'), data = {
-												'Id' : id,
-												'Name' : CMDB.Badgerfish
-														.get(element,
-																'Element/configuration/Destination/Name/$'),
-												'Element' : CMDB.Badgerfish
-														.get(element, 'Element')
-											};
-
-											var record = new (this.getStore().reader).recordType(
 													data, id);
 											this.getStore().insert(0, record);
 
@@ -351,16 +260,17 @@ CMDB.Installation.GeneralForm = Ext
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.Installation.GeneralForm.superclass.initComponent
+						CMDB.SoftwareInstallation.GeneralForm.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});
-Ext.reg('installationGeneralForm', CMDB.Installation.GeneralForm);
+Ext.reg('softwareInstallationGeneralForm',
+		CMDB.SoftwareInstallation.GeneralForm);
 
 /**
- * Installation (Editor Form)
+ * SoftwareInstallation (Editor Form)
  */
-CMDB.Installation.Edit = Ext
+CMDB.SoftwareInstallation.Edit = Ext
 		.extend(
 				CMDB.Element.Edit,
 				{
@@ -396,7 +306,7 @@ CMDB.Installation.Edit = Ext
 								'@xmlns' : {
 									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 								},
-								'@xsi:type' : 'ns11:Installation'
+								'@xsi:type' : 'ns11:SoftwareInstallation'
 							}
 						}
 					},
@@ -404,7 +314,7 @@ CMDB.Installation.Edit = Ext
 					initComponent : function() {
 						var index = CMDB.ElementTypes
 								.findBy(function(record, id) {
-									if (record.get('Name') == 'Installation'
+									if (record.get('Name') == 'SoftwareInstallation'
 											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/process/change')
 										return true;
 									else
@@ -416,20 +326,20 @@ CMDB.Installation.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Installation Editor',
+							title : 'Software Installation Editor',
 
 							layout : 'accordion',
 
 							items : [ {
-								xtype : 'installationGeneralForm',
-								ref : 'InstallationGeneralForm'
+								xtype : 'softwareInstallationGeneralForm',
+								ref : 'SoftwareInstallationGeneralForm'
 							}, {
 								xtype : 'propertyForm'
 							} ]
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.Installation.Edit.superclass.initComponent.apply(
+						CMDB.SoftwareInstallation.Edit.superclass.initComponent.apply(
 								this, arguments);
 					},
 
@@ -437,21 +347,17 @@ CMDB.Installation.Edit = Ext
 						if (this.element
 								&& CMDB.Badgerfish.get(this.element,
 										"Element/id/$")) {
-							this.InstallationGeneralForm.Environment.disable();
-							this.InstallationGeneralForm.Software.disable();
-							this.InstallationGeneralForm.State.enable();
+
 						} else {
-							this.InstallationGeneralForm.Environment.enable();
-							this.InstallationGeneralForm.Software.enable();
-							this.InstallationGeneralForm.State.disable();
+
 						}
 					}
 				});
 
 /**
- * Installation (Search Form)
+ * SoftwareInstallation (Search Form)
  */
-CMDB.Installation.Search = Ext
+CMDB.SoftwareInstallation.Search = Ext
 		.extend(
 				CMDB.Element.Search,
 				{
@@ -468,7 +374,7 @@ CMDB.Installation.Search = Ext
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search criteria for Installation changes'
+												'html' : 'Search criteria for Software Installation changes'
 											},
 											{
 												layout : 'column',
@@ -510,9 +416,9 @@ CMDB.Installation.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Application Software',
+																		fieldLabel : 'Software',
 																		expression : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Destination[commons:Name = {0}]',
-																		store : CMDB.ApplicationSoftwareStore,
+																		store : CMDB.SoftwareStore,
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',
@@ -623,15 +529,15 @@ CMDB.Installation.Search = Ext
 								});
 
 						var config = {
-							title : 'Installation Search',
-							editor : CMDB.Installation.Edit,
+							title : 'Software Installation Search',
+							editor : CMDB.SoftwareInstallation.Edit,
 
 							height : 350,
 							width : 800,
 
 							autoScroll : false,
 
-							elementType : '{http://www.klistret.com/cmdb/ci/element/process/change}Installation',
+							elementType : '{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation',
 
 							items : form,
 
@@ -719,7 +625,7 @@ CMDB.Installation.Search = Ext
 						}
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.Installation.Search.superclass.initComponent
+						CMDB.SoftwareInstallation.Search.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});
