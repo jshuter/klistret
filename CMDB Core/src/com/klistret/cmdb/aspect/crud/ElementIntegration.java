@@ -46,40 +46,39 @@ public class ElementIntegration {
 	}
 
 	public void delete(Long id, Element element) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Delete on element [id: {}]",
-						element.getId());
+		logger.debug(
+				"Generating a message with CRUD function Delete on element [id: {}]",
+				element.getId());
 		Message<Element> message = MessageBuilder.withPayload(element)
 				.setHeader("function", "DELETE").build();
 		channel.send(message);
 	}
 
 	public void create(Element element) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Create on element [id: {}]",
-						element.getId());
+		logger.debug(
+				"Generating a message with CRUD function Create on element [id: {}]",
+				element.getId());
 		Message<Element> message = MessageBuilder.withPayload(element)
 				.setHeader("function", "CREATE").build();
 		channel.send(message);
 	}
 
 	public void update(Element element) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Update on element [id: {}]",
-						element.getId());
+		logger.debug(
+				"Generating a message with CRUD function Update on element [id: {}]",
+				element.getId());
 		Message<Element> message = MessageBuilder.withPayload(element)
 				.setHeader("function", "UPDATE").build();
 		channel.send(message);
 	}
 
 	public void read(Long id, Element element) {
-		logger
-				.debug(
-						"Message for CRUD function Get on element [id: {}] not supported",
-						element.getId());
+		logger.debug(
+				"Generating a message with CRUD function Read on element [id: {}]",
+				element.getId());
+		Message<Element> message = MessageBuilder.withPayload(element)
+				.setHeader("function", "READ").build();
+		channel.send(message);
 	}
 
 }
