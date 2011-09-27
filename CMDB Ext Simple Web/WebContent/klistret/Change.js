@@ -177,12 +177,18 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 									{
 										xtype : 'combo',
 										ref : 'Version',
+										elementdata : true,
 										fieldLabel : 'Version',
 										allowBlank : false,
 										blankText : 'Version is required',
 										store : new CMDB.SoftwareStore(),
 										displayField : 'Version',
 										valueField : 'Id',
+										itemSelector : 'div.version-item',
+										tpl : new Ext.XTemplate(
+												'<tpl for="."><div class="version-item">',
+												'<h3><span>{Created:date("M j, Y")}<br /></span>{Version}</h3>',
+												'{Label}', '</div></tpl>'),
 										mode : 'remote',
 										queryParam : 'expressions',
 										forceSelection : true,
@@ -204,6 +210,35 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 																+ '\")]';
 													} else {
 														return false;
+													}
+												},
+												scope : this
+											},
+
+											'change' : {
+												fn : function(field, newValue,
+														oldValue, element) {
+													if (!this.Module.getValue()
+															&& element) {
+														var name = CMDB.Badgerfish
+																.get(element,
+																		'Element/name/$'), data = {
+															'Id' : 0,
+															'Name' : name,
+															'Element' : CMDB.Badgerfish
+																	.get(
+																			element,
+																			'Element')
+														};
+
+														var record = new (this.Module.store.reader).recordType(
+																data, name);
+														this.Module.getStore()
+																.insert(0,
+																		record);
+
+														this.Module
+																.setValue(name);
 													}
 												},
 												scope : this
@@ -252,6 +287,16 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 														+ ':Label'] = {
 													'$' : record.get('Label')
 												};
+												element['Element']['configuration'][change
+														+ ':Version'] = {
+													'$' : record.get('Version')
+												};
+												element['Element']['name'] = {
+													'$' : record.get('Name')
+												};
+												element['Element']['configuration']['Name'] = {
+													'$' : record.get('Name')
+												};
 											} else {
 												CMDB.Badgerfish
 														.remove(element,
@@ -266,9 +311,9 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 													.get(element,
 															'Element/configuration/Software/Id/$'), data = {
 												'Id' : id,
-												'Name' : CMDB.Badgerfish
+												'Version' : CMDB.Badgerfish
 														.get(element,
-																'Element/configuration/Software/Name/$'),
+																'Element/configuration/Version/$'),
 												'Element' : CMDB.Badgerfish
 														.get(element, 'Element')
 											};
@@ -278,6 +323,9 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 											this.getStore().insert(0, record);
 
 											this.setValue(id);
+
+											this.fireEvent('change', this, id,
+													null, element);
 										}
 									},
 									{
@@ -497,13 +545,18 @@ CMDB.SoftwareInstallation.Edit = Ext
 						if (this.element
 								&& CMDB.Badgerfish.get(this.element,
 										"Element/id/$")) {
-							this.SoftwareInstallationGeneralForm.Environment.disable();
-							this.SoftwareInstallationGeneralForm.Module.disable();
+							this.SoftwareInstallationGeneralForm.Environment
+									.disable();
+							this.SoftwareInstallationGeneralForm.Module
+									.disable();
 							this.SoftwareInstallationGeneralForm.State.enable();
 						} else {
-							this.SoftwareInstallationGeneralForm.Environment.enable();
-							this.SoftwareInstallationGeneralForm.Module.enable();
-							this.SoftwareInstallationGeneralForm.State.disable();
+							this.SoftwareInstallationGeneralForm.Environment
+									.enable();
+							this.SoftwareInstallationGeneralForm.Module
+									.enable();
+							this.SoftwareInstallationGeneralForm.State
+									.disable();
 						}
 					}
 				});
@@ -548,7 +601,7 @@ CMDB.SoftwareInstallation.Search = Ext
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Environment',
-																		expression : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Source[commons:Name = {0}]',
+																		expression : 'declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Environment[commons:Name = {0}]',
 																		store : new CMDB.EnvironmentStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',

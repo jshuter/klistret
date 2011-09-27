@@ -2667,6 +2667,9 @@ CMDB.SoftwareStore = Ext
 							name : 'Name',
 							mapping : 'Element/name/$'
 						}, {
+							name : 'Created',
+							mapping : 'Element/createTimeStamp/$'
+						}, {
 							name : 'Version',
 							mapping : 'Element/configuration/Version/$'
 						}, {
