@@ -101,9 +101,9 @@ public class IdentificationServiceImpl implements IdentificationService {
 	 */
 	private static String criterionQuery = "declare default element namespace \'http://www.klistret.com/cmdb/identification\'; "
 			+ "for $type at $typeIndex in (%s) "
-			+ "let $rule := /Blueprint/Identification[@Type = $type] "
-			+ "for $criterion in /Blueprint/Criterion[@Name = $rule/CriterionRule/@Name] "
-			+ "order by $typeIndex, $rule/CriterionRule/@Order empty greatest "
+			+ "for $rule in /Blueprint/Identification[@Type eq $type]/CriterionRule "
+			+ "for $criterion in /Blueprint/Criterion[@Name = $rule/@Name] "
+			+ "order by $typeIndex, $rule/@Order empty least " 
 			+ "return $criterion";
 
 	/**
