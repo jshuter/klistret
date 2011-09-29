@@ -7,7 +7,7 @@
 	<Criterion Name="Name">
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
 	</Criterion>
-	<Criterion Name="Software">
+	<Criterion Name="SoftwareComposite">
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Organization</Expression>
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Version</Expression>
@@ -16,13 +16,14 @@
 		<Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Label</Expression>
 	</Criterion>
 	<Identification Type="{http://www.klistret.com/cmdb/ci/element}System">
-		<CriterionRule Name="NameAndEnvironment" />
+		<CriterionRule Name="NameAndEnvironment" Order="1"/>
 	</Identification>
 	<Identification Type="{http://www.klistret.com/cmdb/ci/element}Context">
-		<CriterionRule Name="Name" />
+		<CriterionRule Name="Name"/>
 	</Identification>
 	<Identification
 		Type="{http://www.klistret.com/cmdb/ci/element/component}Software">
-		<CriterionRule Name="SoftwareLabel" />
+		<CriterionRule Name="SoftwareLabel" Order="1"/>
+		<CriterionRule Name="SoftwareComposite" Order="2"/>
 	</Identification>
 </Blueprint>
