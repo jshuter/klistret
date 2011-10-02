@@ -2,24 +2,29 @@ package com.klistret.cmdb.utility.saxon;
 
 import javax.xml.namespace.QName;
 
-import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
+import net.sf.saxon.Configuration;
 
 /**
- * Root, step and irresolute Expr extend this abstract extension of Expr to
- * store XPath strings for each step, next step pointers, depth within the
- * relative path, and the relative path. This added information is not necessary
- * for general Expr objects.
+ * Step and Irresolute Expr extend this abstract extension of Expr to generate
+ * XPath strings for each step, next step pointers, depth within the relative
+ * path, and the relative path. This added information is not necessary for
+ * general Expr objects.
  * 
  * @author Matthew Young
  * 
  */
-public abstract class Step extends Expr {
+public abstract class Step implements Expr {
 
 	/**
-	 * Applicable to root, step and irresolute expressions
+	 * Saxon expression
 	 */
-	protected String xpath;
+	protected Expression expression;
+
+	/**
+	 * Saxon configuration
+	 */
+	protected Configuration configuration;
 
 	/**
 	 * Depth within the regular expression
@@ -32,9 +37,14 @@ public abstract class Step extends Expr {
 	protected Step next;
 
 	/**
-	 * Owning path expression
+	 * Previous step in the regular expression
 	 */
-	protected PathExpression pathExpression;
+	protected Step previous;
+
+	/**
+	 * Owning relative path expression
+	 */
+	protected RelativePathExpr relativePathExpr;
 
 	/**
 	 * 
@@ -42,25 +52,22 @@ public abstract class Step extends Expr {
 	 * @param configuration
 	 */
 	public Step(Expression expression, Configuration configuration) {
-		super(expression, configuration);
+		this.expression = expression;
+		this.configuration = configuration;
 	}
 
 	/**
-	 * Get xpath strig representation
-	 * 
-	 * @return
+	 * Return Saxon expression
 	 */
-	public String getXPath() {
-		return this.xpath;
+	public Expression getExpression() {
+		return this.expression;
 	}
 
 	/**
-	 * Set xpath for this step
-	 * 
-	 * @param xpath
+	 * Return Saxon configuration
 	 */
-	protected void setXPath(String xpath) {
-		this.xpath = xpath;
+	public Configuration getConfiguration() {
+		return this.configuration;
 	}
 
 	/**
@@ -100,14 +107,32 @@ public abstract class Step extends Expr {
 	}
 
 	/**
+	 * Previous step in the regular expression
+	 * 
+	 * @return Step
+	 */
+	public Step getPrevious() {
+		return this.previous;
+	}
+
+	/**
+	 * Set previous step
+	 * 
+	 * @param next
+	 */
+	public void setPrevious(Step previous) {
+		this.previous = previous;
+	}
+
+	/**
 	 * Concatenation descending XPaths
 	 * 
 	 * @return
 	 */
-	public String getRemainingXPath() {
-		return next == null ? null : next.getRemainingXPath() == null ? next
+	public String getDescendingXPath() {
+		return next == null ? null : next.getDescendingXPath() == null ? next
 				.getXPath() : next.getXPath().concat("/")
-				.concat(next.getRemainingXPath());
+				.concat(next.getDescendingXPath());
 	}
 
 	/**
@@ -115,8 +140,8 @@ public abstract class Step extends Expr {
 	 * 
 	 * @return
 	 */
-	public PathExpression getPathExpression() {
-		return this.pathExpression;
+	public RelativePathExpr getRelativePath() {
+		return this.relativePathExpr;
 	}
 
 	/**
@@ -124,8 +149,8 @@ public abstract class Step extends Expr {
 	 * 
 	 * @param pathExpression
 	 */
-	public void setPathExpression(PathExpression pathExpression) {
-		this.pathExpression = pathExpression;
+	public void setRelativePath(RelativePathExpr relativePathExpr) {
+		this.relativePathExpr = relativePathExpr;
 	}
 
 	/**

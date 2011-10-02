@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.klistret.cmdb.exception.ApplicationException;
 
 import net.sf.saxon.Configuration;
+import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.Literal;
 import net.sf.saxon.om.Item;
@@ -36,10 +37,20 @@ import net.sf.saxon.value.Value;
  * @author Matthew Young
  * 
  */
-public class LiteralExpr extends Expr {
+public class LiteralExpr implements Expr {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LiteralExpr.class);
+
+	/**
+	 * Saxon expression
+	 */
+	private Expression expression;
+
+	/**
+	 * Saxon configuration
+	 */
+	private Configuration configuration;
 
 	/**
 	 * Value as string
@@ -85,7 +96,9 @@ public class LiteralExpr extends Expr {
 	 * @param configuration
 	 */
 	protected LiteralExpr(StringLiteral expression, Configuration configuration) {
-		super(expression, configuration);
+		this.expression = expression;
+		this.configuration = configuration;
+
 		setValue(expression);
 	}
 
@@ -96,8 +109,32 @@ public class LiteralExpr extends Expr {
 	 * @param configuration
 	 */
 	protected LiteralExpr(Literal expression, Configuration configuration) {
-		super(expression, configuration);
+		this.expression = expression;
+		this.configuration = configuration;
+
 		setValue(expression);
+	}
+
+	/**
+	 * Return Saxon expression
+	 */
+	public Expression getExpression() {
+		return this.expression;
+	}
+
+	/**
+	 * Return Saxon configuration
+	 */
+	public Configuration getConfiguration() {
+		return this.configuration;
+	}
+
+	/**
+	 * Generates XPath by returning the underlying Value (regardless if atomic
+	 * or not) as a string.
+	 */
+	public String getXPath() {
+		return ((Literal) expression).getValue().toString();
 	}
 
 	/**
@@ -208,7 +245,9 @@ public class LiteralExpr extends Expr {
 	}
 
 	/**
-	 * Is atomic?
+	 * Is atomic? False means the literal wraps a sequence that happens to
+	 * contain a single atomic value (which this class can parse into an array
+	 * of values).
 	 * 
 	 * @return Boolean
 	 */

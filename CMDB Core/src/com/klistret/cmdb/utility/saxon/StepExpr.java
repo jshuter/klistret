@@ -32,6 +32,7 @@ import net.sf.saxon.expr.GeneralComparison;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.om.Axis;
 import net.sf.saxon.om.NamePool;
+import net.sf.saxon.pattern.NodeTest;
 import net.sf.saxon.expr.Token;
 import net.sf.saxon.instruct.TraceExpression;
 
@@ -49,6 +50,11 @@ public class StepExpr extends Step {
 			.getLogger(StepExpr.class);
 
 	private List<Expr> predicates = new ArrayList<Expr>();
+
+	/**
+	 * 
+	 */
+	private boolean isElement = true;
 
 	/**
 	 * Underlying Axis expression
@@ -80,6 +86,7 @@ public class StepExpr extends Step {
 	 */
 	protected StepExpr(AxisExpression expression, Configuration configuration) {
 		super(expression, configuration);
+
 		setAxisExpression(expression);
 	}
 
@@ -135,10 +142,8 @@ public class StepExpr extends Step {
 		this.axisExpression = expression;
 
 		// Wild cards generate empty node tests
-		if (axisExpression.getNodeTest() == null)
-			qname = null;
-
-		int fingerprint = axisExpression.getNodeTest().getFingerprint();
+		NodeTest nodeTest = axisExpression.getNodeTest();
+		int fingerprint = nodeTest == null ? -1 : nodeTest.getFingerprint();
 
 		// Finger print = -1 if the node test matches nodes of more than one
 		// name
@@ -147,6 +152,9 @@ public class StepExpr extends Step {
 					String.format(
 							"Axis expression [%s] has wildcard fingerprint",
 							expression));
+
+		if (nodeTest.getPrimitiveType() == net.sf.saxon.type.Type.ATTRIBUTE)
+			isElement = false;
 
 		String clarkName = configuration.getNamePool()
 				.getClarkName(fingerprint);
@@ -278,9 +286,43 @@ public class StepExpr extends Step {
 		return ce;
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public Type getType() {
 		return Type.Step;
+	}
+
+	/**
+	 * 
+	 */
+	public String getXPath() {
+		return isElement ? hasPredicates() ? String.format("%s%s",
+				getShortHand(), getPredicateXPath()) : getShortHand() : String
+				.format("@%s", getShortHand());
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private String getShortHand() {
+		return qname.getPrefix().trim().equals("") ? qname.getLocalPart()
+				: String.format("%s:%s", qname.getPrefix(),
+						qname.getLocalPart());
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private String getPredicateXPath() {
+		String xpath = null;
+		for (Expr expr : predicates)
+			xpath = xpath == null ? String.format("[%s]", expr.getXPath())
+					: String.format("%s[%s]", xpath, expr.getXPath());
+
+		return xpath;
 	}
 
 	/**

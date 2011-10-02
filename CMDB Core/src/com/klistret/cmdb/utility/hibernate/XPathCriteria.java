@@ -38,15 +38,21 @@ import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.LiteralExpr;
 import com.klistret.cmdb.utility.saxon.OrExpr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.RelativePathExpr;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 /**
- * XPath criteria expects XPaths that are absolute paths, a depth of at least
- * one step, and the context bean (initial step) is the same for all XPaths. The
- * Hibernate criteria passed back is created off the context bean's java class
- * and thereafter subsequent steps are translated into appended criteria
- * recursively.
+ * XPath criteria excepts "common" XPaths that share the same first step, have
+ * an initial Root step (with no other Roots) and a depth that is greater than
+ * just the first step. There is single cached Hibernate criteria representing
+ * the first step and thereafter child Hibernate criteria are created if the
+ * XPath expression has an axis that is an Entity property (i.e. a relation to
+ * another Hibernate Entity). Steps may have predicates that generally become
+ * restrictions on the Hibernate criteria for the particular step. Predicates
+ * may even have relative paths for Comparison expressions which must end in
+ * either a node corresponding to a Hibernate property or an XPath that can be
+ * feed to an XPathRestriction.
  * 
  * @author Matthew Young
  * 
@@ -67,9 +73,9 @@ public class XPathCriteria {
 	private Session session;
 
 	/**
-	 * Context step expression (common for all xpath expressions)
+	 * 
 	 */
-	private StepExpr contextStepExpr;
+	private StepExpr commonsStep;
 
 	/**
 	 * CI metadata
@@ -77,8 +83,7 @@ public class XPathCriteria {
 	private CIContext ciContext = CIContext.getCIContext();
 
 	/**
-	 * Criteria store to allow for duplicate association paths (steps only) by
-	 * not recreating criteria
+	 * Criteria store
 	 */
 	private Map<String, Criteria> criteriaStore = new HashMap<String, Criteria>();
 
@@ -118,14 +123,10 @@ public class XPathCriteria {
 	 * @return Hibernate criteria
 	 */
 	public Criteria getCriteria() {
-		return criteriaStore.get(contextStepExpr.getAxisName());
+		return criteriaStore.get(commonsStep.getAxisName());
 	}
 
 	/**
-	 * XPath conditions are checked then a Hibernate criteria is created off the
-	 * context bean's java class which is the criteria passed back to the
-	 * caller. The predicates of the context bean are handled then the
-	 * subsequent steps are explained recursively.
 	 * 
 	 */
 	private void makeCriteria() {
@@ -134,184 +135,447 @@ public class XPathCriteria {
 			 * Simplify the xpath into an expression with a root then steps
 			 * either resolute or non-resolute.
 			 */
-			PathExpression expression = new PathExpression(xpath);
+			PathExpression pathExpression = new PathExpression(xpath);
 
 			/**
 			 * Every expression has to be absolute (ie. starts with a slash)
 			 */
-			if (!expression.hasRoot()) {
+			if (!pathExpression.getRelativePath().hasRoot()) {
 				throw new ApplicationException(String.format(
-						"XPath [%s] does not have a root expression",
-						expression.getXPath()),
+						"XPath [%s] has no root expression",
+						pathExpression.getXPath()),
 						new UnsupportedOperationException());
 			}
 
 			/**
-			 * An initial step beyond the starting slash has to exist to define
-			 * a Hibernate criteria (based on either a class or entity name).
+			 * The Root expression must be the first Step in the expression
 			 */
-			if (!(expression.getDepth() > 1)
-					&& expression.getExpr(1).getType() == Expr.Type.Step) {
+			if (pathExpression.getRelativePath().getExpr(0).getType() != Expr.Type.Root)
+				throw new ApplicationException(
+						String.format(
+								"XPath [%s] has no root expression as the initial step",
+								pathExpression.getXPath()),
+						new UnsupportedOperationException());
+
+			/**
+			 * Multiple Root expression may not occur
+			 */
+			if (pathExpression.getRelativePath().hasMultipleRoot())
+				throw new ApplicationException(
+						String.format(
+								"XPath [%s] contains multiple root steps (double slashes likely)",
+								pathExpression.getXPath()),
+						new UnsupportedOperationException());
+
+			/**
+			 * More than the initial steps ("/" or "//") must exist to define a
+			 * Hibernate criteria (based on either a class or entity name) plus
+			 * the first Step has to be a Step not for example an Irresolute.
+			 */
+			if (!(pathExpression.getRelativePath().getDepth() > 1)
+					&& pathExpression.getRelativePath().getExpr(1).getType() == Expr.Type.Step) {
+				throw new ApplicationException(
+						String.format(
+								"XPath [%s] has no first step (depth greater than signular)",
+								pathExpression.getXPath()),
+						new UnsupportedOperationException());
+			}
+
+			/**
+			 * First step must be an element with valid QName and bean Metadata
+			 */
+			StepExpr firstStep = (StepExpr) pathExpression.getRelativePath()
+					.getExpr(1);
+			if (firstStep.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
+					|| firstStep.getQName() == null) {
 				throw new ApplicationException(String.format(
-						"XPath [%s] must have at least one Step", expression
-								.getXPath()),
+						"First step [%s] must be an element with valid qname",
+						pathExpression.getXPath()),
 						new UnsupportedOperationException());
 			}
 
 			/**
-			 * Initial step must be an element with valid qname with bean
-			 * metadata
+			 * Is first Step a CI Bean?
 			 */
-			StepExpr initialStepExpr = (StepExpr) expression.getExpr(1);
-			if (initialStepExpr.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
-					|| initialStepExpr.getQName() == null) {
+			CIBean firstStepBean = ciContext.getBean(firstStep.getQName());
+			if (firstStepBean == null)
+				throw new ApplicationException(String.format(
+						"First step [%s] must be a CI bean",
+						firstStep.getQName()),
+						new UnsupportedOperationException());
+
+			/**
+			 * Determine if first Step Java class is common
+			 */
+			if (commonsStep == null)
+				commonsStep = firstStep;
+
+			if (!commonsStep.getAxisName().equals(firstStep.getAxisName()))
 				throw new ApplicationException(
-						String
-								.format(
-										"Initial step [%s] must be an element with valid qname",
-										expression.getXPath()),
+						String.format(
+								"First Bean [%s] is not common across xpath statements [%s]",
+								firstStepBean, xpaths),
 						new UnsupportedOperationException());
+
+			/**
+			 * Add criteria associated to first Step's axis
+			 */
+			if (!criteriaStore.containsKey(firstStep.getAxisName())) {
+				Criteria criteria = session.createCriteria(firstStepBean
+						.getJavaClass());
+				criteriaStore.put(firstStep.getAxisName(), criteria);
+
+				logger.debug("Added key [{}] to criteria store",
+						firstStep.getAxisName());
 			}
 
 			/**
-			 * Create criteria based on the initial step expression (create root
-			 * criteria if non-existent and save the initial step in a
-			 * place-holder)
+			 * Translate the predicates of the first step then recursively the
+			 * next steps
 			 */
-			CIBean bm = ciContext.getBean(initialStepExpr.getQName());
-			if (!criteriaStore.containsKey(initialStepExpr.getAxisName())
-					&& contextStepExpr == null) {
-				logger
-						.debug(
-								"Hibernate criteria created on java class [{}] and stored by key [{}]",
-								bm.getJavaClass(), initialStepExpr
-										.getAxisName());
+			logger.debug("Translating xpath [{}]", xpath);
+			translatePredicate(firstStep, firstStepBean,
+					firstStep.getAxisName());
 
-				contextStepExpr = initialStepExpr;
-				criteriaStore.put(initialStepExpr.getAxisName(), session
-						.createCriteria(bm.getJavaClass()));
-			}
-
-			/**
-			 * Initial steps must be unique across all xpath expressions
-			 */
-			if (!contextStepExpr.getAxisName().equals(
-					initialStepExpr.getAxisName())) {
-				throw new ApplicationException(
-						String
-								.format(
-										"Leading Bean [%s] not unique across xpath statements [%s]",
-										bm, xpaths),
-						new UnsupportedOperationException());
-			}
-
-			/**
-			 * Handle predicate then recursively translate if next step exists
-			 */
-			for (Expr predicate : initialStepExpr.getPredicates())
-				criteriaStore.get(initialStepExpr.getAxisName()).add(
-						translatePredicate(bm, predicate));
-
-			if (initialStepExpr.getNext() != null)
-				translateStep(initialStepExpr.getAxisName(), initialStepExpr
-						.getNext(), bm);
+			if (firstStep.getNext() != null)
+				translateStep(firstStep.getNext(), firstStepBean,
+						firstStep.getAxisName());
 		}
 	}
 
 	/**
-	 * Translates the step (subset of the XPath) into a new criteria appended to
-	 * the original criteria object.
+	 * Recursively creates Hibernate criterion (restrictions) that funneled into
+	 * a parent restrictions added to the Step's Hibernate criteria. All
+	 * predicate expressions are assumed to operate on the same XPath axis
+	 * (which means RelativePaths aren't allowed).
 	 * 
-	 * @param criteria
+	 * @param predicate
 	 * @param step
+	 * @param critiera
 	 */
-	private void translateStep(String axisExpression, Step step, CIBean pm) {
-		switch (step.getType()) {
-		case Step:
-			logger.debug("Translating step [{}] at depth [{}]", step, step
-					.getDepth());
+	private Criterion translatePredicate(Expr predicate, CIBean contextBean) {
+		logger.debug("Translating predicate [type: {}] for context [{}]",
+				predicate.getType().name(), contextBean.getType());
 
+		ClassMetadata hContextMetadata = session.getSessionFactory()
+				.getClassMetadata(contextBean.getJavaClass());
+
+		switch (predicate.getType()) {
+		case Or:
 			/**
-			 * Gather previous step information (CI/Hibernate metadata)
+			 * Recursively breaks down the OrExpr by translating on the first
+			 * and second operands
 			 */
-			Step parent = (Step) step.getPathExpression().getRelativePath()
-					.get(step.getDepth() - 1);
-
-			ClassMetadata hpm = session.getSessionFactory().getClassMetadata(
-					pm.getJavaClass());
-			if (hpm == null)
+			if (((OrExpr) predicate).getOperands().size() != 2)
 				throw new ApplicationException(String.format(
-						"Parent step [%s] has no Hibernate metadata", parent));
+						"OrExpr expression [%s] expects 2 operands", predicate));
+
+			return Restrictions.or(
+					translatePredicate(((OrExpr) predicate).getOperands()
+							.get(0), contextBean),
+					translatePredicate(((OrExpr) predicate).getOperands()
+							.get(1), contextBean));
+
+		case And:
+			/**
+			 * Recursively breaks down the AndExpr by translating on the first
+			 * and second operands
+			 */
+			if (((AndExpr) predicate).getOperands().size() != 2)
+				throw new ApplicationException(
+						String.format(
+								"AndExpr expression [%s] expects 2 operands",
+								predicate));
+
+			return Restrictions.and(
+					translatePredicate(
+							((AndExpr) predicate).getOperands().get(0),
+							contextBean),
+					translatePredicate(
+							((AndExpr) predicate).getOperands().get(1),
+							contextBean));
+
+		case Comparison:
+			StepExpr stepOperand = getStepOperand(((ComparisonExpr) predicate)
+					.getOperands());
+
+			LiteralExpr literalOperand = getLiteralOperand(((ComparisonExpr) predicate)
+					.getOperands());
+
+			if (stepOperand == null)
+				throw new ApplicationException(String.format(
+						"No Step operand found for Comparison predicate [%s]",
+						predicate));
+
+			logger.debug("Predicate is comparison [{}] against step [{}]",
+					((ComparisonExpr) predicate).getOperator().name(),
+					stepOperand.getQName());
 
 			/**
-			 * Step must be a defined property to the parent Hibernate entity
+			 * Step operand must correspond to a Hibernate property
 			 */
-			Type propertyType = wrapGetPropertyType(hpm, step.getQName()
-					.getLocalPart());
+			Type propertyType = wrapGetPropertyType(hContextMetadata,
+					stepOperand.getQName().getLocalPart());
 			if (propertyType == null)
 				throw new ApplicationException(
-						String
-								.format(
-										"Step [%s] is not defined as a property to the parent Hibernate entity [%s]",
-										step, hpm.getEntityName()));
+						String.format(
+								"Local part [%s] is not a property of the Hibernate entity [%s]",
+								stepOperand.getQName().getLocalPart(),
+								hContextMetadata.getEntityName()));
 
 			/**
-			 * If the step is an entity (ie. complex type) then create a
-			 * sub-criteria and handle the predicate otherwise the property is
-			 * deemed as a XML column
+			 * Step operand must exist in the bean metadata
+			 */
+			if (!contextBean.hasPropertyByName(stepOperand.getQName()))
+				throw new ApplicationException(String.format(
+						"Local part [%s] is not a property of the Bean [%s]",
+						stepOperand.getQName().getLocalPart(), contextBean));
+
+			switch (((ComparisonExpr) predicate).getOperator()) {
+			case ValueEquals:
+				return Restrictions.eq(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case ValueGreaterThan:
+				return Restrictions.gt(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case ValueGreaterThanOrEquals:
+				return Restrictions.ge(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case ValueLessThan:
+				return Restrictions.lt(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case ValueLessThanOrEquals:
+				return Restrictions.le(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case ValueNotEquals:
+				return Restrictions.ne(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValue());
+			case GeneralEquals:
+				/**
+				 * If atomic (not a sequence) then the 'in' restriction is not
+				 * usable (defaults to 'eq' restriction) since the argument is
+				 * an array of objects.
+				 */
+				if (literalOperand.isAtomic())
+					return Restrictions.eq(stepOperand.getQName()
+							.getLocalPart(), literalOperand.getValue());
+
+				return Restrictions.in(stepOperand.getQName().getLocalPart(),
+						literalOperand.getValueAsArray());
+			case Matches:
+				if (((ComparisonExpr) predicate).getOperands().size() != 2)
+					throw new ApplicationException(String.format(
+							"Matches function [%s] expects 2 operands",
+							predicate));
+
+				return Restrictions.ilike(
+						stepOperand.getQName().getLocalPart(),
+						literalOperand.getValueAsString(), MatchMode.ANYWHERE);
+			case Exists:
+				if (((ComparisonExpr) predicate).getOperands().size() != 1)
+					throw new ApplicationException(String.format(
+							"Exists function [%s] expects only 1 operand",
+							predicate));
+
+				return Restrictions.isNotNull(stepOperand.getQName()
+						.getLocalPart());
+			case Empty:
+				if (((ComparisonExpr) predicate).getOperands().size() != 1)
+					throw new ApplicationException(String.format(
+							"Empty function [%s] expects only 1 operand",
+							predicate));
+
+				return Restrictions.isNull(stepOperand.getQName()
+						.getLocalPart());
+			default:
+				throw new ApplicationException(
+						String.format(
+								"Unexpected comparison operator [%s] handling predicates",
+								((ComparisonExpr) predicate).getOperator()));
+			}
+		default:
+			throw new ApplicationException(String.format(
+					"Unexpected expr [%s] type for predicate", predicate));
+		}
+	}
+
+	/**
+	 * 
+	 * @param predicate
+	 * @param step
+	 * @param hCriteria
+	 */
+	private void translateRelativePathPredicate(ComparisonExpr predicate,
+			CIBean contextBean, String contextKey) {
+		logger.debug(
+				"Translating comparison predicate with relative path for context [{}]",
+				contextBean.getType());
+
+		RelativePathExpr relativePathOperand = getRelativePathOperand(predicate
+				.getOperands());
+
+		LiteralExpr literalOperand = getLiteralOperand(predicate.getOperands());
+
+		if (relativePathOperand == null)
+			throw new ApplicationException(
+					String.format(
+							"No Relative Path operand found for Comparison predicate [%s]",
+							predicate));
+
+		if (literalOperand == null)
+			throw new ApplicationException(String.format(
+					"No Literal operand found for Comparison predicate [%s]",
+					predicate));
+
+		Step firstStep = (Step) relativePathOperand.getExpr(0);
+		Step lastStep = (Step) relativePathOperand.getLastExpr();
+		translateStep(firstStep, contextBean, contextKey);
+
+		for (int index = 0; index < relativePathOperand.getDepth() - 1; index++)
+			contextKey = String.format("%s/%s", contextKey,
+					((StepExpr) relativePathOperand.getExpr(index))
+							.getAxisName());
+
+		switch (predicate.getOperator()) {
+		case ValueEquals:
+			criteriaStore.get(contextKey).add(
+					Restrictions.eq(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case ValueGreaterThan:
+			criteriaStore.get(contextKey).add(
+					Restrictions.gt(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case ValueGreaterThanOrEquals:
+			criteriaStore.get(contextKey).add(
+					Restrictions.ge(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case ValueLessThan:
+			criteriaStore.get(contextKey).add(
+					Restrictions.lt(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case ValueLessThanOrEquals:
+			criteriaStore.get(contextKey).add(
+					Restrictions.le(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case ValueNotEquals:
+			criteriaStore.get(contextKey).add(
+					Restrictions.ne(lastStep.getQName().getLocalPart(),
+							literalOperand.getValue()));
+			break;
+		case GeneralEquals:
+			if (literalOperand.isAtomic())
+				criteriaStore.get(contextKey).add(
+						Restrictions.eq(lastStep.getQName().getLocalPart(),
+								literalOperand.getValue()));
+			else
+				criteriaStore.get(contextKey).add(
+						Restrictions.in(lastStep.getQName().getLocalPart(),
+								literalOperand.getValueAsArray()));
+			break;
+		}
+	}
+
+	/**
+	 * 
+	 * @param step
+	 * @param contextBean
+	 * @param contextKey
+	 */
+	private void translatePredicate(Step step, CIBean contextBean,
+			String contextKey) {
+		for (Expr predicate : ((StepExpr) step).getPredicates()) {
+			if (predicate.getType() == Expr.Type.Comparison
+					&& ((ComparisonExpr) predicate).hasRelativePathOperand()) {
+				translateRelativePathPredicate((ComparisonExpr) predicate,
+						contextBean, contextKey);
+			} else {
+				criteriaStore.get(((StepExpr) step).getAxisName()).add(
+						translatePredicate(predicate, contextBean));
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param step
+	 * @param critiera
+	 * @return
+	 */
+	private void translateStep(Step step, CIBean contextBean, String contextKey) {
+		logger.debug("Translating step [{}] for context[{}]", step.getQName(),
+				contextBean.getType());
+
+		switch (step.getType()) {
+		case Step:
+			/**
+			 * Get Hibernate property type
+			 */
+			Type propertyType = getHibernatePropertyType(step, contextBean);
+
+			/**
+			 * If the step is a Hibernate Entity (ie. complex type) then create
+			 * a child criteria and handle the predicate otherwise the property
+			 * is deemed as a XML column
 			 */
 			if (propertyType.isEntityType() || propertyType.isAssociationType()) {
-				logger
-						.debug(
-								"Property [name: {}] is a Hibernate entity/association type",
-								step.getQName().getLocalPart());
-				CIProperty propertyMetadata = pm.getPropertyByName(step
-						.getQName());
+				logger.debug(
+						"Property [name: {}] is a Hibernate entity/association type",
+						step.getQName().getLocalPart());
+				CIProperty stepPropertyMetadata = contextBean
+						.getPropertyByName(step.getQName());
 
 				/**
-				 * Does step have corresponding bean Metadata?
+				 * Does the property have corresponding CI Bean?
 				 */
-				CIBean bm = ciContext.getBean(propertyMetadata.getType());
-				if (bm == null)
+				CIBean stepBean = ciContext.getBean(stepPropertyMetadata
+						.getType());
+				if (stepBean == null)
 					throw new ApplicationException(String.format(
 							"Step [%s] has no corresponding bean metadata",
 							step));
 
-				String nextAxisExpression = String.format("%s/%s",
-						axisExpression, ((StepExpr) step).getAxisName());
-				if (!criteriaStore.containsKey(nextAxisExpression)) {
-					logger.debug("Adding critera [{}] to store",
-							nextAxisExpression);
-					criteriaStore.put(nextAxisExpression, criteriaStore.get(
-							axisExpression).createCriteria(
-							step.getQName().getLocalPart()));
+				/**
+				 * Create criteria key for the current Step
+				 */
+				String stepKey = String.format("%s/%s", contextKey,
+						((StepExpr) step).getAxisName());
+				if (!criteriaStore.containsKey(stepKey)) {
+					criteriaStore.put(stepKey, criteriaStore.get(contextKey)
+							.createCriteria(step.getQName().getLocalPart()));
+					logger.debug("Added key [{}] to criteria store", stepKey);
 				}
 
+				/**
+				 * Translate predicates and then the next step
+				 */
 				for (Expr predicate : ((StepExpr) step).getPredicates())
-					criteriaStore.get(nextAxisExpression).add(
-							translatePredicate(bm, predicate));
+					translatePredicate(predicate, stepBean);
 
 				if (step.getNext() != null)
-					translateStep(nextAxisExpression, step.getNext(), bm);
+					translateStep(step.getNext(), stepBean, stepKey);
+
 			}
 
 			if (propertyType.getName().equals(JAXBUserType.class.getName())) {
 				logger.debug("Property [{}] is a JAXBUserType type", step
 						.getQName().getLocalPart());
 
-				criteriaStore.get(axisExpression).add(
+				criteriaStore.get(contextKey).add(
 						new XPathRestriction(step.getQName().getLocalPart(),
 								step));
-
 			}
 
 			break;
 		case Irresolute:
 			throw new ApplicationException(
-					String
-							.format(
-									"Irresolue expressions [%s] currently not supported",
-									step), new UnsupportedOperationException());
+					String.format(
+							"Irresolue expressions [%s] currently not supported",
+							step), new UnsupportedOperationException());
 			/**
 			 * Relative paths only contain root, steps or non-resolute
 			 */
@@ -323,153 +587,42 @@ public class XPathCriteria {
 	}
 
 	/**
-	 * Predicates are only comparisons which may be compounded inside or/and
-	 * expressions. Each comparison expects that the right most or first operand
-	 * is a property (Hibernate as well registered by QName to the Bean
-	 * metadata).
 	 * 
-	 * @param bean
-	 * @param expr
+	 * @param operands
 	 * @return
 	 */
-	private Criterion translatePredicate(CIBean bm, Expr expr) {
-		logger.debug("Adding predicate of type [{}] to java class [{}]", expr
-				.getType(), bm.getJavaClass());
+	private StepExpr getStepOperand(List<Expr> operands) {
+		for (Expr operand : operands)
+			if (operand.getType() == Expr.Type.Step)
+				return (StepExpr) operand;
 
-		ClassMetadata hbm = session.getSessionFactory().getClassMetadata(
-				bm.getJavaClass());
+		return null;
+	}
 
-		switch (expr.getType()) {
-		case Or:
-			/**
-			 * Recursively breaks down the OrExpr by translating on the first
-			 * and second operands
-			 */
-			if (((OrExpr) expr).getOperands().size() != 2)
-				throw new ApplicationException(String.format(
-						"OrExpr expression [%s] expects 2 operands", expr));
+	/**
+	 * 
+	 * @param operands
+	 * @return
+	 */
+	private RelativePathExpr getRelativePathOperand(List<Expr> operands) {
+		for (Expr operand : operands)
+			if (operand.getType() == Expr.Type.RelativePath)
+				return (RelativePathExpr) operand;
 
-			return Restrictions.or(translatePredicate(bm, ((OrExpr) expr)
-					.getOperands().get(0)), translatePredicate(bm,
-					((OrExpr) expr).getOperands().get(1)));
+		return null;
+	}
 
-		case And:
-			/**
-			 * Recursively breaks down the AndExpr by translating on the first
-			 * and second operands
-			 */
-			if (((AndExpr) expr).getOperands().size() != 2)
-				throw new ApplicationException(String.format(
-						"AndExpr expression [%s] expects 2 operands", expr));
+	/**
+	 * 
+	 * @param operands
+	 * @return
+	 */
+	private LiteralExpr getLiteralOperand(List<Expr> operands) {
+		for (Expr operand : operands)
+			if (operand.getType() == Expr.Type.Literal)
+				return (LiteralExpr) operand;
 
-			return Restrictions.and(translatePredicate(bm, ((AndExpr) expr)
-					.getOperands().get(0)), translatePredicate(bm,
-					((AndExpr) expr).getOperands().get(1)));
-
-		case Comparison:
-			/**
-			 * Always at least one operand (step without predicates)
-			 */
-			StepExpr right = (StepExpr) ((ComparisonExpr) expr).getOperands()
-					.get(0);
-
-			/**
-			 * Right step must correspond to a Hibernate property
-			 */
-			Type propertyType = wrapGetPropertyType(hbm, right.getQName()
-					.getLocalPart());
-			if (propertyType == null)
-				throw new ApplicationException(
-						String
-								.format(
-										"Local part [%s] is not a property of the Hibernate entity [%s]",
-										right.getQName().getLocalPart(), hbm
-												.getEntityName()));
-
-			/**
-			 * Right step must exist in the bean metadata
-			 */
-			if (!bm.hasPropertyByName(right.getQName()))
-				throw new ApplicationException(String.format(
-						"Local part [%s] is not a property of the Bean [%s]",
-						right.getQName().getLocalPart(), bm));
-
-			/**
-			 * Value/General comparisons have only 2 operands whereas function
-			 * calls vary
-			 */
-			Expr left = ((ComparisonExpr) expr).isFunctional() ? null
-					: ((ComparisonExpr) expr).getOperands().get(1);
-
-			switch (((ComparisonExpr) expr).getOperator()) {
-			case ValueEquals:
-				return Restrictions.eq(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case ValueGreaterThan:
-				return Restrictions.gt(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case ValueGreaterThanOrEquals:
-				return Restrictions.ge(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case ValueLessThan:
-				return Restrictions.lt(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case ValueLessThanOrEquals:
-				return Restrictions.le(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case ValueNotEquals:
-				return Restrictions.ne(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left).getValue());
-			case GeneralEquals:
-				/**
-				 * If atomic (not a sequence) then the 'in' restriction is not
-				 * usable (defaults to 'eq' restriction) since the argument is
-				 * an array of objects.
-				 */
-				if (((LiteralExpr) left).isAtomic())
-					return Restrictions.eq(((StepExpr) right).getQName()
-							.getLocalPart(), ((LiteralExpr) left).getValue());
-
-				return Restrictions
-						.in(((StepExpr) right).getQName().getLocalPart(),
-								((LiteralExpr) left).getValueAsArray());
-			case Matches:
-				if (((ComparisonExpr) expr).getOperands().size() != 2)
-					throw new ApplicationException(String.format(
-							"Matches function [%s] expects 2 operands", expr));
-
-				left = ((ComparisonExpr) expr).getOperands().get(1);
-				return Restrictions.ilike(((StepExpr) right).getQName()
-						.getLocalPart(), ((LiteralExpr) left)
-						.getValueAsString(), MatchMode.ANYWHERE);
-			case Exists:
-				if (((ComparisonExpr) expr).getOperands().size() != 1)
-					throw new ApplicationException(
-							String
-									.format(
-											"Exists function [%s] expects only 1 operand",
-											expr));
-
-				return Restrictions.isNotNull(((StepExpr) right).getQName()
-						.getLocalPart());
-			case Empty:
-				if (((ComparisonExpr) expr).getOperands().size() != 1)
-					throw new ApplicationException(String.format(
-							"Empty function [%s] expects only 1 operand", expr));
-
-				return Restrictions.isNull(((StepExpr) right).getQName()
-						.getLocalPart());
-			default:
-				throw new ApplicationException(
-						String
-								.format(
-										"Unexpected comparison operator [%s] handling predicates",
-										((ComparisonExpr) expr).getOperator()));
-			}
-		default:
-			throw new ApplicationException(String.format(
-					"Unexpected expr [%s] type for predicate", expr));
-		}
+		return null;
 	}
 
 	/**
@@ -491,6 +644,33 @@ public class XPathCriteria {
 			return hcm.getIdentifierType();
 
 		return null;
+	}
+
+	/**
+	 * 
+	 * @param step
+	 * @param contextBean
+	 * @return
+	 */
+	private Type getHibernatePropertyType(Step step, CIBean contextBean) {
+		ClassMetadata hContextMetadata = session.getSessionFactory()
+				.getClassMetadata(contextBean.getJavaClass());
+		if (hContextMetadata == null)
+			throw new ApplicationException(String.format(
+					"Context bean [%s] has no Hibernate metadata", contextBean));
+
+		/**
+		 * Step must be a defined property to the context Hibernate entity
+		 */
+		Type propertyType = wrapGetPropertyType(hContextMetadata, step
+				.getQName().getLocalPart());
+		if (propertyType == null)
+			throw new ApplicationException(
+					String.format(
+							"Step [%s] is not defined as a property to the context Hibernate entity [%s]",
+							step, hContextMetadata.getEntityName()));
+
+		return propertyType;
 	}
 
 }

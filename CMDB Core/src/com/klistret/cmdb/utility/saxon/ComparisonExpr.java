@@ -23,6 +23,7 @@ import net.sf.saxon.expr.ContextItemExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.FunctionCall;
 import net.sf.saxon.expr.GeneralComparison;
+import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.expr.StringLiteral;
 import net.sf.saxon.expr.ValueComparison;
 import net.sf.saxon.expr.Token;
@@ -67,6 +68,11 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	private Boolean functional = false;
 
 	/**
+	 * 
+	 */
+	private Boolean relativePathOperand = false;
+
+	/**
 	 * General comparisons are existentially quantified comparisons that may be
 	 * applied to operand sequences of any length. The result of a general
 	 * comparison that does not raise an error is always true or false.
@@ -74,7 +80,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * @param expression
 	 * @param configuration
 	 */
-	protected ComparisonExpr(GeneralComparison expression,
+	public ComparisonExpr(GeneralComparison expression,
 			Configuration configuration) {
 		super(expression, configuration);
 
@@ -84,8 +90,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			break;
 
 		default:
-			logger
-					.error("Only the = operator is supported for general comparisons.  Most likely the expression is determined irresolute because a value comparison was intended.");
+			logger.error("Only the = operator is supported for general comparisons.  Most likely the expression is determined irresolute because a value comparison was intended.");
 			throw new IrresoluteException(String.format(
 					"General expression [%s] using unsupported operator [%d]",
 					expression, expression.getOperator()));
@@ -102,7 +107,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * @param expression
 	 * @param configuration
 	 */
-	protected ComparisonExpr(ValueComparison expression,
+	public ComparisonExpr(ValueComparison expression,
 			Configuration configuration) {
 		super(expression, configuration);
 
@@ -151,7 +156,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * @param expression
 	 * @param configuration
 	 */
-	protected ComparisonExpr(TraceExpression expression,
+	public ComparisonExpr(TraceExpression expression,
 			Configuration configuration) {
 		super(expression, configuration);
 
@@ -181,15 +186,52 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 
 		else {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Trace or functional expression [%s] using unsupported function [%s]",
-									expression, functionName));
+					String.format(
+							"Trace or functional expression [%s] using unsupported function [%s]",
+							expression, functionName));
 		}
 
 		logger.debug("Function [{}] prior to explaining arguments",
 				functionName);
 		explainFunctionOperands(function.getArguments());
+	}
+
+	/**
+	 * Generate XPath string
+	 */
+	public String getXPath() {
+		switch (operator) {
+		case ValueEquals:
+			return String.format("%s eq %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case ValueNotEquals:
+			return String.format("%s nq %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case ValueGreaterThan:
+			return String.format("%s gt %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case ValueGreaterThanOrEquals:
+			return String.format("%s ge %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case ValueLessThan:
+			return String.format("%s lt %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case ValueLessThanOrEquals:
+			return String.format("%s le %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case GeneralEquals:
+			return String.format("%s = %s", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		case Empty:
+			return String.format("empty(%s)", operands.get(0).getXPath());
+		case Exists:
+			return String.format("exists(%s)", operands.get(0).getXPath());
+		case Matches:
+			return String.format("matches(%s,%s)", operands.get(0).getXPath(),
+					operands.get(1).getXPath());
+		}
+
+		return "undefined";
 	}
 
 	/**
@@ -201,67 +243,80 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	private void explainGeneralOrValueOperands(Expression[] operands) {
 		if (operands.length != 2) {
 			throw new IrresoluteException(
-					String
-							.format(
-									"General/Value comparisons are limited to 2 operands only not [%d]",
-									operands.length));
+					String.format(
+							"General/Value comparisons are limited to 2 operands only [passed: %d]",
+							operands.length));
 		}
 
-		Expression left = operands[0];
-		if (!(left.getClass().getName().equals(AxisExpression.class.getName()))) {
-			if (left.getClass().getName().equals(
-					ContextItemExpression.class.getName()))
-				logger
-						.debug("Context [.] not supported, incomplete JTA resolution");
+		Expr literal = null;
+		Expr relative = null;
 
+		for (Expression operand : operands) {
+			if (operand instanceof Literal) {
+				if (operand.getClass().getName()
+						.equals(Literal.class.getName()))
+					literal = new LiteralExpr((Literal) operand, configuration);
+
+				if (operand.getClass().getName()
+						.equals(StringLiteral.class.getName()))
+					literal = new LiteralExpr((StringLiteral) operand,
+							configuration);
+			}
+
+			if (operand.getClass().getName()
+					.equals(AxisExpression.class.getName()))
+				relative = new StepExpr((AxisExpression) operand, configuration);
+
+			if (operand.getClass().getName()
+					.equals(SlashExpression.class.getName())) {
+				relative = new RelativePathExpr((SlashExpression) operand,
+						configuration);
+				relativePathOperand = true;
+			}
+
+			if (operand.getClass().getName()
+					.equals(ContextItemExpression.class.getName()))
+				logger.debug("Context [.] not supported, incomplete JTA resolution");
+		}
+
+		if (literal == null)
 			throw new IrresoluteException(
-					String
-							.format(
-									"General/Value comparisons require the left operand to be an axis not Saxon expression [%s]",
-									left.getClass().getName()));
-		}
-		addOperand(new StepExpr((AxisExpression) left, configuration));
+					"General/Value comparisons are required to have a literal expression");
 
-		Expression right = operands[1];
-		if (!(right instanceof Literal)) {
+		if (relative == null)
 			throw new IrresoluteException(
-					String
-							.format(
-									"General/Value comparisons require the right operand to be a literal not Saxon expression [%s]",
-									right.getClass().getName()));
-		}
+					"General/Value comparisons are required to have a Step without predicate or Relative Path");
 
-		if (right.getClass().getName().equals(Literal.class.getName()))
-			addOperand(new LiteralExpr((Literal) right, configuration));
-
-		if (right.getClass().getName().equals(StringLiteral.class.getName()))
-			addOperand(new LiteralExpr((StringLiteral) right, configuration));
+		addOperand(literal);
+		addOperand(relative);
 	}
 
 	/**
 	 * Control that the first operand is a step without predicates and the
 	 * remaining are literals.
 	 * 
+	 * TO-DO: Redo to handle multiple function formats (for example where the
+	 * Step operand is not forced into the first position)
+	 * 
 	 * @param operands
 	 */
 	private void explainFunctionOperands(Expression[] operands) {
 		if (operands.length < 1) {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Functional comparisons must have at least one operand not [%d]",
-									operands.length));
+					String.format(
+							"Functional comparisons must have at least one operand not [%d]",
+							operands.length));
 		}
 
-		Expression right = operands[0];
-		if (!(right.getClass().getName().equals(AxisExpression.class.getName()))) {
+		Expression stepOperand = operands[0];
+		if (!(stepOperand.getClass().getName().equals(AxisExpression.class
+				.getName()))) {
 			throw new IrresoluteException(
-					String
-							.format(
-									"Function comparisons require the right most operand to be an axis not Saxon expression [%s]",
-									right.getClass().getName()));
+					String.format(
+							"Function comparisons require the right most operand to be an axis not Saxon expression [%s]",
+							stepOperand.getClass().getName()));
 		}
-		addOperand(new StepExpr((AxisExpression) right, configuration));
+		addOperand(new StepExpr((AxisExpression) stepOperand, configuration));
 
 		for (int index = 1; index < operands.length; index++) {
 			Expression operand = operands[index];
@@ -270,8 +325,8 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 				addOperand(new LiteralExpr((Literal) operand, configuration));
 			}
 
-			else if (operand.getClass().getName().equals(
-					StringLiteral.class.getName())) {
+			else if (operand.getClass().getName()
+					.equals(StringLiteral.class.getName())) {
 				addOperand(new LiteralExpr((StringLiteral) operand,
 						configuration));
 			}
@@ -308,6 +363,15 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 */
 	public Boolean isFunctional() {
 		return functional;
+	}
+
+	/**
+	 * If one of the operands is a RelativePath (sequence of Steps)
+	 * 
+	 * @return Boolean
+	 */
+	public Boolean hasRelativePathOperand() {
+		return relativePathOperand;
 	}
 
 	/**

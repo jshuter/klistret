@@ -30,14 +30,52 @@ import net.sf.saxon.expr.Expression;
  * 
  * @param <T>
  */
-public abstract class LogicalExpr<T extends Expr> extends Expr {
+public abstract class LogicalExpr<T> implements Expr {
 
+	/**
+	 * Types
+	 */
 	protected List<Expr> operands;
 
+	/**
+	 * Saxon expression
+	 */
+	protected Expression expression;
+
+	/**
+	 * Saxon configuration
+	 */
+	protected Configuration configuration;
+
+	/**
+	 * 
+	 * @param expression
+	 * @param configuration
+	 */
 	public LogicalExpr(Expression expression, Configuration configuration) {
-		super(expression, configuration);
+		this.expression = expression;
+		this.configuration = configuration;
 	}
 
+	/**
+	 * Return Saxon expression
+	 */
+	public Expression getExpression() {
+		return this.expression;
+	}
+
+	/**
+	 * Return Saxon configuration
+	 */
+	public Configuration getConfiguration() {
+		return this.configuration;
+	}
+
+	/**
+	 * Get operands which are the underlying expressions
+	 * 
+	 * @return Operands
+	 */
 	public List<Expr> getOperands() {
 		return operands;
 	}

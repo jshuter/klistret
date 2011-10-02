@@ -18,64 +18,51 @@ import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.Expression;
 
 /**
- * Expr is the basis for all acceptable Saxon expressions determining
- * construction and type (distilled to roots, steps, or irresolutes where steps
- * can have filters but only comparison filters).
+ * Expr is the basis for all acceptable XPath expressions as denoted by their
+ * type. The only type not specified by the XPath 2.0 specification is what is
+ * called Irresolute which is basically an expression within a relative path
+ * that is not a Step.
  * 
  * @author Matthew Young
  * 
  */
-public abstract class Expr {
+public interface Expr {
 
 	/**
-	 * Saxon expression
-	 */
-	protected final Expression expression;
-
-	/**
-	 * Saxon configuration
-	 */
-	protected final Configuration configuration;
-
-	/**
-	 * Basic Expr types
+	 * Basic Expr types starting at the top level as Relative Paths which
+	 * consist of Steps that can have predicates comprised of logical
+	 * expressions.
 	 */
 	public enum Type {
-		Root, Step, Or, And, Comparison, Literal, Irresolute
+		Root, RelativePath, Step, Or, And, Comparison, Literal, Irresolute
 	};
-
-	/**
-	 * Expr are based on Saxon expression and configuration for resolving names
-	 * 
-	 * @param expression
-	 * @param configuration
-	 */
-	public Expr(Expression expression, Configuration configuration) {
-		this.expression = expression;
-		this.configuration = configuration;
-	}
 
 	/**
 	 * Get Saxon expression
 	 * 
-	 * @return Original Saxon expression
+	 * @return Saxon expression
 	 */
-	protected Expression getExpression() {
-		return expression;
-	}
+	public Expression getExpression();
+
+	/**
+	 * Saxon Configuration that compiled the underlying XPath
+	 * 
+	 * @return Saxon configuration
+	 */
+	public Configuration getConfiguration();
+
+	/**
+	 * Get a generated XPath for the original expression
+	 * 
+	 * @return XPath
+	 */
+	public String getXPath();
 
 	/**
 	 * Get Expr type
 	 * 
 	 * @return Expr type
 	 */
-	public abstract Type getType();
+	public Type getType();
 
-	/**
-	 * 
-	 */
-	public String toString() {
-		return String.format("type [%s], saxon expression [%s]", getType(),
-				expression);
-	}
 }
