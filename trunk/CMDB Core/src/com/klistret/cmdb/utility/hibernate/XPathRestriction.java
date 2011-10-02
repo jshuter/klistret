@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.saxon.Step;
+import com.klistret.cmdb.utility.saxon.PathExpression;
 
 /**
  * Implements Hibernate Criterion for XPath expressions acting on a property
@@ -54,6 +55,11 @@ public class XPathRestriction implements Criterion {
 	 * Expression step
 	 */
 	private final Step step;
+
+	/**
+	 * Expression step
+	 */
+	private final PathExpression pathExpression;
 
 	/**
 	 * Variable reference that associates the database column to the XPath.
@@ -93,6 +99,7 @@ public class XPathRestriction implements Criterion {
 			String variableReference) {
 		this.propertyName = propertyName;
 		this.step = step;
+		this.pathExpression = step.getRelativePath().getPathExpression();
 		this.variableReference = variableReference;
 	}
 
@@ -130,9 +137,10 @@ public class XPathRestriction implements Criterion {
 		 */
 		String axis = String.format("%s:%s", step.getQName().getPrefix(), step
 				.getQName().getLocalPart());
-		if (step.getRemainingXPath() != null)
+		if (pathExpression.getUncompiledDescendingXPath(step) != null)
 			xpath = String.format("%s/%s/%s", xpath, step.getXPath()
-					.replaceFirst(axis, "*"), step.getRemainingXPath());
+					.replaceFirst(axis, "*"), pathExpression
+					.getUncompiledDescendingXPath(step));
 		else
 			xpath = String.format("%s/%s", xpath,
 					step.getXPath().replaceFirst(axis, "*"));
@@ -144,15 +152,14 @@ public class XPathRestriction implements Criterion {
 		/**
 		 * Concatenate namespace declarations
 		 */
-		for (String namespace : step.getPathExpression().getNamespaces())
+		for (String namespace : pathExpression.getNamespaces())
 			xpath = namespace.concat(xpath);
 
 		/**
 		 * Concatenate default element namespace declaration
 		 */
-		if (step.getPathExpression().getDefaultElementNamespace() != null)
-			xpath = step.getPathExpression().getDefaultElementNamespace()
-					.concat(xpath);
+		if (pathExpression.getDefaultElementNamespace() != null)
+			xpath = pathExpression.getDefaultElementNamespace().concat(xpath);
 
 		/**
 		 * Depending on the database dialect concatenate the specific default
@@ -213,7 +220,7 @@ public class XPathRestriction implements Criterion {
 	public String toString() {
 		return String
 				.format("XPath [%s] against property [%s] with variable reference [%s]",
-						step.getRemainingXPath(), propertyName,
-						variableReference);
+						pathExpression.getUncompiledDescendingXPath(step),
+						propertyName, variableReference);
 	}
 }

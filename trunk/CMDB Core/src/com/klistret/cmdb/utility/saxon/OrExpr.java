@@ -26,11 +26,19 @@ import net.sf.saxon.expr.BooleanExpression;
  */
 public class OrExpr extends LogicalExpr<Expr> {
 
-	protected OrExpr(BooleanExpression expression, Configuration configuration) {
+	public OrExpr(BooleanExpression expression, Configuration configuration) {
 		super(expression, configuration);
 	}
 
-	@Override
+	public String getXPath() {
+		String xpath = null;
+		for (Expr operand : operands)
+			xpath = xpath == null ? operand.getXPath() : String.format(
+					"%s or %s", xpath, operand.getXPath());
+
+		return xpath;
+	}
+
 	public Type getType() {
 		return Type.Or;
 	}

@@ -31,7 +31,10 @@ public class RootExpr extends Step {
 		super(expression, configuration);
 	}
 
-	@Override
+	public String getXPath() {
+		return "/";
+	}
+
 	public Type getType() {
 		return Type.Root;
 	}

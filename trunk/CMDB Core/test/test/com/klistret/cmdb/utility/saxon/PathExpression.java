@@ -28,16 +28,19 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
+import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class PathExpression {
 	static final String validXPathWithoutDeclares = "/a:google/a:without/b:microsoft";
 
-	static final String validXPathWithoutDeclaresOrRoot = "a:google/a:without/b:microsoft";
+	static final String validXPathWithoutDeclaresOrRoot = "/a:google/a:without[b:this[@name = 'hello']/b:type/b:mine = 2]/@microsoft";
 
 	static final String validXPathStepsOnly = "a:google[@id = (2,'hello',4)]/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
 
 	static final String invalidXPathStepsOnly = "a:google[@id = 'hello']/a:without[exists(@namespace)]/b:microsoft[contains(@name,'yes')]";
+
+	static final String complexXPath = "/a:google[@id eq 'hello' and a:without/b:mine eq 'yes']";
 
 	com.klistret.cmdb.utility.saxon.PathExpression pathExpression;
 
@@ -153,12 +156,13 @@ public class PathExpression {
 		}
 
 		assertTrue(String.format("Path expression [%s] has root step", xpath),
-				pathExpression.hasRoot());
+				pathExpression.getRelativePath().hasRoot());
 	}
 
 	/**
 	 * Validate that a root does not exist
 	 */
+	@Test
 	public void typeValidation2() {
 		String xpath = String
 				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -167,6 +171,14 @@ public class PathExpression {
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
+
+			for (Expr expr : pathExpression.getRelativePath().getSteps())
+				System.out.println(String.format("xpath [%s], type [%s]",
+						expr.getXPath(), expr.getType().name()));
+
+			System.out.println(pathExpression
+					.getUncompiledDescendingXPath((Step) pathExpression
+							.getRelativePath().getExpr(0)));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -175,7 +187,7 @@ public class PathExpression {
 
 		assertFalse(String.format(
 				"Path expression [xpath: %s] does not have root step", xpath),
-				pathExpression.hasRoot());
+				pathExpression.getRelativePath().hasRoot());
 	}
 
 	/**
@@ -196,7 +208,7 @@ public class PathExpression {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		for (Expr expr : pathExpression.getRelativePath()) {
+		for (Expr expr : pathExpression.getRelativePath().getSteps()) {
 			System.out.println(expr);
 			assertEquals(StepExpr.class, expr.getClass());
 		}
@@ -220,7 +232,8 @@ public class PathExpression {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
 
-		assertEquals(IrresoluteExpr.class, pathExpression.getExpr(2).getClass());
+		assertEquals(IrresoluteExpr.class, pathExpression.getRelativePath()
+				.getExpr(2).getClass());
 	}
 
 	public void xsiType() {
@@ -232,13 +245,13 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 
-			for (Expr expr : pathExpression.getRelativePath()) {
+			for (Expr expr : pathExpression.getRelativePath().getSteps()) {
 				System.out.println(expr);
 			}
 
-			System.out.println(pathExpression.getExpr(3));
+			System.out.println(pathExpression.getRelativePath().getExpr(3));
 
-			System.out.println(pathExpression.substringXPath(3));
+			System.out.println(pathExpression.getRelativePath().getXPath(3));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -246,7 +259,6 @@ public class PathExpression {
 		}
 	}
 
-	@Test
 	public void getValues() {
 		String xpath = String
 				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -256,9 +268,28 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 
-			String[] values = pathExpression.getValues(0);
+			String[] values = pathExpression.getRelativePath().getValues(0);
 			for (String value : values)
 				System.out.println(value);
+		} catch (ApplicationException e) {
+			fail(String.format("Application expression caught [%s]", e));
+		} catch (InfrastructureException e) {
+			fail(String.format("Intfrastructure expression caught [%s]", e));
+		}
+	}
+
+	public void complexExpression() {
+		String xpath = String
+				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
+						complexXPath);
+
+		try {
+			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
+					xpath);
+
+			for (Expr expr : pathExpression.getRelativePath().getSteps()) {
+				System.out.println(expr);
+			}
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {

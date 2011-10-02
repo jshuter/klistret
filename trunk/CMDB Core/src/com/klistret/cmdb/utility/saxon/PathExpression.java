@@ -22,20 +22,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.namespace.QName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 
 import net.sf.saxon.Configuration;
-import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.ExpressionTool;
-import net.sf.saxon.expr.FilterExpression;
-import net.sf.saxon.expr.RootExpression;
-import net.sf.saxon.expr.SlashExpression;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.sxpath.XPathExpression;
 import net.sf.saxon.trans.XPathException;
@@ -65,41 +59,20 @@ public class PathExpression {
 	private IndependentContext staticContext;
 
 	/**
-	 * Original XPath statement
+	 * Original XPath statement including the prolog.
 	 */
-	private String xpath;
+	protected String xpath;
 
 	/**
-	 * XPaths split by slash regular expression
+	 * 
 	 */
-	private String[] xpathSplit;
+	private RelativePathExpr relativePathExpr;
 
 	/**
 	 * Offset within the XPath statement where the actual XPath clause starts
 	 * without preceding declare clauses
 	 */
-	private int prologOffset = 0;
-
-	/**
-	 * Saxon representation of the XPath statement
-	 */
-	private Expression expression;
-
-	/**
-	 * Project specific representation of relative paths [StepExpr (("/" | "//")
-	 * StepExpr)*]
-	 */
-	private List<Expr> relativePath = new ArrayList<Expr>();
-
-	/**
-	 * Root expressions are optional to relative expressions
-	 */
-	private boolean hasRoot = false;
-
-	/**
-	 * Denotes presence of irresolute steps
-	 */
-	private boolean hasIrresolute = false;
+	protected int prologOffset = 0;
 
 	/**
 	 * Place holder for namespaces
@@ -140,6 +113,11 @@ public class PathExpression {
 	 * for single as well double quotes)
 	 */
 	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))";
+
+	/**
+	 * 
+	 */
+	private String[] xpathSplit;
 
 	/**
 	 * Compiled xpath expression
@@ -276,9 +254,9 @@ public class PathExpression {
 			logger.warn("Uncaptured text prior to declare statements");
 
 		/**
-		 * Divide the xpath into individual xpaths delimited by slash
+		 * Split XPath into uncompiled steps
 		 */
-		xpathSplit = getXPathWithoutProlog().split(slashDelimitor);
+		this.xpathSplit = getXPathWithoutProlog().split(slashDelimitor);
 
 		/**
 		 * Make Saxon representation using the start index to begin translation
@@ -298,13 +276,15 @@ public class PathExpression {
 			/**
 			 * Generates a SlashExpression
 			 */
-			this.expression = ExpressionTool.make(xpath, staticContext,
+			Expression expression = ExpressionTool.make(xpath, staticContext,
 					prologOffset, -1, 1, true);
 
 			/**
 			 * Start recursive explains (modeled after Saxon explain methods)
 			 */
-			explain(expression);
+			this.relativePathExpr = new RelativePathExpr(expression,
+					this.staticContext.getConfiguration());
+			this.relativePathExpr.pathExpression = this;
 		} catch (XPathException e) {
 			throw new ApplicationException(
 					String.format(
@@ -325,95 +305,6 @@ public class PathExpression {
 	 */
 	public XPathExpression getXPathExpression() {
 		return this.xpathExpression;
-	}
-
-	/**
-	 * Nearly identical logic defined in the explain methods of the individual
-	 * Saxon expression class extensions
-	 * 
-	 * @param expression
-	 */
-	private void explain(Expression expression) {
-		try {
-			/**
-			 * Slash expressions always consist of a controlling and controlled
-			 * expression that can be further explained.
-			 */
-			if (expression.getClass().getName()
-					.equals(SlashExpression.class.getName())) {
-				logger.debug("Explaining a Saxon slash expression");
-				Expression controlling = ((SlashExpression) expression)
-						.getControllingExpression();
-				Expression controlled = ((SlashExpression) expression)
-						.getControlledExpression();
-				explain(controlling);
-				explain(controlled);
-			}
-
-			/**
-			 * Root expression ("/") automatically end up as the first step
-			 */
-			else if (expression.getClass().getName()
-					.equals(RootExpression.class.getName())) {
-				logger.debug("Explaining a Saxon root expression");
-				relativePath.add(new RootExpr((RootExpression) expression,
-						staticContext.getConfiguration()));
-				hasRoot = true;
-			}
-
-			/**
-			 * Axis expressions in Saxon have no predicates oddly enough and
-			 * those that can't be processed into a simple step are translated
-			 * into irresolute expressions
-			 */
-			else if (expression.getClass().getName()
-					.equals(AxisExpression.class.getName())) {
-				logger.debug("Explaining a Saxon axis expression");
-				relativePath.add(new StepExpr((AxisExpression) expression,
-						staticContext.getConfiguration()));
-			}
-
-			/**
-			 * Same as axis expressions but Saxon filters also for predicates
-			 */
-			else if (expression.getClass().getName()
-					.equals(FilterExpression.class.getName())) {
-				logger.debug("Explaining a Saxon filter expression");
-				relativePath.add(new StepExpr((FilterExpression) expression,
-						staticContext.getConfiguration()));
-			}
-
-			/**
-			 * Default is to capture unresolved expressions as irresolute
-			 * exception
-			 */
-			else {
-				logger.debug("Captured unresolved expression [{}]", expression);
-				throw new IrresoluteException("Captured unresolved expression");
-			}
-		} catch (IrresoluteException e) {
-			logger.debug("Captured expression as irresolute");
-			relativePath.add(new IrresoluteExpr(expression, staticContext
-					.getConfiguration()));
-			hasIrresolute = true;
-		}
-
-		/**
-		 * Set step information (ie only types of root, step or irresolute)
-		 * assigning this path expression, the current XPath, depth and next
-		 * step.
-		 */
-		int depth = relativePath.size() - 1;
-		if (depth >= 0 && depth < xpathSplit.length) {
-			Step step = ((Step) relativePath.get(depth));
-
-			step.setPathExpression(this);
-			step.setXPath(depth == 0 ? "/" : xpathSplit[depth]);
-			step.setDepth(depth);
-
-			if (depth != 0)
-				((Step) relativePath.get(depth - 1)).setNext(step);
-		}
 	}
 
 	/**
@@ -462,6 +353,14 @@ public class PathExpression {
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	public RelativePathExpr getRelativePath() {
+		return this.relativePathExpr;
+	}
+
+	/**
 	 * Every namespace declaration has a prefix
 	 * 
 	 * @return Namespace prefixes
@@ -501,121 +400,16 @@ public class PathExpression {
 	}
 
 	/**
-	 * Relative paths are a list of steps (ie root, step, or irresolute)
 	 * 
-	 * @return Relative path expression
-	 */
-	public List<Expr> getRelativePath() {
-		return relativePath;
-	}
-
-	/**
-	 * Get a step by depth within the relative path
-	 * 
-	 * @param index
-	 * @return Expression
-	 */
-	public Expr getExpr(int depth) {
-		return relativePath.get(depth);
-	}
-
-	/**
-	 * Get last step
-	 * 
-	 * @return Expression
-	 */
-	public Expr getLastExpr() {
-		return relativePath.size() > 0 ? relativePath
-				.get(relativePath.size() - 1) : null;
-	}
-
-	/**
-	 * Get QName for a particular step expression in the relative path (null for
-	 * root or irresolute)
-	 * 
-	 * @param depth
-	 * @return QName
-	 */
-	public QName getQName(int depth) {
-		if (getExpr(depth).getType() == Expr.Type.Step)
-			return ((StepExpr) getExpr(depth)).getQName();
-
-		return null;
-	}
-
-	/**
-	 * Get XPath for a particular expression
-	 * 
-	 * @param depth
-	 * @return XPath
-	 */
-	public String getXPath(int depth) {
-		return xpathSplit[depth];
-	}
-
-	/**
-	 * Get a substring of XPath inclusive prolog to a particular depth
-	 * 
-	 * @param depth
+	 * @param step
 	 * @return
 	 */
-	public String substringXPath(int depth) {
-		int offset = prologOffset;
-		for (int index = 0; index <= depth; index++)
-			offset = offset + getXPath(index).length();
+	public String getUncompiledDescendingXPath(Step step) {
+		int depth = step.getDepth();
 
-		return this.xpath.substring(0, relativePath.get(depth).getType()
-				.equals(Expr.Type.Root) ? offset + depth + 1 : offset + depth);
-	}
-
-	/**
-	 * Existence of a root expression within the relative path
-	 * 
-	 * @return boolean
-	 */
-	public boolean hasRoot() {
-		return this.hasRoot;
-	}
-
-	/**
-	 * Existence of an irresolute path
-	 * 
-	 * @return
-	 */
-	public boolean hasIrresolute() {
-		return this.hasIrresolute;
-	}
-
-	/**
-	 * Get number of expressions within the relative path
-	 * 
-	 * @return Size of the relative path
-	 */
-	public int getDepth() {
-		return relativePath.size();
-	}
-
-	/**
-	 * Get values as strings from comparison expressions in order from the depth
-	 * downwards
-	 */
-	public String[] getValues(int depth) {
-		if (depth >= getDepth())
-			return null;
-
-		if (depth < 0)
-			return null;
-
-		List<String> values = new ArrayList<String>();
-		for (int index = depth; index < getDepth(); index++) {
-			Expr expr = getExpr(index);
-			if (expr.getType().equals(Expr.Type.Step))
-				values.addAll(((StepExpr) expr).getValues());
-		}
-
-		if (values.size() == 0)
-			return null;
-
-		return values.toArray(new String[0]);
+		return step.getNext() == null ? null
+				: getUncompiledDescendingXPath(step.getNext()) == null ? xpathSplit[depth + 1]
+						: xpathSplit[depth + 1].concat("/").concat(
+								getUncompiledDescendingXPath(step.getNext()));
 	}
 }

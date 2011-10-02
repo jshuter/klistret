@@ -31,9 +31,12 @@ public class IrresoluteExpr extends Step {
 		super(expression, configuration);
 	}
 
-	@Override
 	public Type getType() {
 		return Type.Irresolute;
+	}
+
+	public String getXPath() {
+		return "unknown";
 	}
 
 	public QName getQName() {
@@ -41,7 +44,7 @@ public class IrresoluteExpr extends Step {
 	}
 
 	public String toString() {
-		return String.format("type [%s], expression [%s]", getType(),
+		return String.format("Irresolute expression [%s]", getType(),
 				expression);
 	}
 }
