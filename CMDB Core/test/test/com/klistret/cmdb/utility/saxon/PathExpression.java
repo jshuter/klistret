@@ -21,6 +21,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +37,7 @@ import com.klistret.cmdb.utility.saxon.StepExpr;
 public class PathExpression {
 	static final String validXPathWithoutDeclares = "/a:google/a:without/b:microsoft";
 
-	static final String validXPathWithoutDeclaresOrRoot = "/a:google/a:without[b:this[@name = 'hello']/b:type/b:mine = 2]/@microsoft";
+	static final String validXPathWithoutDeclaresOrRoot = "/a:google/a:without[/b:this/b:mine = 2 and empty(b:here)]/@microsoft";
 
 	static final String validXPathStepsOnly = "a:google[@id = (2,'hello',4)]/a:without[exists(@namespace)]/b:microsoft[matches(@name,'yes')]";
 
@@ -162,7 +165,7 @@ public class PathExpression {
 	/**
 	 * Validate that a root does not exist
 	 */
-	@Test
+
 	public void typeValidation2() {
 		String xpath = String
 				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -259,6 +262,7 @@ public class PathExpression {
 		}
 	}
 
+	@Test
 	public void getValues() {
 		String xpath = String
 				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -267,6 +271,10 @@ public class PathExpression {
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
+
+			System.out.println(pathExpression
+					.getUncompiledDescendingXPath((Step) pathExpression
+							.getRelativePath().getFirstExpr()));
 
 			String[] values = pathExpression.getRelativePath().getValues(0);
 			for (String value : values)
@@ -295,5 +303,24 @@ public class PathExpression {
 		} catch (InfrastructureException e) {
 			fail(String.format("Intfrastructure expression caught [%s]", e));
 		}
+	}
+
+	public void split() {
+		String slashDelimiter = "/(?=([^']*'[^']*')*(?![^']*'))(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))(?=([^\\[]*\\[.*\\]))";
+
+		String[] steps = "/a:google/b:big[c:men/c:another[2=2]]/d:hello/d:microsoft"
+				.split(slashDelimiter);
+		for (String step : steps)
+			System.out.println(step);
+	}
+
+	
+	public void matching() {
+		String expression = "/a:google//b:big[c:men/c:another[2='2']][c:another]/d:microsoft";
+
+		String[] steps = com.klistret.cmdb.utility.saxon.PathExpression
+				.split(expression);
+		for (String step : steps)
+			System.out.println(step);
 	}
 }

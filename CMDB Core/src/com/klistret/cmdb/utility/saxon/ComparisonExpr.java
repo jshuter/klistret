@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,6 +202,17 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * Generate XPath string
 	 */
 	public String getXPath() {
+		return ComparisonExpr.getXPath(this.getOperator(), this.getOperands());
+	}
+
+	/**
+	 * Static XPath builder to help reuse.
+	 * 
+	 * @param operator
+	 * @param operands
+	 * @return
+	 */
+	public static String getXPath(Operator operator, List<Expr> operands) {
 		switch (operator) {
 		case ValueEquals:
 			return String.format("%s eq %s", operands.get(0).getXPath(),

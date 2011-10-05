@@ -14,6 +14,8 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import java.util.List;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.BooleanExpression;
 
@@ -31,6 +33,10 @@ public class OrExpr extends LogicalExpr<Expr> {
 	}
 
 	public String getXPath() {
+		return OrExpr.getXPath(this.getOperands());
+	}
+
+	public static String getXPath(List<Expr> operands) {
 		String xpath = null;
 		for (Expr operand : operands)
 			xpath = xpath == null ? operand.getXPath() : String.format(

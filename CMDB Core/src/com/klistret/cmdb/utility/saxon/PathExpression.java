@@ -14,6 +14,9 @@
 
 package com.klistret.cmdb.utility.saxon;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -107,12 +110,6 @@ public class PathExpression {
 	static final String mappingStatement = "\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;";
 
 	static final Pattern mappingDeclaration = Pattern.compile(mappingStatement);
-
-	/**
-	 * Regular expression for delimiting path (slash) expressions (look ahead
-	 * for single as well double quotes)
-	 */
-	static final String slashDelimitor = "/(?=([^']*'[^']*')*(?![^']*'))(?=([^\"]*\"[^\"]*\")*(?![^\"]*\"))";
 
 	/**
 	 * 
@@ -254,11 +251,6 @@ public class PathExpression {
 			logger.warn("Uncaptured text prior to declare statements");
 
 		/**
-		 * Split XPath into uncompiled steps
-		 */
-		this.xpathSplit = getXPathWithoutProlog().split(slashDelimitor);
-
-		/**
 		 * Make Saxon representation using the start index to begin translation
 		 * after the last declaration.
 		 */
@@ -285,6 +277,17 @@ public class PathExpression {
 			this.relativePathExpr = new RelativePathExpr(expression,
 					this.staticContext.getConfiguration());
 			this.relativePathExpr.pathExpression = this;
+
+			/**
+			 * Split relative path
+			 */
+			xpathSplit = PathExpression.split(getXPathWithoutProlog());
+			if (xpathSplit.length != this.relativePathExpr.getDepth())
+				throw new ApplicationException(
+						String.format(
+								"Number of uncompiled xpath steps [%d] not equal to the number of steps [%d] in the relative path",
+								xpathSplit.length,
+								this.relativePathExpr.getDepth()));
 		} catch (XPathException e) {
 			throw new ApplicationException(
 					String.format(
@@ -411,5 +414,64 @@ public class PathExpression {
 				: getUncompiledDescendingXPath(step.getNext()) == null ? xpathSplit[depth + 1]
 						: xpathSplit[depth + 1].concat("/").concat(
 								getUncompiledDescendingXPath(step.getNext()));
+	}
+
+	/**
+	 * 
+	 * @param xpath
+	 * @return
+	 */
+	public static String[] split(String xpath) {
+		String text = xpath.trim();
+
+		BufferedReader br = new BufferedReader(new StringReader(text));
+		char[] charBuffer = new char[(int) text.length()];
+
+		try {
+			br.read(charBuffer);
+			br.close();
+		} catch (IOException e) {
+			logger.error(
+					"Unable to read XPath [{}] into a character buffer: {}",
+					text, e.getMessage());
+			return null;
+		}
+
+		List<String> results = new ArrayList<String>();
+
+		StringBuilder step = new StringBuilder();
+		int openBr = 0;
+		for (char character : charBuffer) {
+			switch (character) {
+			case '/':
+				if (openBr == 0) {
+					results.add(step.toString());
+					step = new StringBuilder();
+				} else {
+					step.append(character);
+				}
+				break;
+			case '[':
+				openBr++;
+				step.append(character);
+				break;
+			case ']':
+				openBr--;
+				step.append(character);
+				break;
+			default:
+				step.append(character);
+			}
+		}
+
+		if (step.length() != 0)
+			results.add(step.toString());
+
+		if (openBr != 0) {
+			logger.error("Predicate brackets uneven for XPath [{}]", text);
+			return null;
+		}
+
+		return results.toArray(new String[0]);
 	}
 }

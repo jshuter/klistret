@@ -32,7 +32,11 @@ public class RootExpr extends Step {
 	}
 
 	public String getXPath() {
-		return "/";
+		return RootExpr.getXPath("/");
+	}
+
+	public static String getXPath(String value) {
+		return value;
 	}
 
 	public Type getType() {

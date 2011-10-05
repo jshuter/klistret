@@ -14,6 +14,7 @@
 
 package com.klistret.cmdb.utility.hibernate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -253,7 +254,7 @@ public class XPathCriteria {
 	 * @param step
 	 * @param critiera
 	 */
-	private Criterion translatePredicate(Expr predicate, CIBean contextBean) {
+	private Criterion translateStepPredicate(Expr predicate, CIBean contextBean) {
 		logger.debug("Translating predicate [type: {}] for context [{}]",
 				predicate.getType().name(), contextBean.getType());
 
@@ -271,9 +272,9 @@ public class XPathCriteria {
 						"OrExpr expression [%s] expects 2 operands", predicate));
 
 			return Restrictions.or(
-					translatePredicate(((OrExpr) predicate).getOperands()
+					translateStepPredicate(((OrExpr) predicate).getOperands()
 							.get(0), contextBean),
-					translatePredicate(((OrExpr) predicate).getOperands()
+					translateStepPredicate(((OrExpr) predicate).getOperands()
 							.get(1), contextBean));
 
 		case And:
@@ -288,12 +289,10 @@ public class XPathCriteria {
 								predicate));
 
 			return Restrictions.and(
-					translatePredicate(
-							((AndExpr) predicate).getOperands().get(0),
-							contextBean),
-					translatePredicate(
-							((AndExpr) predicate).getOperands().get(1),
-							contextBean));
+					translateStepPredicate(((AndExpr) predicate).getOperands()
+							.get(0), contextBean),
+					translateStepPredicate(((AndExpr) predicate).getOperands()
+							.get(1), contextBean));
 
 		case Comparison:
 			StepExpr stepOperand = getStepOperand(((ComparisonExpr) predicate)
@@ -406,10 +405,10 @@ public class XPathCriteria {
 	 * @param hCriteria
 	 */
 	private void translateRelativePathPredicate(ComparisonExpr predicate,
-			CIBean contextBean, String contextKey) {
+			Step step, CIBean contextBean, String contextKey) {
 		logger.debug(
-				"Translating comparison predicate with relative path for context [{}]",
-				contextBean.getType());
+				"Translating comparison predicate with relative path for context [{}] against key [{}]",
+				contextBean.getType(), contextKey);
 
 		RelativePathExpr relativePathOperand = getRelativePathOperand(predicate
 				.getOperands());
@@ -427,57 +426,40 @@ public class XPathCriteria {
 					"No Literal operand found for Comparison predicate [%s]",
 					predicate));
 
-		Step firstStep = (Step) relativePathOperand.getExpr(0);
+		if (relativePathOperand.hasIrresolute())
+			throw new ApplicationException(
+					String.format(
+							"Relative path for predicate [%s] contains irresolute path",
+							predicate));
+
+		if (relativePathOperand.hasRoot())
+			throw new ApplicationException(
+					String.format(
+							"Relative path for predicate [%s] contains root (single or double paths)",
+							predicate));
+
 		Step lastStep = (Step) relativePathOperand.getLastExpr();
-		translateStep(firstStep, contextBean, contextKey);
 
-		for (int index = 0; index < relativePathOperand.getDepth() - 1; index++)
-			contextKey = String.format("%s/%s", contextKey,
-					((StepExpr) relativePathOperand.getExpr(index))
-							.getAxisName());
-
-		switch (predicate.getOperator()) {
-		case ValueEquals:
-			criteriaStore.get(contextKey).add(
-					Restrictions.eq(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case ValueGreaterThan:
-			criteriaStore.get(contextKey).add(
-					Restrictions.gt(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case ValueGreaterThanOrEquals:
-			criteriaStore.get(contextKey).add(
-					Restrictions.ge(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case ValueLessThan:
-			criteriaStore.get(contextKey).add(
-					Restrictions.lt(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case ValueLessThanOrEquals:
-			criteriaStore.get(contextKey).add(
-					Restrictions.le(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case ValueNotEquals:
-			criteriaStore.get(contextKey).add(
-					Restrictions.ne(lastStep.getQName().getLocalPart(),
-							literalOperand.getValue()));
-			break;
-		case GeneralEquals:
-			if (literalOperand.isAtomic())
-				criteriaStore.get(contextKey).add(
-						Restrictions.eq(lastStep.getQName().getLocalPart(),
-								literalOperand.getValue()));
-			else
-				criteriaStore.get(contextKey).add(
-						Restrictions.in(lastStep.getQName().getLocalPart(),
-								literalOperand.getValueAsArray()));
-			break;
+		String xpath = null;
+		for (int index = 0; index < relativePathOperand.getDepth() - 1; index++) {
+			Expr expr = relativePathOperand.getExpr(index);
+			xpath = xpath == null ? expr.getXPath() : String.format("%s/%s",
+					xpath, expr.getXPath());
 		}
+
+		List<Expr> operands = new ArrayList<Expr>();
+		operands.add(lastStep);
+		operands.add(literalOperand);
+
+		xpath = String.format("%s[%s]", xpath,
+				ComparisonExpr.getXPath(predicate.getOperator(), operands));
+
+		xpath = String.format("%s%s", step.getRelativePath()
+				.getPathExpression().getProlog(), xpath);
+
+		PathExpression other = new PathExpression(xpath);
+		translateStep((Step) other.getRelativePath().getFirstExpr(),
+				contextBean, contextKey);
 	}
 
 	/**
@@ -488,14 +470,19 @@ public class XPathCriteria {
 	 */
 	private void translatePredicate(Step step, CIBean contextBean,
 			String contextKey) {
+		logger.debug(
+				"Predicate controll [step: {}, context bean: {}, context path: [}]",
+				new Object[] { step.getQName(), contextBean.getType(),
+						contextKey });
+
 		for (Expr predicate : ((StepExpr) step).getPredicates()) {
 			if (predicate.getType() == Expr.Type.Comparison
 					&& ((ComparisonExpr) predicate).hasRelativePathOperand()) {
 				translateRelativePathPredicate((ComparisonExpr) predicate,
-						contextBean, contextKey);
+						step, contextBean, contextKey);
 			} else {
-				criteriaStore.get(((StepExpr) step).getAxisName()).add(
-						translatePredicate(predicate, contextBean));
+				criteriaStore.get(contextKey).add(
+						translateStepPredicate(predicate, contextBean));
 			}
 		}
 	}
@@ -553,8 +540,7 @@ public class XPathCriteria {
 				/**
 				 * Translate predicates and then the next step
 				 */
-				for (Expr predicate : ((StepExpr) step).getPredicates())
-					translatePredicate(predicate, stepBean);
+				translatePredicate(step, stepBean, stepKey);
 
 				if (step.getNext() != null)
 					translateStep(step.getNext(), stepBean, stepKey);

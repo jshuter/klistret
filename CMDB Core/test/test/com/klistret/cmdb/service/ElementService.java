@@ -210,26 +210,23 @@ public class ElementService {
 	/**
 	 * Find relations
 	 */
-	
+	@Test
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:name = \"KUI\"]/pojo:type[pojo:name = \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation/pojo:source/pojo:configuration/element:Environment[text() = \"Produktion\"]",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[pojo:name = \"KUI\"][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration/element:Environment[text() = \"Produktion\"]",
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Relation/pojo:destination/pojo:configuration[component:Type = \"Version\" and commons:Name = \"KUI\" and component:Organization = \"Försäkringskassan\"]" }),
 						0, 25);
 
 		assertNotNull(response);
 	}
 
-	@Test
-	public void findRelation2() {
-		List<Relation> response = relationService
+	
+	public void findElement2() {
+		List<Element> response = elementService
 				.find(Arrays
-						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]" }),
+						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"KUI\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration/element:Environment[text() = \"Produktion\"]" }),
 						0, 25);
 
 		assertNotNull(response);
