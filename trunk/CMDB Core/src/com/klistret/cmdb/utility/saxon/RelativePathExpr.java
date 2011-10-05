@@ -150,6 +150,15 @@ public class RelativePathExpr implements Expr {
 	}
 
 	/**
+	 * Get first expression
+	 * 
+	 * @return
+	 */
+	public Expr getFirstExpr() {
+		return getExpr(0);
+	}
+
+	/**
 	 * Get QName for a particular step expression in the relative path (null for
 	 * root or irresolute)
 	 * 
