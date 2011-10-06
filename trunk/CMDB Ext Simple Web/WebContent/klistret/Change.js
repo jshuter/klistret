@@ -72,6 +72,7 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 										// Marshall combo into the element
 										marshall : function(element) {
 											if (this.getValue()
+													&& !this.disabled
 													&& element['Element']['configuration']) {
 												var change = CMDB.Badgerfish
 														.getPrefix(element,
@@ -103,11 +104,8 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 																			.get('Element'),
 																	'type/name/$')
 												};
-											} else {
-												CMDB.Badgerfish
-														.remove(element,
-																'Element/configuration/Environment');
 											}
+											// Removal logic erased (not sure why it existed?)
 										},
 
 										// Unmarshall element value into the
@@ -119,9 +117,7 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 												'Id' : id,
 												'Name' : CMDB.Badgerfish
 														.get(element,
-																'Element/configuration/Environment/Name/$'),
-												'Element' : CMDB.Badgerfish
-														.get(element, 'Element')
+																'Element/configuration/Environment/Name/$')
 											};
 
 											var record = new (this.store.reader).recordType(
@@ -222,13 +218,10 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 															&& element) {
 														var name = CMDB.Badgerfish
 																.get(element,
-																		'Element/name/$'), data = {
+																		'Element/configuration/Software/Name/$');
+														var data = {
 															'Id' : 0,
-															'Name' : name,
-															'Element' : CMDB.Badgerfish
-																	.get(
-																			element,
-																			'Element')
+															'Name' : name
 														};
 
 														var record = new (this.Module.store.reader).recordType(
@@ -248,12 +241,17 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 										// Marshall combo into the element
 										marshall : function(element) {
 											if (this.getValue()
+													&& !this.disabled
 													&& element['Element']['configuration']) {
 												var change = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/process/change'), commons = CMDB.Badgerfish
+																'http://www.klistret.com/cmdb/ci/element/process/change')
+
+												var commons = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/commons'), record = this
+																'http://www.klistret.com/cmdb/ci/commons')
+
+												var record = this
 														.getStore()
 														.getById(
 																this.getValue());
@@ -297,11 +295,8 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 												element['Element']['configuration']['Name'] = {
 													'$' : record.get('Name')
 												};
-											} else {
-												CMDB.Badgerfish
-														.remove(element,
-																'Element/configuration/Software');
 											}
+											// Removal logic erased (not sure why it existed?)
 										},
 
 										// Unmarshall element value into the
@@ -313,9 +308,7 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 												'Id' : id,
 												'Version' : CMDB.Badgerfish
 														.get(element,
-																'Element/configuration/Version/$'),
-												'Element' : CMDB.Badgerfish
-														.get(element, 'Element')
+																'Element/configuration/Version/$')
 											};
 
 											var record = new (this.store.reader).recordType(
