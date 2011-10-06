@@ -312,7 +312,7 @@ CMDB.Software.IdentificationForm = Ext
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
-														+ ':Version'] = {
+														+ ':Label'] = {
 													'$' : this.getValue()
 												};
 											} else {
@@ -389,7 +389,7 @@ CMDB.Software.LifecycleForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Phase'] = {
 													'$' : this.getValue()
@@ -436,7 +436,7 @@ CMDB.Software.LifecycleForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Availability'] = {
 													'$' : this.getValue()
@@ -484,7 +484,7 @@ CMDB.Software.LifecycleForm = Ext
 													&& element['Element']['configuration']) {
 												var prefix = CMDB.Badgerfish
 														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component/software');
+																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
 														+ ':Type'] = {
 													'$' : this.getValue()
@@ -551,7 +551,7 @@ CMDB.Software.Edit = Ext
 								'@xmlns' : {
 									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 								},
-								'@xsi:type' : 'ns11:Software'
+								'@xsi:type' : 'ns10:Software'
 							}
 						}
 					},
@@ -807,7 +807,7 @@ CMDB.Software.Search = Ext
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Environment (through application assoications)',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source/pojo:configuration[element:Environment = {0}]',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = {0}]',
 																		store : new CMDB.EnvironmentStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
