@@ -74,7 +74,7 @@ public class XPathCriteria {
 	private Session session;
 
 	/**
-	 * 
+	 * Common first step across compiled XPath expressions
 	 */
 	private StepExpr commonsStep;
 
@@ -128,7 +128,8 @@ public class XPathCriteria {
 	}
 
 	/**
-	 * 
+	 * Compiles each XPath and does a series of controls before processing the
+	 * first step then recursively handling subsequent steps.
 	 */
 	private void makeCriteria() {
 		for (String xpath : xpaths) {
@@ -254,7 +255,8 @@ public class XPathCriteria {
 	 * @param step
 	 * @param critiera
 	 */
-	private Criterion translateStepPredicate(Expr predicate, CIBean contextBean) {
+	private Criterion translateLogicalPredicate(Expr predicate,
+			CIBean contextBean) {
 		logger.debug("Translating predicate [type: {}] for context [{}]",
 				predicate.getType().name(), contextBean.getType());
 
@@ -272,10 +274,10 @@ public class XPathCriteria {
 						"OrExpr expression [%s] expects 2 operands", predicate));
 
 			return Restrictions.or(
-					translateStepPredicate(((OrExpr) predicate).getOperands()
-							.get(0), contextBean),
-					translateStepPredicate(((OrExpr) predicate).getOperands()
-							.get(1), contextBean));
+					translateLogicalPredicate(((OrExpr) predicate)
+							.getOperands().get(0), contextBean),
+					translateLogicalPredicate(((OrExpr) predicate)
+							.getOperands().get(1), contextBean));
 
 		case And:
 			/**
@@ -289,10 +291,10 @@ public class XPathCriteria {
 								predicate));
 
 			return Restrictions.and(
-					translateStepPredicate(((AndExpr) predicate).getOperands()
-							.get(0), contextBean),
-					translateStepPredicate(((AndExpr) predicate).getOperands()
-							.get(1), contextBean));
+					translateLogicalPredicate(((AndExpr) predicate)
+							.getOperands().get(0), contextBean),
+					translateLogicalPredicate(((AndExpr) predicate)
+							.getOperands().get(1), contextBean));
 
 		case Comparison:
 			StepExpr stepOperand = getStepOperand(((ComparisonExpr) predicate)
@@ -399,6 +401,11 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Translates a predicate consisting of a single comparison where a relative
+	 * path exists as an operand.
+	 * 
+	 * TODO: This method has to handle irresolute paths which means that raw
+	 * XPath for each predicate must be carried into the Expr objects.
 	 * 
 	 * @param predicate
 	 * @param step
@@ -432,10 +439,11 @@ public class XPathCriteria {
 							"Relative path for predicate [%s] contains irresolute path",
 							predicate));
 
-		if (relativePathOperand.hasRoot())
+		if (relativePathOperand.hasRoot()
+				&& relativePathOperand.getFirstExpr().getType() == Expr.Type.Root)
 			throw new ApplicationException(
 					String.format(
-							"Relative path for predicate [%s] contains root (single or double paths)",
+							"Relative path for predicate [%s] contains root as initial step",
 							predicate));
 
 		Step lastStep = (Step) relativePathOperand.getLastExpr();
@@ -463,6 +471,8 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Wrapper method to either handle a logical predicate or a predicate
+	 * comprised of a comparison expression with a relative path as an operand.
 	 * 
 	 * @param step
 	 * @param contextBean
@@ -482,12 +492,14 @@ public class XPathCriteria {
 						step, contextBean, contextKey);
 			} else {
 				criteriaStore.get(contextKey).add(
-						translateStepPredicate(predicate, contextBean));
+						translateLogicalPredicate(predicate, contextBean));
 			}
 		}
 	}
 
 	/**
+	 * Translate the Step in relation to context and reuses criteria based on
+	 * the context key (generated XPath for the context without predicates).
 	 * 
 	 * @param step
 	 * @param critiera
@@ -573,6 +585,7 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Gets the first Step operand in the list of expressions
 	 * 
 	 * @param operands
 	 * @return
@@ -586,6 +599,7 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Gets the first Relative Path operand in the list of expressions
 	 * 
 	 * @param operands
 	 * @return
@@ -599,6 +613,7 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Gets the first Literal operand in the list of expressions
 	 * 
 	 * @param operands
 	 * @return
@@ -633,6 +648,7 @@ public class XPathCriteria {
 	}
 
 	/**
+	 * Finds the Hibernate property type
 	 * 
 	 * @param step
 	 * @param contextBean

@@ -53,24 +53,24 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 			.getLogger(ComparisonExpr.class);
 
 	/**
-	 * 
+	 * Types of comparison
 	 */
 	public enum Operator {
 		ValueEquals, ValueNotEquals, ValueLessThan, ValueLessThanOrEquals, ValueGreaterThan, ValueGreaterThanOrEquals, GeneralEquals, Empty, Exists, Matches
 	};
 
 	/**
-	 * 
+	 * Comparison type
 	 */
 	private Operator operator;
 
 	/**
-	 * 
+	 * Functional comparison
 	 */
 	private Boolean functional = false;
 
 	/**
-	 * 
+	 * Default is logical operands (single steps)
 	 */
 	private Boolean relativePathOperand = false;
 
@@ -355,7 +355,6 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	/**
 	 * Get the expression type
 	 */
-	@Override
 	public Type getType() {
 		return Type.Comparison;
 	}
@@ -388,7 +387,7 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	}
 
 	/**
-	 * 
+	 * Display value
 	 */
 	public String toString() {
 		return String.format(

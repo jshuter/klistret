@@ -21,9 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -165,7 +162,7 @@ public class PathExpression {
 	/**
 	 * Validate that a root does not exist
 	 */
-
+	@Test
 	public void typeValidation2() {
 		String xpath = String
 				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -179,9 +176,7 @@ public class PathExpression {
 				System.out.println(String.format("xpath [%s], type [%s]",
 						expr.getXPath(), expr.getType().name()));
 
-			System.out.println(pathExpression
-					.getUncompiledDescendingXPath((Step) pathExpression
-							.getRelativePath().getExpr(0)));
+			System.out.println(pathExpression.getRawXPath(1, 1));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -262,7 +257,6 @@ public class PathExpression {
 		}
 	}
 
-	@Test
 	public void getValues() {
 		String xpath = String
 				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -272,9 +266,13 @@ public class PathExpression {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 
-			System.out.println(pathExpression
-					.getUncompiledDescendingXPath((Step) pathExpression
-							.getRelativePath().getFirstExpr()));
+			Step firstStep = (Step) pathExpression.getRelativePath()
+					.getFirstExpr();
+			String descendingRawXPath = pathExpression.getRawXPath(firstStep
+					.getDepth() + 1, pathExpression.getRelativePath()
+					.getDepth() - 1);
+
+			System.out.println(descendingRawXPath);
 
 			String[] values = pathExpression.getRelativePath().getValues(0);
 			for (String value : values)
@@ -314,7 +312,6 @@ public class PathExpression {
 			System.out.println(step);
 	}
 
-	
 	public void matching() {
 		String expression = "/a:google//b:big[c:men/c:another[2='2']][c:another]/d:microsoft";
 

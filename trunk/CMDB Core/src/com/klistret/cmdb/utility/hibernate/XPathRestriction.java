@@ -137,13 +137,19 @@ public class XPathRestriction implements Criterion {
 		 */
 		String axis = String.format("%s:%s", step.getQName().getPrefix(), step
 				.getQName().getLocalPart());
-		if (pathExpression.getUncompiledDescendingXPath(step) != null)
+
+		String stepRawXPath = pathExpression.getRawXPath(step.getDepth(),
+				step.getDepth());
+		String descendingRawXPath = pathExpression.getRawXPath(
+				step.getDepth() + 1, pathExpression.getRelativePath()
+						.getDepth() - 1);
+
+		if (descendingRawXPath != null)
 			xpath = String.format("%s/%s/%s", xpath, step.getXPath()
-					.replaceFirst(axis, "*"), pathExpression
-					.getUncompiledDescendingXPath(step));
+					.replaceFirst(axis, "*"), descendingRawXPath);
 		else
 			xpath = String.format("%s/%s", xpath,
-					step.getXPath().replaceFirst(axis, "*"));
+					stepRawXPath.replaceFirst(axis, "*"));
 
 		logger.debug(
 				"XPath [{}] prior prefixing default function declaration and namespace declarations",
@@ -218,9 +224,12 @@ public class XPathRestriction implements Criterion {
 	 * @return String
 	 */
 	public String toString() {
+		String descendingRawXPath = pathExpression.getRawXPath(
+				step.getDepth() + 1, pathExpression.getRelativePath()
+						.getDepth() - 1);
+
 		return String
 				.format("XPath [%s] against property [%s] with variable reference [%s]",
-						pathExpression.getUncompiledDescendingXPath(step),
-						propertyName, variableReference);
+						descendingRawXPath, propertyName, variableReference);
 	}
 }

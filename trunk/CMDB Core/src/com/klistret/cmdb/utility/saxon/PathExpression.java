@@ -67,7 +67,7 @@ public class PathExpression {
 	protected String xpath;
 
 	/**
-	 * 
+	 * Relative Path expression
 	 */
 	private RelativePathExpr relativePathExpr;
 
@@ -112,7 +112,7 @@ public class PathExpression {
 	static final Pattern mappingDeclaration = Pattern.compile(mappingStatement);
 
 	/**
-	 * 
+	 * Raw strings for each step in the relative path
 	 */
 	private String[] xpathSplit;
 
@@ -403,20 +403,32 @@ public class PathExpression {
 	}
 
 	/**
+	 * Returns the raw strings making up the XPath statement between the steps
+	 * in the start to stop range.
 	 * 
-	 * @param step
+	 * @param start
+	 * @param stop
 	 * @return
 	 */
-	public String getUncompiledDescendingXPath(Step step) {
-		int depth = step.getDepth();
+	public String getRawXPath(int start, int stop) {
+		if (start > stop)
+			return null;
 
-		return step.getNext() == null ? null
-				: getUncompiledDescendingXPath(step.getNext()) == null ? xpathSplit[depth + 1]
-						: xpathSplit[depth + 1].concat("/").concat(
-								getUncompiledDescendingXPath(step.getNext()));
+		if (start < 0 || stop < 0)
+			return null;
+
+		if (stop >= getRelativePath().getDepth())
+			return null;
+
+		return getRawXPath(start + 1, stop) == null ? xpathSplit[start]
+				: xpathSplit[start].concat("/").concat(
+						getRawXPath(start + 1, stop));
 	}
 
 	/**
+	 * Breaks down an Path expression into string representations of individual
+	 * steps in the underlying relative path if it exists. Initial steps or
+	 * double slashes return empty strings.
 	 * 
 	 * @param xpath
 	 * @return
