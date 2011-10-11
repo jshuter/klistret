@@ -270,7 +270,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		return count;
 	}
-	
+
 	private Relation clean(Relation other) {
 		other.setSource(clean(other.getSource()));
 		other.setDestination(clean(other.getDestination()));
