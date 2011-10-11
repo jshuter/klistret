@@ -587,7 +587,7 @@ CMDB.Element.DestRelationForm = Ext
 
 						store.expressions = Ext
 								.urlEncode({
-									expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq '
+									expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq '
 											+ CMDB.Badgerfish.get(
 													this.ownerCt.element,
 													"Element/id/$") + ']'
@@ -597,7 +597,7 @@ CMDB.Element.DestRelationForm = Ext
 								&& CMDB.Badgerfish.get(this.ownerCt.element,
 										"Element/id/$")) {
 							store.load({
-								params : 'start=0&limit=20&'
+								params : 'start=0&limit=100&'
 										+ store.expressions
 							});
 						}
@@ -973,6 +973,8 @@ CMDB.Element.DestRelationForm = Ext
 						var element = record.get("Destination");
 
 						win = this.desktop.createWindow({
+							desktop : this.desktop,
+							editor : this.editor,
 							element : {
 								'Element' : element
 							}
