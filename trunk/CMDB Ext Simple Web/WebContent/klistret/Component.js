@@ -592,6 +592,128 @@ CMDB.Software.Edit = Ext
 									},
 									{
 										xtype : 'destRelationForm',
+										title : 'Software dependencies',
+										
+										desktop : this.desktop,
+										editor : CMDB.Software.Edit,
+
+										information : 'Dependencies to other software modules.',
+
+										fields : [
+												{
+													name : 'Id',
+													mapping : 'Relation/id/$'
+												},
+												{
+													name : 'Type',
+													mapping : 'Relation/type/name/$'
+												},
+												{
+													name : 'DestName',
+													mapping : 'Relation/destination/name/$'
+												},
+												{
+													name : 'DestType',
+													mapping : 'Relation/destination/type/name/$'
+												},
+												{
+													name : 'Created',
+													mapping : 'Relation/createTimeStamp/$'
+												},
+												{
+													name : 'Updated',
+													mapping : 'Relation/updateTimeStamp/$'
+												},
+												{
+													name : 'Relation',
+													mapping : 'Relation'
+												},
+												{
+													name : 'Destination',
+													mapping : 'Relation/destination'
+												},
+												{
+													name : 'Label',
+													mapping : 'Relation/destination/configuration/Label/$'
+												},
+												{
+													name : 'Version',
+													mapping : 'Relation/destination/configuration/Version/$'
+												},
+												{
+													name : 'Organization',
+													mapping : 'Relation/destination/configuration/Organization/$'
+												} ],
+
+										columns : [ {
+											header : 'Organization',
+											width : 150,
+											sortable : true,
+											dataIndex : 'Organization'
+										}, {
+											header : 'Module',
+											width : 150,
+											sortable : true,
+											dataIndex : 'DestName'
+										}, {
+											header : 'Version',
+											width : 150,
+											sortable : true,
+											dataIndex : 'Version'
+										}, {
+											header : "Label",
+											width : 200,
+											sortable : true,
+											dataIndex : 'Label'
+										} ],
+
+										recordCreator : function(fields,
+												relation) {
+											var recordDef = Ext.data.Record
+													.create(fields);
+
+											var record = new recordDef(
+													{
+														'Id' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/id/$'),
+														'Type' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/type/name/$')
+																.replace(
+																		/\{.*\}(.*)/,
+																		"$1"),
+														'DestName' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/name/$'),
+														'DestType' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/type/name/$')
+																.replace(
+																		/\{.*\}(.*)/,
+																		"$1"),
+														'Relation' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation'),
+														'Destination' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination'),
+														'Label' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Label/$'),
+														'Version' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Version/$'),
+														'Organization' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Organization/$')
+													}, CMDB.Badgerfish.get(
+															relation,
+															'Relation/id/$'));
+
+											return record;
+										},
+
 										relations : [ {
 											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Dependency'
 										} ]
@@ -645,6 +767,29 @@ CMDB.Software.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Organization',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = {0}]',
+																		store : new CMDB.OrganizationStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Module',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = {0}]',
 																		store : new CMDB.ModuleStore(),
@@ -666,27 +811,10 @@ CMDB.Software.Search = Ext
 																		}
 																	},
 																	{
-																		xtype : 'superboxselect',
+																		xtype : 'textfield',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Organization',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = {0}]',
-																		store : new CMDB.OrganizationStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
+																		fieldLabel : 'Version',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Version eq \"{0}\"]'
 																	},
 																	{
 																		xtype : 'superboxselect',
@@ -733,30 +861,7 @@ CMDB.Software.Search = Ext
 																						+ '%\")]';
 																			}
 																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Phase',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Phase = {0}]',
-																		store : new CMDB.SoftwareLifecycleStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	}]
+																	} ]
 														},
 														{
 															columnWidth : .5,
@@ -809,6 +914,29 @@ CMDB.Software.Search = Ext
 																		fieldLabel : 'Environment (through application assoications)',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = {0}]',
 																		store : new CMDB.EnvironmentStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Phase',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Phase = {0}]',
+																		store : new CMDB.SoftwareLifecycleStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',

@@ -519,58 +519,8 @@ CMDB.Element.DestRelationForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
-					fields : [ {
-						name : 'Id',
-						mapping : 'Relation/id/$'
-					}, {
-						name : 'Type',
-						mapping : 'Relation/type/name/$'
-					}, {
-						name : 'DestName',
-						mapping : 'Relation/destination/name/$'
-					}, {
-						name : 'DestType',
-						mapping : 'Relation/destination/type/name/$'
-					}, {
-						name : 'Created',
-						mapping : 'Relation/createTimeStamp/$'
-					}, {
-						name : 'Updated',
-						mapping : 'Relation/updateTimeStamp/$'
-					}, {
-						name : 'Relation',
-						mapping : 'Relation'
-					} ],
-
-					columns : [ {
-						header : 'Relationship',
-						width : 150,
-						sortable : true,
-						dataIndex : 'Type'
-					}, {
-						header : 'CI Type',
-						width : 150,
-						sortable : true,
-						dataIndex : 'DestType'
-					}, {
-						header : "CI Name",
-						width : 150,
-						sortable : true,
-						dataIndex : 'DestName'
-					}, {
-						header : "Created",
-						width : 120,
-						sortable : true,
-						dataIndex : 'Created'
-					}, {
-						header : "Last Updated",
-						width : 120,
-						sortable : true,
-						dataIndex : 'Updated'
-					} ],
-
 					/**
-					 * 
+					 * Initialize component
 					 */
 					initComponent : function() {
 						var fields = this.fields || [];
@@ -637,20 +587,11 @@ CMDB.Element.DestRelationForm = Ext
 
 						store.expressions = Ext
 								.urlEncode({
-									expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]'
+									expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq '
+											+ CMDB.Badgerfish.get(
+													this.ownerCt.element,
+													"Element/id/$") + ']'
 								});
-
-						store.expressions = store.expressions
-								+ '&'
-								+ Ext
-										.urlEncode({
-											expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:source[pojo:id eq '
-													+ CMDB.Badgerfish
-															.get(
-																	this.ownerCt.element,
-																	"Element/id/$")
-													+ ']'
-										});
 
 						if (this.ownerCt.element
 								&& CMDB.Badgerfish.get(this.ownerCt.element,
@@ -743,9 +684,11 @@ CMDB.Element.DestRelationForm = Ext
 													.enable()
 													: this.Grid.disable();
 										}, this);
+						
+						grid.on('rowdblclick', this.doOpen, this);
 
 						var config = {
-							title : 'Owned relations',
+							title : this.title || 'Owned relations',
 							autoScroll : true,
 							labelAlign : 'top',
 							bodyStyle : 'padding:10px; background-color:white;',
@@ -756,7 +699,7 @@ CMDB.Element.DestRelationForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										html : 'Relationships owned by the Environment CI'
+										html : this.information || 'Relationships owned by the CI'
 									}, grid ]
 						};
 
@@ -767,62 +710,24 @@ CMDB.Element.DestRelationForm = Ext
 
 					onRender : function() {
 						// Add Save subscription
-						this.RelationSaveSubscribeId = PageBus
-								.subscribe(
-										'CMDB.Relation.Save',
-										this,
-										function(subj, msg, data) {
-											if (msg.state == 'success') {
-												var record = this.Grid.store
-														.getById(CMDB.Badgerfish
-																.get(
-																		msg.relation,
-																		'Relation/id/$'));
-												if (record) {
-													this.Grid.store
-															.remove(record);
-												}
+						this.RelationSaveSubscribeId = PageBus.subscribe(
+								'CMDB.Relation.Save', this, function(subj, msg,
+										data) {
+									if (msg.state == 'success') {
+										var record = this.Grid.store
+												.getById(CMDB.Badgerfish.get(
+														msg.relation,
+														'Relation/id/$'));
+										if (record) {
+											this.Grid.store.remove(record);
+										}
 
-												var recordDef = Ext.data.Record
-														.create(this.fields);
+										record = this.recordCreator(
+												this.fields, msg.relation);
 
-												record = new recordDef(
-														{
-															'Id' : CMDB.Badgerfish
-																	.get(
-																			msg.relation,
-																			'Relation/id/$'),
-															'Type' : CMDB.Badgerfish
-																	.get(
-																			msg.relation,
-																			'Relation/type/name/$')
-																	.replace(
-																			/\{.*\}(.*)/,
-																			"$1"),
-															'DestName' : CMDB.Badgerfish
-																	.get(
-																			msg.relation,
-																			'Relation/destination/name/$'),
-															'DestType' : CMDB.Badgerfish
-																	.get(
-																			msg.relation,
-																			'Relation/destination/type/name/$')
-																	.replace(
-																			/\{.*\}(.*)/,
-																			"$1"),
-															'Relation' : CMDB.Badgerfish
-																	.get(
-																			msg.relation,
-																			'Relation')
-														},
-														CMDB.Badgerfish
-																.get(
-																		msg.relation,
-																		'Relation/id/$'));
-
-												this.Grid.store.add(record);
-											}
-										}, null);
+										this.Grid.store.add(record);
+									}
+								}, null);
 
 						// Add Delete subscription
 						this.RelationDeleteSubscribeId = PageBus
@@ -1061,6 +966,19 @@ CMDB.Element.DestRelationForm = Ext
 						}
 
 						return relationType;
+					},
+					
+					doOpen : function(grid, index) {
+						var record = grid.getStore().getAt(index);
+						var element = record.get("Destination");
+
+						win = this.desktop.createWindow({
+							element : {
+								'Element' : element
+							}
+						}, this.editor);
+
+						win.show();
 					}
 				});
 Ext.reg('destRelationForm', CMDB.Element.DestRelationForm);
@@ -2261,6 +2179,8 @@ CMDB.Element.Results = Ext
 						var element = record.get("Element");
 
 						win = this.desktop.createWindow({
+							desktop : this.desktop,
+							editor : this.editor,
 							element : {
 								'Element' : element
 							}
