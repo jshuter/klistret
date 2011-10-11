@@ -235,6 +235,121 @@ CMDB.Application.Edit = Ext
 									},
 									{
 										xtype : 'destRelationForm',
+										title : 'Software dependencies',
+										
+										desktop : this.desktop,
+										editor : CMDB.Software.Edit,
+
+										information : 'Dependencies to other software modules.',
+
+										fields : [
+												{
+													name : 'Id',
+													mapping : 'Relation/id/$'
+												},
+												{
+													name : 'Type',
+													mapping : 'Relation/type/name/$'
+												},
+												{
+													name : 'DestName',
+													mapping : 'Relation/destination/name/$'
+												},
+												{
+													name : 'DestType',
+													mapping : 'Relation/destination/type/name/$'
+												},
+												{
+													name : 'Created',
+													mapping : 'Relation/createTimeStamp/$'
+												},
+												{
+													name : 'Updated',
+													mapping : 'Relation/updateTimeStamp/$'
+												},
+												{
+													name : 'Relation',
+													mapping : 'Relation'
+												},
+												{
+													name : 'Label',
+													mapping : 'Relation/destination/configuration/Label/$'
+												},
+												{
+													name : 'Version',
+													mapping : 'Relation/destination/configuration/Version/$'
+												},
+												{
+													name : 'Organization',
+													mapping : 'Relation/destination/configuration/Organization/$'
+												} ],
+
+										columns : [ {
+											header : 'Organization',
+											width : 150,
+											sortable : true,
+											dataIndex : 'Organization'
+										}, {
+											header : 'Module',
+											width : 150,
+											sortable : true,
+											dataIndex : 'DestName'
+										}, {
+											header : 'Version',
+											width : 150,
+											sortable : true,
+											dataIndex : 'Version'
+										}, {
+											header : "Label",
+											width : 200,
+											sortable : true,
+											dataIndex : 'Label'
+										} ],
+
+										recordCreator : function(fields,
+												relation) {
+											var recordDef = Ext.data.Record
+													.create(fields);
+
+											var record = new recordDef(
+													{
+														'Id' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/id/$'),
+														'Type' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/type/name/$')
+																.replace(
+																		/\{.*\}(.*)/,
+																		"$1"),
+														'DestName' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/name/$'),
+														'DestType' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/type/name/$')
+																.replace(
+																		/\{.*\}(.*)/,
+																		"$1"),
+														'Relation' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation'),
+														'Label' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Label/$'),
+														'Version' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Version/$'),
+														'Organization' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination/configuration/Organization/$')
+													}, CMDB.Badgerfish.get(
+															relation,
+															'Relation/id/$'));
+
+											return record;
+										},
+
 										relations : [ {
 											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
 										} ]
