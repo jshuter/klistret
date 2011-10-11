@@ -67,7 +67,7 @@ public class IdentificationService {
 		configuration.setName("INF");
 		configuration.setVersion("0001_A01");
 		configuration.setOrganization("Försäkringskassan");
-		configuration.setLabel("INF_0001_A01");
+		//configuration.setLabel("INF_0001_A01");
 
 		element.setConfiguration(configuration);
 
