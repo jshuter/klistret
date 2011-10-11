@@ -378,7 +378,7 @@ public class RestEasyService {
 				response.getStatus());
 	}
 
-	@Test
+	
 	public void findRelations() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
