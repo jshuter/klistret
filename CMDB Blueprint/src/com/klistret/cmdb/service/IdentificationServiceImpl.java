@@ -55,6 +55,7 @@ import com.klistret.cmdb.utility.jaxb.CIBean;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class IdentificationServiceImpl implements IdentificationService {
@@ -103,7 +104,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 			+ "for $type at $typeIndex in (%s) "
 			+ "for $rule in /Blueprint/Identification[@Type eq $type]/CriterionRule "
 			+ "for $criterion in /Blueprint/Criterion[@Name = $rule/@Name] "
-			+ "order by $typeIndex, $rule/@Order empty least " 
+			+ "order by $typeIndex, $rule/@Order empty least "
 			+ "return $criterion";
 
 	/**
@@ -223,7 +224,11 @@ public class IdentificationServiceImpl implements IdentificationService {
 			for (String expression : criterion.getExpression()) {
 				PathExpression expr = new PathExpression(expression);
 
-				if (!expr.hasRoot()) {
+				/**
+				 * Relative path must have a root as the initial step
+				 */
+				if (!(expr.getRelativePath().hasRoot() && expr
+						.getRelativePath().getFirstExpr().getType() == Expr.Type.Root)) {
 					logger.debug("Criterion expression [{}] must have a root",
 							expr.getXPath());
 					throw new ApplicationException(String.format(
@@ -231,7 +236,10 @@ public class IdentificationServiceImpl implements IdentificationService {
 							expr.getXPath()));
 				}
 
-				if (expr.getDepth() == 1) {
+				/**
+				 * Depth must be greater than an initial step
+				 */
+				if (expr.getRelativePath().getDepth() == 1) {
 					logger.debug(
 							"Criterion expression [{}] must contain more than root",
 							expr.getXPath());
@@ -241,7 +249,10 @@ public class IdentificationServiceImpl implements IdentificationService {
 									expr.getXPath()));
 				}
 
-				Expr last = expr.getLastExpr();
+				/**
+				 * Last step must be an axis
+				 */
+				Expr last = expr.getRelativePath().getLastExpr();
 				if (!last.getType().equals(Expr.Type.Step)) {
 					logger.debug(
 							"Criterion expression [{}] must end in a step",
@@ -251,6 +262,9 @@ public class IdentificationServiceImpl implements IdentificationService {
 							expr.getXPath()));
 				}
 
+				/**
+				 * Last step may not have predicates
+				 */
 				if (((StepExpr) last).hasPredicates()) {
 					logger.debug(
 							"Criterion expression [{}] can not have a last step with predicates",
@@ -525,6 +539,10 @@ public class IdentificationServiceImpl implements IdentificationService {
 											xexpr, bean));
 						}
 
+						/**
+						 * Single or multiples values placed into a sequence for
+						 * general comparison
+						 */
 						String valueSequence = null;
 						for (ValueRepresentation valueRep : results) {
 							valueSequence = valueSequence == null ? String
@@ -533,11 +551,17 @@ public class IdentificationServiceImpl implements IdentificationService {
 											valueSequence,
 											valueRep.getStringValue());
 						}
+
+						/**
+						 * The raw XPath string plus the prolog up to the last
+						 * step is concatenated with the last step and the value
+						 * sequence as a predicate.
+						 */
+						Step step = (Step) expr.getRelativePath().getLastExpr();
 						String exprWithPredicate = String.format(
-								"%s[%s = (%s)]",
-								expr.substringXPath(expr.getDepth() - 2),
-								expr.getXPath(expr.getDepth() - 1),
-								valueSequence);
+								"%s %s[%s = (%s)]", expr.getProlog(),
+								expr.getRawXPath(0, step.getDepth() - 1),
+								step.getXPath(), valueSequence);
 						criterionWithPredicates.add(exprWithPredicate);
 					}
 
