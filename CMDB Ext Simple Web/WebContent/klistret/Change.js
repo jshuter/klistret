@@ -105,7 +105,8 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 																	'type/name/$')
 												};
 											}
-											// Removal logic erased (not sure why it existed?)
+											// Removal logic erased (not sure
+											// why it existed?)
 										},
 
 										// Unmarshall element value into the
@@ -296,7 +297,8 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 													'$' : record.get('Name')
 												};
 											}
-											// Removal logic erased (not sure why it existed?)
+											// Removal logic erased (not sure
+											// why it existed?)
 										},
 
 										// Unmarshall element value into the
@@ -304,11 +306,24 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 										unmarshall : function(element) {
 											var id = CMDB.Badgerfish
 													.get(element,
-															'Element/configuration/Software/Id/$'), data = {
+															'Element/configuration/Software/Id/$');
+
+											var data = {
 												'Id' : id,
+												'Name' : CMDB.Badgerfish.get(
+														element,
+														'Element/name/$'),
 												'Version' : CMDB.Badgerfish
 														.get(element,
-																'Element/configuration/Version/$')
+																'Element/configuration/Version/$'),
+												'Type' : CMDB.Badgerfish
+														.get(element,
+																'Element/configuration/Type/$'),
+												'Label' : CMDB.Badgerfish
+														.get(element,
+																'Element/configuration/Label/$'),
+												'Element' : CMDB.Badgerfish
+														.get(element, 'Element')
 											};
 
 											var record = new (this.store.reader).recordType(

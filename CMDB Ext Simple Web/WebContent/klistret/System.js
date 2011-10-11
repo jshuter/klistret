@@ -236,7 +236,7 @@ CMDB.Application.Edit = Ext
 									{
 										xtype : 'destRelationForm',
 										title : 'Software dependencies',
-										
+
 										desktop : this.desktop,
 										editor : CMDB.Software.Edit,
 
@@ -270,6 +270,10 @@ CMDB.Application.Edit = Ext
 												{
 													name : 'Relation',
 													mapping : 'Relation'
+												},
+												{
+													name : 'Destination',
+													mapping : 'Relation/destination'
 												},
 												{
 													name : 'Label',
@@ -334,6 +338,9 @@ CMDB.Application.Edit = Ext
 														'Relation' : CMDB.Badgerfish
 																.get(relation,
 																		'Relation'),
+														'Destination' : CMDB.Badgerfish
+																.get(relation,
+																		'Relation/destination'),
 														'Label' : CMDB.Badgerfish
 																.get(relation,
 																		'Relation/destination/configuration/Label/$'),
