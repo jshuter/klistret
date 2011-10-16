@@ -401,4 +401,22 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK,
 				response.getStatus());
 	}
+	
+	@Test
+	public void putElement2() throws URISyntaxException, UnsupportedEncodingException {
+		MockHttpRequest putRequest = MockHttpRequest.put("/resteasy/element");
+		MockHttpResponse putResponse = new MockHttpResponse();
+		
+		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"$\":\"http://www.klistret.com/cmdb/ci/pojo\",\"ns10\":\"http://www.klistret.com/cmdb/ci/element\",\"ns11\":\"http://www.klistret.com/cmdb/ci/element/system\",\"ns12\":\"http://www.klistret.com/cmdb/ci/element/system/computerSystem\",\"ns13\":\"http://www.klistret.com/cmdb/ci/relation\",\"ns2\":\"http://www.klistret.com/cmdb/ci/commons\",\"ns3\":\"http://www.klistret.com/cmdb/ci/element/context\",\"ns4\":\"http://www.klistret.com/cmdb/ci/element/context/lifecycle\",\"ns5\":\"http://www.klistret.com/cmdb/ci/element/process\",\"ns6\":\"http://www.klistret.com/cmdb/ci/element/process/change\",\"ns7\":\"http://www.klistret.com/cmdb/ci/element/service\",\"ns8\":\"http://www.klistret.com/cmdb/ci/element/component\",\"ns9\":\"http://www.klistret.com/cmdb/ci/element/component/software\"},\"createTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"id\":{\"$\":\"414385\"},\"name\":{\"$\":\"INF WLSSERVER\"},\"type\":{\"createTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"id\":{\"$\":\"87\"},\"name\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"},\"updateTimeStamp\":{\"$\":\"2011-09-22T10:48:41.639+02:00\"}},\"updateTimeStamp\":{\"$\":\"2011-10-13T10:00:09.099+02:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http://www.w3.org/2001/XMLSchema-instance\"},\"@xsi:type\":\"ns6:SoftwareInstallation\",\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:Tag\":[{\"$\":\"Script\"}],\"ns5:State\":\"Completed\",\"ns6:Environment\":{\"ns2:Id\":{\"$\":\"303330\"},\"ns2:Name\":{\"$\":\"Test\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/context}Environment\"}},\"ns6:Software\":{\"ns2:Id\":{\"$\":\"321889\"},\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/component}Software\"}},\"ns6:Type\":{\"$\":\"WLSSERVER\"},\"ns6:Label\":{\"$\":\"INF_0068_A01_UTSKRIFT_WLSSERVER.110412.tar\"},\"ns6:Version\":{\"$\":\"0068_A01\"}}}}";
+		
+		putRequest.contentType(MediaType.APPLICATION_JSON);
+		putRequest.content(requestBodyAsString.getBytes("UTF-8"));
+
+		dispatcher.invoke(putRequest, putResponse);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]",
+				putResponse.getStatus(), putResponse.getContentAsString()));
+
+		Assert.assertEquals(HttpResponseCodes.SC_OK, putResponse.getStatus());
+	}
 }
