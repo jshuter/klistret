@@ -877,11 +877,114 @@ CMDB.SoftwareInstallation.Search = Ext
 								width : 120,
 								sortable : true,
 								dataIndex : 'Updated'
+							} ],
+
+							bbarButtons : [ {
+								xtype : 'button',
+								ref : 'State',
+								text : 'State',
+								iconCls : 'acceptButton',
+								menu : {
+									items : [ {
+										text : 'Planned',
+										handler : this.doState
+									}, {
+										text : 'Failed',
+										handler : this.doState
+									}, {
+										text : 'Cancelled',
+										handler : this.doState
+									}, {
+										text : 'Waiting',
+										handler : this.doState
+									}, {
+										text : 'In Progress',
+										handler : this.doState
+									}, {
+										text : 'Completed',
+										handler : this.doState
+									} ]
+								}
 							} ]
 						}
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
 						CMDB.SoftwareInstallation.Search.superclass.initComponent
 								.apply(this, arguments);
+					},
+
+					doState : function(src) {
+						var records = this.Grid.getSelectionModel()
+								.getSelections();
+						this.State = src.text;
+
+						if (records.length > 0)
+							this.Grid.loadMask.show();
+
+						Ext
+								.each(
+										records,
+										function(record) {
+											var element = {
+												'Element' : record
+														.get('Element')
+											};
+
+											CMDB.Badgerfish
+													.set(
+															element,
+															"Element/configuration/State/$",
+															this.State);
+
+											Ext.Ajax
+													.request({
+														url : (CMDB.URL || '')
+																+ '/CMDB/resteasy/element',
+														method : 'PUT',
+
+														headers : {
+															'Accept' : 'application/json,application/xml,text/*',
+															'Content-Type' : 'application/json; charset=ISO-8859-1'
+														},
+
+														jsonData : Ext
+																.encode(element),
+														scope : this,
+
+														success : function(
+																result, request) {
+															this.element = Ext.util.JSON
+																	.decode(result.responseText);
+
+															PageBus
+																	.publish(
+																			'CMDB.Element.Save',
+																			{
+																				state : 'success',
+																				element : this.element
+																			});
+
+															var bbar = this.Grid
+																	.getBottomToolbar();
+															bbar.Status
+																	.setText('Update successful');
+
+															this.Grid.loadMask
+																	.hide();
+														},
+														failure : function(
+																result, request) {
+															var bbar = this.Grid
+																	.getBottomToolbar();
+															bbar.Status
+																	.setText('Failed updating.'
+																			+ (result.responseText ? result.responseText
+																					: ""));
+
+															this.Grid.loadMask
+																	.hide();
+														}
+													});
+										}, this);
 					}
 				});

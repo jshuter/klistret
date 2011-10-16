@@ -6,6 +6,10 @@
 	background-image: url(../images/deleteButton.gif) !important;
 }
 
+.acceptButton {
+	background-image: url(../images/acceptButton.png) !important;
+}
+
 .msg .x-box-mc {
     font-size:14px;
 }

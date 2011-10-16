@@ -684,7 +684,7 @@ CMDB.Element.DestRelationForm = Ext
 													.enable()
 													: this.Grid.disable();
 										}, this);
-						
+
 						grid.on('rowdblclick', this.doOpen, this);
 
 						var config = {
@@ -699,7 +699,8 @@ CMDB.Element.DestRelationForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										html : this.information || 'Relationships owned by the CI'
+										html : this.information
+												|| 'Relationships owned by the CI'
 									}, grid ]
 						};
 
@@ -967,7 +968,7 @@ CMDB.Element.DestRelationForm = Ext
 
 						return relationType;
 					},
-					
+
 					doOpen : function(grid, index) {
 						var record = grid.getStore().getAt(index);
 						var element = record.get("Destination");
@@ -1770,6 +1771,7 @@ CMDB.Element.Search = Ext
 							fields : this.fields,
 							columns : this.columns,
 							editor : this.editor,
+							bbarButtons : this.bbarButtons,
 							count : count,
 
 							title : 'Results - ' + this.title
@@ -1831,6 +1833,44 @@ CMDB.Element.Results = Ext
 					initComponent : function() {
 						var fields = this.fields || [];
 						var columns = this.columns || [];
+
+						var bbarItems = new Array();
+						bbarItems.push('-');
+
+						bbarItems.push({
+							xtype : 'button',
+							ref : 'Delete',
+							text : 'Delete',
+							iconCls : 'deleteButton',
+							handler : this.doDelete,
+							scope : this
+						});
+
+						if (this.bbarButtons) {
+							for ( var buttonIndex = 0; buttonIndex < this.bbarButtons.length; buttonIndex++) {
+								bbarItems.push('-');
+
+								var buttonConfig = this.bbarButtons[buttonIndex];
+								Ext.apply(buttonConfig, {
+									scope : this
+								});
+								if (buttonConfig.menu) {
+									for ( var menuIndex = 0; menuIndex < buttonConfig.menu.items.length; menuIndex++) {
+										Ext.apply(buttonConfig.menu.items[menuIndex],
+												{
+													scope : this
+												});
+									}
+								}
+								bbarItems.push(buttonConfig);
+							}
+						}
+
+						bbarItems.push('-');
+						bbarItems.push({
+							xtype : 'tbtext',
+							ref : 'Status'
+						});
 
 						var reader = new CMDB.JsonReader({
 							totalProperty : 'total',
@@ -2015,17 +2055,7 @@ CMDB.Element.Results = Ext
 															this, d);
 												},
 
-												items : [ '-', {
-													xtype : 'button',
-													ref : 'Delete',
-													text : 'Delete',
-													iconCls : 'deleteButton',
-													handler : this.doDelete,
-													scope : this
-												}, '-', {
-													xtype : 'tbtext',
-													ref : 'Status'
-												} ]
+												items : bbarItems
 											})
 								});
 
@@ -2116,7 +2146,8 @@ CMDB.Element.Results = Ext
 						var records = this.Grid.getSelectionModel()
 								.getSelections();
 
-						this.Grid.loadMask.show();
+						if (records.length > 0)
+							this.Grid.loadMask.show();
 
 						Ext
 								.each(
