@@ -141,3 +141,38 @@ Continuing on with the search explain from above we can update individual elemen
 }}}
 
 Remember that PUT in the world of [http://en.wikipedia.org/wiki/Create,_read,_update_and_delete CRUD] is an update.  Again here we specify that the content type sent to Klistret is JSON and we want to accept JSON as a return value.
+
+== Creating from thin air ==
+The creation of elements adds a level of difficultly.  First we have to get the element type we want to create because it is a required property for all elements:
+{{{
+  ##############################################################
+  # Element Type service
+  ##############################################################
+  my $elementTypeService = 'http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/elementType';
+
+  ##############################################################
+  # Query string and request
+  ##############################################################
+  my $elementTypeNameQuery = '?name=' . CGI::escape('{http://www.klistret.com/cmdb/ci/element/component}Software');
+
+  my $request = $elementTypeService . $elementTypeNameQuery;
+
+  
+  ##############################################################
+  # Call service
+  ##############################################################
+  my $response = HTTP::Tiny->new->request('GET', $request , {
+    'headers' => { 'Accept' => 'application/json' }
+  });
+
+
+  ##############################################################
+  # Decode
+  ##############################################################
+  my $json = new JSON;
+  my $payload = $json->utf8->canonical->decode($response->{content});
+
+  my $elementType = @{$payload}[0];
+}}}
+
+The payload contains a collection but the size should be one.
