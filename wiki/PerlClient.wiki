@@ -1,0 +1,25 @@
+#labels Phase-Support,Perl,Client
+Perl can be a simple language to execute HTTP calls and process JSON responses.
+
+= Introduction =
+The contents of this article is geared to users of Perl on Unix like systems but the gist regarding programming as a client work for Perl on Windows.
+
+= Perl Installation =
+[http://www.perl.org/get.html Download] Perl to a pack-up directory then following the steps below pointing the actual installation to another directory:
+{{{
+  cd <unpacking directory>
+  gunzip perl-<version>.tar.gz
+  tar xvf perl-<version>.tar
+  cd perl-<version>
+  export PATH=$PATH:/usr/ccs/bin
+  sh Configure -de -Dprefix='<installation directory' -Dcc=gcc
+  make
+  make install
+}}}
+
+== HTTP Tiny ==
+
+
+== JSON ==
+
+== CGI ==
