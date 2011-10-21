@@ -52,7 +52,10 @@ There is more information about how to formulate a XPath expression on the CI pa
   ##############################################################
   # URL to Element service
   ##############################################################
-  my $findService = 'http://<dns + port>/CMDB/resteasy/element?start=0&limit=20';
+  my $elementService = 'http://<dns + port>/CMDB/resteasy/element';
+
+  # Restrictions
+  my $restrictions = '?start=0&limit=20';
 
   # Expression clauses
   my $expressionClause = '&expressions=';
@@ -74,7 +77,7 @@ Transforming the sample expressions to a couple Perl scalars is pie outside of s
   ##############################################################
   # Complete request
   ##############################################################
-  my $request = $findService . $expressionClause . CGI::escape($typeAndActiveFilter) . $expressionClause . CGI::escape($moduleFilter) . $expressionClause . CGI::escape(versionFilter);
+  my $request = $elementService . $restrictions . $expressionClause . CGI::escape($typeAndActiveFilter) . $expressionClause . CGI::escape($moduleFilter) . $expressionClause . CGI::escape(versionFilter);
 }}}
 
 Now we have a request in the form of a REST URL.  Each filter is appended to the query string as the variable _expressions_.  Only the filter strings need to be escaped.  The next step is to use HTTP Tiny to fire off the request and process the results:
@@ -119,3 +122,22 @@ The JSON which Klistret recognizes is in the [http://www.sklar.com/badgerfish Ba
 }}}
 
 The *version* scalar now has the Version element's text.  Pretty easy.
+
+= Updating =
+Updating data is always simpler if we are dealing with data that has been pulled down from Klistret.
+
+== Existing data from collections ==
+Continuing on with the search explain from above we can update individual elements inside the for loop:
+{{{
+  $element->{Element}->{configuration}->{$component  . ':Version'}->{'$'} = "0068_A02";
+
+  $response = HTTP::Tiny->new->request('PUT', $elementService, {
+    content => $json->utf8->canonical->encode($element),
+    headers => {
+      'Content-Type' => 'application/json; charset=UTF-8',
+      'Accept'       => 'application/json'
+    }
+  });
+}}}
+
+Remember that PUT in the world of [http://en.wikipedia.org/wiki/Create,_read,_update_and_delete CRUD] is an update.  Again here we specify that the content type sent to Klistret is JSON and we want to accept JSON as a return value.
