@@ -76,3 +76,18 @@ Transforming the sample expressions to a couple Perl scalars is pie outside of s
   ##############################################################
   my $request = $findService . $expressionClause . CGI::escape($typeAndActiveFilter) . $expressionClause . CGI::escape($moduleFilter) . $expressionClause . CGI::escape(versionFilter);
 }}}
+
+Now we have a request in the form of a REST URL.  Each filter is appended to the query string as the variable _expressions_.  Only the filter strings need to be escaped.  The next step is to use HTTP Tiny to fire off the request and process the results:
+{{{
+  ##############################################################
+  # Do HTTP Get
+  ##############################################################
+  my $response = HTTP::Tiny->new->request('GET', $request , {
+    'headers' => { 'Accept' => 'application/json' }
+  });
+}}}
+
+The options of the Tiny request force Klistret to return JSON data.  The response has set of constructs that get hashed into the _response_ variable.  The *success* is a Boolean flagging a positive return or not.  *Content* is another keeper since it holds the actual data payload:
+{{{
+  
+}}} 
