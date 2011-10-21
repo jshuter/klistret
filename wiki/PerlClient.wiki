@@ -89,5 +89,33 @@ Now we have a request in the form of a REST URL.  Each filter is appended to the
 
 The options of the Tiny request force Klistret to return JSON data.  The response has set of constructs that get hashed into the _response_ variable.  The *success* is a Boolean flagging a positive return or not.  *Content* is another keeper since it holds the actual data payload:
 {{{
-  
-}}} 
+  die "Failed! Status: " . $response->{status} . ", Reason: " .  $response->{reason} . ", Content: " . $response->{content} . "\n" unless $response->{success};
+}}}
+
+The payload is now in the _content_ property of the _response_ via Tiny.  We need to translate this JSON data into a Perl scalar.  It is important to treat the payload a UTF-8 encoded:
+{{{
+  my $json = new JSON;
+  my $payload = $json->utf8->canonical->decode($response->{content});
+}}}
+
+Klistret will return a collection of elements so the best thing to do is loop through this data array (a deference is needed first):
+{{{
+  foreach my $element(@{$payload}){
+    ... do stuff ...
+  }
+}}}
+
+The JSON which Klistret recognizes is in the [http://www.sklar.com/badgerfish Badgerfish] syntax.  Namespaces inherent to XML to differentiate elements with the same local name are present and prefixes to node names occur.  These namespaces are defined to the xmlns attribute.  To traverse the Perl scalar (as a hash) we need to access the prefixes based on our knowledge of expected namespaces:
+{{{
+  ##############################################################
+  # Reverse the keys/values
+  ##############################################################
+  my $namespaces  = $element->{Element}->{'@xmlns'};
+  my %rnamespaces = reverse %$namespaces;
+
+  my $component = $rnamespaces{"http://www.klistret.com/cmdb/ci/element/component"};
+
+  my $version = $element->{Element}->{configuration}->{$component  . ':Version'}->{'$'};
+}}}
+
+The *version* scalar now has the Version element's text.  Pretty easy.
