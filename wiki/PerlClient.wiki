@@ -18,8 +18,24 @@ The contents of this article is geared to users of Perl on Unix like systems but
 }}}
 
 == HTTP Tiny ==
-
+Communication to Klistret goes through HTTP GET/PUT/POST/DELETE calls and an easy way is to use [http://www.dagolden.com/index.php/1212/why-httptiny HTTP Tiny].  Installing modules is easy if you have a Perl installation that can be modified (otherwise the "--prefix" argument is a must).  HTTP Tiny is included in at least Perl 5.14.
 
 == JSON ==
+A standard data format is JSON and one of the better modules is [https://metacpan.org/module/JSON JSON] which requires [https://metacpan.org/module/JSON::XS JSON-XS] and something called [https://metacpan.org/module/common::sense Common Sense].
 
 == CGI ==
+The last piece of the basic puzzle is [https://metacpan.org/module/CGI CGI] which is helpful for encoding URLs (especially query strings).  Escaping query strings is necessary.  A good online tool to check encoding is [http://coderstoolbox.net/string a String converter].
+
+= Finding stuff =
+Searching after CI in Klistret is a matter of filtering with XPath statements.  For example, the following series of XPath expressions will pull back software belongs to a particular module and version:
+{{{
+  1) declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq "{http://www.klistret.com/cmdb/ci/element/component}Software"]
+
+  2) declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[pojo:name = ("INF")]
+
+  3) declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration[component:Version eq "0068_A01"]
+}}}
+
+Every CI is either an Element or Relation class.  It is recommended that users try to return a specific type of CI which is what the first XPath expression does.  It specifies that the CI must be active [_toTimeStamp_ is null] and that the CI type is _Software_.  The module name is the same as the name property for Software as filtered in the second expression.  The last expression weans the search down to a version called 0068_A01.
+
+== Writing queries in Perl ==
