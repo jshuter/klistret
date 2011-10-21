@@ -39,3 +39,40 @@ Searching after CI in Klistret is a matter of filtering with XPath statements.  
 Every CI is either an Element or Relation class.  It is recommended that users try to return a specific type of CI which is what the first XPath expression does.  It specifies that the CI must be active [_toTimeStamp_ is null] and that the CI type is _Software_.  The module name is the same as the name property for Software as filtered in the second expression.  The last expression weans the search down to a version called 0068_A01.
 
 == Writing queries in Perl ==
+There is more information about how to formulate a XPath expression on the CI pages.  But what about writing a series of filters in Perl?  The first thing to do is setup the necessary modules and the URL to Klistret:
+{{{
+  use HTTP::Tiny;
+  use Encode;
+  use CGI;
+  use JSON;
+
+  use strict;
+  use warnings;
+
+  ##############################################################
+  # URL to Element service
+  ##############################################################
+  my $findService = 'http://<dns + port>/CMDB/resteasy/element?start=0&limit=20';
+
+  # Expression clauses
+  my $expressionClause = '&expressions=';
+}}}
+
+The *start* and *limit* variables in the query string tell Klistret to pull the very first database record up to 20 records thereafter.  So *limit* is the number of records to return while *start* is the starting record.
+
+Transforming the sample expressions to a couple Perl scalars is pie outside of setting a useful name:
+{{{
+  ##############################################################
+  # Filters
+  ##############################################################
+  my $typeAndActiveFilter = 'declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq "{http://www.klistret.com/cmdb/ci/element/component}Software"]';
+
+  my $moduleFilter = 'declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[pojo:name = ("INF")]';
+
+  my $versionFilter = 'declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration[component:Version eq "0068_A01"]';
+
+  ##############################################################
+  # Complete request
+  ##############################################################
+  my $request = $findService . $expressionClause . CGI::escape($typeAndActiveFilter) . $expressionClause . CGI::escape($moduleFilter) . $expressionClause . CGI::escape(versionFilter);
+}}}
