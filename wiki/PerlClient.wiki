@@ -175,4 +175,83 @@ The creation of elements adds a level of difficultly.  First we have to get the 
   my $elementType = @{$payload}[0];
 }}}
 
-The payload contains a collection but the size should be one.
+The payload contains a collection but the size should be one.  What remains now is to build a template for the new element.  This requires knowledge about the CI like what properties are necessary or optional:
+{{{
+  my $element {
+  'Element' => {
+    '@xmlns' => {
+      '$' => 'http://www.klistret.com/cmdb/ci/pojo',
+      'element' => 'http://www.klistret.com/cmdb/ci/element',
+      'component' => 'http://www.klistret.com/cmdb/ci/element/component',
+      'commons' => 'http://www.klistret.com/cmdb/ci/commons'
+    },
+
+    'name' => {
+      '$' => 'INF'
+    },
+
+    'type' => {
+      'id' => {
+        '$' => $elementType->{ElementType}->{id}->{'$'}
+      },
+
+      'name' => {
+        '$' => $elementType->{ElementType}->{name}->{'$'}
+      }
+    },
+
+    'fromTimeStamp' => {
+      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+    },
+
+    'createTimeStamp' => {
+      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+    },
+
+    'updateTimeStamp' => {
+      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+    },
+
+    'configuration' => {
+      '@xmlns' => {
+        'xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+      },
+
+      '@xsi:type' => 'component:Software',
+
+      'commons:Name' => {
+        '$' => 'INF'
+      },
+
+      'component:Label' => {
+        '$' => 'whatever is a INF'
+      },
+
+      'component:Organization' => {
+        '$' => 'my comp'
+      },
+
+      'component:Version' => {
+        '$' => '9999_B99'
+      },
+
+      'component:Type' => {
+        '$' => 'important'
+      }
+    }
+  }
+  };
+
+  ##############################################################
+  # Call service
+  ##############################################################
+  $response = HTTP::Tiny->new->request('POST', $elementService, {
+    content => $json->utf8->canonical->encode($element),
+    headers => {
+      'Content-Type' => 'application/json; charset=UTF-8',
+      'Accept'       => 'application/json'
+    }
+  });
+}}}
+
+A simple POST does the trick.  The response will carry the created element (with a generated id).
