@@ -52,7 +52,7 @@ There is more information about how to formulate a XPath expression on the CI pa
   ##############################################################
   # URL to Element service
   ##############################################################
-  my $elementService = 'http://<dns + port>/CMDB/resteasy/element';
+  my $elementService = 'http://<address>:<port>/CMDB/resteasy/element';
 
   # Restrictions
   my $restrictions = '?start=0&limit=20';
@@ -148,7 +148,7 @@ The creation of elements adds a level of difficultly.  First we have to get the 
   ##############################################################
   # Element Type service
   ##############################################################
-  my $elementTypeService = 'http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/elementType';
+  my $elementTypeService = 'http://<address>:<port>/CMDB/resteasy/elementType';
 
   ##############################################################
   # Query string and request
@@ -254,4 +254,29 @@ The payload contains a collection but the size should be one.  What remains now 
   });
 }}}
 
-A simple POST does the trick.  The response will carry the created element (with a generated id).
+A simple POST does the trick.  The response will carry the created element (with a generated id).  Every time an element is created the above template will be reused (since the underlying placeholder for Element POJOs is a table with an XML column).  The differences lye in the *configuration* property where the CI metadata is actually stored.
+
+== Identify ==
+One gotcha is it is easy to create identical CI objects more than once.  If we where to run the Perl script above that creates a software CI twice we would get 2 identical elements but with different unique ids.  To avoid multiple instances of what the user defines as unique the *identification* service should be used prior to creation or update:
+{{{
+  my $identificationService = 'http://<address>:<port>/CMDB/resteasy/identification';
+
+  ##############################################################
+  # Call service
+  ##############################################################
+  $response = HTTP::Tiny->new->request('POST', $identificationService , {
+    content => $json->utf8->canonical->encode($element),
+    headers => {
+      'Content-Type' => 'application/json; charset=UTF-8',
+      'Accept'       => 'application/json'
+    }
+  });
+
+  ##############################################################
+  # Decode
+  ##############################################################
+  my $json = new JSON;
+  my $count = $json->utf8->canonical->decode($response->{content});
+}}}
+
+A count of zero means the element posted is unique.  On the backend a series of identification rules are subjected to the element and a count of similar elements is returned.
