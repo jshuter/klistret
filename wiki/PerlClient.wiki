@@ -26,6 +26,9 @@ A standard data format is JSON and one of the better modules is [https://metacpa
 == CGI ==
 The last piece of the basic puzzle is [https://metacpan.org/module/CGI CGI] which is helpful for encoding URLs (especially query strings).  Escaping query strings is necessary.  A good online tool to check encoding is [http://coderstoolbox.net/string a String converter].
 
+== Date ==
+A good [http://search.cpan.org/~gbarr/TimeDate-1.20/lib/Date/Format.pm date formatting] extension is helpful when creating elements.
+
 = Finding stuff =
 Searching after CI in Klistret is a matter of filtering with XPath statements.  For example, the following series of XPath expressions will pull back software belongs to a particular module and version:
 {{{
@@ -45,6 +48,7 @@ There is more information about how to formulate a XPath expression on the CI pa
   use Encode;
   use CGI;
   use JSON;
+  use Date::Format;
 
   use strict;
   use warnings;
@@ -201,15 +205,15 @@ The payload contains a collection but the size should be one.  What remains now 
     },
 
     'fromTimeStamp' => {
-      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+      '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
     },
 
     'createTimeStamp' => {
-      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+      '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
     },
 
     'updateTimeStamp' => {
-      '$' => $elementType->{ElementType}->{fromTimeStamp}->{'$'}
+      '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
     },
 
     'configuration' => {
