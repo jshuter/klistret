@@ -1,0 +1,12 @@
+Software is a central player for inventory both for what an organization consumes from other organizations och what produces itself.
+
+== Description ==
+The [http://www.wbemsolutions.com/tutorials/CIM/cim-model-app.html DMTF] model for software isn't as straightforward as [http://ant.apache.org/ivy Ivy] terminology and unfortunately mixes in services (in terms of features) too early.  Ivy is great for looking at software as inventory and dependencies between software.   
+
+=== Specific ===
+
+== Usage ==
+
+== Relations ==
+
+== Blueprint ==
