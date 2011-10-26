@@ -347,3 +347,13 @@ Be care with relations since no identification services presently exists.  A goo
 }}}
 
 The majority of relationships are dependencies, compositions or associations.
+
+= Getting rid of data =
+All of the CRUD services are present including delete.  Nothing ever gets totally deleted in Klistret rather tombstone in the form of the current time is placed on the element or relation.  For example, to delete an element the only the element ID is required:
+{{{
+  my elementId = <id from element>;
+
+  $response = HTTP::Tiny->new->request('DELETE', $elementService . '/' . $elementId , {
+    'headers' => { 'Accept' => 'application/json' }
+  });
+}}} 
