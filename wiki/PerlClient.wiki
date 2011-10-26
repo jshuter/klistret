@@ -338,7 +338,7 @@ Be care with relations since no identification services presently exists.  A goo
           'xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
         },
 
-        '@xsi:type' => 'relation:<relation type name>',
+        '@xsi:type' => 'relation:<relation type name, only the local part like Dependency>',
 
         'commons:name' => <something>
       }
