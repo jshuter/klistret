@@ -284,3 +284,66 @@ One gotcha is it is easy to create identical CI objects more than once.  If we w
 }}}
 
 A count of zero means the element posted is unique.  On the backend a series of identification rules are subjected to the element and a count of similar elements is returned.
+
+= Relating stuff =
+Beyond messing around with CI elements it is useful to have relationships between elements.  All of the REST services for elements except identification are exactly the same.  The only difference is that Relation POJOs are passed to a different path:
+{{{
+  'http://<address>:<port>/CMDB/resteasy/relation'
+}}}
+
+Relationships have types and the address to these is:
+{{{
+  'http://<address>:<port>/CMDB/resteasy/relationType'
+}}}
+
+== Establishing a relation ==
+Be care with relations since no identification services presently exists.  A good rule of thumb is to find similar relations with XPath filters prior to creating new ones.  Creating relations mirrors what we did with elements.  First we make a template and populate that template often only with source and destination information.  For example a standard Relation template looks like:
+{{{
+  my $relation = {
+    'Relation' => {
+      '@xmlns' => {
+        'relation' => 'http://www.klistret.com/cmdb/ci/relation',
+        'commons' => 'http://www.klistret.com/cmdb/ci/commons',
+        '$' => 'http://www.klistret.com/cmdb/ci/pojo'
+      },
+
+      'type' => {
+        'id' => {
+          '$' => <!-- Already got the relation type id? -->
+        },
+
+        'name' => {
+          '$' => <!-- Already got the relation type name? -->
+        }
+      },
+
+      'source' => <!-- Already got the source element? -->,
+
+      'destination' => <!-- Already got the destination element? -->,
+
+      'fromTimeStamp' => {
+        '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
+      },
+
+      'createTimeStamp' => {
+        '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
+      },
+
+      'updateTimeStamp' => {
+        '$' => time2str("%Y-%m-%dT%H:%M:%S.000+02:00", time)
+      },
+
+      'configuration' => {
+        '@xmlns' => {
+          'xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+        },
+
+        '@xsi:type' => 'relation:<relation type name>',
+
+        'commons:name' => <something>
+      }
+    }
+  };
+}}}
+
+The majority of relationships are dependencies, compositions or associations.
