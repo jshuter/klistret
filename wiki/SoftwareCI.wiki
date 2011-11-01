@@ -6,9 +6,15 @@ of software keeps itself inside the conceptual boundaries of inventory.  The [ht
 
 Ivy talks about modules rather than using the word _software_.  Software is more inline with CMDB terminology.  Modules and software are logically equivalent.  Regardless if software is open source or commercial there is an organization which produces the software.  The identification of software as a module normally consists of an organization, a module name, a version and potentially an organizational type.
 
-Modules are stuff that is deliverable.  Modules can have intertwined dependencies to each other.  Ivy terms modules as _reusable unit of software_ that _follows a revision control scheme_.  There is no talk about packaging software according to function.  The birth and growth of modules depends more on how the software is developed not how it is used.  This is why a module is not the actual object being delivered rather a logical container that may house no so called artifacts (later called publications) but only dependencies to other modules or many artifacts with no dependencies.  There is enormous flexibility.
+Modules are stuff that is deliverable.  Modules can have intertwined dependencies to each other.  Ivy terms modules as _reusable unit of software_ that _follows a revision control scheme_.  There is no talk about packaging software according to function.  The birth and growth of modules depends more on how the software is developed not how it is used.  This is why a module is not the actual object being delivered rather a logical container that may house no so called artifacts (later called publications) but only dependencies to other modules or many artifacts with no dependencies.  There is enormous flexibility.  It is possible to define an application software (take Microsoft Office) as a module with artifacts just dependencies (to Microsoft Word or Powerpoint ).
+
+Ivy doesn't ignore totally how software is used.  The whole concept of module configurations is paramount when testing software or running it in a development container or packaging it for production.  Module configurations live in the definition of dependencies and in Klistret inside relations.  Configurations aid in filtering module hierarchies often during the installation and configuration of software in a targeted system. 
 
 === Specific ===
+So how do modules as software get defined in Klistert?
+
+|| *Property* || *Description* || *Required* ||
+|| Organization || There is always a producer behind software. || Yes ||
 
 == Usage ==
 
