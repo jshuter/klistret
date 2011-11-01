@@ -1,7 +1,10 @@
 Software is a central player for inventory both for what an organization consumes from other organizations och what produces itself.
 
 == Description ==
-The [http://www.wbemsolutions.com/tutorials/CIM/cim-model-app.html DMTF] model for software isn't as straightforward as [http://ant.apache.org/ivy Ivy] terminology and unfortunately mixes in services (in terms of features) too early.  Ivy is great for looking at software as inventory and dependencies between software.   
+Components are inventory.  Software being a component derivative is also inventory.  To limit confusion it is important that the initial definition 
+of software keeps itself inside the conceptual boundaries of inventory.  The [http://www.dmtf.org/standards/cim DMTF CIM] has no obvious schema for software despite it being the first thing organizations either produce or allocate.  The [http://www.wbemsolutions.com/tutorials/CIM/cim-model-app.html DMTF Application] encapsulates the general concepts of software by looking at it from the angle of systems that need features and functionality.  All of sudden the basic need for modeling inventory explodes into a bear hug around services and systems.  [http://ant.apache.org/ivy Ivy] (similarly Maven underneath the monolith of project theory) has a simpler approach.  There is nothing within the Ivy documentation which compares Ivy as a dependency manager and modelling software as a CI.  However, Ivy like Maven unknowingly is a modern representation of software as inventory.
+
+
 
 === Specific ===
 
