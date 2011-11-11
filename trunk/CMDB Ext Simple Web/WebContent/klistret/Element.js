@@ -971,13 +971,16 @@ CMDB.Element.DestRelationForm = Ext
 
 					doOpen : function(grid, index) {
 						var record = grid.getStore().getAt(index);
-						var element = record.get("Destination");
+						var destination = record.get("Destination");
+
+						destination['@xmlns'] = CMDB.Badgerfish.get(record
+								.get("Relation"), '@xmlns');
 
 						win = this.desktop.createWindow({
 							desktop : this.desktop,
 							editor : this.editor,
 							element : {
-								'Element' : element
+								'Element' : destination
 							}
 						}, this.editor);
 
@@ -1856,10 +1859,12 @@ CMDB.Element.Results = Ext
 								});
 								if (buttonConfig.menu) {
 									for ( var menuIndex = 0; menuIndex < buttonConfig.menu.items.length; menuIndex++) {
-										Ext.apply(buttonConfig.menu.items[menuIndex],
-												{
-													scope : this
-												});
+										Ext
+												.apply(
+														buttonConfig.menu.items[menuIndex],
+														{
+															scope : this
+														});
 									}
 								}
 								bbarItems.push(buttonConfig);
@@ -2621,7 +2626,8 @@ CMDB.SoftwareStore = Ext
 							mapping : 'Element/name/$'
 						}, {
 							name : 'Created',
-							mapping : 'Element/createTimeStamp/$'
+							mapping : 'Element/createTimeStamp/$',
+							type : 'date'
 						}, {
 							name : 'Version',
 							mapping : 'Element/configuration/Version/$'
