@@ -254,8 +254,8 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 
 												var record = this
 														.getStore()
-														.getById(
-																this.getValue());
+														.getAt(
+																this.selectedIndex);
 
 												element['Element']['configuration'][change
 														+ ':Software'] = {};
@@ -462,6 +462,38 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 												bs.addItem(newObj);
 											}
 										}
+									},
+									{
+										xtype : 'textarea',
+										elementdata : true,
+										fieldLabel : 'Description',
+										height : 50,
+										blankText : 'Description of the Environment',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (this.getValue()) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons');
+												element['Element']['configuration'][commons
+														+ ':Description'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Description');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Description/$');
+											this.setValue(value);
+										}
 									} ]
 						};
 
@@ -632,7 +664,7 @@ CMDB.SoftwareInstallation.Search = Ext
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Module',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Software[commons:Name = {0}]',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Software[commons:Name = {0}]',
 																		store : new CMDB.ModuleStore,
 																		queryParam : 'expressions',
 																		displayField : 'Name',
@@ -826,6 +858,10 @@ CMDB.SoftwareInstallation.Search = Ext
 															});
 											return formated;
 										}
+									},
+									{
+										name : 'Description',
+										mapping : 'Element/configuration/Description/$'
 									}, {
 										name : 'Created',
 										mapping : 'Element/createTimeStamp/$'
@@ -867,6 +903,11 @@ CMDB.SoftwareInstallation.Search = Ext
 								width : 120,
 								sortable : true,
 								dataIndex : 'Tag'
+							}, {
+								header : "Description",
+								width : 200,
+								sortable : true,
+								dataIndex : 'Description'
 							}, {
 								header : "Created",
 								width : 120,
