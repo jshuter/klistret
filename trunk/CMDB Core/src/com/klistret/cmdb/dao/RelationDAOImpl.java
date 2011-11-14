@@ -91,8 +91,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				Relation relation = new Relation();
 				relation.setId((Long) row[0]);
 				relation.setType((RelationType) row[1]);
-				relation.setSource(clean((Element) row[2]));
-				relation.setDestination(clean((Element) row[3]));
+				relation.setSource((Element) row[2]);
+				relation.setDestination((Element) row[3]);
 				relation.setFromTimeStamp((Date) row[4]);
 				relation.setToTimeStamp((Date) row[5]);
 				relation.setCreateId((String) row[6]);
@@ -127,7 +127,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			Relation relation = (Relation) criteria.uniqueResult();
 
-			return relation == null ? null : clean(relation);
+			return relation == null ? null : relation;
 		} catch (NonUniqueResultException e) {
 			throw new ApplicationException(String.format(
 					"Expressions criteria was not unique: %s", e.getMessage()));
@@ -177,7 +177,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						"Relation [id: %s] not found", id),
 						new NoSuchElementException());
 
-			return clean(relation);
+			return relation;
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
@@ -218,7 +218,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		logger.info("Save/update relation [id: {}]", relation.getId());
 
-		return clean(relation);
+		return relation;
 	}
 
 	/**
@@ -251,7 +251,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		}
 
 		logger.info("Deleted relation [id: {}]", relation.getId());
-		return clean(relation);
+		return relation;
 	}
 
 	/**
@@ -269,35 +269,5 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		logger.info("Deleted {} relations to element [id: {}]", count, id);
 
 		return count;
-	}
-
-	private Relation clean(Relation other) {
-		other.setSource(clean(other.getSource()));
-		other.setDestination(clean(other.getDestination()));
-		return other;
-	}
-
-	/**
-	 * Necessary to eliminate relation associations which only available to
-	 * query through relationships
-	 * 
-	 * @param other
-	 * @return
-	 */
-	private Element clean(Element other) {
-		Element element = new Element();
-		element.setId(other.getId());
-		element.setType(other.getType());
-		element.setName(other.getName());
-		element.setFromTimeStamp(other.getFromTimeStamp());
-		element.setToTimeStamp(other.getToTimeStamp());
-		element.setCreateId(other.getCreateId());
-		element.setCreateTimeStamp(other.getCreateTimeStamp());
-		element.setUpdateTimeStamp(other.getUpdateTimeStamp());
-		element.setConfiguration(other.getConfiguration());
-
-		other = null;
-
-		return element;
 	}
 }
