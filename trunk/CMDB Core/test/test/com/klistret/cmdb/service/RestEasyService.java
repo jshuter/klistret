@@ -299,7 +299,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	
+	@Test
 	public void countElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -309,7 +309,7 @@ public class RestEasyService {
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
+								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
@@ -333,7 +333,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-
+	
 	public void findElementExpect200() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -402,7 +402,7 @@ public class RestEasyService {
 				response.getStatus());
 	}
 	
-	@Test
+	
 	public void putElement2() throws URISyntaxException, UnsupportedEncodingException {
 		MockHttpRequest putRequest = MockHttpRequest.put("/resteasy/element");
 		MockHttpResponse putResponse = new MockHttpResponse();

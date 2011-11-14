@@ -27,7 +27,7 @@
 	</bean>
 
 	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 
 		<property name="hibernateProperties">
@@ -59,20 +59,20 @@
 			</props>
 		</property>
 
-		<property name="mappingResources">
+		<property name="annotatedClasses">
 			<list>
 				<value>
-					com/klistret/cmdb/pojo/Element.hbm.xml
-					</value>
+					com.klistret.cmdb.ci.pojo.Element
+				</value>
 				<value>
-					com/klistret/cmdb/pojo/ElementType.hbm.xml
-					</value>
+					com.klistret.cmdb.ci.pojo.ElementType
+				</value>
 				<value>
-					com/klistret/cmdb/pojo/Relation.hbm.xml
-					</value>
+					com.klistret.cmdb.ci.pojo.Relation
+				</value>
 				<value>
-					com/klistret/cmdb/pojo/RelationType.hbm.xml
-					</value>
+					com.klistret.cmdb.ci.pojo.RelationType
+				</value>
 			</list>
 		</property>
 	</bean>

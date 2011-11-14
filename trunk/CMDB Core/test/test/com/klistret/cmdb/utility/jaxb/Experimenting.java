@@ -28,8 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.w3c.dom.ls.LSInput;
@@ -53,23 +51,6 @@ public class Experimenting {
 
 	}
 
-	// @Test
-	public void reflections() {
-		Reflections reflections = new Reflections(new ConfigurationBuilder()
-				.setUrls(ClasspathHelper.getUrlsForCurrentClasspath())
-				.setScanners(new TypeAnnotationsScanner(),
-						new SubTypesScanner()));
-
-		Set<Class<?>> entries = reflections
-				.getTypesAnnotatedWith(com.klistret.cmdb.annotations.ci.Relation.class);
-
-		if (entries != null) {
-			System.out.println(String
-					.format("Found %d entries", entries.size()));
-			for (Class<?> entry : entries)
-				System.out.println(entry.getName());
-		}
-	}
 
 	// @Test
 	public void findSchemas() {

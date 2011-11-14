@@ -55,7 +55,7 @@
 
 		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, 
 			jta, javaassist -->
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.4.Final"
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.7.Final"
 			conf="compile->runtime,master,optional">
 			<exclude module="xml-apis" />
 			<exclude module="slf4j-api" />
