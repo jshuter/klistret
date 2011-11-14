@@ -17,6 +17,9 @@
 	xmlns:element="http://www.klistret.com/cmdb/ci/element"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="annox" xmlns:annox="http://annox.dev.java.net"
+	xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
@@ -28,6 +31,11 @@
 	<!-- start of BusinessService -->
 	<xs:complexType name="BusinessService">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="BusinessService" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -43,6 +51,11 @@
 	<!-- start of TechnicalService -->
 	<xs:complexType name="TechnicalService">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="TechnicalService" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>

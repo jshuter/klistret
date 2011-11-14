@@ -17,6 +17,9 @@
 	xmlns:system="http://www.klistret.com/cmdb/ci/element/system"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="annox" xmlns:annox="http://annox.dev.java.net"
+	xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
@@ -37,6 +40,11 @@
 	
 	<xs:complexType name="VirtualSystem">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="VirtualSystem" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>

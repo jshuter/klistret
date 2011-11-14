@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/context"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/context"
-	xmlns:element="http://www.klistret.com/cmdb/ci/element"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:element="http://www.klistret.com/cmdb/ci/element" xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="annox"
+	xmlns:annox="http://annox.dev.java.net" xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
@@ -28,8 +24,14 @@
 	<!-- start of Organization -->
 	<xs:complexType name="Organization">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Organization" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>
-				An organisation is either a company, an individual, or
+				An organisation is either a company, an individual,
+				or
 				simply any group of people that produces software.
 			</xs:documentation>
 		</xs:annotation>
@@ -46,8 +48,14 @@
 	<!-- start of Module -->
 	<xs:complexType name="Module">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Module" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>
-				A module is a self-contained, reusable unit of software
+				A module is a self-contained, reusable unit of
+				software
 				that, as a whole unit, follows a revision control
 				scheme.
 			</xs:documentation>
@@ -80,6 +88,11 @@
 	<!-- start of Timeframe -->
 	<xs:complexType name="Timeframe">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Timeframe" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>
 				Long and short term time frames to represent
 				organizational milestones.
@@ -98,19 +111,31 @@
 	<!-- start of Environment -->
 	<xs:complexType name="Environment">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Environment" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>
 				An environment could be a system related to other
 				systems rather than a context for systems. ITIL is
-				geared towards production and seldom encapsulates other
-				environments (i.e. variations of test, higher levels of
-				development, sand boxes/POC instanses or clouds). DMTF
-				standards do not provide an environment CI. Systems
+				geared towards
+				production and seldom encapsulates other
+				environments (i.e.
+				variations of test, higher levels of
+				development, sand boxes/POC
+				instanses or clouds). DMTF
+				standards do not provide an environment
+				CI. Systems
 				always operate inside one or more contexts. A general
 				nomenclature for this context is an environment.
 
-				Environments are good candidates for aiming changes
-				against. Installations processes often lack the
-				granularity to direct changes to specific system and it
+				Environments are
+				good candidates for aiming changes
+				against. Installations processes
+				often lack the
+				granularity to direct changes to specific system and
+				it
 				is easier to formulate an RFC to act on an environment.
 			</xs:documentation>
 		</xs:annotation>
@@ -124,16 +149,17 @@
 
 
 
-	<!-- start of Organization Software Type -->
-	<xs:complexType name="OrganizationSoftwareType">
+	<!-- start of PublicationType -->
+	<xs:complexType name="PublicationType">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="PublicationType" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>
-				An organization may denote software with a private type
-				system. For example, some software may be a tar archive
-				for database scripts and hence typed as DBSCRIPT.
-				Currently, support only for one private type but there
-				is no logical limit rather practical coding that needs
-				to be redone.
+				The publication type describe the function of the
+				publication or why it is provided.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -141,8 +167,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="OrganizationSoftwareType"
-		type="OrganizationSoftwareType">
+	<xs:element name="PublicationType" type="PublicationType">
 	</xs:element>
-	<!-- end of Organization Software Type -->
+	<!-- end of PublicationType -->
 </xs:schema>

@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	This file is part of Klistret. Klistret is free software: you can
-	redistribute it and/or modify it under the terms of the GNU General
-	Public License as published by the Free Software Foundation, either
-	version 3 of the License, or (at your option) any later version.
-	
-	Klistret is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-	General Public License for more details. You should have received a
-	copy of the GNU General Public License along with Klistret. If not,
-	see <http://www.gnu.org/licenses/>
--->
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/pojo"
-	targetNamespace="http://www.klistret.com/cmdb/ci/pojo"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	elementFormDefault="qualified"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:codeInjector="http://jaxb.dev.java.net/plugin/code-injector"
-	xmlns:ci="http://www.klistret.com/xjc/plugin/ci" jaxb:version="2.0"
-	jaxb:extensionBindingPrefixes="codeInjector ci">
+	targetNamespace="http://www.klistret.com/cmdb/ci/pojo" xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="annox ci"
+	xmlns:annox="http://annox.dev.java.net" xmlns:ci="http://jaxb.dev.java.net/plugin/code-injector"
+	xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
+	xmlns:jxp="http://annox.dev.java.net/javax.persistence" xmlns:ha="http://annox.dev.java.net/org.hibernate.annotations"
+	xmlns:ka="http://annox.dev.java.net/com.klistret.cmdb.annotations.ci"
+	elementFormDefault="qualified">
+
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="commons.cmdb.xsd" />
+
 	<xs:simpleType name="id">
 		<xs:annotation>
 			<xs:documentation>
@@ -31,12 +28,14 @@
 		</xs:annotation>
 		<xs:restriction base="xs:long" />
 	</xs:simpleType>
+
 	<xs:simpleType name="name">
 		<xs:annotation>
 			<xs:documentation>Object name</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
+
 	<xs:simpleType name="fromTimeStamp">
 		<xs:annotation>
 			<xs:documentation>
@@ -45,6 +44,7 @@
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
 	</xs:simpleType>
+
 	<xs:simpleType name="toTimeStamp">
 		<xs:annotation>
 			<xs:documentation>
@@ -53,12 +53,14 @@
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
 	</xs:simpleType>
+
 	<xs:simpleType name="createId">
 		<xs:annotation>
 			<xs:documentation>Creation ID</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
+
 	<xs:simpleType name="createTimeStamp">
 		<xs:annotation>
 			<xs:documentation>
@@ -67,6 +69,7 @@
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
 	</xs:simpleType>
+
 	<xs:simpleType name="updateTimeStamp">
 		<xs:annotation>
 			<xs:documentation>
@@ -75,25 +78,17 @@
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
 	</xs:simpleType>
-	<xs:complexType name="Base" abstract="true">
-		<xs:sequence>
-			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1" />
-			<xs:element name="fromTimeStamp" type="fromTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="toTimeStamp" type="toTimeStamp"
-				maxOccurs="1" minOccurs="0" />
-			<xs:element name="createId" type="createId" maxOccurs="1"
-				minOccurs="0" />
-			<xs:element name="createTimeStamp" type="createTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-			<xs:element name="updateTimeStamp" type="updateTimeStamp"
-				maxOccurs="1" minOccurs="1" />
-		</xs:sequence>
-	</xs:complexType>
+
+
 	<xs:complexType name="Element">
 		<xs:annotation>
 			<xs:appinfo>
-				<codeInjector:code><![CDATA[
+				<annox:annotate>
+					<jxba:XmlRootElement name="Element" />
+					<jxp:Entity />
+					<jxp:Table name="ELEMENT" />
+				</annox:annotate>
+				<ci:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -117,31 +112,148 @@
         				}
     				}
 					]]>
-				</codeInjector:code>
-				<ci:Proxy />
+				</ci:code>
 			</xs:appinfo>
 		</xs:annotation>
-		<xs:complexContent>
-			<xs:extension base="Base">
-				<xs:sequence>
-					<xs:element name="name" type="name" maxOccurs="1"
-						minOccurs="1" />
-					<xs:element name="type" type="ElementType"
-						maxOccurs="1" minOccurs="1" />
-					<xs:element name="configuration"
-						type="commons:Element" maxOccurs="1" minOccurs="1" />
-					<xs:element name="sourceRelations" type="Relation"
-						maxOccurs="unbounded" minOccurs="0" />
-					<xs:element name="destinationRelations"
-						type="Relation" maxOccurs="unbounded" minOccurs="0" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
+		<xs:sequence>
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Id />
+							<jxp:GeneratedValue strategy="IDENTITY" />
+							<jxp:Column name="ELEMENTID" columnDefinition="INTEGER" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="name" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="NAME" length="100" nullable="false" />
+							<ha:Index name="ELEMENT_SK" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="ElementType" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.EAGER on ManyToOne is the same as lazy=false -->
+						<annox:annotate target="field">
+							<jxp:ManyToOne fetch="EAGER" />
+							<jxp:JoinColumn name="ELEMENTTYPEID"
+								columnDefinition="INTEGER" nullable="false" />
+							<ha:Index name="ELEMENT_FK ELEMENT_SK" />
+							<ha:ForeignKey name="FK_TYPE_ELEMENT" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fromTimeStamp" type="fromTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="FROMTIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="toTimeStamp" type="toTimeStamp"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="TOTIMESTAMP" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createId" type="createId" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATEID" length="10" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createTimeStamp" type="createTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="updateTimeStamp" type="updateTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="UPDATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="configuration" type="commons:Element"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<ha:Type type="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
+							<jxp:Column name="CONFIGURATION" columnDefinition="XML"
+								nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sourceRelations" type="Relation"
+				maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.LAZY is the same as lazy=true and mappedBy is equivalent 
+							to inverse=true -->
+						<annox:annotate target="field">
+							<jxp:OneToMany mappedBy="source" fetch="LAZY" />
+							<ha:OnDelete action="NO_ACTION" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="destinationRelations" type="Relation"
+				maxOccurs="unbounded" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.LAZY is the same as lazy=true and mappedBy is equivalent 
+							to inverse=true -->
+						<annox:annotate target="field">
+							<jxp:OneToMany mappedBy="destination" fetch="LAZY" />
+							<ha:OnDelete action="NO_ACTION" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
 	</xs:complexType>
+
+
 	<xs:complexType name="Relation">
 		<xs:annotation>
 			<xs:appinfo>
-				<codeInjector:code><![CDATA[
+				<annox:annotate>
+					<jxba:XmlRootElement name="Relation" />
+					<jxp:Entity />
+					<jxp:Table name="RELATION" />
+				</annox:annotate>
+				<ci:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -165,30 +277,142 @@
         				}
     				}
 					]]>
-				</codeInjector:code>
-				<ci:Proxy />
+				</ci:code>
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:complexContent>
-			<xs:extension base="Base">
-				<xs:sequence>
-					<xs:element name="type" type="RelationType"
-						maxOccurs="1" minOccurs="1" />
-					<xs:element name="source" type="Element"
-						maxOccurs="1" minOccurs="1" />
-					<xs:element name="destination" type="Element"
-						maxOccurs="1" minOccurs="1" />
-					<xs:element name="configuration"
-						type="commons:Relation" maxOccurs="1" minOccurs="1" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
+		<xs:sequence>
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Id />
+							<jxp:GeneratedValue strategy="IDENTITY" />
+							<jxp:Column name="RELATIONID" columnDefinition="INTEGER" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="RelationType" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.EAGER on ManyToOne is the same as lazy=false -->
+						<annox:annotate target="field">
+							<jxp:ManyToOne fetch="EAGER" />
+							<jxp:JoinColumn name="RELATIONTYPEID"
+								columnDefinition="INTEGER" nullable="false" />
+							<ha:Index name="RELATION_FK RELATION_SK" />
+							<ha:ForeignKey name="FK_TYPE_REL" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fromTimeStamp" type="fromTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="FROMTIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="toTimeStamp" type="toTimeStamp"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="TOTIMESTAMP" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createId" type="createId" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATEID" length="10" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createTimeStamp" type="createTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="updateTimeStamp" type="updateTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="UPDATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="source" type="Element" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.EAGER on ManyToOne is the same as lazy=false -->
+						<annox:annotate target="field">
+							<jxp:ManyToOne fetch="EAGER" />
+							<jxp:JoinColumn name="SOURCEID" columnDefinition="INTEGER"
+								nullable="false" />
+							<ha:Index name="SOURCE_REL_FK" />
+							<ha:ForeignKey name="FK_REL_SOURCE" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="destination" type="Element" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<!-- FetchType.EAGER on ManyToOne is the same as lazy=false -->
+						<annox:annotate target="field">
+							<jxp:ManyToOne fetch="EAGER" />
+							<jxp:JoinColumn name="DESTINATIONID"
+								columnDefinition="INTEGER" nullable="false" />
+							<ha:Index name="DEST_REL_FK" />
+							<ha:ForeignKey name="FK_REL_DEST" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="configuration" type="commons:Relation"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<ha:Type type="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
+							<jxp:Column name="CONFIGURATION" columnDefinition="XML"
+								nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
 	</xs:complexType>
+
+
 	<xs:complexType name="ElementType">
 		<xs:annotation>
 			<xs:appinfo>
-				<codeInjector:code><![CDATA[
+				<annox:annotate>
+					<jxba:XmlRootElement name="ElementType" />
+					<jxp:Entity />
+					<jxp:Table name="ELEMENTTYPE" />
+				</annox:annotate>
+				<ci:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -212,24 +436,95 @@
         				}
     				}
 					]]>
-				</codeInjector:code>
-				<ci:Proxy />
+				</ci:code>
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:complexContent>
-			<xs:extension base="Base">
-				<xs:sequence>
-					<xs:element name="name" type="name" maxOccurs="1"
-						minOccurs="1" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
+		<xs:sequence>
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Id />
+							<jxp:GeneratedValue strategy="IDENTITY" />
+							<jxp:Column name="ELEMENTTYPEID" columnDefinition="INTEGER" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="name" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="NAME" length="100" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fromTimeStamp" type="fromTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="FROMTIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="toTimeStamp" type="toTimeStamp"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="TOTIMESTAMP" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createId" type="createId" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATEID" length="10" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createTimeStamp" type="createTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="updateTimeStamp" type="updateTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="UPDATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
 	</xs:complexType>
+
+
 	<xs:complexType name="RelationType">
 		<xs:annotation>
 			<xs:appinfo>
-				<codeInjector:code><![CDATA[
+				<annox:annotate>
+					<jxba:XmlRootElement name="RelationType" />
+					<jxp:Entity />
+					<jxp:Table name="RELATIONTYPE" />
+				</annox:annotate>
+				<ci:code><![CDATA[
 					public boolean equals(Object other) { 
 						if (this == other)
 							return true;
@@ -253,18 +548,83 @@
         				}
     				}
 					]]>
-				</codeInjector:code>
-				<ci:Proxy />
+				</ci:code>
 			</xs:appinfo>
 		</xs:annotation>
 
-		<xs:complexContent>
-			<xs:extension base="Base">
-				<xs:sequence>
-					<xs:element name="name" type="name" maxOccurs="1"
-						minOccurs="1" />
-				</xs:sequence>
-			</xs:extension>
-		</xs:complexContent>
+		<xs:sequence>
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Id />
+							<jxp:GeneratedValue strategy="IDENTITY" />
+							<jxp:Column name="RELATIONTYPEID" columnDefinition="INTEGER" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name" type="name" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="NAME" length="100" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="fromTimeStamp" type="fromTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="FROMTIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="toTimeStamp" type="toTimeStamp"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="TOTIMESTAMP" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createId" type="createId" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATEID" length="10" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="createTimeStamp" type="createTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="CREATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="updateTimeStamp" type="updateTimeStamp"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:appinfo>
+						<annox:annotate target="field">
+							<jxp:Column name="UPDATETIMESTAMP" nullable="false" />
+						</annox:annotate>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
 	</xs:complexType>
+
 </xs:schema>

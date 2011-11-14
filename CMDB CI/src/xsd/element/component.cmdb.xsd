@@ -10,7 +10,10 @@
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/element/component"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/component"
 	xmlns:element="http://www.klistret.com/cmdb/ci/element" xmlns:commons="http://www.klistret.com/cmdb/ci/commons"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="annox"
+	xmlns:annox="http://annox.dev.java.net" xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
+	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
 		schemaLocation="../commons.cmdb.xsd" />
@@ -29,7 +32,7 @@
 	</xs:complexType>
 
 	<xs:element name="Hardware" type="Hardware"></xs:element>
-	<!-- end of Installation -->
+	<!-- end of Hardware -->
 
 
 
@@ -39,7 +42,7 @@
 			<xs:documentation>
 				An organization is either a company, an individual,
 				or
-				simply any group of people that produces software.
+				simply any group of people that produces a component.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -50,19 +53,7 @@
 			<xs:documentation>
 				A unique revision number or version name is
 				assigned to
-				each delivered unique state of software.
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
-
-	<xs:simpleType name="Type">
-		<xs:annotation>
-			<xs:documentation>
-				Defining appropriate types for software is up to
-				the
-				development organization and not to be confused with the
-				format/packaging of the deliverable.
+				each delivered unique state of a component.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -82,7 +73,7 @@
 	<xs:simpleType name="Phase">
 		<xs:annotation>
 			<xs:documentation>
-				Software life cycle phase
+				Component life cycle phase
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -91,10 +82,7 @@
 	<xs:simpleType name="Label">
 		<xs:annotation>
 			<xs:documentation>
-				Placeholder for an alias or name that isn't aligned
-				with the concept of
-				a module but rather describes a publication
-				(artifact).
+				Placeholder for an alias or name defined by the organisation
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -102,6 +90,11 @@
 
 	<xs:complexType name="Software">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Software" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>The inspiration for the Software CI is the Ivy
 				framework which focuses on describing software in terms of
 				deliverable software. The DMTF CIM blends features and services too
@@ -112,9 +105,11 @@
 				other modules and may have
 				publications (artifacts).
 
-				This CI diverges from Ivy with the introduction of the Phase attribute
-				(which might switch names later). Phase tells what stage in the
-				development cycle the software targets. 
+				This CI diverges from Ivy with the
+				introduction of the Phase attribute
+				(which might switch names later).
+				Phase tells what stage in the
+				development cycle the software targets.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -125,9 +120,6 @@
 					</xs:element>
 					<xs:element name="Version" type="Version" maxOccurs="1"
 						minOccurs="1">
-					</xs:element>
-					<xs:element name="Type" type="Type" maxOccurs="1"
-						minOccurs="0">
 					</xs:element>
 					<xs:element name="Availability" type="Availability"
 						maxOccurs="1" minOccurs="0">
@@ -146,4 +138,57 @@
 	<xs:element name="Software" type="Software"></xs:element>
 	<!-- end of Software -->
 
+
+	<!-- start of Publication -->
+	<xs:simpleType name="Type">
+		<xs:annotation>
+			<xs:documentation>
+				Defining appropriate types for components is up to
+				the
+				development organization.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	
+	<!-- start of Publication -->
+	<xs:simpleType name="Extension">
+		<xs:annotation>
+			<xs:documentation>
+				The artifact file name extension is more closely
+				associated with its
+				format. For example, in the case of Java archives
+				the artifact type
+				"jar" indicates that it is indeed a Java archive as
+				per the JAR File
+				specification. The file name extension happens to be
+				"jar" as well.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	
+	<xs:complexType name="Publication">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Component">
+				<xs:sequence>
+					<xs:element name="Type" type="Type" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="Extension" type="Extension" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="Label" type="Label" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Publication" type="Publication"></xs:element>
+	<!-- end of Publication -->
 </xs:schema>
