@@ -2339,9 +2339,9 @@ CMDB.ModuleStore = Ext
 				});
 
 /**
- * OrganizationSoftwareType (context) as store
+ * PublicationType (context) as store
  */
-CMDB.OrganizationSoftwareTypeStore = Ext
+CMDB.PublicationTypeStore = Ext
 		.extend(
 				Ext.data.Store,
 				{
@@ -2382,7 +2382,7 @@ CMDB.OrganizationSoftwareTypeStore = Ext
 									+ "&"
 									+ Ext
 											.urlEncode({
-												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType\"]'
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}PublicationType\"]'
 											});
 							expressions = expressions + "&" + Ext.urlEncode({
 								expressions : store.baseParams.expressions

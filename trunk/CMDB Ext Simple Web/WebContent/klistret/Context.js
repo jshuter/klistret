@@ -1,7 +1,7 @@
 Ext.namespace('CMDB.Environment');
 Ext.namespace('CMDB.Organization');
 Ext.namespace('CMDB.Module');
-Ext.namespace('CMDB.OrganizationSoftwareType');
+Ext.namespace('CMDB.PublicationType');
 Ext.namespace('CMDB.SoftwareLifecycle');
 Ext.namespace('CMDB.Timeframe');
 
@@ -1408,9 +1408,9 @@ CMDB.Timeframe.Search = Ext
 				});
 
 /**
- * Organization Editor
+ * PublicationType Editor
  */
-CMDB.OrganizationSoftwareType.Edit = Ext
+CMDB.PublicationType.Edit = Ext
 		.extend(
 				CMDB.Element.Edit,
 				{
@@ -1444,7 +1444,7 @@ CMDB.OrganizationSoftwareType.Edit = Ext
 								'@xmlns' : {
 									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 								},
-								'@xsi:type' : 'ns10:OrganizationSoftwareType'
+								'@xsi:type' : 'ns10:PublicationType'
 							}
 						}
 					},
@@ -1455,7 +1455,7 @@ CMDB.OrganizationSoftwareType.Edit = Ext
 					initComponent : function() {
 						var index = CMDB.ElementTypes
 								.findBy(function(record, id) {
-									if (record.get('Name') == 'OrganizationSoftwareType'
+									if (record.get('Name') == 'PublicationType'
 											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/context')
 										return true;
 									else
@@ -1467,14 +1467,14 @@ CMDB.OrganizationSoftwareType.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Organization Software Type Editor',
+							title : 'Publication Type Editor',
 
 							layout : 'accordion',
 
 							items : [
 									{
 										xtype : 'generalForm',
-										helpInfo : 'Organizations may privately type software to denote delivery or packaging characteristics internal to the organization.  For example, a database update script might be typed as DBSCRIPT.',
+										helpInfo : 'Organizations may privately type publications to denote functional characteristics internal to the organization.  For example, a database update script might be typed as DBSCRIPT.',
 										tags : [ [ 'Packaging' ],
 												[ 'Delivery' ] ]
 									}, {
@@ -1483,15 +1483,15 @@ CMDB.OrganizationSoftwareType.Edit = Ext
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.OrganizationSoftwareType.Edit.superclass.initComponent
+						CMDB.PublicationType.Edit.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});
 
 /**
- * Organization Search
+ * PublicationType Search
  */
-CMDB.OrganizationSoftwareType.Search = Ext
+CMDB.PublicationType.Search = Ext
 		.extend(
 				CMDB.Element.Search,
 				{
@@ -1508,7 +1508,7 @@ CMDB.OrganizationSoftwareType.Search = Ext
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Organization Software types.'
+												'html' : 'Search for Publication types.'
 											},
 											{
 												layout : 'column',
@@ -1596,15 +1596,15 @@ CMDB.OrganizationSoftwareType.Search = Ext
 								});
 
 						var config = {
-							title : 'Organization Software Type Search',
-							editor : CMDB.OrganizationSoftwareType.Edit,
+							title : 'Publication Type Search',
+							editor : CMDB.PublicationType.Edit,
 
 							height : 300,
 							width : 800,
 
 							autoScroll : false,
 							
-							elementType : '{http://www.klistret.com/cmdb/ci/element/context}OrganizationSoftwareType',
+							elementType : '{http://www.klistret.com/cmdb/ci/element/context}PublicationType',
 
 							items : form,
 
@@ -1679,7 +1679,7 @@ CMDB.OrganizationSoftwareType.Search = Ext
 						}
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.OrganizationSoftwareType.Search.superclass.initComponent
+						CMDB.PublicationType.Search.superclass.initComponent
 								.apply(this, arguments);
 					}
 				});

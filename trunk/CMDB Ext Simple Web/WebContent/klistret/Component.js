@@ -456,54 +456,6 @@ CMDB.Software.LifecycleForm = Ext
 															'Element/configuration/Availability/$');
 											this.setValue(value);
 										}
-									},
-									{
-										xtype : 'combo',
-										elementdata : true,
-										fieldLabel : 'Organization Software Type',
-										allowBlank : false,
-										blankText : 'Organization software type is required',
-										store : new CMDB.OrganizationSoftwareTypeStore(),
-										displayField : 'Name',
-										mode : 'remote',
-										queryParam : 'expressions',
-										forceSelection : true,
-
-										// Edit the query for the combo into an
-										// expression
-										listeners : {
-											'beforequery' : function(e) {
-												e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-														+ e.query + '%\")]';
-											}
-										},
-
-										// Marshall combo into the element
-										marshall : function(element) {
-											if (this.getValue()
-													&& element['Element']['configuration']) {
-												var prefix = CMDB.Badgerfish
-														.getPrefix(element,
-																'http://www.klistret.com/cmdb/ci/element/component');
-												element['Element']['configuration'][prefix
-														+ ':Type'] = {
-													'$' : this.getValue()
-												};
-											} else {
-												CMDB.Badgerfish
-														.remove(element,
-																'Element/configuration/Type');
-											}
-										},
-
-										// Unmarshall element value into the
-										// combo
-										unmarshall : function(element) {
-											var value = CMDB.Badgerfish
-													.get(element,
-															'Element/configuration/Type/$');
-											this.setValue(value);
-										}
 									} ]
 						};
 
@@ -819,29 +771,6 @@ CMDB.Software.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Organizational software type',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Type = {0}]',
-																		store : new CMDB.OrganizationSoftwareTypeStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'Availability',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = {0}]',
 																		store : new CMDB.TimeframeStore(),
@@ -1003,10 +932,6 @@ CMDB.Software.Search = Ext
 										mapping : 'Element/configuration/Version/$'
 									},
 									{
-										name : 'OrganizationSoftwareType',
-										mapping : 'Element/configuration/Type/$'
-									},
-									{
 										name : 'Label',
 										mapping : 'Element/configuration/Label/$'
 									},
@@ -1039,11 +964,6 @@ CMDB.Software.Search = Ext
 								width : 120,
 								sortable : true,
 								dataIndex : 'Version'
-							}, {
-								header : 'Organization Software Type',
-								width : 120,
-								sortable : true,
-								dataIndex : 'OrganizationSoftwareType'
 							}, {
 								header : 'Label',
 								width : 200,
