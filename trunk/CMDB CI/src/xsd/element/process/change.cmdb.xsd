@@ -11,6 +11,9 @@
 	targetNamespace="http://www.klistret.com/cmdb/ci/element/process/change"
 	xmlns:process="http://www.klistret.com/cmdb/ci/element/process"
 	xmlns:commons="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0"
+	jaxb:extensionBindingPrefixes="annox" xmlns:annox="http://annox.dev.java.net"
+	xmlns:jxba="http://annox.dev.java.net/javax.xml.bind.annotation"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"
@@ -22,6 +25,11 @@
 	<!-- start of SoftwareInstallation -->
 	<xs:complexType name="SoftwareInstallation">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="SoftwareInstallation" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation>This is a very specific and temporary type of
 				change request for the installation of software against an
 				environment. Once the process side of the CMDB is built upp then

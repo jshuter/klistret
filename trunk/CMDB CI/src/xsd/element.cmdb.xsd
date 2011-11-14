@@ -9,7 +9,8 @@
 	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/element"
 	targetNamespace="http://www.klistret.com/cmdb/ci/element"
-	xmlns:commons="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:commons="http://www.klistret.com/cmdb/ci/commons" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/commons"

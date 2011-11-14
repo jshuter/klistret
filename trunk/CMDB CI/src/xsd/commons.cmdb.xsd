@@ -8,9 +8,8 @@
 	GNU General Public License for more details. You should have received a copy 
 	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/commons"
-	targetNamespace="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:ci="http://www.klistret.com/xjc/plugin/ci"
-	jaxb:version="2.0" jaxb:extensionBindingPrefixes="ci"
+	targetNamespace="http://www.klistret.com/cmdb/ci/commons" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:simpleType name="Name">
@@ -254,9 +253,6 @@
 				components) and
 				process (change, problem, incident) elements.
 			</xs:documentation>
-			<xs:appinfo>
-				<ci:Element />
-			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="Base">
@@ -277,9 +273,6 @@
 			<xs:documentation>
 				Root association (abstract) between only two CIs
 			</xs:documentation>
-			<xs:appinfo>
-				<ci:Relation />
-			</xs:appinfo>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="Base" />
