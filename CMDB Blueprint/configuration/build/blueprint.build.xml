@@ -9,7 +9,7 @@
 	<target name="blueprint:publish">
 		<copy file="${tmp-destdir}/klistret.blueprint.jar" tofile="${tmp-destdir}/klistret.blueprint-${ivy.revision}.jar" />
 
-		<ivy:publish conf="runtime,compile,test" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.blueprint-[revision].[ext]" />
 		</ivy:publish>
 	</target>
