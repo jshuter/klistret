@@ -38,10 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.klistret.cmdb.annotations.ci.Bean;
-import com.klistret.cmdb.annotations.ci.Element;
-import com.klistret.cmdb.annotations.ci.Relation;
-import com.klistret.cmdb.annotations.ci.Proxy;
 import com.klistret.cmdb.exception.InfrastructureException;
 
 /**
@@ -76,12 +72,12 @@ public class CIContext {
 	/**
 	 * Set of elements
 	 */
-	private Set<Class<?>> elements;
+	private Set<Class<? extends com.klistret.cmdb.ci.commons.Element>> elements;
 
 	/**
 	 * Set of relations
 	 */
-	private Set<Class<?>> relations;
+	private Set<Class<? extends com.klistret.cmdb.ci.commons.Relation>> relations;
 
 	/**
 	 * Set of CI proxies
@@ -144,7 +140,8 @@ public class CIContext {
 		/**
 		 * Find all of the CI elements
 		 */
-		elements = reflections.getTypesAnnotatedWith(Element.class);
+		elements = reflections
+				.getSubTypesOf(com.klistret.cmdb.ci.commons.Element.class);
 		for (Class<?> element : elements) {
 			if (contextPath.add(element))
 				logger.debug("Adding element {} to JAXB context path",
@@ -154,7 +151,8 @@ public class CIContext {
 		/**
 		 * Find all of the CI relations
 		 */
-		relations = reflections.getTypesAnnotatedWith(Relation.class);
+		relations = reflections
+				.getSubTypesOf(com.klistret.cmdb.ci.commons.Relation.class);
 		for (Class<?> relation : relations) {
 			if (contextPath.add(relation))
 				logger.debug("Adding relation {} to JAXB context path",
@@ -162,26 +160,28 @@ public class CIContext {
 		}
 
 		/**
-		 * Find all of the CI proxies
+		 * Add all of the proxies
 		 */
-		proxies = reflections.getTypesAnnotatedWith(Proxy.class);
-		for (Class<?> proxy : proxies) {
+		proxies = new HashSet<Class<?>>();
+		proxies.add(com.klistret.cmdb.ci.pojo.Element.class);
+		proxies.add(com.klistret.cmdb.ci.pojo.ElementType.class);
+		proxies.add(com.klistret.cmdb.ci.pojo.Relation.class);
+		proxies.add(com.klistret.cmdb.ci.pojo.RelationType.class);
+
+		for (Class<?> proxy : proxies)
 			if (contextPath.add(proxy))
 				logger.debug("Adding proxy {} to JAXB context path",
 						proxy.getName());
-		}
 
 		/**
 		 * Locate potential CMDB schema files
 		 */
 		schemaStreamSources = new HashSet<SchemaStreamSource>();
-
 		schemaLocations = reflections.getResources(schemaNamePattern);
-		for (String location : schemaLocations) {
+		for (String location : schemaLocations)
 			if (schemaStreamSources.add(new SchemaStreamSource(location)))
 				logger.debug("Adding schema {} to binding schema object",
 						location);
-		}
 
 		/**
 		 * Construct binding Schema
@@ -196,8 +196,11 @@ public class CIContext {
 		/**
 		 * Create metadata for all generated classes
 		 */
-		Set<Class<?>> beanClasses = reflections
-				.getTypesAnnotatedWith(Bean.class);
+		Set<Class<?>> beanClasses = new HashSet<Class<?>>();
+		beanClasses.addAll(elements);
+		beanClasses.addAll(relations);
+		beanClasses.addAll(proxies);
+
 		CIModel ciModel = new CIModel(
 				schemaStreamSources.toArray(new SchemaStreamSource[0]),
 				beanClasses.toArray(new Class<?>[0]));

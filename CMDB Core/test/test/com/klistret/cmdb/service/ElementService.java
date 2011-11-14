@@ -213,7 +213,7 @@ public class ElementService {
 	/**
 	 * Find relations
 	 */
-
+	@Test
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(Arrays
@@ -225,6 +225,7 @@ public class ElementService {
 		assertNotNull(response);
 	}
 
+	
 	public void findElement2() {
 		List<Element> response = elementService
 				.find(Arrays
@@ -234,6 +235,7 @@ public class ElementService {
 		assertNotNull(response);
 	}
 
+	
 	public void findSoftware() {
 		Integer count = elementService
 				.count(Arrays
@@ -264,7 +266,7 @@ public class ElementService {
 		assertNotNull(count);
 	}
 	
-	@Test
+	
 	public void createRelation() {
 		Element application = elementService.get(new Long(412221));
 		
