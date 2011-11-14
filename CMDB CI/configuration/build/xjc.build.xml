@@ -12,68 +12,48 @@
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
 	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar, bundle" />
 
-	<target name="xjc:plugin" description="Generate XJC extensions">
+	<!-- Create necessary annotations which the annotate plugin uses in the cmdb step -->
+	<target name="ci:pre">
 		<delete dir="${tmp-destdir}" failonerror="false" />
 		<mkdir dir="${tmp-destdir}" />
 
 		<javac srcdir="${project-basedir}/src" destdir="${tmp-destdir}" debug="on">
-			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
-			<include name="com/sun/tools/xjc/addon/ci/*.java" />
-			<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.java" />
 
 			<classpath>
 				<path refid="classpath.IVY" />
 			</classpath>
 		</javac>
 
-		<copy todir="${tmp-destdir}/META-INF">
-			<fileset dir="${project-basedir}/src/META-INF" />
-		</copy>
-
-		<copy todir="${tmp-destdir}">
-			<fileset dir="${project-basedir}/src" includes="com/sun/tools/xjc/addon/collection_setter_injector/localstrings.properties" />
-		</copy>
-
 		<jar destfile="${tmp-destdir}/klistret.xjc-${ivy.revision}.jar">
 			<fileset dir="${tmp-destdir}">
-				<include name="com/klistret/cmdb/annotations/ci/*.class" />
 				<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
-				<include name="com/sun/tools/xjc/addon/ci/*.class" />
-				<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.class" />
-
-				<include name="com/sun/tools/xjc/addon/collection_setter_injector/*.properties" />
 			</fileset>
-			<fileset dir="${tmp-destdir}" includes="META-INF/services/com.sun.tools.xjc.Plugin" />
 		</jar>
 	</target>
 
-	<!-- Creates the CI hierarchy -->
-	<target name="ci:create" depends="xjc:plugin">
-		<!-- Capture the path as a delimited property using the refid attribute -->
-		<property name="myclasspath" refid="classpath.IVY" />
-		<!-- Emit the property to the ant console -->
-		<echo message="Classpath = ${myclasspath}" />
-
-		<java classname="com.sun.tools.xjc.XJCFacade">
-			<arg value="-extension" />
-			<arg value="-d" />
-			<arg value="${tmp-destdir}" />
-			<arg value="-b" />
-			<arg value="${config-basedir}/build/jaxb.binding.xml" />
-			<arg value="${schema-basedir}" />
-			<arg value="-Xcollection-setter-injector" />
-			<arg value="-Xinject-code" />
-			<arg value="-Xci" />
-
+	
+	<!-- Create JAXB classes -->
+	<target name="ci:create" depends="ci:pre">
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
 			<classpath>
 				<path refid="classpath.IVY" />
 				<pathelement location="${tmp-destdir}/klistret.xjc-${ivy.revision}.jar" />
 			</classpath>
-		</java>
+		</taskdef>
+
+		<xjc destdir="${tmp-destdir}" extension="true">
+			<arg line="
+						-Xannotate
+						-Xsetters
+						-Xinject-code" />
+			<binding dir="${config-basedir}\build">
+				<include name="xjc.binding.xml" />
+			</binding>
+			<schema dir="${schema-basedir}" />
+		</xjc>
 
 		<javac srcdir="${tmp-destdir}" destdir="${tmp-destdir}" debug="on">
-			<include name="com/klistret/cmdb/annotations/ci/*.java" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 			<include name="com/klistret/cmdb/ci/**/*.java" />
 			<classpath>
@@ -91,15 +71,16 @@
 		<echo>${list-schemas}</echo>
 
 		<jar destfile="${tmp-destdir}/klistret.ci-${ivy.revision}.jar" basedir="${tmp-destdir}">
-			<include name="com/klistret/cmdb/annotations/ci/*.class" />
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.class" />
 			<include name="com/klistret/cmdb/ci/**/*.class" />
 			<include name="xsd/**/*.xsd" />
 		</jar>
 	</target>
 
+	
+	<!-- Publish -->
 	<target name="ci:publish" depends="ci:create">
-		<ivy:publish conf="runtime,compile,test,master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="master" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.ci-[revision].[ext]" />
 		</ivy:publish>
 	</target>
