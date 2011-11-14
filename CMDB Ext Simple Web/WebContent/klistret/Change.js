@@ -686,29 +686,6 @@ CMDB.SoftwareInstallation.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Organizational software type',
-																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration[change:Type = {0}]',
-																		store : new CMDB.OrganizationSoftwareTypeStore(),
-																		queryParam : 'expressions',
-																		displayField : 'Name',
-																		valueField : 'Name',
-																		mode : 'remote',
-																		forceSelection : true,
-
-																		extraItemCls : 'x-tag',
-
-																		listeners : {
-																			'beforequery' : function(
-																					e) {
-																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
-																						+ e.query
-																						+ '%\")]';
-																			}
-																		}
-																	},
-																	{
-																		xtype : 'superboxselect',
-																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
 																		fieldLabel : 'State',
 																		expression : 'declare namespace process=\"http://www.klistret.com/cmdb/ci/element/process\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[process:State = {0}]',
 																		displayField : 'Name',

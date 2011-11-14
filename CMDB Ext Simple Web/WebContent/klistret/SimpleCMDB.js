@@ -286,20 +286,20 @@ CMDB.ContextMenuModule = Ext.extend(Ext.app.Module, {
                 				}
                 				,
                 				{
-                					text     : 'Organization Software Type',
+                					text     : 'Publication Type',
                 					menu     : {
 										items      : [
 											{
 												text     : 'Create',
 												handler  : this.openCreateWindow,
 												scope    : this,
-												config   : CMDB.OrganizationSoftwareType.Edit
+												config   : CMDB.PublicationType.Edit
 											},
 											{
 												text     : 'Search',
 												handler  : this.openSearchWindow,
 												scope    : this,
-												config   : CMDB.OrganizationSoftwareType.Search
+												config   : CMDB.PublicationType.Search
 											}
 										]
 									}
