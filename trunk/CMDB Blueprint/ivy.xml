@@ -26,12 +26,12 @@
 	</configurations>
 	<publications>
 		<artifact name="klistret.blueprint" type="jar" ext="jar"
-			conf="runtime, master" />
+			conf="master" />
 	</publications>
 	<dependencies>
 		<!-- Klistret CI -->
 		<dependency org="com.klistret.cmdb" name="ci" rev="0.1"
-			conf="runtime->runtime" />
+			conf="runtime->master" />
 
 		<!-- Klistret Core -->
 		<dependency org="com.klistret.cmdb" name="core" rev="0.1"
