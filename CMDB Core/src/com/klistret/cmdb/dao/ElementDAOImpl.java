@@ -132,7 +132,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Element element = (Element) criteria.uniqueResult();
 
-			return element == null ? null : clean(element);
+			return element == null ? null : element;
 		} catch (NonUniqueResultException e) {
 			throw new ApplicationException(String.format(
 					"Expressions criteria was not unique: %s", e.getMessage()));
@@ -184,7 +184,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						"Element [id: %s] not found", id),
 						new NoSuchElementException());
 
-			return clean(element);
+			return element;
 
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
@@ -238,7 +238,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		logger.info("Save/update element [name: {}, id: {}]",
 				element.getName(), element.getId());
-		return clean(element);
+		return element;
 	}
 
 	/**
@@ -272,30 +272,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		logger.info("Deleted element [name:{}, id:{}]", element.getName(),
 				element.getId());
-		return clean(element);
-	}
-
-	/**
-	 * Necessary to eliminate relation associations which only available to
-	 * query through relationships
-	 * 
-	 * @param other
-	 * @return
-	 */
-	private Element clean(Element other) {
-		Element element = new Element();
-		element.setId(other.getId());
-		element.setType(other.getType());
-		element.setName(other.getName());
-		element.setFromTimeStamp(other.getFromTimeStamp());
-		element.setToTimeStamp(other.getToTimeStamp());
-		element.setCreateId(other.getCreateId());
-		element.setCreateTimeStamp(other.getCreateTimeStamp());
-		element.setUpdateTimeStamp(other.getUpdateTimeStamp());
-		element.setConfiguration(other.getConfiguration());
-
-		other = null;
-
 		return element;
 	}
 }

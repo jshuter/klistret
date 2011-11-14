@@ -125,7 +125,7 @@ public class ElementService {
 	 * 
 	 * @throws JAXBException
 	 */
-
+	@Test
 	public void getElement() throws JAXBException {
 		Element element = elementService.get(new Long(410864));
 
@@ -213,7 +213,7 @@ public class ElementService {
 	/**
 	 * Find relations
 	 */
-	@Test
+	
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(Arrays
