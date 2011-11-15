@@ -33,6 +33,7 @@
 		<copy todir="${packagedir}/propertes">
 			<fileset dir="${cmdb-coredir}/configuration/runtime">
 				<include name="*.cfg.xml" />
+				<include name="*.hbm.xml" />
 				<include name="CMDB.properties" />
 				<include name="ehcache.xml" />
 				<include name="log4j.properties" />
