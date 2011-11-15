@@ -170,6 +170,11 @@
 	
 	<xs:complexType name="Publication">
 		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Publication" />
+				</annox:annotate>
+			</xs:appinfo>
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
