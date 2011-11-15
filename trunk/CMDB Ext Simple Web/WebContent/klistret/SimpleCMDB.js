@@ -124,6 +124,25 @@ CMDB.CoreMenuModule = Ext.extend(Ext.app.Module, {
                     						}
                     					]
                     				}
+                    			},
+                    			{
+                    				text     : 'Publication',
+                    				menu     : {
+                    					items      : [
+                    						{
+                    							text     : 'Create',
+                    							handler  : this.openCreateWindow,
+                    							scope    : this,
+                    							config   : CMDB.Publication.Edit
+                    						},
+                    						{
+                    							text     : 'Search',
+                    							handler  : this.openSearchWindow,
+                    							scope    : this,
+                    							config   : CMDB.Publication.Search
+                    						}
+                    					]
+                    				}
                     			}
                     		]
                     	}
