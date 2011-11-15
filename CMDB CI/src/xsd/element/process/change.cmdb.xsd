@@ -42,8 +42,6 @@
 						maxOccurs="1" minOccurs="1" />
 					<xs:element name="Software" type="commons:DestinationReference"
 						maxOccurs="1" minOccurs="1" />
-					<xs:element name="Type" type="xs:string" minOccurs="0"
-						maxOccurs="1"></xs:element>
 					<xs:element name="Label" type="xs:string" minOccurs="0"
 						maxOccurs="1"></xs:element>
 					<xs:element name="Version" type="xs:string" minOccurs="0"
@@ -54,5 +52,38 @@
 	</xs:complexType>
 
 	<xs:element name="SoftwareInstallation" type="SoftwareInstallation"></xs:element>
-	<!-- end of Installation -->
+	<!-- end of SoftwareInstallation -->
+	
+	
+	<!-- start of PublicationInstallation -->
+	<xs:complexType name="PublicationInstallation">
+		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="PublicationInstallation" />
+				</annox:annotate>
+			</xs:appinfo>
+			<xs:documentation>This is a very specific and temporary type of
+				change request for the installation of publication against an
+				environment. Once the process side of the CMDB is built upp then
+				this CI will likely be deprecated.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="process:Change">
+				<xs:sequence>
+					<xs:element name="Environment" type="commons:SourceReference"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Publication" type="commons:DestinationReference"
+						maxOccurs="1" minOccurs="1" />
+					<xs:element name="Label" type="xs:string" minOccurs="0"
+						maxOccurs="1"></xs:element>
+					<xs:element name="Type" type="xs:string" minOccurs="0"
+						maxOccurs="1"></xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="PublicationInstallation" type="PublicationInstallation"></xs:element>
+	<!-- end of PublicationInstallation -->
 </xs:schema>

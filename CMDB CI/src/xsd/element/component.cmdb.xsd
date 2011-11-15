@@ -20,6 +20,15 @@
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
 		schemaLocation="../element.cmdb.xsd" />
+		
+	<xs:simpleType name="Label">
+		<xs:annotation>
+			<xs:documentation>
+				Placeholder for an alias or name defined by the organisation
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
 
 	<!-- start of Hardware -->
 	<xs:complexType name="Hardware" abstract="true">
@@ -74,15 +83,6 @@
 		<xs:annotation>
 			<xs:documentation>
 				Component life cycle phase
-			</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:string" />
-	</xs:simpleType>
-
-	<xs:simpleType name="Label">
-		<xs:annotation>
-			<xs:documentation>
-				Placeholder for an alias or name defined by the organisation
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
