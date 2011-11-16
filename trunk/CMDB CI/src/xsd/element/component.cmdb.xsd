@@ -20,32 +20,18 @@
 
 	<xs:import namespace="http://www.klistret.com/cmdb/ci/element"
 		schemaLocation="../element.cmdb.xsd" />
-		
+
+	<!-- Component properties -->
 	<xs:simpleType name="Label">
 		<xs:annotation>
 			<xs:documentation>
-				Placeholder for an alias or name defined by the organisation
+				Placeholder for an alias or name defined by the
+				organisation
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
-	<!-- start of Hardware -->
-	<xs:complexType name="Hardware" abstract="true">
-		<xs:annotation>
-			<xs:documentation></xs:documentation>
-		</xs:annotation>
-		<xs:complexContent>
-			<xs:extension base="element:Component"></xs:extension>
-		</xs:complexContent>
-	</xs:complexType>
-
-	<xs:element name="Hardware" type="Hardware"></xs:element>
-	<!-- end of Hardware -->
-
-
-
-	<!-- start of Software -->
 	<xs:simpleType name="Organization">
 		<xs:annotation>
 			<xs:documentation>
@@ -88,6 +74,23 @@
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
 
+
+	<!-- start of Hardware -->
+	<xs:complexType name="Hardware" abstract="true">
+		<xs:annotation>
+			<xs:documentation></xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Component"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Hardware" type="Hardware"></xs:element>
+	<!-- end of Hardware -->
+
+
+
+	<!-- start of Software -->
 	<xs:complexType name="Software">
 		<xs:annotation>
 			<xs:appinfo>
@@ -150,7 +153,7 @@
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
-	
+
 	<!-- start of Publication -->
 	<xs:simpleType name="Extension">
 		<xs:annotation>
@@ -167,7 +170,7 @@
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
 	</xs:simpleType>
-	
+
 	<xs:complexType name="Publication">
 		<xs:annotation>
 			<xs:appinfo>
@@ -178,16 +181,13 @@
 			<xs:documentation></xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
-			<xs:extension base="element:Component">
+			<xs:extension base="Software">
 				<xs:sequence>
 					<xs:element name="Type" type="Type" maxOccurs="1"
 						minOccurs="1">
 					</xs:element>
 					<xs:element name="Extension" type="Extension" maxOccurs="1"
 						minOccurs="1">
-					</xs:element>
-					<xs:element name="Label" type="Label" maxOccurs="1"
-						minOccurs="0">
 					</xs:element>
 				</xs:sequence>
 			</xs:extension>
