@@ -1,6 +1,7 @@
 Ext.namespace('CMDB.Environment');
 Ext.namespace('CMDB.Organization');
-Ext.namespace('CMDB.Module');
+Ext.namespace('CMDB.SoftwareContext');
+Ext.namespace('CMDB.PublicationContext');
 Ext.namespace('CMDB.PublicationType');
 Ext.namespace('CMDB.SoftwareLifecycle');
 Ext.namespace('CMDB.Timeframe');
@@ -578,10 +579,11 @@ CMDB.Organization.Search = Ext
 					}
 				});
 
+
 /**
- * Module Editor
+ * Software context Editor
  */
-CMDB.Module.Edit = Ext
+CMDB.SoftwareContext.Edit = Ext
 		.extend(
 				CMDB.Element.Edit,
 				{
@@ -615,7 +617,7 @@ CMDB.Module.Edit = Ext
 								'@xmlns' : {
 									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
 								},
-								'@xsi:type' : 'ns10:Module'
+								'@xsi:type' : 'ns10:Software'
 							}
 						}
 					},
@@ -626,7 +628,7 @@ CMDB.Module.Edit = Ext
 					initComponent : function() {
 						var index = CMDB.ElementTypes
 								.findBy(function(record, id) {
-									if (record.get('Name') == 'Module'
+									if (record.get('Name') == 'Software'
 											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/context')
 										return true;
 									else
@@ -638,14 +640,14 @@ CMDB.Module.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Module Editor',
+							title : 'Software Context Editor',
 
 							layout : 'accordion',
 
 							items : [
 									{
 										xtype : 'generalForm',
-										helpInfo : 'Modules are a self-contained, reusable unit of software that, as a whole unit, follows a revision control scheme.',
+										helpInfo : 'Software contexts are logical reprensent of software mainly used to store metadata across software versions.',
 										tags : [ [ 'Middleware' ],
 												[ 'Educational' ],
 												[ 'Simulation' ],
@@ -658,15 +660,16 @@ CMDB.Module.Edit = Ext
 						};
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.Module.Edit.superclass.initComponent.apply(this,
+						CMDB.SoftwareContext.Edit.superclass.initComponent.apply(this,
 								arguments);
 					}
 				});
 
+
 /**
- * Module Search
+ * Software Context Search
  */
-CMDB.Module.Search = Ext
+CMDB.SoftwareContext.Search = Ext
 		.extend(
 				CMDB.Element.Search,
 				{
@@ -683,7 +686,7 @@ CMDB.Module.Search = Ext
 											{
 												xtype : 'displayfield',
 												width : 'auto',
-												'html' : 'Search for Modules.'
+												'html' : 'Search for Software contexts.'
 											},
 											{
 												layout : 'column',
@@ -771,15 +774,15 @@ CMDB.Module.Search = Ext
 								});
 
 						var config = {
-							title : 'Module Search',
-							editor : CMDB.Module.Edit,
+							title : 'Software Context Search',
+							editor : CMDB.SoftwareContext.Edit,
 
 							height : 300,
 							width : 800,
 
 							autoScroll : false,
 
-							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Module',
+							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Software',
 
 							items : form,
 
@@ -854,10 +857,294 @@ CMDB.Module.Search = Ext
 						}
 
 						Ext.apply(this, Ext.apply(this.initialConfig, config));
-						CMDB.Module.Search.superclass.initComponent.apply(this,
+						CMDB.SoftwareContext.Search.superclass.initComponent.apply(this,
 								arguments);
 					}
 				});
+
+
+/**
+ * Publication context Editor
+ */
+CMDB.PublicationContext.Edit = Ext
+		.extend(
+				CMDB.Element.Edit,
+				{
+					element : {
+						'Element' : {
+							'@xmlns' : {
+								'ns9' : 'http://www.klistret.com/cmdb/ci/element',
+								'ns10' : 'http://www.klistret.com/cmdb/ci/element/context',
+								'ns2' : 'http://www.klistret.com/cmdb/ci/commons',
+								'$' : 'http://www.klistret.com/cmdb/ci/pojo'
+							},
+
+							'type' : {
+								'id' : {
+									'$' : null
+								},
+								'name' : {
+									'$' : null
+								}
+							},
+							'fromTimeStamp' : {
+								'$' : new Date()
+							},
+							'createTimeStamp' : {
+								'$' : new Date()
+							},
+							'updateTimeStamp' : {
+								'$' : new Date()
+							},
+							'configuration' : {
+								'@xmlns' : {
+									'xsi' : 'http://www.w3.org/2001/XMLSchema-instance'
+								},
+								'@xsi:type' : 'ns10:Publication'
+							}
+						}
+					},
+
+					/**
+					 * 
+					 */
+					initComponent : function() {
+						var index = CMDB.ElementTypes
+								.findBy(function(record, id) {
+									if (record.get('Name') == 'Publication'
+											&& record.get('Namespace') == 'http://www.klistret.com/cmdb/ci/element/context')
+										return true;
+									else
+										return false;
+								}), type = CMDB.ElementTypes.getAt(index).get(
+								'ElementType');
+
+						this.element['Element']['type']['id']['$'] = type['id']['$'];
+						this.element['Element']['type']['name']['$'] = type['name']['$'];
+
+						var config = {
+							title : 'Software Context Editor',
+
+							layout : 'accordion',
+
+							items : [
+									{
+										xtype : 'generalForm',
+										helpInfo : 'Publication contexts are logical reprensent of publications mainly used to store metadata across publication versions.',
+										tags : [ [ 'Middleware' ],
+												[ 'Educational' ],
+												[ 'Simulation' ],
+												[ 'Content access' ],
+												[ 'Media devleopment' ],
+												[ 'Enterprise' ] ]
+									}, {
+										xtype : 'propertyForm'
+									} ]
+						};
+
+						Ext.apply(this, Ext.apply(this.initialConfig, config));
+						CMDB.PublicationContext.Edit.superclass.initComponent.apply(this,
+								arguments);
+					}
+				});
+
+
+/**
+ * Publication Context Search
+ */
+CMDB.PublicationContext.Search = Ext
+		.extend(
+				CMDB.Element.Search,
+				{
+
+					initComponent : function() {
+						var form = new Ext.form.FormPanel(
+								{
+									border : false,
+									bodyStyle : 'padding:10px; background-color:white;',
+									baseCls : 'x-plain',
+									labelAlign : 'top',
+
+									items : [
+											{
+												xtype : 'displayfield',
+												width : 'auto',
+												'html' : 'Search for Publication contexts.'
+											},
+											{
+												layout : 'column',
+												border : false,
+
+												items : [
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"{0}\")]',
+																		wildcard : '%'
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Tags',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[commons:Tag = {0}]',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'local',
+
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [ 'Name' ],
+																					sortInfo : {
+																						field : 'Name',
+																						direction : 'ASC'
+																					}
+																				}),
+
+																		allowAddNewData : true,
+																		addNewDataOnBlur : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			newitem : function(
+																					bs,
+																					v,
+																					f) {
+																				var newObj = {
+																					Name : v
+																				};
+																				bs
+																						.addItem(newObj);
+																			}
+																		}
+																	} ]
+														},
+														{
+															columnWidth : .5,
+															layout : 'form',
+															border : false,
+															defaults : {
+																width : 300
+															},
+
+															items : [
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created after',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp gt \"{0}\" cast as xs:dateTime]'
+																	},
+																	{
+																		xtype : 'datefield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Created before',
+																		format : 'Y-m-d',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:fromTimeStamp lt \"{0}\" cast as xs:dateTime]'
+																	} ]
+														} ]
+											} ]
+								});
+
+						var config = {
+							title : 'Publication Context Search',
+							editor : CMDB.PublicationContext.Edit,
+
+							height : 300,
+							width : 800,
+
+							autoScroll : false,
+
+							elementType : '{http://www.klistret.com/cmdb/ci/element/context}Publication',
+
+							items : form,
+
+							fields : [
+									{
+										name : 'Id',
+										mapping : 'Element/id/$'
+									},
+									{
+										name : 'Name',
+										mapping : 'Element/name/$'
+									},
+									{
+										name : 'Description',
+										mapping : 'Element/configuration/Description/$'
+									},
+									{
+										name : 'Tag',
+										mapping : 'Element/configuration/Tag',
+										formating : function(values) {
+											var formated = '';
+
+											Ext
+													.each(
+															values,
+															function(value) {
+																formated = Ext
+																		.isEmpty(formated) ? value['$']
+																		: formated
+																				+ ', '
+																				+ value['$'];
+															});
+											return formated;
+										}
+									}, {
+										name : 'Created',
+										mapping : 'Element/createTimeStamp/$'
+									}, {
+										name : 'Updated',
+										mapping : 'Element/updateTimeStamp/$'
+									}, {
+										name : 'Element',
+										mapping : 'Element'
+									} ],
+
+							columns : [ {
+								header : "Name",
+								width : 200,
+								sortable : true,
+								dataIndex : 'Name'
+							}, {
+								header : "Tags",
+								width : 200,
+								sortable : true,
+								dataIndex : 'Tag'
+							}, {
+								header : "Description",
+								width : 200,
+								sortable : true,
+								dataIndex : 'Description'
+							}, {
+								header : "Created",
+								width : 120,
+								sortable : true,
+								dataIndex : 'Created'
+							}, {
+								header : "Last Updated",
+								width : 120,
+								sortable : true,
+								dataIndex : 'Updated'
+							} ]
+						}
+
+						Ext.apply(this, Ext.apply(this.initialConfig, config));
+						CMDB.PublicationContext.Search.superclass.initComponent.apply(this,
+								arguments);
+					}
+				});
+
 
 /**
  * Software Lifecyle Editor

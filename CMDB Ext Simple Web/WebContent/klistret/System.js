@@ -235,12 +235,12 @@ CMDB.Application.Edit = Ext
 									},
 									{
 										xtype : 'destRelationForm',
-										title : 'Software dependencies',
+										title : 'Software compositions',
 
 										desktop : this.desktop,
 										editor : CMDB.Software.Edit,
 
-										information : 'Dependencies to other software modules.',
+										information : 'Composite relations to other software modules.',
 
 										fields : [
 												{
@@ -357,9 +357,9 @@ CMDB.Application.Edit = Ext
 											return record;
 										},
 
-										relations : [ {
+										relations : {
 											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Composition'
-										} ]
+										} 
 									}, {
 										xtype : 'propertyForm'
 									} ]
