@@ -45,19 +45,18 @@
 
 
 
-	<!-- start of Module -->
-	<xs:complexType name="Module">
+	<!-- start of Software -->
+	<xs:complexType name="Software">
 		<xs:annotation>
 			<xs:appinfo>
 				<annox:annotate>
-					<jxba:XmlRootElement name="Module" />
+					<jxba:XmlRootElement name="Software" />
 				</annox:annotate>
 			</xs:appinfo>
 			<xs:documentation>
-				A module is a self-contained, reusable unit of
-				software
-				that, as a whole unit, follows a revision control
-				scheme.
+				A logical representation of Software components
+				(basically a quick way to have a holder for software names and
+				metadata related to software versions).
 			</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
@@ -65,8 +64,32 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="Module" type="Module"></xs:element>
-	<!-- end of Module -->
+	<xs:element name="Software" type="Software"></xs:element>
+	<!-- end of Software -->
+	
+	
+	
+	<!-- start of Publication -->
+	<xs:complexType name="Publication">
+		<xs:annotation>
+			<xs:appinfo>
+				<annox:annotate>
+					<jxba:XmlRootElement name="Publication" />
+				</annox:annotate>
+			</xs:appinfo>
+			<xs:documentation>
+				A logical representation of Publication components
+				(basically a quick way to have a holder for publication names and
+				metadata related to publication versions).
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="element:Context"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="Publication" type="Publication"></xs:element>
+	<!-- end of Publication -->
 
 
 
