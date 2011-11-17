@@ -585,17 +585,55 @@ CMDB.Element.DestRelationForm = Ext
 									}
 								});
 
-						store.expressions = Ext
-								.urlEncode({
-									expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq '
-											+ CMDB.Badgerfish.get(
-													this.ownerCt.element,
-													"Element/id/$") + ']'
-								});
+						/**
+						 * Build up store expressions
+						 */
+						var id = CMDB.Badgerfish.get(this.ownerCt.element,
+								"Element/id/$");
+						if (id) {
+							store.expressions = Ext
+									.urlEncode({
+										expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq '
+												+ id + ']'
+									});
 
-						if (this.ownerCt.element
-								&& CMDB.Badgerfish.get(this.ownerCt.element,
-										"Element/id/$")) {
+							if (this.relations) {
+								var relationTypeComparisons, destTypeComparisons;
+
+								for ( var key in this.relations) {
+									var relationType = "pojo:type/pojo:name eq \""
+											+ this.relations[key] + "\"";
+									var destinationType = "pojo:type/pojo:name eq \""
+											+ key + "\"";
+
+									relationTypeComparisons = Ext
+											.isDefined(relationTypeComparisons) ? " or "
+											+ relationType
+											: relationType;
+									destTypeComparisons = Ext
+											.isDefined(destTypeComparisons) ? " or "
+											+ destinationType
+											: destinationType;
+								}
+
+								store.expressions = store.expressions
+										+ "&"
+										+ Ext
+												.urlEncode({
+													expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation['
+															+ relationTypeComparisons
+															+ ']'
+												});
+								store.expressions = store.expressions
+										+ "&"
+										+ Ext
+												.urlEncode({
+													expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:destination['
+															+ destTypeComparisons
+															+ ']'
+												});
+							}
+
 							store.load({
 								params : 'start=0&limit=100&'
 										+ store.expressions
@@ -956,17 +994,11 @@ CMDB.Element.DestRelationForm = Ext
 					},
 
 					getRelationType : function(destinationType) {
-						var relationType;
-
-						if (this.relations) {
-							Ext.each(this.relations, function(relation) {
-								if (relation.hasOwnProperty(destinationType)) {
-									relationType = relation[destinationType];
-								}
-							}, this);
+						if (relation.hasOwnProperty(destinationType)) {
+							return relation[destinationType];
 						}
 
-						return relationType;
+						return null;
 					},
 
 					doOpen : function(grid, index) {
@@ -1797,12 +1829,12 @@ CMDB.Element.Search = Ext
 					beforeSearch : function() {
 						this.expressions = Ext
 								.urlEncode({
-									expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
+									expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]'
 								})
 								+ "&" + this.expressions;
 						this.expressions = Ext
 								.urlEncode({
-									expressions : 'declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"'
+									expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"'
 											+ this.elementType + '\"]'
 								})
 								+ "&" + this.expressions;
@@ -2284,9 +2316,9 @@ CMDB.OrganizationStore = Ext
 				});
 
 /**
- * Modules (context) as store
+ * Software (context) as store
  */
-CMDB.ModuleStore = Ext
+CMDB.SoftwareContextStore = Ext
 		.extend(
 				Ext.data.Store,
 				{
@@ -2327,7 +2359,123 @@ CMDB.ModuleStore = Ext
 									+ "&"
 									+ Ext
 											.urlEncode({
-												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Module\"]'
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Software\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
+
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
+
+/**
+ * Publication (context) as store
+ */
+CMDB.PublicationContextStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
+
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
+
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						} ]
+					}),
+
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
+
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Publication\"]'
+											});
+							expressions = expressions + "&" + Ext.urlEncode({
+								expressions : store.baseParams.expressions
+							});
+
+							options.params = "start=0&limit=10&" + expressions;
+						}
+					}
+				});
+
+/**
+ * Software and Publication (context) as store
+ */
+CMDB.SoftwarePublicationContextStore = Ext
+		.extend(
+				Ext.data.Store,
+				{
+					proxy : new Ext.data.HttpProxy(
+							{
+								url : (CMDB.URL || '')
+										+ '/CMDB/resteasy/element',
+								method : 'GET',
+
+								headers : {
+									'Accept' : 'application/json,application/xml,text/html',
+									'Content-Type' : 'application/json'
+								}
+							}),
+
+					reader : new CMDB.JsonReader({
+						totalProperty : 'total',
+						successProperty : 'successful',
+						idProperty : 'Element/id/$',
+						root : 'rows',
+						fields : [ {
+							name : 'Id',
+							mapping : 'Element/id/$'
+						}, {
+							name : 'Name',
+							mapping : 'Element/name/$'
+						}, {
+							name : 'Element',
+							mapping : 'Element'
+						}, {
+							name : 'Type',
+							mapping : 'Element/type/name/$',
+							convert : function(v, record) {
+								return v.replace(/\{.*\}(.*)/, "$1");
+							}
+						} ]
+					}),
+
+					listeners : {
+						'beforeload' : function(store, options) {
+							var expressions;
+
+							expressions = expressions
+									+ "&"
+									+ Ext
+											.urlEncode({
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Software\" or pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/context}Publication\"]'
 											});
 							expressions = expressions + "&" + Ext.urlEncode({
 								expressions : store.baseParams.expressions
@@ -2597,7 +2745,7 @@ CMDB.ApplicationStore = new Ext.data.Store(
 			}
 		});
 
-CMDB.SoftwareStore = Ext
+CMDB.SoftwarePublicationStore = Ext
 		.extend(
 				Ext.data.Store,
 				{
@@ -2632,9 +2780,6 @@ CMDB.SoftwareStore = Ext
 							name : 'Version',
 							mapping : 'Element/configuration/Version/$'
 						}, {
-							name : 'Type',
-							mapping : 'Element/configuration/Type/$'
-						}, {
 							name : 'Label',
 							mapping : 'Element/configuration/Label/$'
 						}, {
@@ -2651,7 +2796,7 @@ CMDB.SoftwareStore = Ext
 									+ "&"
 									+ Ext
 											.urlEncode({
-												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]'
+												expressions : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]'
 											});
 							expressions = expressions + "&" + Ext.urlEncode({
 								expressions : store.baseParams.expressions

@@ -153,8 +153,8 @@ CMDB.Software.GeneralForm = Ext
 Ext.reg('softwareGeneralForm', CMDB.Software.GeneralForm);
 
 /**
- * Software - Software form forcing associations to organizations, modules and a
- * timeframe.
+ * Software - Software form forcing associations to organizations, software
+ * names and a timeframe.
  * 
  */
 CMDB.Software.IdentificationForm = Ext
@@ -175,7 +175,7 @@ CMDB.Software.IdentificationForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										'html' : 'Similar the Ivy framework, software is produced by an organization (group) and ships as a module thereafter further decorated with version number.'
+										'html' : 'Similar the Ivy framework, software is produced by an organization (group) and ships as a logical unit thereafter further decorated with version number.'
 									},
 									{
 										xtype : 'combo',
@@ -228,10 +228,10 @@ CMDB.Software.IdentificationForm = Ext
 									{
 										xtype : 'combo',
 										elementdata : true,
-										fieldLabel : 'Module',
+										fieldLabel : 'Name',
 										allowBlank : false,
-										blankText : 'Module is required',
-										store : new CMDB.ModuleStore(),
+										blankText : 'Name is required',
+										store : new CMDB.SoftwareContextStore(),
 										displayField : 'Name',
 										mode : 'remote',
 										queryParam : 'expressions',
@@ -302,7 +302,7 @@ CMDB.Software.IdentificationForm = Ext
 									{
 										xtype : 'textfield',
 										elementdata : true,
-										fieldLabel : 'Labels are like aliases but not necessary (should mirror a combination of the module and version)',
+										fieldLabel : 'Labels are like aliases but not necessary (should mirror a combination of the software name and version)',
 										allowBlank : true,
 
 										// Marshall combo into the element
@@ -528,6 +528,8 @@ CMDB.Software.Edit = Ext
 
 							layout : 'accordion',
 
+							height : 500,
+
 							items : [
 									{
 										xtype : 'softwareIdentificationForm'
@@ -550,7 +552,7 @@ CMDB.Software.Edit = Ext
 										desktop : this.desktop,
 										editor : CMDB.Software.Edit,
 
-										information : 'Dependencies to other software modules.',
+										information : 'Dependencies to other software.',
 
 										fields : [
 												{
@@ -604,7 +606,7 @@ CMDB.Software.Edit = Ext
 											sortable : true,
 											dataIndex : 'Organization'
 										}, {
-											header : 'Module',
+											header : 'Name',
 											width : 150,
 											sortable : true,
 											dataIndex : 'DestName'
@@ -667,9 +669,9 @@ CMDB.Software.Edit = Ext
 											return record;
 										},
 
-										relations : [ {
+										relations : {
 											'{http://www.klistret.com/cmdb/ci/element/component}Software' : '{http://www.klistret.com/cmdb/ci/relation}Dependency'
-										} ]
+										}
 									},
 									{
 										xtype : 'destRelationForm',
@@ -783,9 +785,9 @@ CMDB.Software.Edit = Ext
 											return record;
 										},
 
-										relations : [ {
+										relations : {
 											'{http://www.klistret.com/cmdb/ci/element/component}Publication' : '{http://www.klistret.com/cmdb/ci/relation}Dependency'
-										} ]
+										}
 									}, {
 										xtype : 'propertyForm'
 									} ]
@@ -859,9 +861,9 @@ CMDB.Software.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Module',
+																		fieldLabel : 'Name',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = {0}]',
-																		store : new CMDB.ModuleStore(),
+																		store : new CMDB.SoftwareContextStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',
@@ -1114,13 +1116,13 @@ CMDB.Software.Search = Ext
  * Publication - Publication form forcing associations to type and extension.
  * 
  */
-CMDB.Publication.IdentificationForm = Ext
+CMDB.Publication.GeneralForm = Ext
 		.extend(
 				Ext.form.FormPanel,
 				{
 					initComponent : function() {
 						var config = {
-							title : 'Identification',
+							title : 'General',
 							autoScroll : true,
 							labelAlign : 'top',
 							bodyStyle : 'padding:10px; background-color:white;',
@@ -1132,7 +1134,7 @@ CMDB.Publication.IdentificationForm = Ext
 									{
 										xtype : 'displayfield',
 										width : 'auto',
-										'html' : 'Similar the Ivy framework, publications have a type describing why the artefact has been made and an extension to aid in how the publication might be handled.'
+										'html' : 'Every publication has a type representing why the publication exists and an extension informing how the publication could be processed.'
 									},
 									{
 										xtype : 'combo',
@@ -1217,9 +1219,281 @@ CMDB.Publication.IdentificationForm = Ext
 										}
 									},
 									{
+										xtype : 'superboxselect',
+										elementdata : true,
+										fieldLabel : 'Tags',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (!Ext.isEmpty(this.getValueEx())) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons')
+												tags = [];
+
+												Ext
+														.each(
+																this
+																		.getValueEx(),
+																function(value) {
+																	var tag = {
+																		'$' : value['name']
+																	};
+
+																	tags[tags.length] = tag;
+																});
+
+												element['Element']['configuration'][commons
+														+ ":Tag"] = tags;
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Tag');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var tags = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Tag'), formated = [];
+
+											if (Ext.isArray(tags)) {
+												Ext
+														.each(
+																tags,
+																function(tag) {
+																	formated[formated.length] = {
+																		'name' : tag['$']
+																	};
+																});
+											}
+
+											if (Ext.isObject(tags)) {
+												formated[formated.length] = {
+													'name' : tags['$']
+												};
+											}
+
+											this.setValueEx(formated);
+										},
+
+										// Combo box store
+										store : new Ext.data.SimpleStore({
+											fields : [ 'name' ],
+											data : this.tags,
+											sortInfo : {
+												field : 'name',
+												direction : 'ASC'
+											}
+										}),
+
+										displayField : 'name',
+										valueField : 'name',
+										mode : 'local',
+
+										allowAddNewData : true,
+										addNewDataOnBlur : true,
+
+										extraItemCls : 'x-tag',
+
+										listeners : {
+											newitem : function(bs, v, f) {
+												var newObj = {
+													name : v
+												};
+												bs.addItem(newObj);
+											}
+										}
+									},
+									// Description field
+									{
+										xtype : 'textarea',
+										elementdata : true,
+										fieldLabel : 'Description',
+										height : 50,
+										blankText : 'Description of the Environment',
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (this.getValue()) {
+												var commons = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/commons');
+												element['Element']['configuration'][commons
+														+ ':Description'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Description');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Description/$');
+											this.setValue(value);
+										}
+									} ]
+						};
+
+						Ext.apply(this, Ext.apply(this.initialConfig, config));
+						CMDB.Publication.GeneralForm.superclass.initComponent
+								.apply(this, arguments);
+					}
+				});
+Ext.reg('publicationGeneralForm', CMDB.Publication.GeneralForm);
+
+CMDB.Publication.IdentificationForm = Ext
+		.extend(
+				Ext.form.FormPanel,
+				{
+					initComponent : function() {
+						var config = {
+							title : 'Identification',
+							autoScroll : true,
+							labelAlign : 'top',
+							bodyStyle : 'padding:10px; background-color:white;',
+							defaults : {
+								width : 300
+							},
+
+							items : [
+									{
+										xtype : 'displayfield',
+										width : 'auto',
+										'html' : 'Publications like software have an organization, a version and likely a label identifying the artefact or package.'
+									},
+									{
+										xtype : 'combo',
+										elementdata : true,
+										fieldLabel : 'Organization',
+										allowBlank : false,
+										blankText : 'Organization is required',
+										store : new CMDB.OrganizationStore(),
+										displayField : 'Name',
+										mode : 'remote',
+										queryParam : 'expressions',
+										forceSelection : true,
+
+										// Edit the query for the combo into an
+										// expression
+										listeners : {
+											'beforequery' : function(e) {
+												e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+														+ e.query + '%\")]';
+											}
+										},
+
+										// Marshall combo into the element
+										marshall : function(element) {
+											if (this.getValue()
+													&& element['Element']['configuration']) {
+												var prefix = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/element/component');
+												element['Element']['configuration'][prefix
+														+ ':Organization'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Organization');
+											}
+										},
+
+										// Unmarshall element value into the
+										// combo
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Organization/$');
+											this.setValue(value);
+										}
+									},
+									{
+										xtype : 'combo',
+										elementdata : true,
+										fieldLabel : 'Name',
+										allowBlank : false,
+										blankText : 'Name is required',
+										store : new CMDB.PublicationContextStore(),
+										displayField : 'Name',
+										mode : 'remote',
+										queryParam : 'expressions',
+										forceSelection : true,
+
+										// Edit the query for the combo into an
+										// expression
+										listeners : {
+											'beforequery' : function(e) {
+												e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+														+ e.query + '%\")]';
+											}
+										},
+
+										// Read from object into JSON
+										marshall : function(element) {
+											if (this.getValue()) {
+												element['Element']['name'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish.remove(element,
+														'Element/name');
+											}
+										},
+
+										// Read from JSON into object
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish.get(
+													element, 'Element/name/$');
+											this.setValue(value);
+										}
+									},
+									{
 										xtype : 'textfield',
 										elementdata : true,
-										fieldLabel : 'Labels are like aliases but not necessary (should mirror a combination of the module and version)',
+										fieldLabel : 'Version',
+										allowBlank : false,
+										blankText : 'Enter a version',
+
+										// Marshall combo into the element
+										marshall : function(element) {
+											if (this.getValue()
+													&& element['Element']['configuration']) {
+												var prefix = CMDB.Badgerfish
+														.getPrefix(element,
+																'http://www.klistret.com/cmdb/ci/element/component');
+												element['Element']['configuration'][prefix
+														+ ':Version'] = {
+													'$' : this.getValue()
+												};
+											} else {
+												CMDB.Badgerfish
+														.remove(element,
+																'Element/configuration/Version');
+											}
+										},
+
+										// Unmarshall element value into the
+										// combo
+										unmarshall : function(element) {
+											var value = CMDB.Badgerfish
+													.get(element,
+															'Element/configuration/Version/$');
+											this.setValue(value);
+										}
+									},
+									{
+										xtype : 'textfield',
+										elementdata : true,
+										fieldLabel : 'Labels are like aliases but not necessary (should mirror a combination of the publication name and version)',
 										allowBlank : true,
 
 										// Marshall combo into the element
@@ -1315,21 +1589,22 @@ CMDB.Publication.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Software Editor',
+							title : 'Publication Editor',
 
 							layout : 'accordion',
 
 							items : [
 									{
-										xtype : 'generalForm',
-										helpInfo : 'An application is a runtime conglomeration of software within an application system and is a managed object.',
+										xtype : 'publicationIdentificationForm'
+									},
+									{
+										xtype : 'publicationGeneralForm',
+										helpInfo : 'Publications are artefacts or packages associated with software.',
 										tags : [ [ 'Third party' ],
 												[ 'Open source' ],
 												[ 'Commercial' ],
 												[ 'Homegrown' ],
 												[ 'Freeware' ], [ 'Firmware' ] ]
-									}, {
-										xtype : 'publicationIdentificationForm'
 									}, {
 										xtype : 'propertyForm'
 									} ]
@@ -1377,6 +1652,58 @@ CMDB.Publication.Search = Ext
 															},
 
 															items : [
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Organization',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = {0}]',
+																		store : new CMDB.OrganizationStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'superboxselect',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Name',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = {0}]',
+																		store : new CMDB.PublicationContextStore(),
+																		queryParam : 'expressions',
+																		displayField : 'Name',
+																		valueField : 'Name',
+																		mode : 'remote',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag',
+
+																		listeners : {
+																			'beforequery' : function(
+																					e) {
+																				e.query = 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"'
+																						+ e.query
+																						+ '%\")]';
+																			}
+																		}
+																	},
+																	{
+																		xtype : 'textfield',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Version',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Version eq \"{0}\"]'
+																	},
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
@@ -1483,31 +1810,44 @@ CMDB.Publication.Search = Ext
 
 							items : form,
 
-							fields : [ {
-								name : 'Id',
-								mapping : 'Element/id/$'
-							}, {
-								name : 'Name',
-								mapping : 'Element/name/$'
-							}, {
-								name : 'Type',
-								mapping : 'Element/configuration/Type/$'
-							}, {
-								name : 'Extension',
-								mapping : 'Element/configuration/Extension/$'
-							}, {
-								name : 'Label',
-								mapping : 'Element/configuration/Label/$'
-							}, {
-								name : 'Created',
-								mapping : 'Element/createTimeStamp/$'
-							}, {
-								name : 'Updated',
-								mapping : 'Element/updateTimeStamp/$'
-							}, {
-								name : 'Element',
-								mapping : 'Element'
-							} ],
+							fields : [
+									{
+										name : 'Id',
+										mapping : 'Element/id/$'
+									},
+									{
+										name : 'Name',
+										mapping : 'Element/name/$'
+									},
+									{
+										name : 'Organization',
+										mapping : 'Element/configuration/Organization/$'
+									},
+									{
+										name : 'Version',
+										mapping : 'Element/configuration/Version/$'
+									},
+									{
+										name : 'Type',
+										mapping : 'Element/configuration/Type/$'
+									},
+									{
+										name : 'Extension',
+										mapping : 'Element/configuration/Extension/$'
+									},
+									{
+										name : 'Label',
+										mapping : 'Element/configuration/Label/$'
+									}, {
+										name : 'Created',
+										mapping : 'Element/createTimeStamp/$'
+									}, {
+										name : 'Updated',
+										mapping : 'Element/updateTimeStamp/$'
+									}, {
+										name : 'Element',
+										mapping : 'Element'
+									} ],
 
 							columns : [ {
 								header : 'Name',
@@ -1515,20 +1855,30 @@ CMDB.Publication.Search = Ext
 								sortable : true,
 								dataIndex : 'Name'
 							}, {
+								header : 'Organization',
+								width : 200,
+								sortable : true,
+								dataIndex : 'Organization'
+							}, {
+								header : 'Version',
+								width : 120,
+								sortable : true,
+								dataIndex : 'Version'
+							}, {
 								header : 'Type',
 								width : 200,
 								sortable : true,
 								dataIndex : 'Type'
 							}, {
-								header : 'Extension',
-								width : 120,
-								sortable : true,
-								dataIndex : 'Extension'
-							}, {
 								header : 'Label',
 								width : 200,
 								sortable : true,
 								dataIndex : 'Label'
+							}, {
+								header : 'Extension',
+								width : 120,
+								sortable : true,
+								dataIndex : 'Extension'
 							}, {
 								header : "Created",
 								width : 120,
