@@ -87,23 +87,23 @@
 
 		<!-- Resteasy restasy-jaxrs (1): -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs"
-			rev="2.0.1.GA" conf="compile->master" />
+			rev="2.2.3.GA" conf="compile->master" />
 
 		<!-- Resteasy jaxrs-api (1): jaxrs-api -->
-		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.0.1.GA"
+		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.2.3.GA"
 			conf="compile->master" />
 
 		<!-- Resteasy resteasy-jaxb-provider (1): resteasy-jaxb-provider -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jaxb-provider"
-			rev="2.0.1.GA" conf="runtime->master" />
+			rev="2.2.3.GA" conf="runtime->master" />
 
 		<!-- Resteasy resteasy-jettison-provider (1): resteasy-jettison-provider -->
 		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider"
-			rev="2.0.1.GA" conf="runtime->master" />
+			rev="2.2.3.GA" conf="runtime->master" />
 
 		<!-- Resteasy resteasy-spring (1): resteasy-spring -->
 		<dependency org="org.jboss.resteasy" name="resteasy-spring"
-			rev="2.0.1.GA" conf="compile->master" />
+			rev="2.2.3.GA" conf="compile->master" />
 
 		<!-- Jettison (1): jettison -->
 		<dependency org="org.codehaus.jettison" name="jettison"
