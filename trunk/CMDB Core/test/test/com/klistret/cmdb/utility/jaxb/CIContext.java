@@ -64,7 +64,7 @@ public class CIContext {
 		helper = com.klistret.cmdb.utility.jaxb.CIContext.getCIContext();
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Marshall then validate the environment object
 	 */
@@ -88,7 +88,7 @@ public class CIContext {
 				"Environment marshalled and validated [xml: %s]", sw), sw);
 	}
 
-	//@Test
+	// @Test
 	/**
 	 * Get CI beans
 	 */
