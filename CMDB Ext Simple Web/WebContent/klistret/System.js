@@ -240,7 +240,7 @@ CMDB.Application.Edit = Ext
 										desktop : this.desktop,
 										editor : CMDB.Software.Edit,
 
-										information : 'Composite relations to other software modules.',
+										information : 'Composite relations to software.',
 
 										fields : [
 												{
@@ -453,9 +453,9 @@ CMDB.Application.Search = Ext
 																	{
 																		xtype : 'superboxselect',
 																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
-																		fieldLabel : 'Composed of software modules',
+																		fieldLabel : 'Composed of software',
 																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:sourceRelations[empty(pojo:toTimeStamp)]/pojo:destination[pojo:name = {0}]',
-																		store : new CMDB.ModuleStore(),
+																		store : new CMDB.SoftwareContextStore(),
 																		queryParam : 'expressions',
 																		displayField : 'Name',
 																		valueField : 'Name',
