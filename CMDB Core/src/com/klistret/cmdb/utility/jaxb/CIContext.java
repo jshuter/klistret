@@ -215,6 +215,12 @@ public class CIContext {
 	 * @return
 	 */
 	private Set<URL> pruneURLs(Set<URL> candidates) {
+		/**
+		 * System property filter for publications files
+		 */
+		String[] publications = System.getProperty("ci.publications") == null ? null
+				: System.getProperty("ci.publications").split(",", 0);
+
 		Set<URL> validations = new HashSet<URL>();
 
 		for (URL candidate : candidates) {
@@ -249,6 +255,23 @@ public class CIContext {
 		}
 		logger.warn("{} URLs elimated from {} candidates", candidates.size()
 				- validations.size(), candidates.size());
+
+		/**
+		 * Reduce the results to only jars listed in the system property
+		 */
+		if (publications != null) {
+			Set<URL> others = new HashSet<URL>(publications.length);
+			for (URL url : validations)
+				for (String name : publications)
+					if (url.getPath().contains(name)) {
+						others.add(url);
+						logger.debug("Reduced candidate to pool with match {}",
+								url.getPath());
+					}
+
+			if (others.size() != 0)
+				return others;
+		}
 
 		return validations;
 	}
