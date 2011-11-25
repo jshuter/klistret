@@ -654,7 +654,7 @@ CMDB.Element.DestRelationForm = Ext
 
 									bbar : new Ext.PagingToolbar(
 											{
-												pageSize : 20,
+												pageSize : 100,
 												store : store,
 												displayInfo : true,
 												displayMsg : 'Displaying rows {0} - {1} of {2}',
