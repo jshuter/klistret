@@ -53,34 +53,14 @@ public class LiteralExpr implements Expr {
 	private Configuration configuration;
 
 	/**
-	 * Value as string
+	 * Internal Value representation (atomic)
 	 */
-	private String valueAsString;
+	private com.klistret.cmdb.utility.saxon.Value value;
 
 	/**
-	 * Actual string text of the literal value
+	 * Interval Value representation (sequence)
 	 */
-	private String literalAsString;
-
-	/**
-	 * Value as an array of strings
-	 */
-	private String[] valueAsStringArray;
-
-	/**
-	 * Actual string text of the literal values
-	 */
-	private String[] literalAsStringArray;
-
-	/**
-	 * Value as object
-	 */
-	private Object value;
-
-	/**
-	 * Value as an array of objects
-	 */
-	private Object[] valueAsArray;
+	private com.klistret.cmdb.utility.saxon.Value[] values;
 
 	/**
 	 * An atomic condition
@@ -130,11 +110,31 @@ public class LiteralExpr implements Expr {
 	}
 
 	/**
+	 * Generates XPath
+	 */
+	public String getXPath() {
+		return getXPath(false);
+	}
+
+	/**
 	 * Generates XPath by returning the underlying Value (regardless if atomic
 	 * or not) as a string.
 	 */
-	public String getXPath() {
-		return ((Literal) expression).getValue().toString();
+	public String getXPath(boolean maskLiteral) {
+		if (!maskLiteral)
+			return ((Literal) expression).getValue().toString();
+
+		if (atomic)
+			return String.format("$%s", value.getMask());
+
+		String results = null;
+		for (com.klistret.cmdb.utility.saxon.Value value : values) {
+			results = results == null ? String.format("($%s", value.getMask())
+					: String.format("%s, $%s", results, value.getMask());
+		}
+		results = String.format("%s)", results);
+
+		return results;
 	}
 
 	/**
@@ -156,15 +156,16 @@ public class LiteralExpr implements Expr {
 			Value literal = expression.getValue();
 
 			if (literal instanceof AtomicValue) {
-				valueAsString = literal.getStringValue();
-				literalAsString = literal.toString();
-				value = Value.convertToJava(literal.asItem());
+				value = new com.klistret.cmdb.utility.saxon.Value();
+
+				value.setText(literal.getStringValue());
+				value.setLiteral(literal.toString());
+				value.setJavaValue(Value.convertToJava(literal.asItem()));
 			}
 
 			if (literal instanceof SequenceExtent) {
-				valueAsStringArray = new String[literal.getLength()];
-				literalAsStringArray = new String[literal.getLength()];
-				valueAsArray = new Object[literal.getLength()];
+				values = new com.klistret.cmdb.utility.saxon.Value[literal
+						.getLength()];
 
 				for (int index = 0; index < literal.getLength(); index++) {
 					Item item = ((SequenceExtent) literal).itemAt(index);
@@ -173,9 +174,13 @@ public class LiteralExpr implements Expr {
 						throw new ApplicationException(
 								"Sequence item is not an instance of Value");
 
-					valueAsStringArray[index] = item.getStringValue();
-					literalAsStringArray[index] = ((Value) item).toString();
-					valueAsArray[index] = Value.convertToJava(item);
+					com.klistret.cmdb.utility.saxon.Value value = new com.klistret.cmdb.utility.saxon.Value();
+
+					value.setText(item.getStringValue());
+					value.setLiteral(((Value) item).toString());
+					value.setJavaValue(Value.convertToJava(item));
+
+					values[index] = value;
 				}
 			}
 		} catch (XPathException e) {
@@ -193,9 +198,9 @@ public class LiteralExpr implements Expr {
 	/**
 	 * Atomic literals only
 	 * 
-	 * @return Object
+	 * @return Value
 	 */
-	public Object getValue() {
+	public com.klistret.cmdb.utility.saxon.Value getValue() {
 		return value;
 	}
 
@@ -204,44 +209,8 @@ public class LiteralExpr implements Expr {
 	 * 
 	 * @return Object array
 	 */
-	public Object[] getValueAsArray() {
-		return valueAsArray;
-	}
-
-	/**
-	 * String representation of only atomic literals
-	 * 
-	 * @return String
-	 */
-	public String getValueAsString() {
-		return valueAsString;
-	}
-
-	/**
-	 * Get the actual string text
-	 * 
-	 * @return String
-	 */
-	public String getLiteralAsString() {
-		return literalAsString;
-	}
-
-	/**
-	 * String array representation of only sequential literals
-	 * 
-	 * @return String[]
-	 */
-	public String[] getValueAsStringArray() {
-		return valueAsStringArray;
-	}
-
-	/**
-	 * Get the actual string texts
-	 * 
-	 * @return String[]
-	 */
-	public String[] getLiteralAsStringArray() {
-		return literalAsStringArray;
+	public com.klistret.cmdb.utility.saxon.Value[] getValues() {
+		return values;
 	}
 
 	/**

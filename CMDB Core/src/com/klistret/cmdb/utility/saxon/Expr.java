@@ -59,6 +59,15 @@ public interface Expr {
 	public String getXPath();
 
 	/**
+	 * Get a generated XPath for the original expression except mask the literal
+	 * values
+	 * 
+	 * @param maskLiteral
+	 * @return
+	 */
+	public String getXPath(boolean maskLiteral);
+
+	/**
 	 * Get Expr type
 	 * 
 	 * @return Expr type

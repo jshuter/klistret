@@ -35,6 +35,10 @@ public class RootExpr extends Step {
 		return RootExpr.getXPath("/");
 	}
 
+	public String getXPath(boolean maskLiteral) {
+		return getXPath();
+	}
+
 	public static String getXPath(String value) {
 		return value;
 	}

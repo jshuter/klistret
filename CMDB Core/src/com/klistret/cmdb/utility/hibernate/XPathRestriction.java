@@ -14,24 +14,31 @@
 
 package com.klistret.cmdb.utility.hibernate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.dialect.DB2Dialect;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.Oracle9iDialect;
-import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.engine.TypedValue;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.utility.saxon.Step;
+import com.klistret.cmdb.utility.saxon.StepExpr;
+import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
+import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.PathExpression;
+import com.klistret.cmdb.utility.saxon.Value;
 
 /**
  * Implements Hibernate Criterion for XPath expressions acting on a property
@@ -57,25 +64,35 @@ public class XPathRestriction implements Criterion {
 	private final Step step;
 
 	/**
-	 * Expression step
+	 * TypedValues containing the string values for literals
 	 */
-	private final PathExpression pathExpression;
+	private List<TypedValue> typedValues = new ArrayList<TypedValue>();
+
+	/**
+	 * Everything is a string despite the explicit casting
+	 */
+	private static final Type stringType = new StringType();
 
 	/**
 	 * Variable reference that associates the database column to the XPath.
 	 */
-	private final String variableReference;
+	private static final String variableReference = "this";
 
 	/**
-	 * Return value for criterion without types values
-	 */
-	private static final TypedValue[] NO_TYPED_VALUES = new TypedValue[0];
-
-	/**
-	 * 
+	 * Single Quotes pattern
 	 */
 	private static final Pattern singleQuotes = Pattern
 			.compile("'((?:[^']+|'')*)'");
+
+	/**
+	 * VARCHAR size limitation
+	 */
+	private static int varcharLimit = 255;
+
+	/**
+	 * Base mask for literal variables
+	 */
+	private static final String baseMask = "v0";
 
 	/**
 	 * Constructor transfers over arguments to properties (variable refenese
@@ -85,35 +102,16 @@ public class XPathRestriction implements Criterion {
 	 * @param step
 	 */
 	public XPathRestriction(String propertyName, Step step) {
-		this(propertyName, step, "this");
-	}
-
-	/**
-	 * Constructor transfers over arguments to properties
-	 * 
-	 * @param propertyName
-	 * @param xpath
-	 * @param variableReference
-	 */
-	public XPathRestriction(String propertyName, Step step,
-			String variableReference) {
 		this.propertyName = propertyName;
 		this.step = step;
-		this.pathExpression = step.getRelativePath().getPathExpression();
-		this.variableReference = variableReference;
 	}
 
-	/**
-	 * Depending on the database dialect (only DB2/Oracle supported currently)
-	 * the XmlExists clause is built from the passed XPath and variable
-	 * reference.
-	 * 
-	 * @param criteria
-	 * @param criteriaQuery
-	 * @return String
-	 */
+	@Override
 	public String toSqlString(Criteria criteria, CriteriaQuery criteriaQuery)
 			throws HibernateException {
+		/**
+		 * Establish dialect, property information about this column
+		 */
 		Dialect dialect = criteriaQuery.getFactory().getDialect();
 		String[] columns = criteriaQuery.getColumnsUsingProjection(criteria,
 				propertyName);
@@ -127,30 +125,81 @@ public class XPathRestriction implements Criterion {
 		}
 
 		/**
-		 * A variable reference from SQL into XQuery is necessary
+		 * Path Expression
 		 */
-		String xpath = String.format("$%s", variableReference);
+		PathExpression pathExpression = step.getRelativePath()
+				.getPathExpression();
 
 		/**
-		 * Property type is generalized to a "*" and the user is left to add
-		 * type attributes to the predicate
+		 * Property type is generalized to wild-card "*" leaving only the
+		 * predicate
 		 */
 		String axis = String.format("%s:%s", step.getQName().getPrefix(), step
 				.getQName().getLocalPart());
 
-		String stepRawXPath = pathExpression.getRawXPath(step.getDepth(),
-				step.getDepth());
-		String descendingRawXPath = pathExpression.getRawXPath(
-				step.getDepth() + 1, pathExpression.getRelativePath()
-						.getDepth() - 1);
+		/**
+		 * Passing clause
+		 */
+		String passingClause = String.format("PASSING %s AS \"%s\"",
+				columns[0], variableReference);
 
-		if (descendingRawXPath != null)
-			xpath = String.format("%s/%s/%s", xpath, step.getXPath()
-					.replaceFirst(axis, "*"), descendingRawXPath);
-		else
-			xpath = String.format("%s/%s", xpath,
-					stepRawXPath.replaceFirst(axis, "*"));
+		/**
+		 * Setup XPath first with the variable reference (acts a root), the axis
+		 * is replaced and then XPath is built up again either from generated
+		 * string or the raw XPath for each step (depending on if it is a
+		 * readable step or irresolute).
+		 */
+		String xpath = String.format("$%s", variableReference);
 
+		String sqlMask = baseMask;
+		for (Expr expr : step.getRelativePath().getSteps()) {
+			if (expr instanceof Step) {
+				if (((Step) expr).getDepth() >= step.getDepth()) {
+					if (expr instanceof StepExpr) {
+						xpath = String.format("%s/%s", xpath,
+								expr.getXPath(true));
+
+						for (Value value : ((StepExpr) expr).getValues()) {
+							if (value.getText().length() > varcharLimit)
+								throw new ApplicationException(
+										String.format(
+												"Literal value [%s] is larger than VARCHAR limiation [%d]",
+												value.getText(), varcharLimit));
+
+							String xpathMask = value.getMask();
+							passingClause = String.format(
+									"%s, CAST (? AS VARCHAR(%d)) AS \"%s\"",
+									passingClause, varcharLimit, xpathMask);
+
+							typedValues.add(new TypedValue(stringType, value
+									.getText(), EntityMode.POJO));
+							logger.debug(
+									"Adding StringType [value: {}] to restriction with variable [{}]",
+									value.getText(), xpathMask);
+
+							/**
+							 * Use a common mask to reduce the variation in
+							 * generated SQL
+							 */
+							xpath = xpath.replaceAll(xpathMask, sqlMask);
+							passingClause = passingClause.replaceAll(xpathMask,
+									sqlMask);
+							logger.debug(
+									"Replaced XPath mask {} with a common SQL mask {}",
+									xpathMask, sqlMask);
+
+							sqlMask = incrementMask(sqlMask);
+						}
+					}
+					if (expr instanceof IrresoluteExpr) {
+						xpath = String.format("%s/%s", xpath, pathExpression
+								.getRawXPath(((Step) expr).getDepth()));
+					}
+				}
+			}
+		}
+
+		xpath = xpath.replaceFirst(axis, "*");
 		logger.debug(
 				"XPath [{}] prior prefixing default function declaration and namespace declarations",
 				xpath);
@@ -167,69 +216,40 @@ public class XPathRestriction implements Criterion {
 		if (pathExpression.getDefaultElementNamespace() != null)
 			xpath = pathExpression.getDefaultElementNamespace().concat(xpath);
 
-		/**
-		 * Depending on the database dialect concatenate the specific default
-		 * funtion namespace
-		 */
 		if (dialect instanceof DB2Dialect) {
 			/**
 			 * DB2 only allows SQL with double quotes (or at least that is the
 			 * extend of my knowledge)
 			 */
 			Matcher sq = singleQuotes.matcher(xpath);
-			if (sq.find()) {
+			if (sq.find())
 				throw new ApplicationException(
 						String.format(
 								"XPath [%s] contains surrounding single quotes which DB2 does not allow",
 								xpath), new UnsupportedOperationException());
-			}
-
-			/**
-			 * Passing clause
-			 */
-			String passing = String.format("PASSING %s AS \"%s\"", columns[0],
-					variableReference);
-
-			/**
-			 * Return the XMLEXISTS predicate
-			 */
-			return String.format("XMLEXISTS(\'%s\' %s)", xpath, passing);
 		}
 
-		if (dialect instanceof Oracle9iDialect) {
-			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
-					xpath, columns[0], variableReference);
-		}
-
-		if (dialect instanceof PostgreSQLDialect) {
-			return String.format("XMLExists(\'%s\' PASSING %s AS \"%s\")",
-					xpath, columns[0], variableReference);
-		}
-
-		throw new HibernateException(String.format(
-				"Dialect [%s] not supported for xpath expression", dialect));
+		/**
+		 * Return the XMLEXISTS predicate
+		 */
+		return String.format("XMLEXISTS(\'%s\' %s)", xpath, passingClause);
 	}
 
-	/**
-	 * Returns NO_TYPED_VALUES constant
-	 */
+	@Override
 	public TypedValue[] getTypedValues(Criteria criteria,
 			CriteriaQuery criteriaQuery) throws HibernateException {
-		return NO_TYPED_VALUES;
+		return typedValues.toArray(new TypedValue[0]);
 	}
 
 	/**
-	 * More information for debugging
+	 * Increment mask
 	 * 
-	 * @return String
+	 * @param mask
+	 * @return
 	 */
-	public String toString() {
-		String descendingRawXPath = pathExpression.getRawXPath(
-				step.getDepth() + 1, pathExpression.getRelativePath()
-						.getDepth() - 1);
+	private String incrementMask(String mask) {
+		char last = mask.charAt(mask.length() - 1);
 
-		return String
-				.format("XPath [%s] against property [%s] with variable reference [%s]",
-						descendingRawXPath, propertyName, variableReference);
+		return mask.substring(0, mask.length() - 1) + ++last;
 	}
 }

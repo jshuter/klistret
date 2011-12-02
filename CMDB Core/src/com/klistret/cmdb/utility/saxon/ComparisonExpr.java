@@ -19,6 +19,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.exception.ApplicationException;
+
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
 import net.sf.saxon.expr.ContextItemExpression;
@@ -199,10 +201,17 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	}
 
 	/**
-	 * Generate XPath string
+	 * Generate XPath without masking literal values
 	 */
 	public String getXPath() {
-		return ComparisonExpr.getXPath(this.getOperator(), this.getOperands());
+		return getXPath(false);
+	}
+	
+	/**
+	 * Generate XPath
+	 */
+	public String getXPath(boolean maskLiteral) {
+		return ComparisonExpr.getXPath(this.getOperator(), this.getOperands(),maskLiteral);
 	}
 
 	/**
@@ -210,41 +219,44 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	 * 
 	 * @param operator
 	 * @param operands
+	 * @param maskLiteral
 	 * @return
 	 */
-	public static String getXPath(Operator operator, List<Expr> operands) {
+	public static String getXPath(Operator operator, List<Expr> operands,
+			boolean maskLiteral) {
 		switch (operator) {
 		case ValueEquals:
-			return String.format("%s eq %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s eq %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case ValueNotEquals:
-			return String.format("%s nq %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s nq %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case ValueGreaterThan:
-			return String.format("%s gt %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s gt %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case ValueGreaterThanOrEquals:
-			return String.format("%s ge %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s ge %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case ValueLessThan:
-			return String.format("%s lt %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s lt %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case ValueLessThanOrEquals:
-			return String.format("%s le %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s le %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case GeneralEquals:
-			return String.format("%s = %s", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("%s = %s", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		case Empty:
-			return String.format("empty(%s)", operands.get(0).getXPath());
+			return String.format("empty(%s)", operands.get(0).getXPath(maskLiteral));
 		case Exists:
-			return String.format("exists(%s)", operands.get(0).getXPath());
+			return String.format("exists(%s)", operands.get(0).getXPath(maskLiteral));
 		case Matches:
-			return String.format("matches(%s,%s)", operands.get(0).getXPath(),
-					operands.get(1).getXPath());
+			return String.format("matches(%s,%s)", operands.get(0).getXPath(maskLiteral),
+					operands.get(1).getXPath(maskLiteral));
 		}
 
-		return "undefined";
+		throw new ApplicationException(
+				"Operator undefined while generating XPath");
 	}
 
 	/**

@@ -105,17 +105,26 @@ public class RelativePathExpr implements Expr {
 	}
 
 	/**
-	 * Generates the a XPath string by concatenating the XPath for individual
-	 * steps with a "/" delimiter.
+	 * Generates XPath without masking literal values
 	 * 
 	 * @return XPath
 	 */
 	public String getXPath() {
+		return getXPath(false);
+	}
+
+	/**
+	 * Generates XPath by concatenating the XPath for individual steps with a
+	 * "/" delimiter.
+	 * 
+	 * @return XPath
+	 */
+	public String getXPath(boolean maskLiteral) {
 		String xpath = null;
 
 		for (Expr expr : steps) {
-			xpath = xpath == null ? expr.getXPath() : String.format("%s/%s",
-					xpath, expr.getXPath());
+			xpath = xpath == null ? expr.getXPath(maskLiteral) : String.format(
+					"%s/%s", xpath, expr.getXPath(maskLiteral));
 		}
 		return xpath;
 	}
@@ -173,16 +182,6 @@ public class RelativePathExpr implements Expr {
 	}
 
 	/**
-	 * Get XPath for a particular expression
-	 * 
-	 * @param depth
-	 * @return XPath
-	 */
-	public String getXPath(int depth) {
-		return steps.get(depth).getXPath();
-	}
-
-	/**
 	 * Existence of an irresolute path
 	 * 
 	 * @return
@@ -227,30 +226,6 @@ public class RelativePathExpr implements Expr {
 	 */
 	public int getDepth() {
 		return steps.size();
-	}
-
-	/**
-	 * Get values as strings from comparison expressions in order from the depth
-	 * downwards
-	 */
-	public String[] getValues(int depth) {
-		if (depth >= getDepth())
-			return null;
-
-		if (depth < 0)
-			return null;
-
-		List<String> values = new ArrayList<String>();
-		for (int index = depth; index < getDepth(); index++) {
-			Expr expr = getExpr(index);
-			if (expr.getType().equals(Expr.Type.Step))
-				values.addAll(((StepExpr) expr).getValues());
-		}
-
-		if (values.size() == 0)
-			return null;
-
-		return values.toArray(new String[0]);
 	}
 
 	/**

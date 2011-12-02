@@ -49,6 +49,9 @@ public class StepExpr extends Step {
 	private static final Logger logger = LoggerFactory
 			.getLogger(StepExpr.class);
 
+	/**
+	 * 
+	 */
 	private List<Expr> predicates = new ArrayList<Expr>();
 
 	/**
@@ -76,7 +79,12 @@ public class StepExpr extends Step {
 	/**
 	 * Values as strings from the predicates of the step
 	 */
-	protected List<String> values = new ArrayList<String>();
+	protected List<com.klistret.cmdb.utility.saxon.Value> values = new ArrayList<com.klistret.cmdb.utility.saxon.Value>();
+
+	/**
+	 * Masks
+	 */
+	protected List<String> masks = new ArrayList<String>();
 
 	/**
 	 * Passing a Saxon axis expression means there are no predicates
@@ -269,37 +277,46 @@ public class StepExpr extends Step {
 	}
 
 	/**
-     *
-    */
+	 * Before adding the comparison expression the atomic and sequential values
+	 * should be extracted into a list.
+	 */
 	private ComparisonExpr addValues(ComparisonExpr ce) {
 		for (Expr operand : ce.getOperands()) {
 			if (operand.getClass().getName()
 					.equals(LiteralExpr.class.getName())) {
 				if (((LiteralExpr) operand).isAtomic())
-					values.add(((LiteralExpr) operand).getLiteralAsString());
+					values.add(((LiteralExpr) operand).getValue());
 				else
 					values.addAll(Arrays.asList(((LiteralExpr) operand)
-							.getLiteralAsStringArray()));
-
+							.getValues()));
 			}
 		}
 		return ce;
 	}
 
 	/**
-	 * 
+	 * Get expression type
 	 */
 	public Type getType() {
 		return Type.Step;
 	}
 
 	/**
+	 * Generate XPath without masking literal values
 	 * 
+	 * @return XPath
 	 */
 	public String getXPath() {
+		return getXPath(false);
+	}
+
+	/**
+	 * Generate XPath with or without masking literal values if predicates exist
+	 */
+	public String getXPath(boolean maskLiteral) {
 		return isElement ? hasPredicates() ? String.format("%s%s",
-				getShortHand(), getPredicateXPath()) : getShortHand() : String
-				.format("@%s", getShortHand());
+				getShortHand(), getPredicateXPath(maskLiteral))
+				: getShortHand() : String.format("@%s", getShortHand());
 	}
 
 	/**
@@ -313,14 +330,16 @@ public class StepExpr extends Step {
 	}
 
 	/**
+	 * Generate the predicate XPath
 	 * 
 	 * @return
 	 */
-	private String getPredicateXPath() {
+	private String getPredicateXPath(boolean maskLiteral) {
 		String xpath = null;
 		for (Expr expr : predicates)
-			xpath = xpath == null ? String.format("[%s]", expr.getXPath())
-					: String.format("%s[%s]", xpath, expr.getXPath());
+			xpath = xpath == null ? String.format("[%s]",
+					expr.getXPath(maskLiteral)) : String.format("%s[%s]",
+					xpath, expr.getXPath(maskLiteral));
 
 		return xpath;
 	}
@@ -452,15 +471,22 @@ public class StepExpr extends Step {
 	}
 
 	/**
-	 * Get values as string for all comparison expressions within the step's
-	 * predicates
+	 * Get values all comparison expressions within the step's predicates
 	 */
-	public List<String> getValues() {
+	public List<com.klistret.cmdb.utility.saxon.Value> getValues() {
 		return values;
 	}
 
 	/**
 	 * 
+	 * @return
+	 */
+	public List<String> getMasks() {
+		return masks;
+	}
+
+	/**
+	 * String representation
 	 */
 	public String toString() {
 		return String

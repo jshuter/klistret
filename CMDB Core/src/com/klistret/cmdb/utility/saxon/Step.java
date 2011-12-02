@@ -125,17 +125,6 @@ public abstract class Step implements Expr {
 	}
 
 	/**
-	 * Concatenation descending XPaths
-	 * 
-	 * @return
-	 */
-	public String getDescendingXPath() {
-		return next == null ? null : next.getDescendingXPath() == null ? next
-				.getXPath() : next.getXPath().concat("/")
-				.concat(next.getDescendingXPath());
-	}
-
-	/**
 	 * Owning path expression
 	 * 
 	 * @return

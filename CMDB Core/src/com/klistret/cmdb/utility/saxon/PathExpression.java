@@ -49,6 +49,10 @@ import net.sf.saxon.sxpath.XPathEvaluator;
  * 
  * @author Matthew Young
  * 
+ *         TODO: Adjust String.format to StringBuilder to compensate for extra
+ *         memory usage:
+ *         http://stackoverflow.com/questions/513600/should-i-use-javas
+ *         -string-format-if-performance-is-important
  */
 public class PathExpression {
 
@@ -88,18 +92,24 @@ public class PathExpression {
 	private Map<String, String> typeMappings = new HashMap<String, String>();
 
 	/**
+	 * Quotes pattern useful when matching values
+	 */
+	public static final Pattern valueQuotesPattern = Pattern
+			.compile("([\"\'])((?:\\\\\\1|.)*)?(\\1)");
+
+	/**
 	 * Static expressions are formed after the semantics defined at the
 	 * following site http://www.w3.org/TR/xquery-semantics and the URI literal
 	 * is intentionally left as a wild-card because end-users will likely
 	 * defined invalid URIs.
 	 */
-	static final Pattern defaultElementNamespaceDeclaration = Pattern
+	public static final Pattern defaultElementNamespaceDeclaration = Pattern
 			.compile("\\s*declare\\s+default\\s+element\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s*;");
 
-	static final Pattern defaultFunctionNamespaceDeclaration = Pattern
+	public static final Pattern defaultFunctionNamespaceDeclaration = Pattern
 			.compile("\\s*declare\\s+default\\s+function\\s+namespace\\s+(\'|\")(((?!\\3).)*)\\3\\s*;");
 
-	static final Pattern namespaceDeclaration = Pattern
+	public static final Pattern namespaceDeclaration = Pattern
 			.compile("\\s*declare\\s+namespace\\s+(((?!\\s*=\\s*).)*)\\s?=\\s?(\'|\")(((?!\\3).)*)\\3\\s*;");
 
 	/**
@@ -107,9 +117,10 @@ public class PathExpression {
 	 * easier to handle as a declaration than adding xsi:type filters to the
 	 * XPath.
 	 */
-	static final String mappingStatement = "\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;";
+	public static final String mappingStatement = "\\s?declare\\s+mapping\\s+(\\w+):(\\w+)\\s*=(\\w+):(\\w+)\\s*;";
 
-	static final Pattern mappingDeclaration = Pattern.compile(mappingStatement);
+	public static final Pattern mappingDeclaration = Pattern
+			.compile(mappingStatement);
 
 	/**
 	 * Raw strings for each step in the relative path
@@ -403,26 +414,14 @@ public class PathExpression {
 	}
 
 	/**
-	 * Returns the raw strings making up the XPath statement between the steps
-	 * in the start to stop range.
+	 * Raw XPath by depth
 	 * 
 	 * @param start
 	 * @param stop
 	 * @return
 	 */
-	public String getRawXPath(int start, int stop) {
-		if (start > stop)
-			return null;
-
-		if (start < 0 || stop < 0)
-			return null;
-
-		if (stop >= getRelativePath().getDepth())
-			return null;
-
-		return getRawXPath(start + 1, stop) == null ? xpathSplit[start]
-				: xpathSplit[start].concat("/").concat(
-						getRawXPath(start + 1, stop));
+	public String getRawXPath(int depth) {
+		return xpathSplit[depth];
 	}
 
 	/**

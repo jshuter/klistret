@@ -33,14 +33,18 @@ public class OrExpr extends LogicalExpr<Expr> {
 	}
 
 	public String getXPath() {
-		return OrExpr.getXPath(this.getOperands());
+		return getXPath(false);
 	}
 
-	public static String getXPath(List<Expr> operands) {
+	public String getXPath(boolean maskLiteral) {
+		return OrExpr.getXPath(this.getOperands(), maskLiteral);
+	}
+
+	public static String getXPath(List<Expr> operands, boolean maskLiteral) {
 		String xpath = null;
 		for (Expr operand : operands)
-			xpath = xpath == null ? operand.getXPath() : String.format(
-					"%s or %s", xpath, operand.getXPath());
+			xpath = xpath == null ? operand.getXPath(maskLiteral) : String
+					.format("%s or %s", xpath, operand.getXPath(maskLiteral));
 
 		return xpath;
 	}
