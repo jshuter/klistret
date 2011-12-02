@@ -21,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +30,6 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.utility.saxon.Expr;
 import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
-import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 public class PathExpression {
@@ -162,7 +163,6 @@ public class PathExpression {
 	/**
 	 * Validate that a root does not exist
 	 */
-	@Test
 	public void typeValidation2() {
 		String xpath = String
 				.format("declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -176,7 +176,7 @@ public class PathExpression {
 				System.out.println(String.format("xpath [%s], type [%s]",
 						expr.getXPath(), expr.getType().name()));
 
-			System.out.println(pathExpression.getRawXPath(1, 1));
+			System.out.println(pathExpression.getRawXPath(1));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -249,7 +249,8 @@ public class PathExpression {
 
 			System.out.println(pathExpression.getRelativePath().getExpr(3));
 
-			System.out.println(pathExpression.getRelativePath().getXPath(3));
+			System.out.println(pathExpression.getRelativePath().getExpr(3)
+					.getXPath());
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -257,26 +258,24 @@ public class PathExpression {
 		}
 	}
 
+	@Test
 	public void getValues() {
 		String xpath = String
 				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
-						validXPathStepsOnly);
+						"/a:hello[b:my/b:little = (\"world\",2)]/a:money[a:is=\"not a problem\"]");
 
 		try {
 			pathExpression = new com.klistret.cmdb.utility.saxon.PathExpression(
 					xpath);
 
-			Step firstStep = (Step) pathExpression.getRelativePath()
-					.getFirstExpr();
-			String descendingRawXPath = pathExpression.getRawXPath(firstStep
-					.getDepth() + 1, pathExpression.getRelativePath()
-					.getDepth() - 1);
+			List<Expr> steps = pathExpression.getRelativePath().getSteps();
+			for (Expr expr : steps) {
+				System.out.println(expr.getXPath(true));
+				if (expr instanceof StepExpr)
+					for (String mask : ((StepExpr)expr).getMasks())
+						System.out.println(mask);
+			}
 
-			System.out.println(descendingRawXPath);
-
-			String[] values = pathExpression.getRelativePath().getValues(0);
-			for (String value : values)
-				System.out.println(value);
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {

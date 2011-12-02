@@ -33,14 +33,18 @@ public class AndExpr extends LogicalExpr<Expr> {
 	}
 
 	public String getXPath() {
-		return AndExpr.getXPath(this.getOperands());
+		return getXPath(false);
 	}
 
-	protected static String getXPath(List<Expr> operands) {
+	public String getXPath(boolean maskLiteral) {
+		return AndExpr.getXPath(this.getOperands(), maskLiteral);
+	}
+
+	protected static String getXPath(List<Expr> operands, boolean maskLiteral) {
 		String xpath = null;
 		for (Expr operand : operands)
-			xpath = xpath == null ? operand.getXPath() : String.format(
-					"%s and %s", xpath, operand.getXPath());
+			xpath = xpath == null ? operand.getXPath(maskLiteral) : String
+					.format("%s and %s", xpath, operand.getXPath(maskLiteral));
 
 		return xpath;
 	}

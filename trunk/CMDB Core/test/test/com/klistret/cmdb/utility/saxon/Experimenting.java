@@ -2,6 +2,8 @@ package test.com.klistret.cmdb.utility.saxon;
 
 import java.io.StringWriter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -161,9 +163,11 @@ public class Experimenting {
 	
 	@Test
 	public void dummy() {
-		char letter = 'a';
-		letter++;
-		
-		System.out.println(letter);
+		//Pattern p = Pattern.compile("(\'|\")(((?!\\1).)*)\\1");
+		Pattern p = Pattern.compile("([\"\'])(?:\\\\\\1|.)*?(\\1)");
+
+		Matcher m = p.matcher("\"hello\"");
+		if (m.matches())
+			System.out.println("corret");
 	}
 }

@@ -272,15 +272,15 @@ public class RestEasyService {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element/unique?expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = (\"KUI\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"inf\")]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
+								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = (\"Nov2010R\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = (\"Mar2008R\")]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -299,21 +299,21 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	@Test
+
 	public void countElement() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element/count?expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module = (\"KUI\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"inf\")]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component/software}ApplicationSoftware\"]",
+								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Availability = (\"Nov2010R\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = (\"Mar2008R\", \"Jun2008R\")]",
 										"UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
@@ -326,6 +326,64 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
+	@Test
+	public void countElement2() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/count?expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = (\"KUI\")]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = (\"Produktion\",\"Uranus\")]",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+	}
+
+	
+	public void countElement3() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/count?expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Environment[commons:Name = (\"Test\")]",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder
+								.encode("declare namespace process=\"http://www.klistret.com/cmdb/ci/element/process\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[process:State = (\"Planned\")]",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+	}
+
 	/**
 	 * Find elements expected to return nothing due to a misspelling of an
 	 * element name
@@ -333,7 +391,7 @@ public class RestEasyService {
 	 * @throws URISyntaxException
 	 * @throws UnsupportedEncodingException
 	 */
-	
+
 	public void findElementExpect200() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -378,7 +436,6 @@ public class RestEasyService {
 				response.getStatus());
 	}
 
-	
 	public void findRelations() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -398,17 +455,16 @@ public class RestEasyService {
 				"Response code [%s] with payload [%s]", response.getStatus(),
 				response.getContentAsString()));
 
-		Assert.assertEquals(HttpResponseCodes.SC_OK,
-				response.getStatus());
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
-	
-	
-	public void putElement2() throws URISyntaxException, UnsupportedEncodingException {
+
+	public void putElement2() throws URISyntaxException,
+			UnsupportedEncodingException {
 		MockHttpRequest putRequest = MockHttpRequest.put("/resteasy/element");
 		MockHttpResponse putResponse = new MockHttpResponse();
-		
+
 		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"$\":\"http://www.klistret.com/cmdb/ci/pojo\",\"ns10\":\"http://www.klistret.com/cmdb/ci/element\",\"ns11\":\"http://www.klistret.com/cmdb/ci/element/system\",\"ns12\":\"http://www.klistret.com/cmdb/ci/element/system/computerSystem\",\"ns13\":\"http://www.klistret.com/cmdb/ci/relation\",\"ns2\":\"http://www.klistret.com/cmdb/ci/commons\",\"ns3\":\"http://www.klistret.com/cmdb/ci/element/context\",\"ns4\":\"http://www.klistret.com/cmdb/ci/element/context/lifecycle\",\"ns5\":\"http://www.klistret.com/cmdb/ci/element/process\",\"ns6\":\"http://www.klistret.com/cmdb/ci/element/process/change\",\"ns7\":\"http://www.klistret.com/cmdb/ci/element/service\",\"ns8\":\"http://www.klistret.com/cmdb/ci/element/component\",\"ns9\":\"http://www.klistret.com/cmdb/ci/element/component/software\"},\"createTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"id\":{\"$\":\"414385\"},\"name\":{\"$\":\"INF WLSSERVER\"},\"type\":{\"createTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"id\":{\"$\":\"87\"},\"name\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"},\"updateTimeStamp\":{\"$\":\"2011-09-22T10:48:41.639+02:00\"}},\"updateTimeStamp\":{\"$\":\"2011-10-13T10:00:09.099+02:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http://www.w3.org/2001/XMLSchema-instance\"},\"@xsi:type\":\"ns6:SoftwareInstallation\",\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:Tag\":[{\"$\":\"Script\"}],\"ns5:State\":\"Completed\",\"ns6:Environment\":{\"ns2:Id\":{\"$\":\"303330\"},\"ns2:Name\":{\"$\":\"Test\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/context}Environment\"}},\"ns6:Software\":{\"ns2:Id\":{\"$\":\"321889\"},\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/component}Software\"}},\"ns6:Type\":{\"$\":\"WLSSERVER\"},\"ns6:Label\":{\"$\":\"INF_0068_A01_UTSKRIFT_WLSSERVER.110412.tar\"},\"ns6:Version\":{\"$\":\"0068_A01\"}}}}";
-		
+
 		putRequest.contentType(MediaType.APPLICATION_JSON);
 		putRequest.content(requestBodyAsString.getBytes("UTF-8"));
 

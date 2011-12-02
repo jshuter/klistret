@@ -36,7 +36,11 @@ public class IrresoluteExpr extends Step {
 	}
 
 	public String getXPath() {
-		return IrresoluteExpr.getXPath("unknown");
+		return getXPath(false);
+	}
+	
+	public String getXPath(boolean maskLiteral) {
+		return null;
 	}
 
 	public static String getXPath(String value) {

@@ -335,22 +335,22 @@ public class XPathCriteria {
 			switch (((ComparisonExpr) predicate).getOperator()) {
 			case ValueEquals:
 				return Restrictions.eq(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case ValueGreaterThan:
 				return Restrictions.gt(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case ValueGreaterThanOrEquals:
 				return Restrictions.ge(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case ValueLessThan:
 				return Restrictions.lt(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case ValueLessThanOrEquals:
 				return Restrictions.le(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case ValueNotEquals:
 				return Restrictions.ne(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValue());
+						literalOperand.getValue().getJavaValue());
 			case GeneralEquals:
 				/**
 				 * If atomic (not a sequence) then the 'in' restriction is not
@@ -359,10 +359,11 @@ public class XPathCriteria {
 				 */
 				if (literalOperand.isAtomic())
 					return Restrictions.eq(stepOperand.getQName()
-							.getLocalPart(), literalOperand.getValue());
+							.getLocalPart(), literalOperand.getValue()
+							.getJavaValue());
 
 				return Restrictions.in(stepOperand.getQName().getLocalPart(),
-						literalOperand.getValueAsArray());
+						literalOperand.getValues());
 			case Matches:
 				if (((ComparisonExpr) predicate).getOperands().size() != 2)
 					throw new ApplicationException(String.format(
@@ -370,8 +371,8 @@ public class XPathCriteria {
 							predicate));
 
 				return Restrictions.ilike(
-						stepOperand.getQName().getLocalPart(),
-						literalOperand.getValueAsString(), MatchMode.ANYWHERE);
+						stepOperand.getQName().getLocalPart(), literalOperand
+								.getValue().getText(), MatchMode.ANYWHERE);
 			case Exists:
 				if (((ComparisonExpr) predicate).getOperands().size() != 1)
 					throw new ApplicationException(String.format(
@@ -459,8 +460,8 @@ public class XPathCriteria {
 		operands.add(lastStep);
 		operands.add(literalOperand);
 
-		xpath = String.format("%s[%s]", xpath,
-				ComparisonExpr.getXPath(predicate.getOperator(), operands));
+		xpath = String.format("%s[%s]", xpath, ComparisonExpr.getXPath(
+				predicate.getOperator(), operands, false));
 
 		xpath = String.format("%s%s", step.getRelativePath()
 				.getPathExpression().getProlog(), xpath);
