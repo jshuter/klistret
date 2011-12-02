@@ -557,11 +557,25 @@ public class IdentificationServiceImpl implements IdentificationService {
 						 * step is concatenated with the last step and the value
 						 * sequence as a predicate.
 						 */
-						Step step = (Step) expr.getRelativePath().getLastExpr();
+						Step last = (Step) expr.getRelativePath().getLastExpr();
+
+						String raw = null;
+						for (Expr other : expr.getRelativePath().getSteps()) {
+							if (other instanceof Step) {
+								if (((Step) other).getDepth() < expr
+										.getRelativePath().getDepth() - 1) {
+									String value = expr
+											.getRawXPath(((Step) other)
+													.getDepth());
+									raw = raw == null ? value : String.format(
+											"%s/%s", raw, value);
+								}
+							}
+						}
+
 						String exprWithPredicate = String.format(
-								"%s %s[%s = (%s)]", expr.getProlog(),
-								expr.getRawXPath(0, step.getDepth() - 1),
-								step.getXPath(), valueSequence);
+								"%s %s[%s = (%s)]", expr.getProlog(), raw,
+								last.getXPath(), valueSequence);
 						criterionWithPredicates.add(exprWithPredicate);
 					}
 
