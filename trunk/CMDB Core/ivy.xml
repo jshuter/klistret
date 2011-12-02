@@ -25,7 +25,8 @@
 			description="contains only the artifact published by this module itself, with no transitive dependencies" />
 	</configurations>
 	<publications>
-		<artifact name="klistret.core" type="jar" ext="jar" conf="runtime,master" />
+		<artifact name="klistret.core" type="jar" ext="jar"
+			conf="runtime,master" />
 	</publications>
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
@@ -126,6 +127,10 @@
 		<!-- Google collections (used by Reflections but not in the Maven pom) -->
 		<dependency org="com.google.collections" name="google-collections"
 			rev="1.0-rc3" conf="runtime->*" />
+
+		<!-- Apache Commons Pool -->
+		<dependency org="commons-pool" name="commons-pool" rev="1.5.6"
+			conf="runtime->master" />
 
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master" />
