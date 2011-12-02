@@ -1478,7 +1478,7 @@ CMDB.Timeframe.Edit = Ext
 						this.element['Element']['type']['name']['$'] = type['name']['$'];
 
 						var config = {
-							title : 'Software Lifecycle Editor',
+							title : 'Timeframe Editor',
 
 							layout : 'accordion',
 
