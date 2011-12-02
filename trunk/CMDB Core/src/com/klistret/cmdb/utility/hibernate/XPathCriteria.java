@@ -482,7 +482,7 @@ public class XPathCriteria {
 	private void translatePredicate(Step step, CIBean contextBean,
 			String contextKey) {
 		logger.debug(
-				"Predicate controll [step: {}, context bean: {}, context path: [}]",
+				"Predicate controll [step: {}, context bean: {}, context path: {}]",
 				new Object[] { step.getQName(), contextBean.getType(),
 						contextKey });
 
