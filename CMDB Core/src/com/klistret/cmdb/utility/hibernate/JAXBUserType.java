@@ -30,6 +30,8 @@ import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.pool.PoolableObjectFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.hibernate.HibernateException;
 import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.usertype.UserType;
@@ -48,6 +50,13 @@ import com.klistret.cmdb.utility.jaxb.CIContext;
  * Spring refreshing of the session factory if the CI hierarchy should
  * dynamically change.
  * 
+ * TODO: Performance testing shows that the Pooling saves about 25% in response
+ * times (marshall, unmarshall). Without pooling the constant creation of
+ * marshall, unmarshall objects (no hit to GC) is not as stable (response times
+ * again). The bigger fish is finding a way to cut the number of nullSafeGet
+ * calls (4:1 against the nullSafeSet calls). For every call (CRUD) there are
+ * about 4 nullSafeGet calls.
+ * 
  */
 public class JAXBUserType implements UserType {
 
@@ -59,6 +68,23 @@ public class JAXBUserType implements UserType {
 	 */
 	private static final int[] SQL_TYPES = { Types.VARCHAR };
 
+	/**
+	 * Unmarshaller pool
+	 */
+	private GenericObjectPool unmarshallerPool = new GenericObjectPool(
+			new UnmarshallerFactory(), 100,
+			GenericObjectPool.WHEN_EXHAUSTED_FAIL, 0);
+
+	/**
+	 * Marshaller pool
+	 */
+	private GenericObjectPool marshallerPool = new GenericObjectPool(
+			new MarshallerFactory(), 50, GenericObjectPool.WHEN_EXHAUSTED_FAIL,
+			0);
+
+	/**
+	 * 
+	 */
 	public Object assemble(Serializable cached, Object owner)
 			throws HibernateException {
 		if (!(cached instanceof String)) {
@@ -105,7 +131,8 @@ public class JAXBUserType implements UserType {
 	@SuppressWarnings("deprecation")
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner)
 			throws HibernateException, SQLException {
-		String xmlString = (String) StandardBasicTypes.STRING.nullSafeGet(rs, names[0]);
+		String xmlString = (String) StandardBasicTypes.STRING.nullSafeGet(rs,
+				names[0]);
 
 		logger.debug("getting xml data [{}] as Object", xmlString);
 		return fromXMLString(xmlString);
@@ -134,59 +161,6 @@ public class JAXBUserType implements UserType {
 	}
 
 	/**
-	 * Cache unmarshaller during get
-	 * 
-	 * @return Unmarshaller
-	 */
-	protected Unmarshaller getUnmarshaller() {
-		try {
-			JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
-			unmarshaller.setSchema(CIContext.getCIContext().getSchema());
-			unmarshaller.setEventHandler(new ValidationEventHandler() {
-				public boolean handleEvent(ValidationEvent event) {
-					logger.debug("Validation error: {}", event);
-					return false;
-				}
-			});
-
-			return unmarshaller;
-		} catch (JAXBException e) {
-			logger.error("Unable to create JAXB ummarshaller: {}", e);
-			throw new InfrastructureException(String.format(
-					"Unable to create JAXB ummarshaller: %s", e));
-		}
-	}
-
-	/**
-	 * Cache marshaller during get
-	 * 
-	 * @return Marshaller
-	 */
-	protected Marshaller getMarshaller() {
-		try {
-			JAXBContext jaxbContext = CIContext.getCIContext().getJAXBContext();
-			Marshaller marshaller = jaxbContext.createMarshaller();
-
-			marshaller.setSchema(CIContext.getCIContext().getSchema());
-			marshaller.setEventHandler(new ValidationEventHandler() {
-				public boolean handleEvent(ValidationEvent event) {
-					logger.debug("Validation error: {}", event);
-					return false;
-				}
-			});
-
-			return marshaller;
-		} catch (JAXBException e) {
-			logger.error("Unable to create JAXB marshaller: {}", e);
-			throw new InfrastructureException(String.format(
-					"Unable to create JAXB marshaller: %s", e));
-		}
-
-	}
-
-	/**
 	 * Marshals the object into XML
 	 * 
 	 * @param value
@@ -194,8 +168,11 @@ public class JAXBUserType implements UserType {
 	 */
 	protected String toXMLString(Object value) {
 		StringWriter stringWriter = new StringWriter();
+		Marshaller m = null;
 		try {
-			getMarshaller().marshal(value, stringWriter);
+			m = (Marshaller) marshallerPool.borrowObject();
+
+			m.marshal(value, stringWriter);
 			String result = stringWriter.toString();
 			stringWriter.close();
 			logger.debug("marshalled Object class [{}] to xml [{}]", value
@@ -203,9 +180,17 @@ public class JAXBUserType implements UserType {
 
 			return result;
 		} catch (Exception e) {
-			logger.error("Unable to disassemble object: {}", e);
+			logger.error("Unable to disassemble object: {}", e.getMessage());
 			throw new InfrastructureException(String.format(
 					"Unable to disassemble object: %s", e.getMessage()));
+		} finally {
+			try {
+				if (null != m) {
+					marshallerPool.returnObject(m);
+				}
+			} catch (Exception e) {
+				logger.error("Unable to return marshaller to pool: {}", e);
+			}
 		}
 	}
 
@@ -217,18 +202,124 @@ public class JAXBUserType implements UserType {
 	 */
 	protected Object fromXMLString(String xmlString) {
 		logger.debug("unmarshalling xml [{}]", xmlString);
+		Unmarshaller um = null;
 
-		Unmarshaller unmarshaller = getUnmarshaller();
 		StreamSource source = new StreamSource(new StringReader(xmlString));
 		try {
-			Object result = unmarshaller.unmarshal(source);
+			um = (Unmarshaller) unmarshallerPool.borrowObject();
+
+			Object result = um.unmarshal(source);
 			logger.debug("unmarshalled xml [{}] to Object class [{}]",
 					xmlString, result.getClass().getName());
 			return result;
-		} catch (JAXBException e) {
-			logger.error("Unable to assemble object: {}", e);
+		} catch (Exception e) {
+			logger.error("Unable to assemble object: {} [pool active: {}]",
+					e.getMessage(), unmarshallerPool.getNumActive());
 			throw new InfrastructureException(String.format(
 					"Unable to assemble object: %s", e.getMessage()));
+		} finally {
+			try {
+				if (null != um) {
+					unmarshallerPool.returnObject(um);
+				}
+			} catch (Exception e) {
+				logger.error("Unable to return unmarshaller to pool: {}", e);
+			}
 		}
+	}
+
+	public class UnmarshallerFactory implements PoolableObjectFactory {
+
+		@Override
+		public Object makeObject() throws Exception {
+			try {
+				JAXBContext jaxbContext = CIContext.getCIContext()
+						.getJAXBContext();
+				Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+				unmarshaller.setSchema(CIContext.getCIContext().getSchema());
+				unmarshaller.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent event) {
+						logger.debug("Validation error: {}", event);
+						return false;
+					}
+				});
+
+				return unmarshaller;
+			} catch (JAXBException e) {
+				logger.error("Unable to create JAXB ummarshaller: {}", e);
+				throw new InfrastructureException(String.format(
+						"Unable to create JAXB ummarshaller: %s", e));
+			}
+		}
+
+		@Override
+		public void destroyObject(Object obj) throws Exception {
+		}
+
+		@Override
+		public boolean validateObject(Object obj) {
+			return true;
+		}
+
+		@Override
+		public void activateObject(Object obj) throws Exception {
+		}
+
+		@Override
+		public void passivateObject(Object obj) throws Exception {
+		}
+
+	}
+
+	public class MarshallerFactory implements PoolableObjectFactory {
+
+		@Override
+		public Object makeObject() throws Exception {
+			try {
+				JAXBContext jaxbContext = CIContext.getCIContext()
+						.getJAXBContext();
+				Marshaller marshaller = jaxbContext.createMarshaller();
+
+				marshaller.setSchema(CIContext.getCIContext().getSchema());
+				marshaller.setEventHandler(new ValidationEventHandler() {
+					public boolean handleEvent(ValidationEvent event) {
+						logger.debug("Validation error: {}", event);
+						return false;
+					}
+				});
+
+				return marshaller;
+			} catch (JAXBException e) {
+				logger.error("Unable to create JAXB marshaller: {}", e);
+				throw new InfrastructureException(String.format(
+						"Unable to create JAXB marshaller: %s", e));
+			}
+		}
+
+		@Override
+		public void destroyObject(Object obj) throws Exception {
+		}
+
+		@Override
+		public boolean validateObject(Object obj) {
+			return true;
+		}
+
+		/**
+		 * TODO: Add control for type/interface
+		 */
+		public void activateObject(Object obj) throws Exception {
+		}
+
+		/**
+		 * TODO: Add control for type/interface otherwise there is strong risk
+		 * that somewhere in the code the wrong object is recycled back to the
+		 * cache.
+		 */
+		@Override
+		public void passivateObject(Object obj) throws Exception {
+		}
+
 	}
 }
