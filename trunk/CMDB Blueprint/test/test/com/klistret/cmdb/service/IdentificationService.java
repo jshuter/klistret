@@ -65,9 +65,8 @@ public class IdentificationService {
 
 		Software configuration = new Software();
 		configuration.setName("INF");
-		configuration.setVersion("0001_A01");
+		configuration.setVersion("0068_A01");
 		configuration.setOrganization("Försäkringskassan");
-		//configuration.setLabel("INF_0001_A01");
 
 		element.setConfiguration(configuration);
 
