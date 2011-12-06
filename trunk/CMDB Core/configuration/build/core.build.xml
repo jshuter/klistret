@@ -9,7 +9,7 @@
 	<target name="core:publish">
 		<copy file="${tmp-destdir}/klistret.core.jar" tofile="${tmp-destdir}/klistret.core-${ivy.revision}.jar" />
 
-		<ivy:publish conf="runtime,compile,test" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="master,runtime,test,compile" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${tmp-destdir}/klistret.core-[revision].[ext]" />
 		</ivy:publish>
 	</target>
