@@ -564,7 +564,7 @@ CMDB.SoftwareInstallation.Edit = Ext
 							title : 'Software Installation Editor',
 
 							layout : 'accordion',
-							
+
 							height : 550,
 
 							items : [ {
@@ -707,6 +707,38 @@ CMDB.SoftwareInstallation.Search = Ext
 																						.addItem(newObj);
 																			}
 																		}
+																	},
+																	{
+																		xtype : 'combo',
+																		plugins : [ new Ext.Element.SearchParameterPlugin() ],
+																		fieldLabel : 'Specific software type',
+																		expression : 'declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Software[commons:QName eq {0}]',
+
+																		store : new Ext.data.SimpleStore(
+																				{
+																					fields : [
+																							'alias',
+																							'name' ],
+																					data : [
+																							[
+																									'Software',
+																									'{http://www.klistret.com/cmdb/ci/element/component}Software' ],
+																							[
+																									'Publication',
+																									'{http://www.klistret.com/cmdb/ci/element/component}Publication' ] ],
+																					sortInfo : {
+																						field : 'alias',
+																						direction : 'ASC'
+																					}
+																				}),
+
+																		queryParam : 'expressions',
+																		displayField : 'alias',
+																		valueField : 'name',
+																		mode : 'local',
+																		forceSelection : true,
+
+																		extraItemCls : 'x-tag'
 																	} ]
 														},
 														{
@@ -805,9 +837,9 @@ CMDB.SoftwareInstallation.Search = Ext
 									{
 										name : 'SoftwareType',
 										mapping : 'Element/configuration/Software/QName/$',
-										convert : function(v, record) {
-											return v
-													.replace(/\{.*\}(.*)/, "$1");
+										formating : function(value) {
+											return value.replace(/\{.*\}(.*)/,
+													"$1");
 										}
 									},
 									{

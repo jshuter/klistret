@@ -52,6 +52,13 @@ Ext.Element.SearchParameterPlugin = (function() {
 						});
 					}
 
+					if (this.getXType() == 'combo') {
+						return Ext.urlEncode({
+							expressions : String.format(this.expression, "\""
+									+ this.getValue()+ "\"")
+						});
+					}
+
 					return null;
 				}
 			});
@@ -994,8 +1001,8 @@ CMDB.Element.DestRelationForm = Ext
 					},
 
 					getRelationType : function(destinationType) {
-						if (relation.hasOwnProperty(destinationType)) {
-							return relation[destinationType];
+						if (this.relations.hasOwnProperty(destinationType)) {
+							return this.relations[destinationType];
 						}
 
 						return null;
