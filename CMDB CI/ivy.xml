@@ -57,23 +57,6 @@
 			rev="1.1.1" conf="compile->master" />
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="compile->master" />
-			
-		<!-- Hibernate core (7): hibernate-core, hibernate-jpa -->
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.7.Final" conf="compile->runtime,master,optional">
-			<exclude module="xml-apis"/>
-			<exclude module="slf4j-api"/>
-			<exclude module="jass"/>
-			<exclude module="jacc"/>
-			<exclude module="ant"/>
-			<exclude module="cglib"/>
-			<exclude module="asm"/>
-			<exclude module="antlr"/>
-			<exclude module="commons-collections"/>
-			<exclude module="dom4j"/>
-			<exclude module="javaassist"/>
-			<exclude module="jta"/>
-			<exclude module="hibernate-commons-annotations"/>
-		</dependency>
 
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.10" conf="test->master" />
