@@ -48,6 +48,8 @@ Then create links from the *applications* map:
 {{{
   cd $HOME/dm1/applications
   ln -s ../downloads/klistret.cmdb.ext-simple-0.1 cmdb
+
+  ln -s ../downloads/db2-jdbc-drivers db2-jdbc-drivers
 }}}
 
 Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.  Example scripts are shipped with the web package and are tagged with _edit_ text:
@@ -64,7 +66,7 @@ The start/stop scripts should work right out of the box.  They are run as follow
   $HOME/dm1/scripts/startAppserver.ksh $HOME/dm1/settings/appserver1.env
 }}}
 
-The last thing to do before starting the servers is to gather the property files and edit a couple of settings.
+Inside each settings file (*.env*) are _-- edit --_ comments flagging that something needs to be edited.  For example, in the _appserver1.env_ file one must edit the application server name plus port number.  The last thing to do before starting the servers is to gather the property files and edit a couple of settings.
 {{{
   cd $HOME/dm1/properties
   cp ../applications/cmdb/propertes/* .
@@ -93,6 +95,8 @@ The main spring configuration file is *Spring.cfg.xml* to which the *Blueprint.c
    <import resource="Integration.cfg.xml" />
    <import resource="Blueprint.cfg.xml" />
 }}}
+
+There is nothing within these Spring configuration files that is Weblogic specific or container specific.
 
 = Container =
 
