@@ -22,7 +22,7 @@ Congruent with services there is substantial layering inherient to systems where
 Inanimate items signalize [ComponentCI components].  [SoftwareCI Software] is inoperative until it is configured and deployed.  [HardwareCI Hardware] is just wires and bolts until it is booted up.  Components are inert while systems are what components become when active.  Components are inventory.
 
 == Contextual ==
-One of the driving forces behind Klistret is the idea of describing how stuff should be configured and associated.  Contextual entities help filter inventory meant for installation in systems screened by their contexts whom do work for services also widdled down by context.  Contexts are filters generally sourced from external tools.  Major contextual entities are [OrganizationCI organizations], [ModuleCI modules], [OrganizationSoftwareTypeCI software types], [EnvironmentCI environments], [LifecycleCI lifecyles] and [TimeframeCI timeframes] to name a few. 
+One of the driving forces behind Klistret is the idea of describing how stuff should be configured and associated.  Contextual entities help filter inventory meant for installation in systems screened by their contexts whom do work for services also widdled down by context.  Contexts are filters generally sourced from external tools.  Major contextual entities are [OrganizationCI organizations], [SoftwareContextCI software (i.e. modules)], [PublicationTypeCI publication types], [EnvironmentCI environments], [LifecycleCI lifecyles] and [TimeframeCI timeframes] to name a few. 
 
 == Process ==
 ITIL has cornerstone processes such as change, incident, and problem.  Klistret is geared more to the changes process but in the future may even encapsulate (via federation) incident and problem.
