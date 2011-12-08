@@ -1,0 +1,7 @@
+The core module exposes querying mechanism made up of XPath filters.
+
+== Description ==
+The DMTF group has a [http://www.dmtf.org/standards/cmdbf CMDBf specification] that predicates to major services.  One for querying from CMDBs and the other for registration of CIs.  Querying according to DMTF should:
+  _...select and return items, relationships, or graphs containing items and relationships, and the data records associated with each item and relationship_
+
+The 1.1 specification goes on to break down how querying ought to be implemented.  Unfortunately, the query interface keys off how records are stored (i.e. all of the constraint variations).  Klistret takes a different approach by only using XPath expression (close to the _xpathConstrain_ CMDBf syntax) as filters.  Only a fraction of the [http://www.w3.org/TR/xpath20/ XPath 2.0] functions and expression (here expressions means a Comparison expression or Step expression assuming a decent level of familiarity with XPath).  These limitations described below are done in consideration to perform and directly related to what databases are supported (currently DB2, Oracle, and Postgresql).
