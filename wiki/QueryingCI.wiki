@@ -36,3 +36,14 @@ With general expressions:
 || exists || Returns true if the value of the arguments IS NOT an empty sequence, otherwise it returns false || [exists(a:ball)] ||
 || empty || Returns true if the value of the arguments IS an empty sequence, otherwise it returns false || [empty(a:ball)] ||
 || matches || Returns true if the string argument matches the pattern, otherwise, it returns false || [matches(a:ball,'round|bounce')] ||
+
+== Examples ==
+This section show typical XPath expressions.
+
+=== Getting Software ===
+The first filter only selects active element with an element type of Software.  The second filter gets Software named _INF_ leaving the third filter to restrict by _Availability_.
+{{{
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq "{http://www.klistret.com/cmdb/ci/element/component}Software"]
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[pojo:name = ("INF")]
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration[component:Availability = ("Nov2009R")]
+}}}
