@@ -9,4 +9,30 @@ The 1.1 specification goes on to break down how querying ought to be implemented
 Future versions of Klistret may support the CMDBf Query syntax.
 
 == XPath 2.0 Support ==
-XPath expressions are explained by the [http://saxonica.com/welcome/welcome.xml Saxon framework].  Saxon as of 9.3 swallows almost everything in XQuery 3.0 and is an amazing open-source project.  Parsing a single XPath expression into a hierarchy of it's basic expressions is no easy task.  Saxon does this quick and reliable.  Klistret piggybacks onto Saxon by putting an path expression (which may only flow forward) into a series of steps with restrictions on the construction of step predicates.  In other words, only XPath 2.0 *relative* path expressions are allowed and each axis moves forward one step.  A step may have one or more predicates (what is enclosed in square brackets).  Steps traverse the XMl document while predicates restrict like the where clause in SQL.
+XPath expressions are explained by the [http://saxonica.com/welcome/welcome.xml Saxon framework].  Saxon as of 9.3 swallows almost everything in XQuery 3.0 and is an amazing open-source project.  Parsing a single XPath expression into a hierarchy of it's basic expressions is no easy task.  Saxon does this quick and reliable.  Klistret piggybacks onto Saxon by putting an path expression (which may only flow forward) into a series of steps with restrictions on the construction of step predicates.  In other words, only XPath 2.0 *relative* path expressions are allowed and each axis moves forward one step.  A step may have one or more predicates (what is enclosed in square brackets).  Steps traverse the XMl document while predicates restrict like the where clause in SQL.  Currently, general and value comparisons are viable predicates.
+
+The reduction of what is possible with XPath 2.0 in Klistret is forced into play because the XPath has to perform well as an [http://publib.boulder.ibm.com/infocenter/db2luw/v9/index.jsp?topic=%2Fcom.ibm.db2.udb.admin.doc%2Fdoc%2Fr0022228.htm XMLEXISTS] clause against the database.  Pre-compiled queries run best at least against DB2.  The ability to compile a query with [http://publib.boulder.ibm.com/infocenter/db2luw/v9r7/index.jsp?topic=%2Fcom.ibm.db2.luw.xml.doc%2Fdoc%2Fc0023901.html explicit casting] of variables (i.e. switching out comparison values as a variable to increase query reuse) heavily impacts performance.  Everything in Klistret is cast as a VARCHAR in XPath queries.
+
+Only the following operators are allowed for comparison expressions (i.e. majority of expressions in predicates):
+|| *Operator* || *Supported* || *Usage* || *Example* ||
+|| eq || Yes || Equals operator || [a:ball eq "round"] ||
+|| nq || Yes || Not equals || [a:ball nq "square" or b:block nq "soft"] ||
+|| lt || Yes || Less than || [a:small lt 10 and a:tiny lt 1] ||
+|| le || Yes || Less than or equals || [a:small le 10] ||
+|| gt || Yes || Greater than || [a:big gt 10 and a:giant gt 100] ||
+|| ge || Yes || Greater than or equals || [a:giant ge 100] ||
+
+With general expressions:
+|| *Operator* || *Supported* || *Usage* || *Example* ||
+|| = || Yes || Equality between operand sequences of any length (even sequences that contain atomic entries) || [a:ball = ('round','bounce')] ||
+|| != || No || Non equality || n/a ||
+|| < || No || Less than || n/a ||
+|| <= || No || Less than or equals || n/a ||
+|| > || No || Greater than || n/a ||
+|| >= || No || Greater than or equals || n/a ||
+
+[http://www.w3schools.com/xpath/xpath_functions.asp Functions] that are available:
+|| *Function* || *Usage* || *Example* ||
+|| exists || Returns true if the value of the arguments IS NOT an empty sequence, otherwise it returns false || [exists(a:ball)] ||
+|| empty || Returns true if the value of the arguments IS an empty sequence, otherwise it returns false || [empty(a:ball)] ||
+|| matches || Returns true if the string argument matches the pattern, otherwise, it returns false || [matches(a:ball,'round|bounce')] ||
