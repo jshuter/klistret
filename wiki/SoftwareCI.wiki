@@ -10,17 +10,53 @@ Modules are stuff that is deliverable.  Modules can have intertwined dependencie
 
 Ivy doesn't ignore totally how software is used.  The whole concept of module configurations is paramount when testing software or running it in a development container or packaging it for production.  Module configurations live in the definition of dependencies and in Klistret inside relations.  Configurations aid in filtering module hierarchies often during the installation and configuration of software in a targeted system. 
 
-=== Specific ===
-So how do modules as software get defined in Klistert?
+=== Characteristics ===
+Below are the properties that constitute a Software CI.  The CI is a direct descendant of the Component CI.  
 
 || *Property* || *Description* || *Required* || *Unbounded* || *Key* || *Context* ||
 || Organization || There is always a producer behind software.  This property stores the name of the organization.  An organization hierarchy is flattened into usually a dot delimited namespace (ex. the Resteasy project at JBoss is named _org.jboss.resteasy_).  The property (element) is part of the _http://www.klistret.com/cmdb/ci/element/component_ namespace. || Yes || No || Yes || Yes ||
 || Version || A version identifier often is an increasing series that denotes a snapshot of the software primarily by time aspects.  The property (element) is part of the _http://www.klistret.com/cmdb/ci/element/component_ namespace. || Yes || No || Yes || No ||
 || Availability || The version property places the software in an ordered context thereby indirectly a time frame the availability property directly specifics a specific time frame.  The property (element) is part of the _http://www.klistret.com/cmdb/ci/element/component_ namespace.  The natural weak association to meta data is the contextual TimeFrame CI. || No || No || No || Like ||
-|| Phase || Phase is similar to the contextual Lifecycle CI representing [http://en.wikipedia.org/wiki/Software_development_process software lifecycles] (requirements, design, so forth). || No || Yes || No || Like ||
+|| Phase || Phase is similar to the contextual Lifecycle CI representing [http://en.wikipedia.org/wiki/Software_development_process software lifecycles] (requirements, design, so forth).  This is an additional aspect pinpointing the maturity of software (nearly identical to the *status* attribute of the *info* element in Ivy).  The property (element) is part of the _http://www.klistret.com/cmdb/ci/element/component_ namespace || No || Yes || No || Like ||
+|| Label || A label is an alias which might be an unique tag for the software element.  Not every organization is come to the point of describing their software only in terms of organizations and versions.  Labels make for easy unique names with internal projects.  The property (element) is part of the _http://www.klistret.com/cmdb/ci/element/component_ namespace || No || No || Maybe || No ||
+
+  * *Key* means that the property is required and the property is a candidate for blueprint identification.  A _Maybe_ value says that the property is not required but definitely a candidate for identification.
+  * *Context* earmarks properties as having a corresponding contextual CI by the same name if _Yes_ or like potentially many contextual CIs if _Like_ is given.
 
 == Usage ==
+Given how important Ivy and Maven are to development without question the Software CI will be a heavily used CI in any organization.  Even though Ivy is used predominately with Java development the Software CI is not restricted to a particular coding language or target container.  Software is a logical construct palpable only via published artifacts.  Representing Tuxedo server binaries as Software isn't a problem and the dependencies to Tuxedo are defined as relations to a Tuxedo Sofware CI.
+
+Klistret does not intend to compliment or replace meta data housed in package repositories (like Sonatype's [http://nexus.sonatype.org/oss-repository-hosting.html OSS] repository).  Instead Klistret aims to federate this meta data so that it can be related to other stuff inside Klistret (i.e. functionality in service CIs).  Klistret will provide services to map Ivy and Maven descriptors into Software and Publication CIs inclusive relationship definitions. 
 
 == Relations ==
 
+=== General Basic ===
+|| *Type* || *CI* || *Direction* || *Description* ||
+|| Dependency || Software || Both || Dependencies to other Software CI are just that Dependency CIs in Klistret.  The configuration concept part of Ivy is temporarily recommended to be stored in the Usage property (defined in the Base CI, _http://www.klistret.com/cmdb/ci/commons_ namespace). ||
+|| Dependency || Publication || Source || The Software CI is always the owner or source of the dependency relationship to publications.  Here again the Usage property can be utilized to denote configuration usage. ||
+  * *Direction* is the vector of the relationship and is either _Destination_ (target), _Source_ (owner), or _Both_.
+
 == Blueprint ==
+The recommendation is to have a composite identification on the Organization, Version and Name (equivalent to a module name in Ivy) properties.  The XPath expressions for this rule is:
+{{{
+<Criterion Name="Software">
+  <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration/commons:Name</Expression>
+  <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Organization</Expression>
+  <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Version</Expression>
+</Criterion>
+}}}
+
+An organization may even want to as a failover identify by label:
+{{{
+<Criterion Name="SoftwareLabelOnly">
+  <Expression>declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration/component:Label</Expression>
+</Criterion>
+}}}
+
+Then these 2 rules can be ordered against all Software CI (plus their descendants):
+{{{
+<Identification Type="{http://www.klistret.com/cmdb/ci/element/component}Software">
+  <CriterionRule Name="SoftwareLabelOnly" Order="1"/>
+  <CriterionRule Name="Software" Order="2"/>
+</Identification>
+}}}
