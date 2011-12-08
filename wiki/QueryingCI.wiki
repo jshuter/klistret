@@ -38,7 +38,7 @@ With general expressions:
 || matches || Returns true if the string argument matches the pattern, otherwise, it returns false || [matches(a:ball,'round|bounce')] ||
 
 == Examples ==
-This section show typical XPath expressions.
+This section show typical XPath expressions.  Although the best way to see how filter are used live is to run the Simple Web GUI in Google Chrome and look at the XHR calls (the same process works in Firebug or Fiddler).
 
 === Getting Software ===
 The first filter only selects active element with an element type of Software.  The second filter gets Software named _INF_ leaving the third filter to restrict by _Availability_.
