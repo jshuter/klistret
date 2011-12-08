@@ -35,7 +35,7 @@
 
 		<!-- Klistret Core -->
 		<dependency org="com.klistret.cmdb" name="core" rev="0.1"
-			conf="runtime->runtime" />
+			conf="runtime->runtime, master" />
 
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master" />
