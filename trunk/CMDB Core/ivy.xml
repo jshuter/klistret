@@ -23,12 +23,15 @@
 			description="Running" />
 		<conf name="master" visibility="public"
 			description="Only the artifacts published by this module itself, with no transitive dependencies" />
+		<conf name="sources" visibility="public" description="Sources only" />
+		<conf name="config" visibility="public" description="Configuration only" />
 	</configurations>
 	<publications>
 		<artifact name="klistret.core" type="jar" ext="jar" conf="master" />
-		<artifact name="database" type="ddl" ext="zip" conf="master" />
-		<artifact name="klistret.core-sources" type="src" ext="jar" conf="master"/>
-		<artifact name="config" type="config" ext="zip" conf="master" />
+		<artifact name="database" type="ddl" ext="zip" conf="config" />
+		<artifact name="klistret.core-source" type="source" ext="jar"
+			conf="sources" />
+		<artifact name="config" type="config" ext="zip" conf="config" />
 	</publications>
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->

@@ -46,13 +46,13 @@
 		<delete dir="${src-destdir}" failonerror="false" />
 		<mkdir dir="${src-destdir}" />
 
-		<jar destfile="${src-destdir}/klistret.core-sources.jar" basedir="${project-basedir}/src" includes="com/klistret/cmdb/**/*.java" />
+		<jar destfile="${src-destdir}/klistret.core-source.jar" basedir="${project-basedir}/src" includes="com/klistret/cmdb/**/*.java" />
 	</target>
 
 
 	<!-- Create Sources -->
 	<target name="core:config">
-		<property name="config-destdir" location="${spring-destdir}/configs" />
+		<property name="config-destdir" location="${tmp-destdir}/configs" />
 
 		<delete dir="${config-destdir}" failonerror="false" />
 		<mkdir dir="${config-destdir}" />
@@ -71,7 +71,7 @@
 
 	<!-- Publishes the Core package -->
 	<target name="core:publish" depends="core:jar, core:ddl, core:source, core:config">
-		<ivy:publish conf="master,runtime,test,compile" pubrevision="${ivy.revision}" resolver="localrepo" overwrite="true">
+		<ivy:publish conf="master,sources,config,runtime,test,compile" pubrevision="${ivy.revision}" resolver="localrepo" overwrite="true">
 			<artifacts pattern="${jars-destdir}/[artifact].[ext]" />
 			<artifacts pattern="${ddl-destdir}/[artifact].[ext]" />
 			<artifacts pattern="${src-destdir}/[artifact].[ext]" />
