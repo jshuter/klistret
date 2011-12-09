@@ -48,3 +48,13 @@ declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[poj
 declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:configuration[component:Availability = ("Nov2009R")]
 declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[pojo:fromTimeStamp gt "2007-12-09T00:00:00.000 01:00" cast as xs:dateTime]
 }}}
+  * *Warning:* It is not possible at the moment to merge the 2 predicates in the first filter into one predicate with the _AND_ or _OR_ operators.  Predicates containing an operand with a relative path (i.e. multiple steps) has to be segregated from other predicates on the axis.
+
+=== Going through relations ===
+Traversing relationships is another common type of query.  Getting at all of the publications that are destination dependencies to a sole software version is something typical:
+{{{
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq "{http://www.klistret.com/cmdb/ci/element/component}Publication"]
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace component="http://www.klistret.com/cmdb/ci/element/component"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq "{http://www.klistret.com/cmdb/ci/relation}Dependency"]/pojo:source[pojo:name = ("INF")][pojo:type/pojo:name eq "{http://www.klistret.com/cmdb/ci/element/component}Software"]/pojo:configuration[component:Version eq "0068_A01"]'
+declare namespace pojo="http://www.klistret.com/cmdb/ci/pojo"; declare namespace commons="http://www.klistret.com/cmdb/ci/commons"; /pojo:Element/pojo:configuration[commons:Tag = ("Important") ]
+}}}
+The first filter gets the active elements of type Publication.  The second filter despite being hard to read is fairly simple restricting via a destination relationship the _Version_ value of the sourced element being of type Software with the name _INF_.  The expression includes only relationships that are of type _Dependency_ and active.  Publications are always the destination in relationships to Source CIs.  The tailing filter just is an extra inclusion av elements with a _Tag_ equal to _Important_.
