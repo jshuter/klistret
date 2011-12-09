@@ -38,7 +38,7 @@ With general expressions:
 || matches || Returns true if the string argument matches the pattern, otherwise, it returns false || [matches(a:ball,'round|bounce')] ||
 
 == Examples ==
-This section show typical XPath expressions.  Although the best way to see how filter are used live is to run the Simple Web GUI in Google Chrome and look at the XHR calls (the same process works in Firebug or Fiddler).
+This section show typical XPath expressions.  Although the best way to see how filter are used live is to run the Simple Web GUI in Google Chrome and look at the XHR calls (the same process works in Firebug or Fiddler).  Another good source of examples are the [PerlClient Perl] and [JavaClient Java] pages.
 
 === Getting Software ===
 The first filter selects only active elements having an element type of Software.  Any element has does not have a _toTimeStamp_ property equal to null is considered inactive.  Nothing is ever deleted from Klistret rather tombstones in the form om time stamps mark records as dormant.  This is a common filter added to identification (Blueprints).  The second filter gets Software named _INF_ while the third filter restricts by _Availability_.  Finally, the forth filter removes anything older than the 9th of December, 2011 by casting a string value to a date.  This cast is only needed when dealing with _http://www.klistret.com/cmdb/ci/pojo_ namespace since the properties of an Element map directly to a physical table in the database (i.e. everything outside that namespace is XML data).
