@@ -5,12 +5,63 @@
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
 	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar, bundle" />
 
-	<!-- Creates the Blueprint package -->
-	<target name="blueprint:publish">
-		<copy file="${tmp-destdir}/klistret.blueprint.jar" tofile="${tmp-destdir}/klistret.blueprint-${ivy.revision}.jar" />
+	<!-- Create JAR -->
+	<target name="blueprint:jar">
+		<property name="jars-destdir" location="${tmp-destdir}/jars" />
 
-		<ivy:publish conf="master,runtime,test,compile" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
-			<artifacts pattern="${tmp-destdir}/klistret.blueprint-[revision].[ext]" />
+		<delete dir="${jars-destdir}" failonerror="false" />
+		<mkdir dir="${jars-destdir}" />
+
+		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" nowarn="on">
+			<include name="com/klistret/cmdb/**/*.java" />
+
+			<classpath>
+				<path refid="classpath.IVY" />
+			</classpath>
+		</javac>
+
+		<jar destfile="${jars-destdir}/klistret.blueprint.jar">
+			<fileset dir="${jars-destdir}">
+				<include name="com/klistret/cmdb/**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<!-- Create Sources -->
+	<target name="blueprint:source">
+		<property name="src-destdir" location="${tmp-destdir}/srcs" />
+
+		<delete dir="${src-destdir}" failonerror="false" />
+		<mkdir dir="${src-destdir}" />
+
+		<jar destfile="${src-destdir}/klistret.blueprint-source.jar" basedir="${project-basedir}/src" includes="com/klistret/cmdb/**/*.java" />
+	</target>
+
+
+	<!-- Create Configuration -->
+	<target name="blueprint:config">
+		<property name="config-destdir" location="${tmp-destdir}/configs" />
+
+		<delete dir="${config-destdir}" failonerror="false" />
+		<mkdir dir="${config-destdir}" />
+
+		<zip destfile="${config-destdir}/config.zip">
+			<fileset dir="${project-basedir}/configuration/runtime">
+				<include name="*.cfg.xml" />
+				<include name="taxonomy.xml" />
+				<include name="identification.xml" />
+			</fileset>
+		</zip>
+	</target>
+
+
+	<!-- Publish Blueprint package -->
+	<target name="blueprint:publish" depends="blueprint:jar, blueprint:source, blueprint:config">
+		<ivy:publish conf="master,sources,config,runtime,test,compile" pubrevision="${ivy.revision}" resolver="localrepo" overwrite="true">
+			<artifacts pattern="${jars-destdir}/[artifact].[ext]" />
+			<artifacts pattern="${src-destdir}/[artifact].[ext]" />
+			<artifacts pattern="${config-destdir}/[artifact].[ext]" />
 		</ivy:publish>
 	</target>
 </project>
