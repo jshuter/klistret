@@ -20,4 +20,6 @@ Every property below has the _http://www.klistret.com/cmdb/ci/commons_ namespace
 || Revision || Version information || No || No || No || No ||
 
 == Usage ==
-There is a good amount of customization baked into the Base CI.  Namespace, Collection, Tag and Origin properties can funnel CIs down by necessity from the organisation's perspective and the individual's view.  The hard part is that every property is optional so necessity isn't guarantied through XML validation.
+There is a good amount of customization baked into the Base CI.  Namespace, Collection, Tag and Origin properties can funnel CIs down by necessity from the organisation's perspective and the individual's view.  The hard part is that every property is optional so necessity isn't guarantied through XML validation.  Even with rudimentary usage of Klistret the recommendation is to assign suitable values to at least Namespace and Collection plus encourage people to experiment med Tags.
+
+The _Property_ value can't understated.  Any number of _Property_ can be added to a CI.  Organizations tend to have substantial amount of meta data and isn't easily modeled unless everything is modeled.  For example, an organization in the upswing of ITIL may not either understand how to or be able to model enough CI to properly store it's metadata.  Until the CMDB maturely populated the _Property_ can house metadata usually in contextual CIs.  The contextual Environment CI is super spot to save metadata about DNS addresses, search paths, aliases etc.
