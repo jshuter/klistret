@@ -5,12 +5,77 @@
 	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
 	<ivy:cachepath pathid="classpath.IVY" conf="runtime" file="${project-basedir}/ivy.xml" type="jar, bundle" />
 
-	<!-- Creates the Core package -->
-	<target name="core:publish">
-		<copy file="${tmp-destdir}/klistret.core.jar" tofile="${tmp-destdir}/klistret.core-${ivy.revision}.jar" />
+	<!-- Create JAR -->
+	<target name="core:jar">
+		<property name="jars-destdir" location="${tmp-destdir}/jars" />
 
-		<ivy:publish conf="master,runtime,test,compile" revision="${ivy.revision}" resolver="localrepo" overwrite="true">
-			<artifacts pattern="${tmp-destdir}/klistret.core-[revision].[ext]" />
+		<delete dir="${jars-destdir}" failonerror="false" />
+		<mkdir dir="${jars-destdir}" />
+
+		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" nowarn="on">
+			<include name="com/klistret/cmdb/**/*.java" />
+
+			<classpath>
+				<path refid="classpath.IVY" />
+			</classpath>
+		</javac>
+
+		<jar destfile="${jars-destdir}/klistret.core.jar">
+			<fileset dir="${jars-destdir}">
+				<include name="com/klistret/cmdb/**/*.class" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<!-- Create Database DDL -->
+	<target name="core:ddl">
+		<property name="ddl-destdir" location="${tmp-destdir}/ddls" />
+
+		<delete dir="${ddl-destdir}" failonerror="false" />
+		<mkdir dir="${ddl-destdir}" />
+
+		<zip destfile="${ddl-destdir}/database.zip" basedir="${project-basedir}/configuration/build" includes="*.ddl" />
+	</target>
+
+
+	<!-- Create Sources -->
+	<target name="core:source">
+		<property name="src-destdir" location="${tmp-destdir}/srcs" />
+
+		<delete dir="${src-destdir}" failonerror="false" />
+		<mkdir dir="${src-destdir}" />
+
+		<jar destfile="${src-destdir}/klistret.core-sources.jar" basedir="${project-basedir}/src" includes="com/klistret/cmdb/**/*.java" />
+	</target>
+
+
+	<!-- Create Sources -->
+	<target name="core:config">
+		<property name="config-destdir" location="${spring-destdir}/configs" />
+
+		<delete dir="${config-destdir}" failonerror="false" />
+		<mkdir dir="${config-destdir}" />
+
+		<zip destfile="${config-destdir}/config.zip">
+			<fileset dir="${project-basedir}/configuration/runtime">
+				<include name="*.cfg.xml" />
+				<include name="*.hbm.xml" />
+				<include name="log4j.properties" />
+				<include name="CMDB.properties" />
+				<include name="ehcache.xml" />
+			</fileset>
+		</zip>
+	</target>
+
+
+	<!-- Publishes the Core package -->
+	<target name="core:publish" depends="core:jar, core:ddl, core:source, core:config">
+		<ivy:publish conf="master,runtime,test,compile" pubrevision="${ivy.revision}" resolver="localrepo" overwrite="true">
+			<artifacts pattern="${jars-destdir}/[artifact].[ext]" />
+			<artifacts pattern="${ddl-destdir}/[artifact].[ext]" />
+			<artifacts pattern="${src-destdir}/[artifact].[ext]" />
+			<artifacts pattern="${config-destdir}/[artifact].[ext]" />
 		</ivy:publish>
 	</target>
 </project>

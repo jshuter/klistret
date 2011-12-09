@@ -25,8 +25,10 @@
 			description="Only the artifacts published by this module itself, with no transitive dependencies" />
 	</configurations>
 	<publications>
-		<artifact name="klistret.core" type="jar" ext="jar"
-			conf="master" />
+		<artifact name="klistret.core" type="jar" ext="jar" conf="master" />
+		<artifact name="database" type="ddl" ext="zip" conf="master" />
+		<artifact name="klistret.core-sources" type="src" ext="jar" conf="master"/>
+		<artifact name="config" type="config" ext="zip" conf="master" />
 	</publications>
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
