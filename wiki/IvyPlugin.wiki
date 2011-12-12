@@ -40,3 +40,8 @@ The Ivy module descriptor (XML document) is the information carrier to the follo
 The PUT HTTP method is used since an [http://en.wikipedia.org/wiki/Idempotent idempotent] action is expected.  When no Software CI exists meeting the criterion of the composite key Organization, Version, and Name then a create is issued otherwise an update.  The same applies to dependency relationships and Publication CIs.  This is important since the order in which modules are registered may be random.  Software dependencies to a module descriptor do not have to be registered to Klistret to register the module.  However, dependencies to Software are created if not found and later updated if descriptors for those dependencies are registered.
 
 == Search ==
+A HTTP GET against:
+  /resteasy/ivy?start=...?limit=...?org=...&module=...&revision=...
+
+will find (i.e. a result set) a list of Ivy module descriptors.  Both the _start_ and _limit_ query variables are optional.  The _revision_ is also optional and Klistret will retrieve descriptors without regard to version.
+  
