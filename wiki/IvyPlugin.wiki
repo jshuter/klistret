@@ -9,10 +9,10 @@ A plugin for Ivy exists in the Blueprint project.  The plugin is responsible for
 This section maps sections of the Ivy module description to CI properties.
 
 ==== Software ====
-|| *Section* || *Attribute* || *Klistrt* || *Description* ||
-|| info || organisation || Organisation || Direct transfer from Ivy's organisation attribute into the organisation property for Software ||
-|| info || module || Name || The module is the Software and thus the module attribute becomes the _Name_ property for both the Element POJO and the Commons _Name_ property part the Base CI. ||
-|| info || revision || Version || Ivy use the title _revision_ while Klistret sticks to the more common _Version_. ||
+|| *Section* || *Attribute* || *Klistret* || *Required* || *Description* ||
+|| info || organisation || Organisation || Yes || Direct transfer from Ivy's organisation attribute into the organisation property for Software ||
+|| info || module || Name || Yes || The module is the Software and thus the module attribute becomes the _Name_ property for both the Element POJO and the Commons _Name_ property part the Base CI. ||
+|| info || revision || Version || Yes || Ivy use the title _revision_ while Klistret sticks to the more common _Version_. ||
 
 ==== Publication ====
 
