@@ -1,0 +1,23 @@
+The entire Software structure in Klistret is taken from the [http://ant.apache.org/ivy/ Ivy] framework.  It is only natural to be able to register Software and Publication CIs plus their relationships via an extension to Klistret (part of the Blueprints project).
+
+== Description ==
+Ivy modules, publications, and dependencies map without deviation to [SoftwareCI Software CIs], [PublicationCI Publication CIs] och Dependency CIs i Klistret.  However, Klistret does not work like package repository rather repositories (like [http://www.ibiblio.org/ Ibiblio]) actually manage artifacts (like [http://archiva.apache.org/ Archiva]) whereas Klistret federates a percentage of a repository's metadata.  So the complete flora of metadata latent to Ivy description files isn't fully mirrored.  Klistret harbors just enough metadata to register CIs.
+
+A plugin for Ivy exists in the Blueprint project.  The plugin is responsible for registering an Ivy module description (i.e. XML document) and exporting out software CIs as an Ivy description file.  The plugin is very basic.  It relies almost to 100 percent on the user feeding the correct information.  The process of registering Ivy module description should not be confused with Ivy publishing or resolving.
+
+=== Mapping ===
+This section maps sections of the Ivy module description to CI properties.
+
+==== Software ====
+|| *Section* || *Attribute* || *Klistrt* || *Description* ||
+|| info || organisation || Organisation || Direct transfer from Ivy's organisation attribute into the organisation property for Software ||
+|| info || module || Name || The module is the Software and thus the module attribute becomes the _Name_ property for both the Element POJO and the Commons _Name_ property part the Base CI. ||
+|| info || revision || Version || Ivy use the title _revision_ while Klistret sticks to the more common _Version_. ||
+
+==== Publication ====
+
+==== Dependency ==== 
+
+== Registration ==
+
+== Search ==
