@@ -26,5 +26,11 @@ The Relation Pojo adds on:
 || *Property* || *Description* || *Required* || *Unbounded* || *Key* || *Context* ||
 || type || Reference to the Relation Type table (i.e. points out the namespace of the CI document in the _configuration_ column.) || Yes || No || Yes || No ||
 || configuration || An XML column that carries the actual CI document with the same schema type as the one referenced by the _type_ property. || Yes || No || No || No ||
+|| source || Element that owns the relationship || Yes || No || No || No ||
+|| destination|| Element that is the target of the relationship || Yes || No || No || No ||
+|| configuration || Relations also have a specific CI that must correspond to the _type_ property.  Although the flora av relationship CIs restrictive and much smaller than with elements. || Yes || No || No || No ||
+
+The Relation Type och Element Type Pojos have the common properties plus only a _name_ property like that for the Element Pojo.
 
 == Usage ==
+The Pojo classes only only wrappers for the underlying CIs.  Their purpose is to provide a little bookkeeping, unique identification and map to a physical table.  Despite the Pojos carrying limited information they are mandatory for XPath filters.  Every filter must be absolute starting from either an Element, Relation, Element Type or Relation Type axis. 
