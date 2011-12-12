@@ -13,6 +13,9 @@ This section maps sections of the Ivy module description to CI properties.
 || info || organisation || Organisation || Yes || Direct transfer from Ivy's organisation attribute into the organisation property for Software ||
 || info || module || Name || Yes || The module is the Software and thus the module attribute becomes the _Name_ property for both the Element POJO and the Commons _Name_ property part the Base CI. ||
 || info || revision || Version || Yes || Ivy use the title _revision_ while Klistret sticks to the more common _Version_. ||
+|| info || branch || n/a || No || The branch attribute is not carried over but could be mapped in the future into a _Property_ element. ||
+|| info || status || Phase || No || Ivy describe _status_ the way people regard a module revision.  This is close enough to the Lifecycle or _Phase_ property.  For example, the *integration* status is a revision _built by a continuous build, a nightly build_ etc.  This is the same has software stuck in the development phase.  Ivy also defines *milestones* and *releases* which are akin to test and production phases.  The actual value of _Phase_ should derive from a contextual CI.  It is something every organization should define both for their internal work and external third party software. ||
+|| info || publication || Availability || No || Ivy does not require the _publication_ attribute and neither does Klistret but it may be used to specific time frames thus mapping to the _Availability_ property. ||
 
 ==== Publication ====
 
