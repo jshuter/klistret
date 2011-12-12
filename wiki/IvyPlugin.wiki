@@ -30,7 +30,7 @@ An Ivy dependency translates to a Dependency CI between 2 Software CI.  The _dep
 || *Section* || *Attribute* || *Klistret* || *Required* || *Description* ||
 || dependencies.dependency || org || Organisation || Yes || Organization of the destination software. ||
 || dependencies.dependency || name || Name || Yes || Name of the destination software (Element POJO _Name_ property) ||
-|| dependencies.dependency || rev || Version || Yes || Version of the destination software.  *Important:* Just like Ivy one can use variables "latest.<status>" to select the latest version for a particular life cycle phase.  This only works if only one Software CI per status is marked with a "latest" Tag.  The _rev_ attribute may even contain "latest.<publication>" to select the latest version by availability. || 
+|| dependencies.dependency || rev || Version || Yes || Version of the destination software.  *Important:* Just like Ivy one can use variables "latest.`<`status`>`" to select the latest version for a particular life cycle phase.  This only works if only one Software CI per status is marked with a "latest" Tag.  The _rev_ attribute may even contain "latest.`<`publication`>`" to select the latest version by availability. || 
 || dependencies.dependency || conf || Usage || No || Just like the configuration _conf_ attribute for publications the _Usage_ property is utilized. ||
 
 == Registration ==
