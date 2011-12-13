@@ -53,5 +53,5 @@ If no Software CI exists (based on the organization, module, and revision criter
 A HTTP GET against:
   /resteasy/ivy?start=...?limit=...?org=...&module=...&revision=...
 
-will find (i.e. a result set) a list of Ivy module descriptors.  Both the _start_ and _limit_ query variables are optional.  The _revision_ is also optional and Klistret will retrieve descriptors without regard to version.
+will return a single Ivy descriptor file.  Both the _start_ and _limit_ query variables are optional.  The _revision_ may be either an implicit or explicit value however the service will fail if a unique element is not found.
   
