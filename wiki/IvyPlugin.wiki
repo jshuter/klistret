@@ -30,8 +30,16 @@ An Ivy dependency translates to a Dependency CI between 2 Software CI.  The _dep
 || *Section* || *Attribute* || *Klistret* || *Required* || *Description* ||
 || dependencies.dependency || org || Organisation || Yes || Organization of the destination software. ||
 || dependencies.dependency || name || Name || Yes || Name of the destination software (Element POJO _Name_ property) ||
-|| dependencies.dependency || rev || Version || Yes || Version of the destination software.  *Important:* Just like Ivy one can use variables "latest.`<`status`>`" to select the latest version for a particular life cycle phase.  This only works if only one Software CI per status is marked with a "latest" Tag.  The _rev_ attribute may even contain "latest.`<`publication`>`" to select the latest version by availability. || 
+|| dependencies.dependency || rev || Version || Yes || Version of the destination software. Variables can even identify a version by different aspects (See below). || 
 || dependencies.dependency || conf || Usage || No || Just like the configuration _conf_ attribute for publications the _Usage_ property is utilized. ||
+
+The [http://ant.apache.org/ivy/history/latest-milestone/ivyfile/dependency.html Ivy reference] talks about how variables can be used to locate a particular revision.  The majority of Ivy variables are supported and expect _Tag_ metadata to find a Software CI:
+  * *latest.`[`any status`]`* works just like Ivy states in Klistret.  If one writes _latest.release_ then the _Tag_ _latest.phase_ must be present in Software CI and the _Phase_ property equal to _release_.  So the *lastest.integration* variable is not handled separately rather with the general management of any status name.  Klistret finds the latest version for an explicit status over all time.
+  * *version ranges* are not yet supported.
+  * *latest.`[`any publication`]`* is not a construct from Ivy but is interpreted by Klistret.  Publication dates are also an important aspect in Klistret and correspond to the _Availability_ property.  The variable _latest.2011-10-01_ instructs Klistret to search for a Software CI with _latest.availability_ as a _Tag_ and an _Availability_ equal to _2011-10-01_.
+  * *latest.`[`any status`]`.`[`any publication`]`* is also no construction in Ivy but Klistret looks for a _Tag_ called _latest.phase.availability_ and matches against both the _Phase_ and _Availability_ properties.
+
+Who sets all of the tags?  There are 3 different tags (_latest.phase_, _latest.availability_, and _latest.phase.availability_) that have to exist otherwise the Ivy plugin won't recognize software by variable.  Registration of software through the Ivy plugin with infilled status and publication will automatically apply Ivy tags.  If the status and publication values are not present then the software will disappear from variable specification unless the end user applies the tags manually.  Also, manual interference can by accident lead to Klistret finding multiple CI per tag which will fail inside the Ivy plugin.  So there is a good deal of responsibility on the part of the end user to preserve the integrity tagging.
 
 == Registration ==
 The Ivy module descriptor (XML document) is the information carrier to the follow REST service:
