@@ -30,7 +30,7 @@ An Ivy dependency translates to a Dependency CI between 2 Software CI.  The _dep
 || *Section* || *Attribute* || *Klistret* || *Required* || *Description* ||
 || dependencies.dependency || org || Organisation || Yes || Organization of the destination software. ||
 || dependencies.dependency || name || Name || Yes || Name of the destination software (Element POJO _Name_ property) ||
-|| dependencies.dependency || rev || Version || Yes || Version of the destination software. Variables can even identify a version by different aspects (See below). || 
+|| dependencies.dependency || rev || Version || Yes || Version of the destination software. Variables can even identify a version by different aspects (See below) if an explicit version is not given. || 
 || dependencies.dependency || conf || Usage || No || Just like the configuration _conf_ attribute for publications the _Usage_ property is utilized. ||
 
 The [http://ant.apache.org/ivy/history/latest-milestone/ivyfile/dependency.html Ivy reference] talks about how variables can be used to locate a particular revision.  The majority of Ivy variables are supported and expect _Tag_ metadata to find a Software CI:
@@ -45,7 +45,9 @@ Who sets all of the tags?  There are 3 different tags (_latest.phase_, _latest.a
 The Ivy module descriptor (XML document) is the information carrier to the follow REST service:
   /resteasy/ivy
 
-The PUT HTTP method is used since an [http://en.wikipedia.org/wiki/Idempotent idempotent] action is expected.  When no Software CI exists meeting the criterion of the composite key Organization, Version, and Name then a create is issued otherwise an update.  The same applies to dependency relationships and Publication CIs.  This is important since the order in which modules are registered may be random.  Software dependencies to a module descriptor do not have to be registered to Klistret to register the module.  However, dependencies to Software are created if not found and later updated if descriptors for those dependencies are registered.
+The PUT HTTP method is used since an [http://en.wikipedia.org/wiki/Idempotent idempotent] action is expected.    Idempotent actions means that the same result is excepted if the Software CI already exists or is updated.  The same logic covers how relations to publications and other software are handled.  When an Ivy descriptor file is registered it is a snapshot of how dependencies are resolved at that point in time.  In other words, if _rev_ variables are used when software dependencies are made against latest software by either phase or availability aspects valid at registration time.  This may differ from the build during development.  The recommendation is to always specify an explicit _rev_ value for software dependencies.
+
+If no Software CI exists (based on the organization, module, and revision criteria) then a new Software CI is created otherwise an update is performed.  Should Klistret find more than one preexisting software meeting the identification criteria then the registration will fail.  Updating a persistent software ensues the deletion of all Ivy dependencies (i.e. relations to publications and other software).  Publication dependencies are created if not located and the Dependency CI (relation) is setup between the two elements.  Software dependencies are never created unless the _rev_ attribute is explicit and the registration will fail if no target software is found with a variable _rev_ value. 
 
 == Search ==
 A HTTP GET against:
