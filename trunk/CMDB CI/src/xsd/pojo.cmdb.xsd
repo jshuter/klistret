@@ -57,7 +57,9 @@
 		<xs:annotation>
 			<xs:documentation>Creation ID</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:string" />
+		<xs:restriction base="xs:string">
+			<xs:length value="10"/>
+		</xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="createTimeStamp">

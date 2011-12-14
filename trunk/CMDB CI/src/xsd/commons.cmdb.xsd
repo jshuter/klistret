@@ -8,8 +8,7 @@
 	GNU General Public License for more details. You should have received a copy 
 	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <xs:schema xmlns="http://www.klistret.com/cmdb/ci/commons"
-	targetNamespace="http://www.klistret.com/cmdb/ci/commons" 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.klistret.com/cmdb/ci/commons" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	elementFormDefault="qualified">
 
 	<xs:simpleType name="Name">
@@ -57,6 +56,17 @@
 				A non-hierarchical keyword or term assigned to a
 				base instance. Tags enrich search criteria and may be dynamically
 				applied by users.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+
+	<xs:simpleType name="Mark">
+		<xs:annotation>
+			<xs:documentation>
+				A non-hierarchical keyword or term assigned to a
+				base instance for internal use only. Works like a Tag but for
+				internal processes rather than intended for end users.
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string" />
@@ -226,6 +236,9 @@
 				maxOccurs="1">
 			</xs:element>
 			<xs:element name="Tag" type="Tag" minOccurs="0" maxOccurs="unbounded">
+			</xs:element>
+			<xs:element name="Mark" type="Mark" minOccurs="0"
+				maxOccurs="unbounded">
 			</xs:element>
 			<xs:element name="Usage" type="Usage" minOccurs="0"
 				maxOccurs="unbounded">
