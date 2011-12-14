@@ -166,7 +166,7 @@ public class JAXBUserType implements UserType {
 	 * @param value
 	 * @return
 	 */
-	protected String toXMLString(Object value) {
+	public String toXMLString(Object value) {
 		StringWriter stringWriter = new StringWriter();
 		Marshaller m = null;
 		try {
@@ -200,7 +200,7 @@ public class JAXBUserType implements UserType {
 	 * @param xmlString
 	 * @return
 	 */
-	protected Object fromXMLString(String xmlString) {
+	public Object fromXMLString(String xmlString) {
 		logger.debug("unmarshalling xml [{}]", xmlString);
 		Unmarshaller um = null;
 
