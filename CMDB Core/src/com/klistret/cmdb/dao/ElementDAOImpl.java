@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.NonUniqueResultException;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -80,10 +79,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.add(Projections.property(alias + ".createTimeStamp"))
 					.add(Projections.property(alias + ".updateTimeStamp"))
 					.add(Projections.property(alias + ".configuration")));
-			
-			criteria.addOrder(Order.asc("name") );
+
+			criteria.addOrder(Order.asc("name"));
 
 			criteria.setFirstResult(start);
+			criteria.setFetchSize(limit);
 			criteria.setMaxResults(limit);
 
 			Object[] results = criteria.list().toArray();
@@ -127,15 +127,13 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				throw new ApplicationException("Expressions parameter is null",
 						new IllegalArgumentException());
 
-			Criteria criteria = new XPathCriteria(expressions, getSession())
-					.getCriteria();
+			Integer count = count(expressions);
+			if (count != 1)
+				throw new ApplicationException(String.format(
+						"Expressions criteria was not unique: %d", count));
 
-			Element element = (Element) criteria.uniqueResult();
-
-			return element == null ? null : element;
-		} catch (NonUniqueResultException e) {
-			throw new ApplicationException(String.format(
-					"Expressions criteria was not unique: %s", e.getMessage()));
+			List<Element> results = find(expressions, 0, 1);
+			return results.get(0);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e.getCause());
 		}

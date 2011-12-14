@@ -23,7 +23,6 @@ import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.NonUniqueResultException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -79,6 +78,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			criteria.setFirstResult(start);
 			criteria.setMaxResults(limit);
+			criteria.setFetchSize(limit);
 
 			Object[] results = criteria.list().toArray();
 
@@ -122,15 +122,13 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				throw new ApplicationException("Expressions parameter is null",
 						new IllegalArgumentException());
 
-			Criteria criteria = new XPathCriteria(expressions, getSession())
-					.getCriteria();
+			Integer count = count(expressions);
+			if (count != 1)
+				throw new ApplicationException(String.format(
+						"Expressions criteria was not unique: %d", count));
 
-			Relation relation = (Relation) criteria.uniqueResult();
-
-			return relation == null ? null : relation;
-		} catch (NonUniqueResultException e) {
-			throw new ApplicationException(String.format(
-					"Expressions criteria was not unique: %s", e.getMessage()));
+			List<Relation> results = find(expressions, 0, 1);
+			return results.get(0);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
