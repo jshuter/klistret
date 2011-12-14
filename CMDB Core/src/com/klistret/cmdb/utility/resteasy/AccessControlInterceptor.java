@@ -21,10 +21,14 @@ import javax.ws.rs.ext.Provider;
 import org.jboss.resteasy.annotations.interception.ServerInterceptor;
 import org.jboss.resteasy.spi.interception.MessageBodyWriterContext;
 import org.jboss.resteasy.spi.interception.MessageBodyWriterInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 @ServerInterceptor
 public class AccessControlInterceptor implements MessageBodyWriterInterceptor {
+	private static final Logger logger = LoggerFactory
+			.getLogger(AccessControlInterceptor.class);
 
 	private static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
@@ -43,15 +47,22 @@ public class AccessControlInterceptor implements MessageBodyWriterInterceptor {
 	public void write(MessageBodyWriterContext context) throws IOException,
 			WebApplicationException {
 
-		context.getHeaders().add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-		context.getHeaders().add(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-		context.getHeaders()
-				.add(ACCESS_CONTROL_ALLOW_METHODS,
-						"PROPFIND, PROPPATCH, COPY, MOVE, DELETE, MKCOL, LOCK, UNLOCK, PUT, GETLIB, VERSION-CONTROL, CHECKIN, CHECKOUT, UNCHECKOUT, REPORT, UPDATE, CANCELUPLOAD, HEAD, OPTIONS, GET, POST");
-		context.getHeaders()
-				.add(ACCESS_CONTROL_ALLOW_HEADERS,
-						"Overwrite, Destination, Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
-		context.getHeaders().add(ACCESS_CONTROL_MAX_AGE, "1728000");
+		String crossdomain = System.getProperty("resteasy.crossdomain");
+
+		if (crossdomain != null
+				&& crossdomain.toLowerCase().trim().matches("on|true|yes")) {
+			logger.warn("Activating cross domain scripting");
+
+			context.getHeaders().add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+			context.getHeaders().add(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+			context.getHeaders()
+					.add(ACCESS_CONTROL_ALLOW_METHODS,
+							"PROPFIND, PROPPATCH, COPY, MOVE, DELETE, MKCOL, LOCK, UNLOCK, PUT, GETLIB, VERSION-CONTROL, CHECKIN, CHECKOUT, UNCHECKOUT, REPORT, UPDATE, CANCELUPLOAD, HEAD, OPTIONS, GET, POST");
+			context.getHeaders()
+					.add(ACCESS_CONTROL_ALLOW_HEADERS,
+							"Overwrite, Destination, Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
+			context.getHeaders().add(ACCESS_CONTROL_MAX_AGE, "1728000");
+		}
 
 		context.proceed();
 	}
