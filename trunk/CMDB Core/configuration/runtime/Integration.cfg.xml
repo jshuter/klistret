@@ -60,9 +60,9 @@
 				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.create(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
 
 			<aop:after-returning pointcut-ref="readElementPointcut"
-				method="read" returning="element" />
+				method="read" arg-names="id,element" returning="element" />
 			<aop:after-returning pointcut-ref="deleteElementPointcut"
-				method="delete" returning="element" />
+				method="delete" arg-names="id,element" returning="element" />
 			<aop:after-returning pointcut-ref="updateElementPointcut"
 				method="update" />
 			<aop:after-returning pointcut-ref="createElementPointcut"
@@ -81,9 +81,9 @@
 				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.create(com.klistret.cmdb.ci.pojo.Relation)) and args(relation)" />
 
 			<aop:after-returning pointcut-ref="readRelationPointcut"
-				method="read" returning="relation" />
+				method="read" arg-names="id,relation" returning="relation" />
 			<aop:after-returning pointcut-ref="deleteRelationPointcut"
-				method="delete" returning="relation" />
+				method="delete" arg-names="id,relation" returning="relation" />
 			<aop:after-returning pointcut-ref="updateRelationPointcut"
 				method="update" />
 			<aop:after-returning pointcut-ref="createRelationPointcut"

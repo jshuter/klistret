@@ -434,11 +434,10 @@ public class RestEasyService {
 				response.getStatus());
 	}
 
-	@Test
 	public void findRelation() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation?expressions="
+				.get("/resteasy/relation/unique?expressions="
 						+ URLEncoder
 								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq 448055]",
 										"UTF-8")
@@ -448,8 +447,24 @@ public class RestEasyService {
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:destination[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:destination[pojo:id eq 468925][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
 										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+	}
+
+	@Test
+	public void getRelation() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/relation/737397");
 
 		MockHttpResponse response = new MockHttpResponse();
 
