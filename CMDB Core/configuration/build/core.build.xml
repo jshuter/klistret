@@ -12,7 +12,7 @@
 		<delete dir="${jars-destdir}" failonerror="false" />
 		<mkdir dir="${jars-destdir}" />
 
-		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" nowarn="on">
+		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" debug="true" debuglevel="lines,vars,source">
 			<include name="com/klistret/cmdb/**/*.java" />
 
 			<classpath>

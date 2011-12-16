@@ -115,9 +115,16 @@ public interface RelationService {
 	String preflighted();
 
 	/**
-	 * DML-style casade deletion of element relations
+	 * DML-style cascade deletion of an element's relations
 	 * 
 	 * @param id
 	 */
 	int cascade(Long id);
+	
+	/**
+	 * DML-style cascade deletion of an element's relations
+	 * 
+	 * @param id
+	 */
+	int cascade(Long id, boolean source, boolean destination);
 }

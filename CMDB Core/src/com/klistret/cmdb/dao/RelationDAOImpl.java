@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -123,7 +124,10 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						new IllegalArgumentException());
 
 			Integer count = count(expressions);
-			if (count != 1)
+			if (count == 0)
+				return null;
+
+			if (count > 1)
 				throw new ApplicationException(String.format(
 						"Expressions criteria was not unique: %d", count));
 
@@ -253,18 +257,47 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	}
 
 	/**
-	 * Deletion of element logically result in the deletion of their relations.
+	 * Deletion of an element's relations (both source and destination).
 	 * DML-style operation written directly in HQL quickens the update process.
 	 * 
 	 * @param id
 	 */
 	public int cascade(Long id) {
-		String hqlElementDeletion = "update Relation r set r.toTimeStamp = current_timestamp() where (r.source.id = :sourceId or r.destination.id = :destinationId) and r.toTimeStamp is null";
+		return cascade(id, true, true);
+	}
 
-		int count = getSession().createQuery(hqlElementDeletion)
-				.setLong("sourceId", id).setLong("destinationId", id)
-				.executeUpdate();
-		logger.info("Deleted {} relations to element [id: {}]", count, id);
+	/**
+	 * Deletion of an element's relations
+	 * 
+	 * @param id
+	 * @param source
+	 * @param destination
+	 * @return
+	 */
+	public int cascade(Long id, boolean source, boolean destination) {
+		int count = 0;
+
+		if (source) {
+			int results = getSession()
+					.createQuery(
+							"update Relation r set r.toTimeStamp = current_timestamp() where r.source.id = :sourceId and r.toTimeStamp is null")
+					.setLong("sourceId", id).executeUpdate();
+
+			count = count + results;
+			logger.info("Deleted {}  relations with source [id: {}]", results,
+					id);
+		}
+
+		if (destination) {
+			int results = getSession()
+					.createQuery(
+							"update Relation r set r.toTimeStamp = current_timestamp() where r.destination.id = :destinationId and r.toTimeStamp is null")
+					.setLong("destinationId", id).executeUpdate();
+
+			count = count + results;
+			logger.info("Deleted {} relations with destination [id: {}]",
+					results, id);
+		}
 
 		return count;
 	}
