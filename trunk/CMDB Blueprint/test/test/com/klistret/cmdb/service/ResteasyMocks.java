@@ -13,11 +13,15 @@
  */
 package test.com.klistret.cmdb.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
 
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
@@ -62,7 +66,7 @@ public class ResteasyMocks {
 
 		ctx = new GenericXmlApplicationContext();
 		ctx.getEnvironment().setActiveProfiles("development");
-		ctx.load("classpath:Test.cfg.xml");
+		ctx.load("classpath:Spring.cfg.xml");
 		ctx.refresh();
 		ctx.addBeanFactoryPostProcessor(processor);
 
@@ -73,8 +77,12 @@ public class ResteasyMocks {
 		SpringResourceFactory identificationService = new SpringResourceFactory(
 				"identificationService", ctx,
 				com.klistret.cmdb.service.IdentificationService.class);
+		SpringResourceFactory ivyService = new SpringResourceFactory(
+				"ivyService", ctx, com.klistret.cmdb.service.IvyService.class);
+
 		dispatcher.getRegistry().addResourceFactory(taxonomyService);
 		dispatcher.getRegistry().addResourceFactory(identificationService);
+		dispatcher.getRegistry().addResourceFactory(ivyService);
 
 		ResteasyProviderFactory providerFactory = dispatcher
 				.getProviderFactory();
@@ -129,14 +137,13 @@ public class ResteasyMocks {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
 	public void getFullCriterion() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.post("/resteasy/identification/fullCriterion")
 				.accept(Arrays
 						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
-		
+
 		request.contentType(MediaType.APPLICATION_XML);
 		request.content("".getBytes("UTF-8"));
 
@@ -148,5 +155,34 @@ public class ResteasyMocks {
 				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+	}
+
+	public void register() throws URISyntaxException, IOException,
+			JAXBException {
+		MockHttpRequest request = MockHttpRequest.put("/resteasy/ivy");
+		MockHttpResponse response = new MockHttpResponse();
+
+		request.contentType(MediaType.APPLICATION_XML);
+		request.content(new FileInputStream(new File(
+				"C:\\workshop\\klistret\\CMDB Blueprint\\ivy.xml")));
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
+	}
+
+	@Test
+	public void getIvy() throws URISyntaxException, IOException, JAXBException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/ivy?organization=com.klistret.cmdb&module=blueprint&revision=0.1");
+		MockHttpResponse response = new MockHttpResponse();
+
+		request.contentType(MediaType.APPLICATION_XML);
+
+		dispatcher.invoke(request, response);
+		System.out.println(String.format(
+				"Response code [%s] with payload [%s]", response.getStatus(),
+				response.getContentAsString()));
 	}
 }

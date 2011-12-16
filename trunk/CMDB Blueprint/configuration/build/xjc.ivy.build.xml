@@ -1,0 +1,27 @@
+<project default="blueprint:xjc" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="tmp-destdir" location="C:/temp/cmdb-blueprint" />
+	<property name="project-basedir" location="C:/workshop/klistret/CMDB Blueprint" />
+
+	<ivy:settings file="C:/workshop/klistret/CMDB Core/ivysettings.xml" />
+
+	<ivy:cachepath pathid="classpath.IVY" conf="xjc" file="${project-basedir}/ivy.xml" type="jar, bundle" />
+
+	<!-- Create JAXB classes -->
+	<target name="blueprint:xjc">
+		<property name="xjc-destdir" location="${tmp-destdir}/xjc" />
+
+		<delete dir="${xjc-destdir}" failonerror="false" />
+		<mkdir dir="${xjc-destdir}" />
+
+		<taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
+			<classpath>
+				<path refid="classpath.IVY" />
+			</classpath>
+		</taskdef>
+
+		<xjc destdir="${xjc-destdir}" extension="true" schema="${project-basedir}/configuration/build/ivy.xsd" binding="${project-basedir}/configuration/build/xjc.ivy.binding.xml">
+			<arg line="
+				-Xsetters" />
+		</xjc>
+	</target>
+</project>

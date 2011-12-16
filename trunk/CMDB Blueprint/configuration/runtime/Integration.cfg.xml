@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:si="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-3.1.xsd
+		http://www.springframework.org/schema/integration 
+		http://www.springframework.org/schema/integration/spring-integration-2.0.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+
+	<!-- Integration CRUD channel (dump messagess from AOP) -->
+	<si:publish-subscribe-channel id="crudElementChannel"
+		task-executor="elementExecutor" />
+	<si:publish-subscribe-channel id="crudRelationChannel"
+		task-executor="relationExecutor" />
+
+	<!-- Task executer -->
+	<task:executor id="elementExecutor" pool-size="5-10"
+		queue-capacity="20" rejection-policy="CALLER_RUNS" />
+	<task:executor id="relationExecutor" pool-size="5-10"
+		queue-capacity="20" rejection-policy="CALLER_RUNS" />
+
+	<!-- Core subscribers -->
+	<si:service-activator input-channel="crudElementChannel"
+		ref="cascadeRelations" method="receive" />
+
+
+	<bean id="cascadeRelations" class="com.klistret.cmdb.aspect.crud.delete.CascadeRelations">
+		<property name="relationService" ref="relationService" />
+	</bean>
+
+	<!-- Integration CRUD functions (EDA) and the AOP helper for Core publishers -->
+	<bean id="elementIntegration" class="com.klistret.cmdb.aspect.crud.ElementIntegration">
+		<property name="channel" ref="crudElementChannel" />
+	</bean>
+	<bean id="relationIntegration" class="com.klistret.cmdb.aspect.crud.RelationIntegration">
+		<property name="channel" ref="crudRelationChannel" />
+	</bean>
+
+	<aop:config>
+		<aop:aspect ref="elementIntegration">
+			<aop:pointcut id="readElementPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.get(Long)) and args(id)" />
+			<aop:pointcut id="deleteElementPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.delete(Long)) and args(id)" />
+			<aop:pointcut id="updateElementPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.update(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
+			<aop:pointcut id="createElementPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Element com.klistret.cmdb.service.ElementService.create(com.klistret.cmdb.ci.pojo.Element)) and args(element)" />
+
+			<aop:after-returning pointcut-ref="readElementPointcut"
+				method="read" arg-names="id,element" returning="element" />
+			<aop:after-returning pointcut-ref="deleteElementPointcut"
+				method="delete" arg-names="id,element" returning="element" />
+			<aop:after-returning pointcut-ref="updateElementPointcut"
+				method="update" />
+			<aop:after-returning pointcut-ref="createElementPointcut"
+				method="create" />
+		</aop:aspect>
+	</aop:config>
+	<aop:config>
+		<aop:aspect ref="relationIntegration">
+			<aop:pointcut id="readRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.get(Long)) and args(id)" />
+			<aop:pointcut id="deleteRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.delete(Long)) and args(id)" />
+			<aop:pointcut id="updateRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.update(com.klistret.cmdb.ci.pojo.Relation)) and args(relation)" />
+			<aop:pointcut id="createRelationPointcut"
+				expression="execution(com.klistret.cmdb.ci.pojo.Relation com.klistret.cmdb.service.RelationService.create(com.klistret.cmdb.ci.pojo.Relation)) and args(relation)" />
+
+			<aop:after-returning pointcut-ref="readRelationPointcut"
+				method="read" arg-names="id,relation" returning="relation" />
+			<aop:after-returning pointcut-ref="deleteRelationPointcut"
+				method="delete" arg-names="id,relation" returning="relation" />
+			<aop:after-returning pointcut-ref="updateRelationPointcut"
+				method="update" />
+			<aop:after-returning pointcut-ref="createRelationPointcut"
+				method="create" />
+		</aop:aspect>
+	</aop:config>
+</beans>
