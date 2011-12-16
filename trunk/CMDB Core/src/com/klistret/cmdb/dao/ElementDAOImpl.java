@@ -128,7 +128,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						new IllegalArgumentException());
 
 			Integer count = count(expressions);
-			if (count != 1)
+			if (count == 0)
+				return null;
+			
+			if (count > 1)
 				throw new ApplicationException(String.format(
 						"Expressions criteria was not unique: %d", count));
 

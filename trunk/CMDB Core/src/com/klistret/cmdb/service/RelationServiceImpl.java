@@ -123,11 +123,22 @@ public class RelationServiceImpl implements RelationService {
 	}
 
 	/**
-	 * DML-style casade deletion of element relations
+	 * DML-style cascade deletion of an element's relations
 	 * 
 	 * @param id
 	 */
 	public int cascade(Long id) {
 		return relationDAO.cascade(id);
+	}
+
+	/**
+	 * DML-style cascade deletion of an element's relations
+	 * 
+	 * @param id
+	 * @param source
+	 * @param destination
+	 */
+	public int cascade(Long id, boolean source, boolean destination) {
+		return relationDAO.cascade(id, source, destination);
 	}
 }

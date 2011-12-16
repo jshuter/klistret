@@ -79,9 +79,19 @@ public interface RelationDAO {
 	Relation delete(Long id);
 
 	/**
-	 * DML-style casade deletion of element relations
+	 * DML-style cascade deletion of an element's relations
 	 * 
 	 * @param id
 	 */
 	int cascade(Long id);
+	
+	/**
+	 * DML-style cascade deletion of an element's relations
+	 * 
+	 * @param id
+	 * @param source
+	 * @param destination
+	 * @return
+	 */
+	int cascade(Long id, boolean source, boolean destination);
 }
