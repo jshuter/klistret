@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is part of Klistret. Klistret is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http:// 
+	www.gnu.org/licenses/> -->
+<jxb:bindings version="2.0" xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	xmlns:jxb="http://java.sun.com/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<jxb:bindings schemaLocation="ivy.xsd">
+		<jxb:schemaBindings>
+            <jxb:package name="com.klistret.cmdb.ivy.pojo" />
+        </jxb:schemaBindings>
+	
+		<!-- mapped attributes/elements -->
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='conf']/xs:complexType/xs:sequence/xs:element[@name='mapped']">
+			<jxb:property name="DependencyElementMapped" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='conf']/xs:complexType/xs:attribute[@name='mapped']">
+			<jxb:property name="DependencyAttributeMapped" />
+		</jxb:bindings>
+	
+	
+		<!-- conf attributes/elements -->
+		<jxb:bindings
+			node="/xs:schema/xs:complexType[@name='global-exclude']/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="GlobalExcludeElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:complexType[@name='global-exclude']/xs:attribute[@name='conf']">
+			<jxb:property name="GlobalExcludeAttributeConf" />
+		</jxb:bindings>
+		
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='publications']/xs:complexType/xs:sequence/xs:element[@name='artifact']/xs:complexType/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="ArtifactElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='publications']/xs:complexType/xs:sequence/xs:element[@name='artifact']/xs:complexType/xs:attribute[@name='conf']">
+			<jxb:property name="ArtifactAttributeConf" />
+		</jxb:bindings>
+		
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="DependencyElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:attribute[@name='conf']">
+			<jxb:property name="DependencyAttributeConf" />
+		</jxb:bindings>
+		
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='artifact']/xs:complexType/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="DependencyArtifactElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='artifact']/xs:complexType/xs:attribute[@name='conf']">
+			<jxb:property name="DependencyArtifactAttributeConf" />
+		</jxb:bindings>
+		
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='include']/xs:complexType/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="DependencyIncludeElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='include']/xs:complexType/xs:attribute[@name='conf']">
+			<jxb:property name="DependencyIncludeAttributeConf" />
+		</jxb:bindings>
+		
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='exclude']/xs:complexType/xs:sequence/xs:element[@name='conf']">
+			<jxb:property name="DependencyIncludeElementConf" />
+		</jxb:bindings>
+		<jxb:bindings
+			node="/xs:schema/xs:element[@name='ivy-module']/xs:complexType/xs:sequence/xs:element[@name='dependencies']/xs:complexType/xs:sequence/xs:element[@name='dependency']/xs:complexType/xs:sequence/xs:element[@name='exclude']/xs:complexType/xs:attribute[@name='conf']">
+			<jxb:property name="DependencyIncludeAttributeConf" />
+		</jxb:bindings>
+	</jxb:bindings>
+</jxb:bindings>

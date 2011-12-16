@@ -24,6 +24,7 @@
 		<conf name="master" visibility="public"
 			description="contains only the artifact published by this module itself, with no transitive dependencies" />
 		<conf name="sources" visibility="public" description="Sources only" />
+		<conf name="xjc" visibility="public" description="XJC" />
 		<conf name="config" visibility="public" description="Configuration only" />
 	</configurations>
 	<publications>
@@ -41,6 +42,10 @@
 		<!-- Klistret Core -->
 		<dependency org="com.klistret.cmdb" name="core" rev="0.1"
 			conf="runtime->runtime, master" />
+			
+		<!-- XJC stuff from the CI -->
+		<dependency org="com.klistret.cmdb" name="ci" rev="0.1"
+			conf="xjc->compile" />
 
 		<!-- JUnit (1): junit -->
 		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master" />
