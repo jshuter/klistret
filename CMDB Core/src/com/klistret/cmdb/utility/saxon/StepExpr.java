@@ -264,8 +264,8 @@ public class StepExpr extends Step {
 				.equals(TraceExpression.class.getName())) {
 			logger.debug("Predicate is a trace or functional expression, no literal values are extracted");
 
-			return new ComparisonExpr((TraceExpression) expression,
-					configuration);
+			return addValues(new ComparisonExpr((TraceExpression) expression,
+					configuration));
 		}
 
 		else {
