@@ -163,8 +163,8 @@ public class ElementService {
 		List<Element> response = elementService
 				.find(Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"KND\"]/pojo:configuration[matches(component:Version,\"0053.*\")]" }),
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068\")]" }),
 						0, 10);
 
 		assertNotNull(response);

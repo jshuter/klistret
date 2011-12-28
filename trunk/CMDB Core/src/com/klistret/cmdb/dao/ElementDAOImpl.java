@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
@@ -34,6 +35,7 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
+import com.klistret.cmdb.utility.hibernate.XPathAggregation;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 
@@ -117,7 +119,38 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	}
 
 	/**
+	 * Does a projection on the result set for the passed criteria.
+	 * 
+	 */
+	public String aggregate(String projection, List<String> expressions) {
+		try {
+			logger.debug("Aggregating elements by expression");
+
+			if (expressions == null)
+				throw new ApplicationException("Expressions parameter is null",
+						new IllegalArgumentException());
+
+			Criteria criteria = new XPathCriteria(expressions, getSession())
+					.getCriteria();
+
+			Projection aggregation = new XPathAggregation(projection,
+					getSession()).getProjection();
+			criteria.setProjection(aggregation);
+
+			List<?> results = criteria.list();
+
+			if (results.size() == 0)
+				return null;
+
+			return results.get(0).toString();
+		} catch (HibernateException he) {
+			throw new InfrastructureException(he.getMessage(), he.getCause());
+		}
+	}
+
+	/**
 	 * Unique get off of XPath expressions
+	 * 
 	 */
 	public Element unique(List<String> expressions) {
 		try {
@@ -130,7 +163,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			Integer count = count(expressions);
 			if (count == 0)
 				return null;
-			
+
 			if (count > 1)
 				throw new ApplicationException(String.format(
 						"Expressions criteria was not unique: %d", count));

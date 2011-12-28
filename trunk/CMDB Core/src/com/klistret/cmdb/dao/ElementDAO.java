@@ -52,6 +52,15 @@ public interface ElementDAO {
 	List<Element> find(List<String> expressions, int start, int limit);
 
 	/**
+	 * Aggregate (max, min, sum, avg) off of criteria
+	 * 
+	 * @param projection
+	 * @param expressions
+	 * @return
+	 */
+	String aggregate(String projection, List<String> expressions);
+
+	/**
 	 * Identical to the find method except only a single Element is returned if
 	 * unique otherwise an exception is raised.
 	 * 

@@ -13,6 +13,9 @@
  */
 package com.klistret.cmdb.utility.saxon;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,8 @@ import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.klistret.cmdb.exception.ApplicationException;
 
 import net.sf.saxon.Configuration;
 import net.sf.saxon.expr.AxisExpression;
@@ -44,7 +49,7 @@ public class RelativePathExpr implements Expr {
 	/**
 	 * 
 	 */
-	protected PathExpression pathExpression;
+	protected BaseExpression baseExpression;
 
 	/**
 	 * 
@@ -73,6 +78,12 @@ public class RelativePathExpr implements Expr {
 	protected List<Expr> steps = new ArrayList<Expr>();
 
 	/**
+	 * Raw strings for each step in the relative path
+	 */
+	private String[] xpathSplit;
+
+	/**
+	 * Constructor mimicking Expr
 	 * 
 	 * @param expression
 	 * @param configuration
@@ -81,6 +92,29 @@ public class RelativePathExpr implements Expr {
 		this.expression = expression;
 		this.configuration = configuration;
 		explain(expression);
+	}
+
+	/**
+	 * Constructor with owning BaseExpression (splits the original XPath with
+	 * prolog into an array of strings mirroring the compiled steps).
+	 * 
+	 * @param expression
+	 * @param configuration
+	 * @param pathExpression
+	 */
+	public RelativePathExpr(Expression expression, Configuration configuration,
+			BaseExpression baseExpression) {
+		this(expression, configuration);
+
+		this.baseExpression = baseExpression;
+		this.xpathSplit = RelativePathExpr.split(baseExpression
+				.getXPathWithoutProlog());
+
+		if (this.xpathSplit.length != getDepth())
+			throw new ApplicationException(
+					String.format(
+							"Number of uncompiled xpath steps [%d] as strings is not equal to the number of compiled steps [%d] in the relative path",
+							this.xpathSplit.length, getDepth()));
 	}
 
 	/**
@@ -111,6 +145,17 @@ public class RelativePathExpr implements Expr {
 	 */
 	public String getXPath() {
 		return getXPath(false);
+	}
+
+	/**
+	 * Raw XPath by depth
+	 * 
+	 * @param start
+	 * @param stop
+	 * @return
+	 */
+	public String getRawXPath(int depth) {
+		return this.xpathSplit[depth];
 	}
 
 	/**
@@ -229,11 +274,12 @@ public class RelativePathExpr implements Expr {
 	}
 
 	/**
+	 * BaseExpression
 	 * 
 	 * @return
 	 */
-	public PathExpression getPathExpression() {
-		return this.pathExpression;
+	public BaseExpression getBaseExpression() {
+		return this.baseExpression;
 	}
 
 	/**
@@ -324,5 +370,67 @@ public class RelativePathExpr implements Expr {
 				step.setPrevious((Step) steps.get(depth - 1));
 			}
 		}
+	}
+
+	/**
+	 * Breaks down an Path expression into string representations of individual
+	 * steps in the underlying relative path if it exists. Initial steps or
+	 * double slashes return empty strings.
+	 * 
+	 * @param xpath
+	 * @return
+	 */
+	public static String[] split(String xpath) {
+		String text = xpath.trim();
+
+		BufferedReader br = new BufferedReader(new StringReader(text));
+		char[] charBuffer = new char[(int) text.length()];
+
+		try {
+			br.read(charBuffer);
+			br.close();
+		} catch (IOException e) {
+			logger.error(
+					"Unable to read XPath [{}] into a character buffer: {}",
+					text, e.getMessage());
+			return null;
+		}
+
+		List<String> results = new ArrayList<String>();
+
+		StringBuilder step = new StringBuilder();
+		int openBr = 0;
+		for (char character : charBuffer) {
+			switch (character) {
+			case '/':
+				if (openBr == 0) {
+					results.add(step.toString());
+					step = new StringBuilder();
+				} else {
+					step.append(character);
+				}
+				break;
+			case '[':
+				openBr++;
+				step.append(character);
+				break;
+			case ']':
+				openBr--;
+				step.append(character);
+				break;
+			default:
+				step.append(character);
+			}
+		}
+
+		if (step.length() != 0)
+			results.add(step.toString());
+
+		if (openBr != 0) {
+			logger.error("Predicate brackets uneven for XPath [{}]", text);
+			return null;
+		}
+
+		return results.toArray(new String[0]);
 	}
 }

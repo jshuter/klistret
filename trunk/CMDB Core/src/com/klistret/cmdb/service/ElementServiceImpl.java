@@ -87,6 +87,20 @@ public class ElementServiceImpl implements ElementService {
 	}
 
 	/**
+	 * Similar to find but the results are aggregated (avg, sum, min, max) into
+	 * another object via an XPath expression. The max aggregation in XPath 2.0
+	 * can be used to find the maximum value for a CI property.
+	 * 
+	 * @param projection
+	 * @param expressions
+	 * 
+	 * @return String
+	 */
+	public String aggregate(String projection, List<String> expressions) {
+		return elementDAO.aggregate(projection, expressions);
+	}
+
+	/**
 	 * Unique find by expressions (returns null if no element exists)
 	 */
 	public Element unique(List<String> expressions) {
