@@ -176,7 +176,7 @@ public class PathExpression {
 				System.out.println(String.format("xpath [%s], type [%s]",
 						expr.getXPath(), expr.getType().name()));
 
-			System.out.println(pathExpression.getRawXPath(1));
+			System.out.println(pathExpression.getRelativePath().getRawXPath(1));
 		} catch (ApplicationException e) {
 			fail(String.format("Application expression caught [%s]", e));
 		} catch (InfrastructureException e) {
@@ -258,7 +258,6 @@ public class PathExpression {
 		}
 	}
 
-	@Test
 	public void getValues() {
 		String xpath = String
 				.format("declare mapping a:configuration=b:Environment; declare namespace a=\"http://www.google.com/a\"; declare namespace b=\"http://www.google.com/b\"; %s",
@@ -272,7 +271,7 @@ public class PathExpression {
 			for (Expr expr : steps) {
 				System.out.println(expr.getXPath(true));
 				if (expr instanceof StepExpr)
-					for (String mask : ((StepExpr)expr).getMasks())
+					for (String mask : ((StepExpr) expr).getMasks())
 						System.out.println(mask);
 			}
 
@@ -314,9 +313,43 @@ public class PathExpression {
 	public void matching() {
 		String expression = "/a:google//b:big[c:men/c:another[2='2']][c:another]/d:microsoft";
 
-		String[] steps = com.klistret.cmdb.utility.saxon.PathExpression
+		String[] steps = com.klistret.cmdb.utility.saxon.RelativePathExpr
 				.split(expression);
 		for (String step : steps)
 			System.out.println(step);
+	}
+
+	@Test
+	public void complex() {
+		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google/a:big[a:men/a:another = '2' and a:dogs = 'cat']/a:microsoft";
+
+		com.klistret.cmdb.utility.saxon.PathExpression pe = new com.klistret.cmdb.utility.saxon.PathExpression(
+				expression);
+		for (Expr expr : pe.getRelativePath().getSteps()) {
+			System.out.println(expr);
+
+			if (expr.getType() == Expr.Type.Step) {
+				StepExpr step = (StepExpr) expr;
+				for (Expr predicate : step.getPredicates())
+					System.out.println("\t" + predicate);
+			}
+		}
+	}
+
+	public void aggregation() {
+		String expression = "declare namespace a=\"http://www.google.com/a\"; max(/a:google/a:microsoft)";
+
+		try {
+			com.klistret.cmdb.utility.saxon.FunctionCall call = new com.klistret.cmdb.utility.saxon.FunctionCall(
+					expression);
+			for (Expr expr : call.getRelativePath().getSteps())
+				System.out.println(expr.getXPath());
+
+			assertNotNull(call);
+		} catch (ApplicationException e) {
+			fail(String.format("Application expression caught [%s]", e));
+		} catch (InfrastructureException e) {
+			fail(String.format("Intfrastructure expression caught [%s]", e));
+		}
 	}
 }

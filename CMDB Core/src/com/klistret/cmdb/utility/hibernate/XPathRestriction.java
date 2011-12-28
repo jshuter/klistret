@@ -127,8 +127,8 @@ public class XPathRestriction implements Criterion {
 		/**
 		 * Path Expression
 		 */
-		PathExpression pathExpression = step.getRelativePath()
-				.getPathExpression();
+		PathExpression pathExpression = (PathExpression)step.getRelativePath()
+				.getBaseExpression();
 
 		/**
 		 * Property type is generalized to wild-card "*" leaving only the
@@ -192,8 +192,11 @@ public class XPathRestriction implements Criterion {
 						}
 					}
 					if (expr instanceof IrresoluteExpr) {
-						xpath = String.format("%s/%s", xpath, pathExpression
-								.getRawXPath(((Step) expr).getDepth()));
+						xpath = String.format(
+								"%s/%s",
+								xpath,
+								pathExpression.getRelativePath().getRawXPath(
+										((Step) expr).getDepth()));
 					}
 				}
 			}
