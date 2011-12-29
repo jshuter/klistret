@@ -321,7 +321,7 @@ public class PathExpression {
 
 	@Test
 	public void complex() {
-		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google/a:big[a:men/a:another = '2' and a:dogs = 'cat']/a:microsoft";
+		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google[a:big[matches(a:widdow/a:dog,'cat')]]/a:microsoft";
 
 		com.klistret.cmdb.utility.saxon.PathExpression pe = new com.klistret.cmdb.utility.saxon.PathExpression(
 				expression);
