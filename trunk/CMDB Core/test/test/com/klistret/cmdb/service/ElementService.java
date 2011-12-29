@@ -125,7 +125,7 @@ public class ElementService {
 	 * 
 	 * @throws JAXBException
 	 */
-	
+
 	public void getElement() throws JAXBException {
 		Element element = elementService.get(new Long(300349));
 
@@ -163,8 +163,8 @@ public class ElementService {
 		List<Element> response = elementService
 				.find(Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068\")]" }),
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\" and pojo:configuration/component:Version eq \"0068_A01\"]" }),
 						0, 10);
 
 		assertNotNull(response);
@@ -174,13 +174,13 @@ public class ElementService {
 	/**
 	 * Count elements
 	 */
-
+	
 	public void countElement() {
 		Integer response = elementService
 				.count(Arrays
 						.asList(new String[] {
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"AEttan\",\"Atm639\")]" }));
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")]" }));
 
 		System.out.println(String.format("Count [%s]", response));
 		assertNotNull(response);
@@ -189,7 +189,7 @@ public class ElementService {
 	/**
 	 * Unique elements
 	 */
-
+	
 	public void uniqueElement() {
 		Element element = elementService
 				.unique(Arrays
@@ -205,7 +205,7 @@ public class ElementService {
 	/**
 	 * Get relation
 	 */
-
+	
 	public void getRelation() {
 		Relation relation = relationService.get(new Long(1));
 		assertNotNull(relation);
@@ -226,7 +226,6 @@ public class ElementService {
 		assertNotNull(response);
 	}
 
-	
 	public void findElement2() {
 		List<Element> response = elementService
 				.find(Arrays
@@ -236,7 +235,6 @@ public class ElementService {
 		assertNotNull(response);
 	}
 
-	
 	public void findSoftware() {
 		Integer count = elementService
 				.count(Arrays
@@ -254,7 +252,6 @@ public class ElementService {
 		assertNotNull(count);
 	}
 
-	
 	public void mistake() {
 		List<String> expressions = Arrays
 				.asList(new String[] {
@@ -266,30 +263,30 @@ public class ElementService {
 		System.out.println("Count: " + count);
 		assertNotNull(count);
 	}
-	
-	
+
 	public void createRelation() {
 		Element application = elementService.get(new Long(412221));
-		
+
 		Element software = elementService.get(new Long(412016));
-		
-		RelationType type = relationTypeService.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
-		
+
+		RelationType type = relationTypeService
+				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
+
 		Relation relation = new Relation();
 		relation.setType(type);
 		relation.setFromTimeStamp(new Date());
 		relation.setToTimeStamp(null);
 		relation.setUpdateTimeStamp(new Date());
 		relation.setCreateTimeStamp(new Date());
-		
+
 		relation.setSource(application);
 		relation.setDestination(software);
-		
+
 		Composition configuration = new Composition();
 		configuration.setName(software.getName());
-		
+
 		relation.setConfiguration(configuration);
-		
+
 		relationService.create(relation);
 	}
 }

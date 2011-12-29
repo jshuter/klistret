@@ -58,6 +58,11 @@ public class XPathCriteria {
 	private CIContext ciContext = CIContext.getCIContext();
 
 	/**
+	 * Hibernate Criteria
+	 */
+	private Criteria criteria;
+
+	/**
 	 * Wrapped relative paths around the passed expressions
 	 */
 	private List<HibernateRelativePath> hibernateRelativePaths = new ArrayList<HibernateRelativePath>();
@@ -70,9 +75,19 @@ public class XPathCriteria {
 	};
 
 	/**
-	 * Criteria store
+	 * Alias mask
 	 */
-	private Map<String, Criteria> cache = new HashMap<String, Criteria>();
+	private String aliasMask = "a0";
+
+	/**
+	 * Alias cache
+	 */
+	private Map<String, String> aliasCache = new HashMap<String, String>();
+
+	/**
+	 * AssociationPath cache
+	 */
+	private List<String> associationPathCache = new ArrayList<String>();
 
 	/**
 	 * Hibernate wrapper (inner class) around relative paths (even single steps
@@ -86,9 +101,9 @@ public class XPathCriteria {
 		private List<HibernateStep> hSteps = new ArrayList<HibernateStep>();
 
 		/**
-		 * Root denotes a starting entity for Hibernate criteria
+		 * Absolute paths are candidates for root Hibernate criteria
 		 */
-		private boolean root = false;
+		private boolean absolute = false;
 
 		/**
 		 * Root entity name
@@ -101,10 +116,26 @@ public class XPathCriteria {
 		 */
 		private boolean truncated = false;
 
+		/**
+		 * Context for the relative path
+		 */
+		private HibernateStep context;
+
+		/**
+		 * Get Hibernate steps
+		 * 
+		 * @return List
+		 */
 		public List<HibernateStep> getHiberateSteps() {
 			return this.hSteps;
 		}
 
+		/**
+		 * Does the relative path contain an Hibernate property for an XML
+		 * column
+		 * 
+		 * @return boolean
+		 */
 		public boolean hasXML() {
 			for (HibernateStep hStep : hSteps)
 				if (hStep.isXml())
@@ -113,14 +144,25 @@ public class XPathCriteria {
 			return false;
 		}
 
-		public boolean isRoot() {
-			return this.root;
+		/**
+		 * Is path absolute
+		 * 
+		 * @return boolean
+		 */
+		public boolean isAbsolute() {
+			return this.absolute;
 		}
 
-		public void setRoot(boolean value) {
-			this.root = value;
+		public void setAbsolute(boolean value) {
+			this.absolute = value;
 		}
 
+		/**
+		 * Has the path been truncated (are there remaining steps beyond the XML
+		 * property)
+		 * 
+		 * @return boolean
+		 */
 		public boolean isTruncated() {
 			return this.truncated;
 		}
@@ -150,16 +192,25 @@ public class XPathCriteria {
 		public void setName(String name) {
 			this.name = name;
 		}
+
+		public HibernateStep getContext() {
+			return this.context;
+		}
+
+		public void setContext(HibernateStep context) {
+			this.context = context;
+		}
 	}
 
 	/**
 	 * Hibernate wrapper (inner class) around steps
+	 * 
 	 */
 	@SuppressWarnings("unused")
 	private class HibernateStep {
 		private Step step;
 
-		private CIBean beanType;
+		private CIBean ciBean;
 
 		private HibernateStep next;
 
@@ -167,11 +218,15 @@ public class XPathCriteria {
 
 		private String path;
 
+		private String alias;
+
 		private String name;
 
 		private Type type = Type.Property;
 
 		private boolean xml = false;
+
+		private PathExpression pathExpression;
 
 		public Step getStep() {
 			return this.step;
@@ -181,12 +236,12 @@ public class XPathCriteria {
 			this.step = step;
 		}
 
-		public CIBean getBeanType() {
-			return this.beanType;
+		public CIBean getCIBean() {
+			return this.ciBean;
 		}
 
-		public void setBeanType(CIBean beanType) {
-			this.beanType = beanType;
+		public void setCIBean(CIBean ciBean) {
+			this.ciBean = ciBean;
 		}
 
 		public HibernateStep getNext() {
@@ -220,6 +275,14 @@ public class XPathCriteria {
 			this.path = path;
 		}
 
+		public String getAlias() {
+			return this.alias;
+		}
+
+		public void setAlias(String alias) {
+			this.alias = alias;
+		}
+
 		public String getName() {
 			return this.name;
 		}
@@ -242,6 +305,14 @@ public class XPathCriteria {
 
 		public boolean isXml() {
 			return this.xml;
+		}
+
+		public PathExpression getPathExpression() {
+			return this.pathExpression;
+		}
+
+		public void setPathExpression(PathExpression pathExpression) {
+			this.pathExpression = pathExpression;
 		}
 
 		/**
@@ -274,7 +345,10 @@ public class XPathCriteria {
 		 * Display information
 		 */
 		public String toString() {
-			return String.format("path: %s, step: %s", path, step);
+			return String.format("path: %s, qname: %s, bean class: %s",
+					path == null ? "unknown" : path, step == null ? "unknown"
+							: step.getQName(), ciBean == null ? "unknown"
+							: ciBean.getJavaClass());
 		}
 	}
 
@@ -362,6 +436,12 @@ public class XPathCriteria {
 		/**
 		 * Context step must be an element with valid QName and metadata
 		 */
+		if (rpe.getExpr(1).getType() != Expr.Type.Step)
+			throw new ApplicationException(
+					String.format(
+							"Expression [%s] context step is not Step (rather Irresolute or other)",
+							pe.getXPath()));
+
 		StepExpr step = (StepExpr) rpe.getExpr(1);
 		if (step.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
 				|| step.getQName() == null)
@@ -395,9 +475,10 @@ public class XPathCriteria {
 		HibernateStep hStep = new HibernateStep();
 		hStep.setStep(step);
 		hStep.setType(Type.Entity);
-		hStep.setBeanType(bean);
+		hStep.setCIBean(bean);
 		hStep.setName(step.getQName().getLocalPart());
 		hStep.setPath(step.getQName().getLocalPart());
+		hStep.setPathExpression(pe);
 
 		HibernateRelativePath hrp = process(rpe, hStep);
 		hrp.setName(cm.getEntityName());
@@ -421,7 +502,10 @@ public class XPathCriteria {
 	 */
 	protected HibernateRelativePath process(RelativePathExpr rpe,
 			HibernateStep context) {
+		logger.debug("Processing relative path [{}]", rpe.getXPath());
+
 		HibernateRelativePath hRPath = new HibernateRelativePath();
+		hRPath.setContext(context);
 
 		/**
 		 * Offset to the first step after the context step if the relative path
@@ -430,9 +514,12 @@ public class XPathCriteria {
 		 */
 		int contextDepth = 0;
 		if (rpe.getFirstExpr().getType() == Expr.Type.Root) {
+			logger.debug(
+					"Offsetting processing by 2 adding the passed context [{}] as the first Hibernate step",
+					context);
 			contextDepth = 2;
 
-			hRPath.setRoot(true);
+			hRPath.setAbsolute(true);
 			hRPath.getHiberateSteps().add(context);
 		}
 
@@ -448,7 +535,7 @@ public class XPathCriteria {
 				if (hRPath.getHiberateSteps().size() > 0)
 					context = hRPath.getLastHibernateStep();
 
-				CIBean bean = ciContext.getBean(context.getStep().getQName());
+				CIBean bean = context.getCIBean();
 				ClassMetadata cm = session.getSessionFactory()
 						.getClassMetadata(bean.getJavaClass());
 
@@ -468,6 +555,9 @@ public class XPathCriteria {
 				hStep.setPath(String.format("%s.%s", context.getPath(),
 						property));
 
+				/**
+				 * Type
+				 */
 				if (propertyType.isEntityType())
 					hStep.setType(Type.Entity);
 
@@ -476,7 +566,7 @@ public class XPathCriteria {
 
 				/**
 				 * Store the CIBean corresponding to the property by type not
-				 * name
+				 * name. Store as well the alias.
 				 */
 				if (hStep.getType() != Type.Property) {
 					CIProperty prop = bean.getPropertyByName(step.getQName());
@@ -491,7 +581,23 @@ public class XPathCriteria {
 										"Step [%s] has no corresponding CI Bean metadata",
 										step));
 
-					hStep.setBeanType(other);
+					hStep.setCIBean(other);
+
+					/**
+					 * Alias
+					 */
+					if (!aliasCache.containsKey(hStep.getPath())) {
+						if (aliasCache.containsValue(aliasMask))
+							throw new InfrastructureException(String.format(
+									"Multiple alias mask [%s] cached objects",
+									aliasMask));
+
+						aliasCache.put(hStep.getPath(), aliasMask);
+						logger.debug("Added alias [{}] to cache", aliasMask);
+
+						aliasMask = incrementMask(aliasMask);
+					}
+					hStep.setAlias(aliasCache.get(hStep.getPath()));
 				}
 
 				if (propertyType.getName().equals(JAXBUserType.class.getName())) {
@@ -509,6 +615,11 @@ public class XPathCriteria {
 					last.setNext(hStep);
 					hStep.setPrevious(last);
 				}
+
+				/**
+				 * Make sure the PathExpression is stored
+				 */
+				hStep.setPathExpression(context.getPathExpression());
 
 				/**
 				 * Add the Hibernate step
@@ -568,11 +679,6 @@ public class XPathCriteria {
 	 */
 	public Criteria getCriteria() {
 		/**
-		 * Clear the cache if called more than once
-		 */
-		cache.clear();
-
-		/**
 		 * At least one expression must have be processed and all should have
 		 * the same first Hibernate Step
 		 */
@@ -586,19 +692,24 @@ public class XPathCriteria {
 		 * Singular root Hibernate criteria based on the root context step
 		 * common across all XPath expressions.
 		 */
-		Criteria criteria = session.createCriteria(ciContext.getBean(
+		criteria = session.createCriteria(ciContext.getBean(
 				context.getStep().getQName()).getJavaClass());
-		cache.put(context.getPath(), criteria);
+		String alias = criteria.getAlias();
 
 		/**
 		 * Build up the criteria from each Hibernate relative path
 		 */
 		for (HibernateRelativePath hRPath : hibernateRelativePaths) {
+			HibernateStep first = hRPath.getFirstHibernateStep();
+			first.setAlias(alias);
+
 			/**
 			 * Check that last step has predicates if the Hibernate relative
 			 * path isn't truncated (which happens with XML properties only).
 			 */
 			HibernateStep last = hRPath.getLastHibernateStep();
+			Step step = last.getStep();
+
 			if (!hRPath.isTruncated()
 					&& !((StepExpr) last.getStep()).hasPredicates())
 				throw new ApplicationException(
@@ -609,13 +720,9 @@ public class XPathCriteria {
 			/**
 			 * XML properties result in a restriction
 			 */
-			if (last.isXml()) {
-				Criteria parent = cache.get(last.getPrevious().getPath());
-
-				Step step = last.getStep();
-				parent.add(new XPathRestriction(step.getQName().getLocalPart(),
-						step));
-			}
+			if (last.isXml())
+				criteria.add(new XPathRestriction(step.getQName()
+						.getLocalPart(), step));
 		}
 
 		return criteria;
@@ -642,16 +749,22 @@ public class XPathCriteria {
 			 */
 			if (hStep.getType() != Type.Property) {
 				/**
-				 * Add a sub criteria based on the Hibernate property name
-				 * against the criteria for the previous path.
+				 * Add an alias to the criteria based on the Hibernate property
+				 * name against the criteria for the previous path.
 				 */
-				if (!cache.containsKey(hStep.getPath())) {
-					Criteria parent = cache.get(hStep.getPrevious().getPath());
-					Criteria criteria = parent.createCriteria(hStep.getName());
+				HibernateStep context = hStep.getPrevious() == null ? hRPath
+						.getContext() : hStep.getPrevious();
+				if (context == null)
+					throw new InfrastructureException(String.format(
+							"Hibernate Step [%s] has no context", hStep));
 
-					cache.put(hStep.getPath(), criteria);
+				String associationPath = context.getAlias() + "."
+						+ hStep.getName();
+				if (context != hStep
+						&& !associationPathCache.contains(associationPath)) {
+					criteria.createAlias(associationPath, hStep.getAlias());
+					associationPathCache.add(associationPath);
 				}
-				Criteria criteria = cache.get(hStep.getPath());
 
 				/**
 				 * Add restrictions for each predicate
@@ -669,6 +782,9 @@ public class XPathCriteria {
 	 * @return
 	 */
 	protected Criterion getRestriction(Expr predicate, HibernateStep context) {
+		logger.debug("Adding restrictions by predicate to context [{}]",
+				context);
+
 		switch (predicate.getType()) {
 		case Or:
 			/**
@@ -701,46 +817,85 @@ public class XPathCriteria {
 					getRestriction(((AndExpr) predicate).getOperands().get(1),
 							context));
 		case Comparison:
-			String propertyName = null;
-
-			/**
-			 * Find a Step operand, confirm property name since it is not
-			 * checked anywhere else.
-			 */
-			StepExpr step = getStepOperand(((ComparisonExpr) predicate)
-					.getOperands());
-			if (step != null) {
-				propertyName = step.getQName().getLocalPart();
-
-				CIBean bean = context.getBeanType();
-				if (!bean.hasPropertyByName(step.getQName()))
-					throw new ApplicationException(
-							String.format(
-									"Local part [%s] is not a property of the Bean [%s]",
-									propertyName, bean));
-			}
-
-			/**
-			 * Find a Relative Path operand and make a Hibernate Relative Path
-			 */
-			HibernateRelativePath hRPath = null;
-			RelativePathExpr rpe = getRelativePathOperand(((ComparisonExpr) predicate)
-					.getOperands());
-			if (rpe != null)
-				hRPath = process(rpe, context);
-
 			/**
 			 * Find the literal
 			 */
 			LiteralExpr literal = getLiteralOperand(((ComparisonExpr) predicate)
 					.getOperands());
 
-			if (hRPath != null) {
-				if (hRPath.hasXML()) {
+			/**
+			 * Find the relative path making a Hibernate relative path
+			 */
+			RelativePathExpr rpe = getRelativePathOperand(((ComparisonExpr) predicate)
+					.getOperands());
+			HibernateRelativePath hRPath = process(rpe, context);
+			build(hRPath);
 
-				} else {
+			HibernateStep last = hRPath.getLastHibernateStep();
+			HibernateStep aliasContext = last.getPrevious() == null ? context
+					: last.getPrevious();
+
+			/**
+			 * Paths with XML properties (always the last step if present)
+			 * return a XPath restriction.
+			 */
+			if (hRPath.hasXML()) {
+				if (!hRPath.isTruncated())
+					throw new ApplicationException(
+							String.format(
+									"Predicate relative path ending in an XML property [%s] must be truncated",
+									last));
+
+				/**
+				 * Last Hibernate step of the Hibernate path marks the property
+				 * which the restriction acts on.
+				 */
+				StepExpr step = (StepExpr) last.getStep();
+
+				/**
+				 * A new XPath is created from the last step downwards till the
+				 * step prior to the ending step.
+				 */
+				String xpath = null;
+				for (int depth = step.getDepth(); depth < step
+						.getRelativePath().getDepth() - 1; depth++) {
+					Expr expr = step.getRelativePath().getExpr(depth);
+					xpath = xpath == null ? expr.getXPath() : String.format(
+							"%s/%s", xpath, expr.getXPath());
 				}
+
+				Step ending = (Step) step.getRelativePath().getLastExpr();
+
+				/**
+				 * A new comparison is generated
+				 */
+				List<Expr> operands = new ArrayList<Expr>();
+				operands.add(ending);
+				operands.add(literal);
+
+				xpath = String.format("%s[%s]", xpath, ComparisonExpr.getXPath(
+						((ComparisonExpr) predicate).getOperator(), operands,
+						false));
+				xpath = String.format("%s%s", context.getPathExpression()
+						.getProlog(), xpath);
+
+				PathExpression other = new PathExpression(xpath);
+				return new XPathRestriction(aliasContext.getAlias() + "."
+						+ step.getQName().getLocalPart(), (Step) other
+						.getRelativePath().getFirstExpr());
 			}
+
+			/**
+			 * Normal properties yield normal Hibernate restrictions.
+			 */
+			String propertyName = aliasContext.getAlias() + "."
+					+ last.getName();
+
+			if (((StepExpr) last.getStep()).hasPredicates())
+				throw new ApplicationException(
+						String.format(
+								"Comparisons against Hibernate properties may not have an underlying step [] with predicates",
+								last.getStep()));
 
 			logger.debug("Predicate is comparison [{}] against property [{}]",
 					((ComparisonExpr) predicate).getOperator().name(),
@@ -822,20 +977,6 @@ public class XPathCriteria {
 	}
 
 	/**
-	 * Gets the first Step operand in the list of expressions
-	 * 
-	 * @param operands
-	 * @return
-	 */
-	private StepExpr getStepOperand(List<Expr> operands) {
-		for (Expr operand : operands)
-			if (operand.getType() == Expr.Type.Step)
-				return (StepExpr) operand;
-
-		return null;
-	}
-
-	/**
 	 * Gets the first Relative Path operand in the list of expressions
 	 * 
 	 * @param operands
@@ -861,5 +1002,17 @@ public class XPathCriteria {
 				return (LiteralExpr) operand;
 
 		return null;
+	}
+
+	/**
+	 * Increment mask
+	 * 
+	 * @param mask
+	 * @return
+	 */
+	private String incrementMask(String mask) {
+		char last = mask.charAt(mask.length() - 1);
+
+		return mask.substring(0, mask.length() - 1) + ++last;
 	}
 }
