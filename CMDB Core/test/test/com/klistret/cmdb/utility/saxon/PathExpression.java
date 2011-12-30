@@ -321,7 +321,7 @@ public class PathExpression {
 
 	@Test
 	public void complex() {
-		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google[a:big[matches(a:widdow/a:dog,'cat')]]/a:microsoft";
+		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google[comment() = 'this']/a:microsoft";
 
 		com.klistret.cmdb.utility.saxon.PathExpression pe = new com.klistret.cmdb.utility.saxon.PathExpression(
 				expression);
@@ -334,6 +334,8 @@ public class PathExpression {
 					System.out.println("\t" + predicate);
 			}
 		}
+		
+		System.out.println(net.sf.saxon.pattern.NodeKindTest.COMMENT);
 	}
 
 	public void aggregation() {

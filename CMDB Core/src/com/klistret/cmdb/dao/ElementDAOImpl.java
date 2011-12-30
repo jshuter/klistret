@@ -35,7 +35,6 @@ import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.utility.hibernate.XPathAggregation;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 
@@ -69,18 +68,17 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			Criteria criteria = new XPathCriteria(expressions, getSession())
 					.getCriteria();
-			String alias = criteria.getAlias();
 
 			criteria.setProjection(Projections.projectionList()
-					.add(Projections.property(alias + ".id"))
-					.add(Projections.property(alias + ".type"))
-					.add(Projections.property(alias + ".name"))
-					.add(Projections.property(alias + ".fromTimeStamp"))
-					.add(Projections.property(alias + ".toTimeStamp"))
-					.add(Projections.property(alias + ".createId"))
-					.add(Projections.property(alias + ".createTimeStamp"))
-					.add(Projections.property(alias + ".updateTimeStamp"))
-					.add(Projections.property(alias + ".configuration")));
+					.add(Projections.property("id"))
+					.add(Projections.property("type"))
+					.add(Projections.property("name"))
+					.add(Projections.property("fromTimeStamp"))
+					.add(Projections.property("toTimeStamp"))
+					.add(Projections.property("createId"))
+					.add(Projections.property("createTimeStamp"))
+					.add(Projections.property("updateTimeStamp"))
+					.add(Projections.property("configuration")));
 
 			criteria.addOrder(Order.asc("name"));
 
@@ -130,16 +128,18 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				throw new ApplicationException("Expressions parameter is null",
 						new IllegalArgumentException());
 
-			Criteria criteria = new XPathCriteria(expressions, getSession())
-					.getCriteria();
+			XPathCriteria xpc = new XPathCriteria(expressions, getSession());
+			Criteria criteria = xpc.getCriteria();
 
-			Projection aggregation = new XPathAggregation(projection,
-					getSession()).getProjection();
+			Projection aggregation = xpc.aggregate(projection);
 			criteria.setProjection(aggregation);
 
 			List<?> results = criteria.list();
 
 			if (results.size() == 0)
+				return null;
+
+			if (results.get(0) == null)
 				return null;
 
 			return results.get(0).toString();
