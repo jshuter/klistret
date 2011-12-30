@@ -70,10 +70,19 @@ public class StepExpr extends Step {
 	private QName qname;
 
 	/**
-	 * XPath 2.0 allows for only elements or attributes as primary nodes
+	 * XPath 2.0 allows for only elements, attributes or namespaces as primary
+	 * nodes
 	 */
 	public enum PrimaryNodeKind {
-		Element, Attribute
+		Element, Attribute, Namespace
+	}
+
+	/**
+	 * Kind test
+	 * 
+	 */
+	public enum Kind {
+		Attribute, Comment, Document, Element, Namespace, ProcessInstruction, Text
 	}
 
 	/**

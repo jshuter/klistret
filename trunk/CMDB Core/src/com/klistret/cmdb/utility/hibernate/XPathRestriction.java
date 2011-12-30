@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
+import com.klistret.cmdb.utility.saxon.BaseExpression;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
 import com.klistret.cmdb.utility.saxon.Expr;
-import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.Value;
 
 /**
@@ -127,8 +127,7 @@ public class XPathRestriction implements Criterion {
 		/**
 		 * Path Expression
 		 */
-		PathExpression pathExpression = (PathExpression)step.getRelativePath()
-				.getBaseExpression();
+		BaseExpression be = step.getRelativePath().getBaseExpression();
 
 		/**
 		 * Property type is generalized to wild-card "*" leaving only the
@@ -195,7 +194,7 @@ public class XPathRestriction implements Criterion {
 						xpath = String.format(
 								"%s/%s",
 								xpath,
-								pathExpression.getRelativePath().getRawXPath(
+								step.getRelativePath().getRawXPath(
 										((Step) expr).getDepth()));
 					}
 				}
@@ -210,14 +209,14 @@ public class XPathRestriction implements Criterion {
 		/**
 		 * Concatenate namespace declarations
 		 */
-		for (String namespace : pathExpression.getNamespaces())
+		for (String namespace : be.getNamespaces())
 			xpath = namespace.concat(xpath);
 
 		/**
 		 * Concatenate default element namespace declaration
 		 */
-		if (pathExpression.getDefaultElementNamespace() != null)
-			xpath = pathExpression.getDefaultElementNamespace().concat(xpath);
+		if (be.getDefaultElementNamespace() != null)
+			xpath = be.getDefaultElementNamespace().concat(xpath);
 
 		if (dialect instanceof DB2Dialect) {
 			/**

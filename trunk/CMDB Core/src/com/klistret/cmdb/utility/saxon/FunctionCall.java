@@ -33,7 +33,7 @@ public class FunctionCall extends BaseExpression {
 
 	/**
 	 * Supported functions
-	 *
+	 * 
 	 */
 	public enum Function {
 		max, min, avg, sum
@@ -98,7 +98,7 @@ public class FunctionCall extends BaseExpression {
 							expression, arguments.length));
 
 		this.relativePathExpr = new RelativePathExpr(arguments[0],
-				this.staticContext.getConfiguration());
+				this.staticContext.getConfiguration(), this);
 	}
 
 	/**

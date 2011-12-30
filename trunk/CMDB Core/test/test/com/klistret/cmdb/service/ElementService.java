@@ -158,23 +158,36 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-	@Test
+
 	public void findElement() {
 		List<Element> response = elementService
 				.find(Arrays
 						.asList(new String[] {
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\" and pojo:configuration/component:Version eq \"0068_A01\"]" }),
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068_A\")]" }),
 						0, 10);
 
 		assertNotNull(response);
 		System.out.println(response.size());
 	}
 
+	@Test
+	public void maxElement() {
+		String response = elementService
+				.aggregate(
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; max(/pojo:Element/pojo:configuration/component:Version)",
+						Arrays.asList(new String[] {
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068\")]" }));
+
+		assertNotNull(response);
+		System.out.println(response);
+	}
+
 	/**
 	 * Count elements
 	 */
-	
+
 	public void countElement() {
 		Integer response = elementService
 				.count(Arrays
@@ -189,7 +202,7 @@ public class ElementService {
 	/**
 	 * Unique elements
 	 */
-	
+
 	public void uniqueElement() {
 		Element element = elementService
 				.unique(Arrays
@@ -205,7 +218,7 @@ public class ElementService {
 	/**
 	 * Get relation
 	 */
-	
+
 	public void getRelation() {
 		Relation relation = relationService.get(new Long(1));
 		assertNotNull(relation);
@@ -214,13 +227,13 @@ public class ElementService {
 	/**
 	 * Find relations
 	 */
-	
+
 	public void findRelation() {
 		List<Relation> response = relationService
 				.find(Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[pojo:name = \"KUI\"][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration/element:Environment[text() = \"Produktion\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Relation/pojo:destination/pojo:configuration[component:Type = \"Version\" and commons:Name = \"KUI\" and component:Organization = \"Försäkringskassan\"]" }),
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation[empty(pojo:toTimeStamp) and pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[pojo:name eq \"KUI\" and pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = (\"Test\")]",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Relation/pojo:destination[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[commons:Name eq \"KUI\" and component:Organization = (\"Försäkringskassan\")]" }),
 						0, 25);
 
 		assertNotNull(response);
@@ -229,7 +242,7 @@ public class ElementService {
 	public void findElement2() {
 		List<Element> response = elementService
 				.find(Arrays
-						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"KUI\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration/element:Environment[text() = \"Produktion\"]" }),
+						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"KUI\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = \"Produktion\"]" }),
 						0, 25);
 
 		assertNotNull(response);

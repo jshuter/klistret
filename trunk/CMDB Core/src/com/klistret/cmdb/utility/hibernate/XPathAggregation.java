@@ -13,15 +13,28 @@
  */
 package com.klistret.cmdb.utility.hibernate;
 
-import org.hibernate.Session;
-import org.hibernate.criterion.Projection;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.criterion.CriteriaQuery;
+import org.hibernate.criterion.SimpleProjection;
+import org.hibernate.dialect.DB2Dialect;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.function.SQLFunction;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.klistret.cmdb.exception.ApplicationException;
-import com.klistret.cmdb.utility.jaxb.CIBean;
-import com.klistret.cmdb.utility.jaxb.CIContext;
+import com.klistret.cmdb.utility.saxon.BaseExpression;
 import com.klistret.cmdb.utility.saxon.Expr;
-import com.klistret.cmdb.utility.saxon.FunctionCall;
-import com.klistret.cmdb.utility.saxon.RelativePathExpr;
+import com.klistret.cmdb.utility.saxon.IrresoluteExpr;
+import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
 /**
@@ -29,148 +42,201 @@ import com.klistret.cmdb.utility.saxon.StepExpr;
  * @author Matthew Young
  * 
  */
-public class XPathAggregation {
+@SuppressWarnings("serial")
+public class XPathAggregation extends SimpleProjection {
+	private static final Logger logger = LoggerFactory
+			.getLogger(XPathAggregation.class);
 
-	/**
-	 * XPath aggregation
-	 */
-	private String xpath;
-
-	/**
-	 * Hibernate session
-	 */
-	private Session session;
-
-	/**
-	 * CI metadata
-	 */
-	private CIContext ciContext = CIContext.getCIContext();
-
-	/**
-	 * Hibernate projection
-	 */
-	private Projection aggregation;
-	
 	/**
 	 * 
 	 */
-	private FunctionCall call;
+	private final String propertyName;
+
+	/**
+	 * 
+	 */
+	private final String functionName;
+
+	/**
+	 * 
+	 */
+	private final Step step;
+
+	/**
+	 * Variable reference that associates the database column to the XPath.
+	 */
+	private static final String variableReference = "this";
+
+	/**
+	 * VARCHAR size limitation
+	 */
+	private static int varcharLimit = 255;
+
+	/**
+	 * Single Quotes pattern
+	 */
+	private static final Pattern singleQuotes = Pattern
+			.compile("'((?:[^']+|'')*)'");
 
 	/**
 	 * Constructor
 	 * 
-	 * @param xpath
-	 * @param session
-	 */
-	public XPathAggregation(String xpath, Session session) {
-		this.xpath = xpath;
-		this.session = session;
-
-		makeProjection();
-	}
-
-	/**
-	 * Get XPath aggregation
-	 * 
-	 * @return
-	 */
-	public String getXPath() {
-		return this.xpath;
-	}
-
-	/**
-	 * Get Hibernate session
-	 * 
-	 * @return
-	 */
-	public Session getSession() {
-		return this.session;
-	}
-
-	/**
-	 * Get Hibernate projection
-	 * 
-	 * @return
-	 */
-	public Projection getProjection() {
-		return this.aggregation;
-	}
-
-	/**
-	 * Compiles the XPath into a function call and uses the relative path to
-	 * build a Hibernate projection.
-	 */
-	private void makeProjection() {
-		call = new FunctionCall(this.xpath);
-
-		RelativePathExpr rpe = call.getRelativePath();
-
-		/**
-		 * Every expression has to be absolute (i.e. starts with a slash)
-		 */
-		if (!rpe.hasRoot())
-			throw new ApplicationException(String.format(
-					"XPath [%s] has no root expression", call.getXPath()),
-					new UnsupportedOperationException());
-
-		/**
-		 * The Root expression must be the first Step in the expression
-		 */
-		if (rpe.getExpr(0).getType() != Expr.Type.Root)
-			throw new ApplicationException(String.format(
-					"XPath [%s] has no root expression as the initial step",
-					call.getXPath()), new UnsupportedOperationException());
-
-		/**
-		 * Multiple Root expression may not occur
-		 */
-		if (rpe.hasMultipleRoot())
-			throw new ApplicationException(
-					String.format(
-							"XPath [%s] contains multiple root steps (double slashes likely)",
-							call.getXPath()),
-					new UnsupportedOperationException());
-
-		/**
-		 * More than the initial steps ("/" or "//") must exist to travel along
-		 * the property hierarchy.
-		 */
-		if (!(rpe.getDepth() > 1) && rpe.getExpr(1).getType() == Expr.Type.Step)
-			throw new ApplicationException(
-					String.format(
-							"XPath [%s] has no first step (depth greater than signular)",
-							call.getXPath()),
-					new UnsupportedOperationException());
-
-		/**
-		 * Recursively find the projection
-		 */
-		aggregation = getProjection((StepExpr)rpe.getFirstExpr());
-	}
-
-	/**
-	 * 
+	 * @param functionName
+	 * @param propertyName
 	 * @param step
-	 * @return
 	 */
-	private Projection getProjection(StepExpr step) {
-		/**
-		 * Step must be an element with valid QName and bean Metadata
-		 */
-		if (step.getPrimaryNodeKind() != StepExpr.PrimaryNodeKind.Element
-				|| step.getQName() == null)
-			throw new ApplicationException(String.format(
-					"First step [%s] must be an element with valid qname",
-					call.getXPath()), new UnsupportedOperationException());
+	public XPathAggregation(String functionName, String propertyName, Step step) {
+		this.functionName = functionName;
+		this.propertyName = propertyName;
+		this.step = step;
+	}
+
+	public String getFunctionName() {
+		return functionName;
+	}
+
+	public String getPropertyName() {
+		return propertyName;
+	}
+
+	public Step getStep() {
+		return step;
+	}
+
+	public String toSqlString(Criteria criteria, int position,
+			CriteriaQuery criteriaQuery) throws HibernateException {
+		final String functionFragment = getFunction(criteriaQuery).render(
+				StringType.INSTANCE,
+				buildFunctionParameterList(criteria, criteriaQuery),
+				criteriaQuery.getFactory());
+		return functionFragment + " as y" + position + '_';
+	}
+
+	/**
+	 * Copied from AggregateProjection
+	 */
+	public Type[] getTypes(Criteria criteria, CriteriaQuery criteriaQuery)
+			throws HibernateException {
+		return new Type[] { getFunction(criteriaQuery).getReturnType(
+				StringType.INSTANCE, criteriaQuery.getFactory()) };
+	}
+
+	/**
+	 * Copied from AggregateProjection
+	 */
+	protected SQLFunction getFunction(CriteriaQuery criteriaQuery) {
+		return getFunction(getFunctionName(), criteriaQuery);
+	}
+
+	/**
+	 * Copied from AggregateProjection
+	 */
+	protected SQLFunction getFunction(String functionName,
+			CriteriaQuery criteriaQuery) {
+		SQLFunction function = criteriaQuery.getFactory()
+				.getSqlFunctionRegistry().findSQLFunction(functionName);
+		if (function == null) {
+			throw new HibernateException(
+					"Unable to locate mapping for function named ["
+							+ functionName + "]");
+		}
+		return function;
+	}
+
+	private List<String> buildFunctionParameterList(Criteria criteria,
+			CriteriaQuery criteriaQuery) {
+		Dialect dialect = criteriaQuery.getFactory().getDialect();
+		String[] columns = criteriaQuery.getColumnsUsingProjection(criteria,
+				propertyName);
+
+		if (columns.length != 1) {
+			logger.error(
+					"XMLQUERY may only be used with single-column properties [property: {}]",
+					propertyName);
+			throw new HibernateException(
+					"XMLQUERY may only be used with single-column properties");
+		}
+
+		BaseExpression be = step.getRelativePath().getBaseExpression();
 
 		/**
-		 * Is step a CI Bean?
+		 * Property type is generalized to wild-card "*" leaving only the
+		 * predicate
 		 */
-		CIBean stepBean = ciContext.getBean(step.getQName());
-		if (stepBean == null)
-			throw new ApplicationException(String.format(
-					"Step [%s] must be a CI bean", step.getQName()),
-					new UnsupportedOperationException());
-		return null;
+		String axis = String.format("%s:%s", step.getQName().getPrefix(), step
+				.getQName().getLocalPart());
+
+		/**
+		 * Passing clause
+		 */
+		String passingClause = String.format("PASSING %s AS \"%s\"",
+				columns[0], variableReference);
+
+		/**
+		 * Setup XPath first with the variable reference (acts a root), the axis
+		 * is replaced and then XPath is built up again either from generated
+		 * string or the raw XPath for each step (depending on if it is a
+		 * readable step or irresolute).
+		 */
+		String xpath = String.format("$%s", variableReference);
+
+		for (Expr expr : step.getRelativePath().getSteps()) {
+			if (expr instanceof Step) {
+				if (((Step) expr).getDepth() >= step.getDepth()) {
+					if (expr instanceof StepExpr) {
+						xpath = String.format("%s/%s", xpath,
+								expr.getXPath(true));
+					}
+					if (expr instanceof IrresoluteExpr) {
+						xpath = String.format(
+								"%s/%s",
+								xpath,
+								step.getRelativePath().getRawXPath(
+										((Step) expr).getDepth()));
+					}
+				}
+			}
+		}
+
+		xpath = xpath.replaceFirst(axis, "*");
+		logger.debug(
+				"XPath [{}] prior prefixing default function declaration and namespace declarations",
+				xpath);
+
+		/**
+		 * Concatenate namespace declarations
+		 */
+		for (String namespace : be.getNamespaces())
+			xpath = namespace.concat(xpath);
+
+		/**
+		 * Concatenate default element namespace declaration
+		 */
+		if (be.getDefaultElementNamespace() != null)
+			xpath = be.getDefaultElementNamespace().concat(xpath);
+
+		/**
+		 * Dialect controlls
+		 */
+		if (dialect instanceof DB2Dialect) {
+			/**
+			 * DB2 only allows SQL with double quotes (or at least that is the
+			 * extend of my knowledge)
+			 */
+			Matcher sq = singleQuotes.matcher(xpath);
+			if (sq.find())
+				throw new ApplicationException(
+						String.format(
+								"XPath [%s] contains surrounding single quotes which DB2 does not allow",
+								xpath), new UnsupportedOperationException());
+		}
+
+		/**
+		 * Return the XMLQuery predicate
+		 */
+		String[] results = { String.format(
+				"XMLCAST(XMLQUERY(\'%s\' %s) AS VARCHAR(%d))", xpath,
+				passingClause, varcharLimit) };
+		return Arrays.asList(results);
 	}
 }
