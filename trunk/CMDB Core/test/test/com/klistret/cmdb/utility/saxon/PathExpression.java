@@ -321,18 +321,12 @@ public class PathExpression {
 
 	@Test
 	public void complex() {
-		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google[comment() = 'this']/a:microsoft";
+		String expression = "declare namespace a=\"http://www.google.com/a\"; /a:google['this' gt a:hello]/a:microsoft";
 
 		com.klistret.cmdb.utility.saxon.PathExpression pe = new com.klistret.cmdb.utility.saxon.PathExpression(
 				expression);
 		for (Expr expr : pe.getRelativePath().getSteps()) {
-			System.out.println(expr);
-
-			if (expr.getType() == Expr.Type.Step) {
-				StepExpr step = (StepExpr) expr;
-				for (Expr predicate : step.getPredicates())
-					System.out.println("\t" + predicate);
-			}
+			System.out.println(expr.getXPath());
 		}
 		
 		System.out.println(net.sf.saxon.pattern.NodeKindTest.COMMENT);

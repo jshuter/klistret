@@ -158,20 +158,20 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-
+	@Test
 	public void findElement() {
 		List<Element> response = elementService
 				.find(Arrays
 						.asList(new String[] {
 								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068_A\")]" }),
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[\"0069_A06\" gt component:Version]" }),
 						0, 10);
 
 		assertNotNull(response);
 		System.out.println(response.size());
 	}
 
-	@Test
+	
 	public void maxElement() {
 		String response = elementService
 				.aggregate(

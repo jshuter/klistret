@@ -26,6 +26,7 @@ import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.ExpressionTool;
 import net.sf.saxon.sxpath.IndependentContext;
 import net.sf.saxon.sxpath.XPathEvaluator;
+import net.sf.saxon.sxpath.XPathExpression;
 import net.sf.saxon.trans.XPathException;
 
 import org.slf4j.Logger;
@@ -102,6 +103,11 @@ public abstract class BaseExpression {
 	 * Saxon Expression
 	 */
 	protected Expression expression;
+
+	/**
+	 * Saxon XPathExpression (with prolog)
+	 */
+	protected XPathExpression xpathExpression;
 
 	/**
 	 * Default constructor
@@ -232,6 +238,13 @@ public abstract class BaseExpression {
 			evaluator.setStaticContext(staticContext);
 
 			/**
+			 * Saxon XPath expression (used by identification to look at the
+			 * value sequence of the last step)
+			 */
+			this.xpathExpression = evaluator
+					.createExpression(getXPathWithoutProlog());
+
+			/**
 			 * Generates a SlashExpression
 			 */
 			expression = ExpressionTool.make(xpath, staticContext,
@@ -290,6 +303,15 @@ public abstract class BaseExpression {
 	 */
 	public Expression getExpression() {
 		return this.expression;
+	}
+
+	/**
+	 * Return Saxon XPath expression
+	 * 
+	 * @return XPathExpression
+	 */
+	public XPathExpression getXPathExpression() {
+		return this.xpathExpression;
 	}
 
 	/**

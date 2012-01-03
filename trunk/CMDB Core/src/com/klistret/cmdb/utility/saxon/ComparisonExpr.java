@@ -267,8 +267,8 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 	}
 
 	/**
-	 * Controll that the number of expression is 2 with the right being a step
-	 * with predicates and left being a literal.
+	 * Control that a relative and literal expression exists (only 2 operands
+	 * allowed) perserving order.
 	 * 
 	 * @param operands
 	 */
@@ -280,48 +280,42 @@ public class ComparisonExpr extends LogicalExpr<Expr> {
 							operands.length));
 		}
 
-		Expr literal = null;
-		Expr relative = null;
-
 		for (Expression operand : operands) {
 			if (operand instanceof Literal) {
 				if (operand.getClass().getName()
 						.equals(Literal.class.getName()))
-					literal = new LiteralExpr((Literal) operand, configuration);
+					addOperand(new LiteralExpr((Literal) operand, configuration));
 
 				if (operand.getClass().getName()
 						.equals(StringLiteral.class.getName()))
-					literal = new LiteralExpr((StringLiteral) operand,
-							configuration);
+					addOperand(new LiteralExpr((StringLiteral) operand,
+							configuration));
 			}
 
 			if (operand.getClass().getName()
 					.equals(AxisExpression.class.getName()))
-				relative = new RelativePathExpr(operand, configuration);
+				addOperand(new RelativePathExpr(operand, configuration));
 
 			if (operand.getClass().getName()
 					.equals(FilterExpression.class.getName()))
-				relative = new RelativePathExpr(operand, configuration);
+				addOperand(new RelativePathExpr(operand, configuration));
 
 			if (operand.getClass().getName()
 					.equals(SlashExpression.class.getName()))
-				relative = new RelativePathExpr(operand, configuration);
+				addOperand(new RelativePathExpr(operand, configuration));
 
 			if (operand.getClass().getName()
 					.equals(ContextItemExpression.class.getName()))
 				logger.debug("Context [.] not supported, incomplete JTA resolution");
 		}
 
-		if (literal == null)
+		if (getOperands(Expr.Type.Literal).size() != 1)
 			throw new IrresoluteException(
 					"General/Value comparisons are required to have a literal expression");
 
-		if (relative == null)
+		if (getOperands(Expr.Type.RelativePath).size() != 1)
 			throw new IrresoluteException(
-					"General/Value comparisons are required to have a Step without predicate or Relative Path");
-
-		addOperand(literal);
-		addOperand(relative);
+					"General/Value comparisons are required to have a Relative Path");
 	}
 
 	/**
