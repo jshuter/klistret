@@ -46,6 +46,27 @@ import com.klistret.cmdb.utility.saxon.RelativePathExpr;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * XPath criteria takes one or more XPath filters (expressions) and builds a
+ * Hibernate criteria. The basic logic is simple (the code however is a bit
+ * messy). Each XPath expression is mapped to what is called a Hibernate
+ * relative path that either ends in a normal Hibernate property or an XML
+ * column (whereby the rest of the expression is truncated but latent in the
+ * underlying step). The Hibernate relative path despite the overhead makes it
+ * easier to create Hibernate criteria aliases every time the forward direction
+ * in the XPath crosses over a Hibernate entity or association.
+ * 
+ * Every filter is evaluated then translated (translate method) into a Hibernate
+ * relative path (process method). Processing expects relative path expressions
+ * only. Paths may be absolute or relative and are processed in relation to
+ * their context (which allows for handling paths within predicates). Afterwards
+ * the Hibernate relative path is built into a Hibernate criteria using aliases
+ * against a single criteria instance (thus the need for the alias cache to
+ * prevent duplicates).
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class XPathCriteria {
 
 	private static final Logger logger = LoggerFactory

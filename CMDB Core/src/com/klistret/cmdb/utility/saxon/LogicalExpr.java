@@ -80,6 +80,22 @@ public abstract class LogicalExpr<T> implements Expr {
 		return operands;
 	}
 
+	/**
+	 * Get operands by Expr type
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public List<Expr> getOperands(Expr.Type type) {
+		List<Expr> results = new ArrayList<Expr>();
+
+		for (Expr expr : operands)
+			if (expr.getType() == type)
+				results.add(expr);
+
+		return results;
+	}
+
 	protected void addOperand(Expr expression) {
 		if (operands == null)
 			operands = new ArrayList<Expr>();
