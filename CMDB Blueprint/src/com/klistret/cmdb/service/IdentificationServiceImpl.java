@@ -58,6 +58,11 @@ import com.klistret.cmdb.utility.saxon.PathExpression;
 import com.klistret.cmdb.utility.saxon.Step;
 import com.klistret.cmdb.utility.saxon.StepExpr;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class IdentificationServiceImpl implements IdentificationService {
 
 	private static final Logger logger = LoggerFactory
@@ -564,9 +569,9 @@ public class IdentificationServiceImpl implements IdentificationService {
 							if (other instanceof Step) {
 								if (((Step) other).getDepth() < expr
 										.getRelativePath().getDepth() - 1) {
-									String value = expr
-											.getRawXPath(((Step) other)
-													.getDepth());
+									String value = expr.getRelativePath()
+											.getRawXPath(
+													((Step) other).getDepth());
 									raw = raw == null ? value : String.format(
 											"%s/%s", raw, value);
 								}

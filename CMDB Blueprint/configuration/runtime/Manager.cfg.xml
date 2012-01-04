@@ -32,6 +32,8 @@
 				read-only="true" />
 			<tx:method name="find" propagation="REQUIRED" timeout="20"
 				read-only="true" />
+			<tx:method name="aggregate" propagation="REQUIRED" timeout="20"
+				read-only="true" />
 			<tx:method name="count" propagation="REQUIRED" timeout="20"
 				read-only="true" />
 			<tx:method name="unique" propagation="REQUIRED" timeout="20"

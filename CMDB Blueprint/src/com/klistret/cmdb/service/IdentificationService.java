@@ -26,6 +26,7 @@ import javax.ws.rs.POST;
 import com.klistret.cmdb.ci.pojo.Element;
 
 /**
+ * Interface for the identification of elements
  * 
  * @author Matthew Young
  * 
