@@ -65,7 +65,7 @@ public class ResteasyMocks {
 				null, null);
 
 		ctx = new GenericXmlApplicationContext();
-		ctx.getEnvironment().setActiveProfiles("development");
+		ctx.getEnvironment().setActiveProfiles("development","ivy");
 		ctx.load("classpath:Spring.cfg.xml");
 		ctx.refresh();
 		ctx.addBeanFactoryPostProcessor(processor);
@@ -157,6 +157,7 @@ public class ResteasyMocks {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
+	@Test
 	public void register() throws URISyntaxException, IOException,
 			JAXBException {
 		MockHttpRequest request = MockHttpRequest.put("/resteasy/ivy");
@@ -172,10 +173,10 @@ public class ResteasyMocks {
 				response.getContentAsString()));
 	}
 
-	@Test
+	
 	public void getIvy() throws URISyntaxException, IOException, JAXBException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/ivy?organization=com.klistret.cmdb&module=blueprint&revision=0.1");
+				.get("/resteasy/ivy/transient?organization=com.klistret.cmdb&module=blueprint&revision=0.1");
 		MockHttpResponse response = new MockHttpResponse();
 
 		request.contentType(MediaType.APPLICATION_XML);

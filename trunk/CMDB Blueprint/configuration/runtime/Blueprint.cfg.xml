@@ -8,19 +8,14 @@
 	GNU General Public License for more details. You should have received a copy 
 	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:si="http://www.springframework.org/schema/integration" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+           http://www.springframework.org/schema/integration 
+           http://www.springframework.org/schema/integration/spring-integration-2.0.xsd">
 
 	<bean id="taxonomyService" class="com.klistret.cmdb.service.TaxonomyServiceImpl">
 		<property name="url" value="classpath:taxonomy.xml" />
-	</bean>
-
-	<bean id="ivyService" class="com.klistret.cmdb.service.IvyServiceImpl" >
-		<property name="elementService" ref="elementService" />
-		<property name="elementTypeService" ref="elementTypeService" />
-		<property name="relationService" ref="relationService" />
-		<property name="relationTypeService" ref="relationTypeService" />
 	</bean>
 
 	<bean id="identificationService" class="com.klistret.cmdb.service.IdentificationServiceImpl">
@@ -28,4 +23,23 @@
 		<property name="elementService" ref="elementService" />
 	</bean>
 
+	<!-- Ivy plugin -->
+	<beans profile="ivy">
+		<!-- Ivy registration -->
+		<bean id="ivyService" class="com.klistret.cmdb.service.IvyServiceImpl">
+			<property name="elementService" ref="elementService" />
+			<property name="elementTypeService" ref="elementTypeService" />
+			<property name="relationService" ref="relationService" />
+			<property name="relationTypeService" ref="relationTypeService" />
+		</bean>
+
+		<!-- Update Ivy status metadata for Software -->
+		<si:service-activator input-channel="crudElementChannel"
+			ref="ivySoftwareDispatcher" method="updateStatus" />
+
+		<!-- Ivy CRUD dispatcher -->
+		<bean id="ivySoftwareDispatcher" class="com.klistret.cmdb.ivy.aspect.IvySoftwareDispatcher">
+			<property name="elementService" ref="elementService" />
+		</bean>
+	</beans>
 </beans>

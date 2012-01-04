@@ -36,6 +36,11 @@ import com.klistret.cmdb.taxonomy.pojo.Granularity;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.saxon.PathExpression;
 
+/**
+ * 
+ * @author Matthew Young
+ *
+ */
 public class TaxonomyServiceImpl implements TaxonomyService {
 
 	private static final Logger logger = LoggerFactory

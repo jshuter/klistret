@@ -1,3 +1,16 @@
+/**
+ ** This file is part of Klistret. Klistret is free software: you can
+ ** redistribute it and/or modify it under the terms of the GNU General
+ ** Public License as published by the Free Software Foundation, either
+ ** version 3 of the License, or (at your option) any later version.
+
+ ** Klistret is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY; without even the implied warranty of
+ ** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ ** General Public License for more details. You should have received a
+ ** copy of the GNU General Public License along with Klistret. If not,
+ ** see <http://www.gnu.org/licenses/>
+ */
 package com.klistret.cmdb.service;
 
 import java.util.ArrayList;
@@ -5,10 +18,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.klistret.cmdb.ci.commons.Property;
 import com.klistret.cmdb.ci.element.component.Publication;
 import com.klistret.cmdb.ci.element.component.Software;
 import com.klistret.cmdb.ci.element.context.Organization;
@@ -20,13 +35,33 @@ import com.klistret.cmdb.ci.relation.Dependency;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.ivy.pojo.IvyModule;
 
+/**
+ * 
+ * @author Matthew Young
+ * 
+ */
 public class IvyServiceImpl implements IvyService {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(IvyServiceImpl.class);
 
+	/**
+	 * A marker linking together the dependencies at the time of registration.
+	 */
 	private final static String markerPrefix = "IvyRegistration";
 
+	/**
+	 * A Commons property added to dependencies during registration to denote an
+	 * implicit revision was used and the value of the property is the implicit
+	 * variable.
+	 */
+	private final static String implicitPropertyName = "ivy.implicit";
+
+	/**
+	 * Pattern for implicit revision variables
+	 */
+	public static final Pattern implicitStatusPattern = Pattern
+			.compile("^latest(\\.\\w+){1,2}");
 	/**
 	 * Element service (dependency injection)
 	 */
@@ -104,7 +139,14 @@ public class IvyServiceImpl implements IvyService {
 	}
 
 	/**
+	 * Ivy module descriptor have at a minimum 3 major sections: 1) information,
+	 * 2) publications and 3) dependencies. This method builds the corresponding
+	 * CIs based on the 3 primary Ivy descriptors. The information section
+	 * because the Software, publications become Publication CI plus an
+	 * associated dependency, and dependencies become Software CIs with a
+	 * dependency.
 	 * 
+	 * @param moduleDescriptor
 	 */
 	public void register(IvyModule moduleDescriptor) {
 		/**
@@ -129,24 +171,38 @@ public class IvyServiceImpl implements IvyService {
 		logger.debug("Processed {} software dependencies", dependencies.size());
 	}
 
-	public IvyModule get(String organization, String module, String revision) {
+	/**
+	 * Get an Ivy module document for a particular Software element either
+	 * masking implicit statuses or not plus giving a transient view of the Ivy
+	 * descriptor or at the time of registeration.
+	 * 
+	 * @param organization
+	 * @param module
+	 * @param revision
+	 * @return IvyModule
+	 */
+	public IvyModule get(String organization, String module, String revision,
+			boolean mask, boolean trans) {
 		IvyModule moduleDescriptor = new IvyModule();
 
-		boolean explicit = true;
-		if (revision.matches("^latest(\\.\\w+){1,2}"))
-			explicit = false;
+		List<String> softwareExpression = new ArrayList<String>();
+		softwareExpression
+				.add(String
+						.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name eq \"%s\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
+								module));
 
-		if (explicit == false)
-			throw new ApplicationException("Only explicit revisions allowed.");
+		if (implicitStatusPattern.matcher(revision).matches())
+			softwareExpression
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][component:Tag = (\"%s\")]",
+									organization, revision));
+		else
+			softwareExpression
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][component:Version eq \"%s\"]",
+									organization, revision));
 
-		Element software = elementService
-				.unique(Arrays.asList(new String[] {
-						String.format(
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name eq \"%s\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
-								module),
-						String.format(
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][component:Version eq \"%s\"]",
-								organization, revision) }));
+		Element software = elementService.unique(softwareExpression);
 
 		if (software == null)
 			throw new ApplicationException(
@@ -183,10 +239,16 @@ public class IvyServiceImpl implements IvyService {
 		 * Publications
 		 */
 		List<String> findPublications = new ArrayList<String>();
-		findPublications
-				.add(String
-						.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]/pojo:configuration[commons:Mark = (\"%s\")]",
-								software.getId(), marker));
+		if (!trans)
+			findPublications
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]/pojo:configuration[commons:Mark = (\"%s\")]",
+									software.getId(), marker));
+		else
+			findPublications
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+									software.getId()));
 
 		Integer countPublicationDependencies = relationService
 				.count(findPublications);
@@ -218,10 +280,16 @@ public class IvyServiceImpl implements IvyService {
 		 * Dependencies
 		 */
 		List<String> findDependencies = new ArrayList<String>();
-		findDependencies
-				.add(String
-						.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[commons:Mark = (\"%s\")]",
-								software.getId(), marker));
+		if (!trans)
+			findDependencies
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[commons:Mark = (\"%s\")]",
+									software.getId(), marker));
+		else
+			findDependencies
+					.add(String
+							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"][pojo:source/pojo:id eq %s][pojo:destination/pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
+									software.getId()));
 
 		Integer countSoftwareDependencies = relationService
 				.count(findDependencies);
@@ -236,8 +304,22 @@ public class IvyServiceImpl implements IvyService {
 				dependency.setName(relation.getDestination().getName());
 				dependency.setOrg(((Software) relation.getDestination()
 						.getConfiguration()).getOrganization());
-				dependency.setRev(((Software) relation.getDestination()
-						.getConfiguration()).getVersion());
+
+				if (mask) {
+					String value = null;
+					for (Property prop : relation.getConfiguration()
+							.getProperty())
+						if (prop.getName().equals(implicitPropertyName))
+							value = prop.getValue();
+
+					if (value == null)
+						dependency.setRev(((Software) relation.getDestination()
+								.getConfiguration()).getVersion());
+					else
+						dependency.setRev(value);
+				} else
+					dependency.setRev(((Software) relation.getDestination()
+							.getConfiguration()).getVersion());
 
 				for (String use : relation.getConfiguration().getUsage())
 					dependency.setDependencyAttributeConf(use);
@@ -251,18 +333,44 @@ public class IvyServiceImpl implements IvyService {
 		return moduleDescriptor;
 	}
 
-	@Override
-	public IvyModule getTransient(String organization, String module,
-			String revision) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Implicit/explicit view of the Ivy module descriptor at registration.
+	 * 
+	 * @param organization
+	 * @param module
+	 * @param revision
+	 * @return
+	 */
+	public IvyModule get(String organization, String module, String revision) {
+		return get(organization, module, revision, true, false);
 	}
 
-	@Override
+	/**
+	 * Transient or current view of the Ivy module descriptor with explicit
+	 * revisions for dependencies.
+	 * 
+	 * @param organization
+	 * @param module
+	 * @param revision
+	 * @return
+	 */
+	public IvyModule getTransient(String organization, String module,
+			String revision) {
+		return get(organization, module, revision, false, true);
+	}
+
+	/**
+	 * View of the Ivy module descriptor during registration with explicit
+	 * revisions only.
+	 * 
+	 * @param organization
+	 * @param module
+	 * @param revision
+	 * @return
+	 */
 	public IvyModule getExplicit(String organization, String module,
 			String revision) {
-		// TODO Auto-generated method stub
-		return null;
+		return get(organization, module, revision, false, false);
 	}
 
 	/**
@@ -382,7 +490,7 @@ public class IvyServiceImpl implements IvyService {
 					"Ivy revision not set (flatted path ivy-module.info.@revision)");
 
 		logger.debug(
-				"Registering module [name: {}, organization: {}, revision: {}]",
+				"Registering module [name: {}, organization: {}, explicit revision: {}]",
 				new Object[] { name, organization, version });
 
 		Element element = elementService
@@ -469,9 +577,10 @@ public class IvyServiceImpl implements IvyService {
 	}
 
 	/**
-	 * Delete existing publication CIs with the same composite key inclusive the
-	 * type (should be unique otherwise an exception is thrown). Create a new
-	 * publication CI returning a list of all created CIs.
+	 * Update existing publication CIs with the same composite key inclusive the
+	 * type (should be unique otherwise an exception is thrown) otherwise create
+	 * a new publication CI. Dependencies owned (sourced) by the publication are
+	 * deleted then recreated.
 	 * 
 	 * @param moduleDescriptor
 	 * @param software
@@ -605,6 +714,7 @@ public class IvyServiceImpl implements IvyService {
 	}
 
 	/**
+	 * Only explicit software dependencies are created if not already existing.
 	 * 
 	 * @param moduleDescriptor
 	 * @param software
@@ -623,34 +733,26 @@ public class IvyServiceImpl implements IvyService {
 			/**
 			 * Is revision implicit or explicit
 			 */
-			boolean explicit = true;
-			if (rev.matches("^latest(\\.\\w+){1,2}"))
-				explicit = false;
-
 			List<String> expressions = new ArrayList<String>();
 			expressions
 					.add(String
 							.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name eq \"%s\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
 									name));
 
-			if (explicit) {
-				expressions
-						.add(String
-								.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][component:Version eq \"%s\"]",
-										org, rev));
-				logger.debug("Interpreted rev [{}] as explicit", rev);
-			} else {
+			boolean implicit = implicitStatusPattern.matcher(rev).matches();
+			if (implicit)
 				expressions
 						.add(String
 								.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][commons:Tag = (\"%s\")]",
 										org, rev));
-				logger.debug(
-						"Interpreted rev [{}] as implicit latest, querying for similar Tag",
-						rev);
-			}
+			else
+				expressions
+						.add(String
+								.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization eq \"%s\"][component:Version eq \"%s\"]",
+										org, rev));
 
 			Element other = elementService.unique(expressions);
-			if (other == null && explicit) {
+			if (other == null && !implicit) {
 				other = new Element();
 				other.setType(getSoftwareType());
 				other.setName(name);
@@ -672,9 +774,12 @@ public class IvyServiceImpl implements IvyService {
 				elementService.create(other);
 			}
 
-			if (other == null)
+			if (other == null && implicit)
 				throw new ApplicationException(
-						"No dependency software could be resolved");
+						String.format(
+								"Implicit dependencies must be resolved. No software dependency [organization: %s, name: %s, implicit rev: %s] ",
+								org, name, rev));
+
 			dependencies.add(other);
 
 			/**
@@ -719,6 +824,17 @@ public class IvyServiceImpl implements IvyService {
 			 */
 			dependencyCI.getMark().addAll(
 					((Software) software.getConfiguration()).getMark());
+
+			/**
+			 * Add implicit property
+			 */
+			if (implicit) {
+				Property implicitProperty = new Property();
+				implicitProperty.setName(implicitPropertyName);
+				implicitProperty.setValue(rev);
+
+				dependencyCI.getProperty().add(implicitProperty);
+			}
 
 			dependency.setConfiguration(dependencyCI);
 			relationService.create(dependency);

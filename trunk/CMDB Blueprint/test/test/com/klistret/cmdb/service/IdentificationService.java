@@ -19,7 +19,7 @@ public class IdentificationService {
 	public void setUp() throws Exception {
 		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
 		ctx.getEnvironment().setActiveProfiles("development");
-		ctx.load("classpath:Test.cfg.xml");
+		ctx.load("classpath:Spring.cfg.xml");
 		ctx.refresh();
 
 		identificationService = ctx
