@@ -57,12 +57,12 @@ The beta of plugin will not create contextual Lifecycle or Timeframe CIs until d
 A HTTP GET against:
   /resteasy/ivy?org=`<`value`>`&module=`<`value`>`&revision=`<`value`>`
 
-will return a single Ivy descriptor file.  The _revision_ may be either an implicit or explicit value however the service will fail if a unique element is not found.  The URL above returns an Ivy descriptor if _rev_ variables if either the software was registered with the Ivy plugin or the proper tags are in place.
+will return a single Ivy descriptor file.  The _revision_ may be either an implicit or explicit value however the service will fail if a unique element is not found.  Dependencies to the identified Software element will be returned with implicit revisions (_rev_ variable) if registered with implicit variables.  All relations to publications or other software reflect those at the time of registration. 
 
-The explicit revision values can be extracted reflecting the point in time of registration:
+The explicit revision values may be applied to reflect the exact revisions of dependencies during registration using the following URL:
   /resteasy/ivy/explicit?org=`<`value`>`&module=`<`value`>`&revision=`<`value`>`
 
-The transient revisions at the current moment:
+The transient service show the dependencies currently active.  This is interesting if a dependency was implicitly registered to see what the latest version has become:
   /resteasy/ivy/transient?org=`<`value`>`&module=`<`value`>`&revision=`<`value`>`
 
 It should be noted that the if registered the original Ivy descriptor for software is never stored or retrievable. 
