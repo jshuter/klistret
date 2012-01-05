@@ -13,11 +13,13 @@
  */
 package com.klistret.cmdb.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
+import java.util.ListIterator;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -81,11 +83,6 @@ public class IvyServiceImpl implements IvyService {
 	 * Relation Type service (dependency injection)
 	 */
 	private RelationTypeService relationTypeService;
-
-	/**
-	 * Mark generator for this extension
-	 */
-	private static Random generator = new Random(19580427);
 
 	/**
 	 * Singleton
@@ -230,8 +227,9 @@ public class IvyServiceImpl implements IvyService {
 		 */
 		String marker = null;
 		for (String mark : ((Software) software.getConfiguration()).getMark())
-			if (mark.matches("IvyRegistration\\d*"))
+			if (mark.startsWith(markerPrefix))
 				marker = mark;
+
 		if (marker == null)
 			return moduleDescriptor;
 
@@ -526,15 +524,18 @@ public class IvyServiceImpl implements IvyService {
 		/**
 		 * Marker tag
 		 */
-		String marker = null;
-		for (String mark : configuration.getMark())
-			if (mark.matches(markerPrefix + "\\d*"))
-				marker = mark;
-
-		if (marker == null) {
-			marker = markerPrefix + generator.nextInt();
-			configuration.getMark().add(marker);
+		ListIterator<String> mi = configuration.getMark().listIterator();
+		while (mi.hasNext()) {
+			String mark = mi.next();
+			if (mark.startsWith(markerPrefix))
+				mi.remove();
 		}
+
+		DateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		Date date = new Date();
+		dateFormat.format(date);
+		configuration.getMark().add(markerPrefix + dateFormat.format(date));
 
 		/**
 		 * Phase
