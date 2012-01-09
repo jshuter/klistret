@@ -727,8 +727,13 @@ public class IvyServiceImpl implements IvyService {
 		List<Element> dependencies = new ArrayList<Element>();
 		for (com.klistret.cmdb.ivy.pojo.IvyModule.Dependencies.Dependency module : moduleDescriptor
 				.getDependencies().getDependency()) {
+
 			String name = module.getName();
+			getSoftwareContext(name);
+
 			String org = module.getOrg();
+			getOrganization(org);
+
 			String rev = module.getRev();
 
 			/**
