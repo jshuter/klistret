@@ -9,7 +9,17 @@
 
 	<ivy:cachepath pathid="classpath.ivy.ext" conf="runtime" file="${cmdb-coredir}/ivy.xml" type="jar, bundle" />
 
-	<target name="ext:package">
+
+	<target name="ext:build">
+		<war destfile="${tmp-destdir}/CMDB_Ext_Simple_Web.war" webxml="${cmdb-webdir}/WebContent/WEB-INF/web.xml">
+			<fileset dir="${cmdb-webdir}/WebContent" />
+		</war>
+		<ear destfile="${tmp-destdir}/klistret.ext.simple.ear" appxml="EarContent/META-INF/application.xml">
+			<fileset dir="${tmp-destdir}" includes="CMDB_Ext_Simple_Web.war" />
+		</ear>
+	</target>
+
+	<target name="ext:package" depends="ext:build">
 		<property name="packagedir" location="${tmp-destdir}/klistret.cmdb.ext-simple-${ivy.revision}" />
 
 		<delete dir="${packagedir}" failonerror="false" />
@@ -26,9 +36,9 @@
 
 		<copy file="${tmp-destdir}/klistret.ext.simple.ear" todir="${packagedir}/bin" />
 
-		<copy file="${tmp-destdir}/cmdb-core/klistret.core-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${tmp-destdir}/cmdb-core/jars/klistret.core.jar" tofile="${packagedir}/lib/klistret.core-${ivy.revision}.jar" />
 		<copy file="${tmp-destdir}/cmdb-ci/klistret.ci-${ivy.revision}.jar" todir="${packagedir}/lib" />
-		<copy file="${tmp-destdir}/cmdb-blueprint/klistret.blueprint-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${tmp-destdir}/cmdb-blueprint/jars/klistret.blueprint.jar" tofile="${packagedir}/lib/klistret.blueprint-${ivy.revision}.jar" />
 
 		<copy todir="${packagedir}/propertes">
 			<fileset dir="${cmdb-coredir}/configuration/runtime">
