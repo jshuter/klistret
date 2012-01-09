@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	you under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="com.klistret.cmdb" module="core" revision="0.1" status="integration" publication="20120109103034">
+	</info>
+	<configurations>
+		<conf name="compile" visibility="public" description="Compiling"/>
+		<conf name="test" visibility="private" extends="compile" description="Testing"/>
+		<conf name="runtime" visibility="public" extends="compile" description="Running"/>
+		<conf name="master" visibility="public" description="Only the artifacts published by this module itself, with no transitive dependencies"/>
+		<conf name="sources" visibility="public" description="Sources only"/>
+		<conf name="config" visibility="public" description="Configuration only"/>
+	</configurations>
+	<publications>
+		<artifact name="klistret.core" type="jar" ext="jar" conf="master"/>
+		<artifact name="database" type="ddl" ext="zip" conf="config"/>
+		<artifact name="klistret.core-source" type="source" ext="jar" conf="sources"/>
+		<artifact name="config" type="config" ext="zip" conf="config"/>
+	</publications>
+	<dependencies>
+		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
+		<dependency org="org.springframework" name="org.springframework.core" rev="3.1.0.M1" conf="compile->compile;runtime->aspectj"/>
+
+		<!-- Spring context (6): context, aopalliance, asm. aop, beans, expression -->
+		<dependency org="org.springframework" name="org.springframework.context" rev="3.1.0.M1" conf="compile->compile"/>
+
+		<!-- Spring orm (3): orm, jdbc, transaction -->
+		<dependency org="org.springframework" name="org.springframework.orm" rev="3.1.0.M1" conf="compile->compile"/>
+
+		<!-- Spring web (1): web -->
+		<dependency org="org.springframework" name="org.springframework.web" rev="3.1.0.M1" conf="runtime->compile"/>
+
+		<!-- Spring test (1): test -->
+		<dependency org="org.springframework" name="org.springframework.test" rev="3.1.0.M1" conf="test->compile"/>
+
+		<!-- Spring integration (1): core (otherwise there are forced dependencies 
+			on a specific version of Spring Core) -->
+		<dependency org="org.springframework.integration" name="spring-integration-core" rev="2.0.3.RELEASE" conf="compile->master"/>
+
+		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, 
+			jta, javaassist -->
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.6.7.Final" conf="compile->runtime,master,optional">
+			<exclude module="xml-apis"/>
+			<exclude module="slf4j-api"/>
+			<exclude module="jass"/>
+			<exclude module="jacc"/>
+			<exclude module="ant"/>
+			<exclude module="cglib"/>
+			<exclude module="asm"/>
+		</dependency>
+
+		<!-- Ehcache -->
+		<dependency org="net.sf.ehcache" name="ehcache-core" rev="2.4.4" conf="runtime->master"/>
+
+		<!-- Saxon (1): saxon -->
+		<dependency org="net.sourceforge.saxon" name="saxon-he" rev="9.2.1.1" conf="compile->*"/>
+
+		<!-- Apache Log4j (1): log4j -->
+		<dependency org="log4j" name="log4j" rev="1.2.16" conf="runtime->master"/>
+
+		<!-- SLF4J (1): slf4j-api -->
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1" conf="compile->master"/>
+
+		<!-- SLF4J (1): slf4j-log4j -->
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="runtime->master"/>
+
+		<!-- Resteasy restasy-jaxrs (1): -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxrs" rev="2.3.0.GA" conf="compile->master"/>
+
+		<!-- Resteasy jaxrs-api (1): jaxrs-api -->
+		<dependency org="org.jboss.resteasy" name="jaxrs-api" rev="2.3.0.GA" conf="compile->master"/>
+
+		<!-- Resteasy resteasy-jaxb-provider (1): resteasy-jaxb-provider -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jaxb-provider" rev="2.3.0.GA" conf="runtime->master"/>
+
+		<!-- Resteasy resteasy-jettison-provider (1): resteasy-jettison-provider -->
+		<dependency org="org.jboss.resteasy" name="resteasy-jettison-provider" rev="2.3.0.GA" conf="runtime->master"/>
+
+		<!-- Resteasy resteasy-spring (1): resteasy-spring -->
+		<dependency org="org.jboss.resteasy" name="resteasy-spring" rev="2.3.0.GA" conf="compile->master"/>
+
+		<!-- Jettison (1): jettison -->
+		<dependency org="org.codehaus.jettison" name="jettison" rev="1.2" conf="runtime->master"/>
+
+		<!-- Jakarta HTTPCLIENT -->
+		<dependency org="commons-codec" name="commons-codec" rev="1.4" conf="test->master"/>
+		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="test->master"/>
+
+		<!-- Scannotation (1) which is a dependency of RestEASY Servlet: scannotation -->
+		<dependency org="org.scannotation" name="scannotation" rev="1.0.2" conf="runtime->master"/>
+
+		<!-- Reflections -->
+		<dependency org="org.reflections" name="reflections" rev="0.9.5-RC2" conf="compile->*"/>
+
+		<!-- Google collections (used by Reflections but not in the Maven pom) -->
+		<dependency org="com.google.collections" name="google-collections" rev="1.0-rc3" conf="runtime->*"/>
+
+		<!-- Apache Commons Pool -->
+		<dependency org="commons-pool" name="commons-pool" rev="1.5.6" conf="runtime->master"/>
+
+		<!-- JUnit (1): junit -->
+		<dependency org="junit" name="junit" rev="4.8.2" conf="test->master"/>
+
+		<!-- CI -->
+		<dependency org="com.klistret.cmdb" name="ci" rev="0.1" conf="compile->master"/>
+	</dependencies>
+</ivy-module>
