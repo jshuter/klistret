@@ -28,10 +28,10 @@
 	</configurations>
 	<publications>
 		<artifact name="klistret.core" type="jar" ext="jar" conf="master" />
-		<artifact name="database" type="ddl" ext="zip" conf="config" />
+		<artifact name="klistret.core-database" type="ddl" ext="zip" conf="config" />
 		<artifact name="klistret.core-source" type="source" ext="jar"
 			conf="sources" />
-		<artifact name="config" type="config" ext="zip" conf="config" />
+		<artifact name="klistret.core-config" type="config" ext="zip" conf="config" />
 	</publications>
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
