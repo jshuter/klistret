@@ -48,16 +48,15 @@ Then create links from the *applications* map:
 {{{
   cd $HOME/dm1/applications
   ln -s ../.downloads/klistret.cmdb.ext-simple-0.1 cmdb
-
   ln -s ../.downloads/db2-jdbc-drivers db2-jdbc-drivers
 }}}
 
 Remember that these instructions are for Unix/Linux so at the moment the only scripts or settings are for non-Windows platforms.  Example scripts are shipped with the web package and are tagged with _edit_ text:
 {{{
   cd $HOME/dm1/scripts
-  cp ../applications/cmdb/example/weblogic/*.ksh
+  cp ../applications/cmdb/example/weblogic/*.ksh .
   cd $HOME/dm1/settings
-  cp ../applications/cmdb/example/weblogic/*.env
+  cp ../applications/cmdb/example/weblogic/*.env .
 }}}
 
 The start/stop scripts should work right out of the box.  They are run as follows:
