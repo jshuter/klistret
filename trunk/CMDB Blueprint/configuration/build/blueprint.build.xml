@@ -46,7 +46,7 @@
 		<delete dir="${config-destdir}" failonerror="false" />
 		<mkdir dir="${config-destdir}" />
 
-		<zip destfile="${config-destdir}/config.zip">
+		<zip destfile="${config-destdir}/klistret.blueprint-config.zip">
 			<fileset dir="${project-basedir}/configuration/runtime">
 				<include name="*.cfg.xml" />
 				<include name="taxonomy.xml" />
