@@ -32,7 +32,7 @@
 			conf="master" />
 		<artifact name="klistret.blueprint-source" type="source" ext="jar"
 			conf="sources" />
-		<artifact name="config" type="config" ext="zip" conf="config" />
+		<artifact name="klistret.blueprint-config" type="config" ext="zip" conf="config" />
 	</publications>
 	<dependencies>
 		<!-- Klistret CI -->
