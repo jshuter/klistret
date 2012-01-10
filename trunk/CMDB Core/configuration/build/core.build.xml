@@ -35,7 +35,7 @@
 		<delete dir="${ddl-destdir}" failonerror="false" />
 		<mkdir dir="${ddl-destdir}" />
 
-		<zip destfile="${ddl-destdir}/database.zip" basedir="${project-basedir}/configuration/build" includes="*.ddl" />
+		<zip destfile="${ddl-destdir}/klistret.core-database.zip" basedir="${project-basedir}/configuration/build" includes="*.ddl" />
 	</target>
 
 
@@ -57,7 +57,7 @@
 		<delete dir="${config-destdir}" failonerror="false" />
 		<mkdir dir="${config-destdir}" />
 
-		<zip destfile="${config-destdir}/config.zip">
+		<zip destfile="${config-destdir}/klistret.core-config.zip">
 			<fileset dir="${project-basedir}/configuration/runtime">
 				<include name="*.cfg.xml" />
 				<include name="*.hbm.xml" />
