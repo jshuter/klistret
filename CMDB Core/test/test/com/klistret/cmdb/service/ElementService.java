@@ -136,9 +136,9 @@ public class ElementService {
 	/**
 	 * Update element
 	 */
-
+	@Test
 	public void updateElement() {
-		Element element = elementService.get(new Long(410864));
+		Element element = elementService.get(new Long(566991));
 		elementService.update(element);
 
 		assertNotNull(element);
@@ -158,7 +158,7 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-	@Test
+	
 	public void findElement() {
 		List<Element> response = elementService
 				.find(Arrays

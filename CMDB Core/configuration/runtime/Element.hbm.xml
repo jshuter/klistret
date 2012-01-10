@@ -1,70 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is part of Klistret. Klistret is free software: you can redistribute 
-        it and/or modify it under the terms of the GNU General Public License as 
-        published by the Free Software Foundation, either version 3 of the License, 
-        or (at your option) any later version. Klistret is distributed in the hope 
-        that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-        warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-        GNU General Public License for more details. You should have received a copy 
-        of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <!DOCTYPE hibernate-mapping PUBLIC
  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
-        <class name="Element" table="ELEMENT">
+	<class name="Element" table="ELEMENT">
 
-                <id name="id" type="long">
-                        <column name="ELEMENTID" sql-type="INTEGER" />
-                        <generator class="identity"></generator>
-                </id>
+		<id name="id" type="long">
+			<column name="ELEMENTID" sql-type="INTEGER" />
+			<generator class="identity"></generator>
+		</id>
 
-                <many-to-one name="type" class="com.klistret.cmdb.ci.pojo.ElementType"
-                        lazy="false" foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
-                        <column name="ELEMENTTYPEID" sql-type="INTEGER" not-null="true" />
-                </many-to-one>
+		<version name="updateTimeStamp" type="timestamp">
+			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
+		</version>
 
-                <property name="name" index="ELEMENT_SK">
-                        <column name="NAME" length="100" not-null="true" />
-                </property>
+		<many-to-one name="type" class="com.klistret.cmdb.ci.pojo.ElementType"
+			lazy="false" foreign-key="FK_TYPE_ELEMENT" index="ELEMENT_FK ELEMENT_SK">
+			<column name="ELEMENTTYPEID" sql-type="INTEGER" not-null="true" />
+		</many-to-one>
 
-                <property name="fromTimeStamp" type="timestamp">
-                        <column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<property name="name" index="ELEMENT_SK">
+			<column name="NAME" length="100" not-null="true" />
+		</property>
 
-                <property name="toTimeStamp" type="timestamp">
-                        <column name="TOTIMESTAMP" />
-                </property>
+		<property name="fromTimeStamp" type="timestamp">
+			<column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
 
-                <property name="createId">
-                        <column name="CREATEID" length="10" />
-                </property>
+		<property name="toTimeStamp" type="timestamp">
+			<column name="TOTIMESTAMP" />
+		</property>
 
-                <property name="createTimeStamp" type="timestamp">
-                        <column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<property name="createId">
+			<column name="CREATEID" length="10" />
+		</property>
 
-                <property name="updateTimeStamp" type="timestamp">
-                        <column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<property name="createTimeStamp" type="timestamp">
+			<column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
 
-                <property name="configuration">
-                        <column name="CONFIGURATION" not-null="true" sql-type="XML" />
-                        <type name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
-                </property>
+		<property name="configuration">
+			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
+			<type name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
+		</property>
 
-                <list name="sourceRelations" collection-type="com.klistret.cmdb.utility.hibernate.LazyCollectionType" lazy="true" inverse="true">
-                        <key column="SOURCEID" on-delete="noaction" not-null="true" />
-                        <index column="RELATIONID" />
-                        <one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
-                </list>
+		<list name="sourceRelations"
+			collection-type="com.klistret.cmdb.utility.hibernate.LazyCollectionType"
+			lazy="true" inverse="true">
+			<key column="SOURCEID" on-delete="noaction" not-null="true" />
+			<index column="RELATIONID" />
+			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
+		</list>
 
-                <list name="destinationRelations" collection-type="com.klistret.cmdb.utility.hibernate.LazyCollectionType" lazy="true" inverse="true">
-                        <key column="DESTINATIONID" on-delete="noaction" not-null="true" />
-                        <index column="RELATIONID" />
-                        <one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
-                </list>
-        </class>
+		<list name="destinationRelations"
+			collection-type="com.klistret.cmdb.utility.hibernate.LazyCollectionType"
+			lazy="true" inverse="true">
+			<key column="DESTINATIONID" on-delete="noaction" not-null="true" />
+			<index column="RELATIONID" />
+			<one-to-many class="com.klistret.cmdb.ci.pojo.Relation" />
+		</list>
+	</class>
 
 </hibernate-mapping>

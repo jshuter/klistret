@@ -243,9 +243,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 							element.getName(), element.getName().length()));
 
 		/**
-		 * record current time when updating
+		 * record current time when updating (removed since using version locking)
 		 */
-		element.setUpdateTimeStamp(new java.util.Date());
+		//element.setUpdateTimeStamp(new java.util.Date());
 
 		/**
 		 * pojo type matches the configuration qname
@@ -296,7 +296,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					new NoSuchElementException());
 
 		element.setToTimeStamp(new java.util.Date());
-		element.setUpdateTimeStamp(new java.util.Date());
+		// removed since using version locking
+		//element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
 			getSession().merge("Element", element);
