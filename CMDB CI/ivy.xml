@@ -21,11 +21,14 @@
 			description="Testing" />
 		<conf name="runtime" visibility="public" extends="compile"
 			description="Running" />
+		<conf name="sources" visibility="public" description="Sources only" />
 		<conf name="master" visibility="public"
 			description="Only the artifact published by this module itself, with no transitive dependencies" />
 	</configurations>
 	<publications>
 		<artifact name="klistret.ci" type="jar" ext="jar" conf="master" />
+		<artifact name="klistret.ci-source" type="source" ext="jar"
+			conf="sources" />
 	</publications>
 	<dependencies>
 		<!-- JAXB XJC (1): jaxb-xjc -->
