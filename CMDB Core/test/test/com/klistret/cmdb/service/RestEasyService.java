@@ -13,16 +13,24 @@
  */
 package test.com.klistret.cmdb.service;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
+import org.jboss.resteasy.client.ClientRequest;
+import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
@@ -37,6 +45,8 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jboss.resteasy.util.HttpResponseCodes;
 
+import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper;
 import com.klistret.cmdb.utility.resteasy.AccessControlInterceptor;
 import com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper;
@@ -61,6 +71,11 @@ public class RestEasyService {
 	private GenericXmlApplicationContext ctx;
 
 	/**
+	 * Element Service
+	 */
+	protected com.klistret.cmdb.service.ElementService es;
+
+	/**
 	 * Sets up the RestEasy Mock framework
 	 * 
 	 * @throws Exception
@@ -79,6 +94,11 @@ public class RestEasyService {
 		ctx.load("classpath:Spring.cfg.xml");
 		ctx.refresh();
 		ctx.addBeanFactoryPostProcessor(processor);
+
+		/**
+		 * Element service
+		 */
+		es = ctx.getBean(com.klistret.cmdb.service.ElementService.class);
 
 		// Add service to the dispatcher
 		SpringResourceFactory elementService = new SpringResourceFactory(
@@ -123,7 +143,7 @@ public class RestEasyService {
 	public void getElement() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/78941")
+				.get("/resteasy/element/567035")
 				.accept(Arrays
 						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 
@@ -167,23 +187,27 @@ public class RestEasyService {
 	 * @throws JAXBException
 	 * @throws UnsupportedEncodingException
 	 */
-
+	
 	public void putElement() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest getRequest = MockHttpRequest
-				.get("/resteasy/element/78941")
+				.get("/resteasy/element/567035")
 				.accept(Arrays
-						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+						.asList(new MediaType[] { MediaType.APPLICATION_JSON_TYPE }));
 		MockHttpResponse getResponse = new MockHttpResponse();
 		dispatcher.invoke(getRequest, getResponse);
 
-		MockHttpRequest putRequest = MockHttpRequest.put("/resteasy/element");
+		MockHttpRequest putRequest = MockHttpRequest
+				.put("/resteasy/element")
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_JSON_TYPE }));
 		MockHttpResponse putResponse = new MockHttpResponse();
 
-		String requestBodyAsString = getResponse.getContentAsString();
+		String body = getResponse.getContentAsString();
+		body = body.replaceAll("WEBDOCS", "WEBDOCS2");
 
-		putRequest.contentType(MediaType.APPLICATION_XML);
-		putRequest.content(requestBodyAsString.getBytes("UTF-8"));
+		putRequest.contentType(MediaType.APPLICATION_JSON);
+		putRequest.content(body.getBytes("UTF-8"));
 
 		dispatcher.invoke(putRequest, putResponse);
 		System.out.println(String.format(
@@ -260,7 +284,6 @@ public class RestEasyService {
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
-	@Test
 	public void aggregate() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -518,5 +541,74 @@ public class RestEasyService {
 				putResponse.getStatus(), putResponse.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, putResponse.getStatus());
+	}
+
+	
+	public void putWithClient() throws Exception {
+		String url = "http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/element";
+
+		ClientRequest request = new ClientRequest(url + "/567035");
+		request.accept("application/xml");
+		ClientResponse<String> response = request.get(String.class);
+
+		if (response.getStatus() == 200) {
+			Unmarshaller unmarshaller = CIContext.getCIContext()
+					.getJAXBContext().createUnmarshaller();
+			StreamSource source = new StreamSource(new StringReader(
+					response.getEntity()));
+
+			Element element = (Element) unmarshaller.unmarshal(source);
+			element.getConfiguration().getTag().add("hello");
+
+			Assert.assertNotNull(element);
+
+			MockHttpRequest putRequest = MockHttpRequest
+					.put("/resteasy/element")
+					.accept(Arrays
+							.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+			MockHttpResponse putResponse = new MockHttpResponse();
+
+			StringWriter stringWriter = new StringWriter();
+			Marshaller m = CIContext.getCIContext().getJAXBContext()
+					.createMarshaller();
+			m.marshal(element, stringWriter);
+
+			String body = stringWriter.toString();
+
+			putRequest.contentType(MediaType.APPLICATION_XML);
+			putRequest.content(body.getBytes("UTF-8"));
+
+			dispatcher.invoke(putRequest, putResponse);
+			System.out.println(String.format(
+					"Response code [%s] with payload [%s]",
+					putResponse.getStatus(), putResponse.getContentAsString()));
+
+			Assert.assertEquals(HttpResponseCodes.SC_OK,
+					putResponse.getStatus());
+		} else
+			Assert.fail();
+	}
+
+	@Test
+	public void anotherClient() throws Exception {
+		Element element = es.get(new Long(567035));
+
+		ClientRequest request = new ClientRequest(
+				"http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/element");
+		request.accept("application/xml");
+		request.body(MediaType.APPLICATION_XML, element);
+
+		ClientResponse<String> response = request.put(String.class);
+
+		if (response.getStatus() != 200)
+			Assert.fail();
+	}
+	
+	
+	public void dummy() {
+		Locale locale = Locale.getDefault();
+		System.out.println(locale.toString());
+		
+		System.out.println(System.getProperty("user.timezone"));
 	}
 }

@@ -190,11 +190,6 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 */
 	public Relation set(Relation relation) {
 		/**
-		 * record current time when updating (removed since using version locking)
-		 */
-		//relation.setUpdateTimeStamp(new java.util.Date());
-
-		/**
 		 * pojo type matches the configuration qname
 		 */
 		String typeClassName = CIContext.getCIContext()
@@ -210,7 +205,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 		try {
 			if (relation.getId() != null)
-				getSession().merge("Relation", relation);
+				relation = (Relation) getSession().merge("Relation", relation);
 			else
 				getSession().saveOrUpdate("Relation", relation);
 		} catch (HibernateException he) {
@@ -243,8 +238,6 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					new NoSuchElementException());
 
 		relation.setToTimeStamp(new java.util.Date());
-		// removed since using version locking
-		//relation.setUpdateTimeStamp(new java.util.Date());
 
 		try {
 			getSession().merge("Relation", relation);

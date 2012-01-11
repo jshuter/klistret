@@ -102,7 +102,8 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 
 		try {
 			if (relationType.getId() != null)
-				getSession().merge("RelationType", relationType);
+				relationType = (RelationType) getSession().merge(
+						"RelationType", relationType);
 			else
 				getSession().saveOrUpdate("RelationType", relationType);
 		} catch (HibernateException he) {
