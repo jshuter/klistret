@@ -16,6 +16,7 @@ package test.com.klistret.cmdb.service;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -138,8 +139,14 @@ public class ElementService {
 	 */
 	@Test
 	public void updateElement() {
-		Element element = elementService.get(new Long(566991));
-		elementService.update(element);
+		Element element = elementService.get(new Long(567035));
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+		System.out.println("get version: "
+				+ sdf.format(element.getUpdateTimeStamp()));
+
+		element = elementService.update(element);
+		System.out.println("get version: "
+				+ sdf.format(element.getUpdateTimeStamp()));
 
 		assertNotNull(element);
 	}
@@ -158,7 +165,7 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-	
+
 	public void findElement() {
 		List<Element> response = elementService
 				.find(Arrays
@@ -171,7 +178,6 @@ public class ElementService {
 		System.out.println(response.size());
 	}
 
-	
 	public void maxElement() {
 		String response = elementService
 				.aggregate(

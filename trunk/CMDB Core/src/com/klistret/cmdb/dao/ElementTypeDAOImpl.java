@@ -97,16 +97,17 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 	 */
 	public ElementType set(ElementType elementType) {
 		elementType.setUpdateTimeStamp(new Date());
-		
+
 		try {
 			if (elementType.getId() != null)
-				getSession().merge("ElementType", elementType);
+				elementType = (ElementType) getSession().merge("ElementType",
+						elementType);
 			else
 				getSession().saveOrUpdate("ElementType", elementType);
 		} catch (HibernateException he) {
 			throw new InfrastructureException(he.getMessage(), he.getCause());
 		}
-		
+
 		logger.info("Save/update element type [{}]", elementType.toString());
 		return elementType;
 	}

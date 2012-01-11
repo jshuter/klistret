@@ -243,11 +243,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 							element.getName(), element.getName().length()));
 
 		/**
-		 * record current time when updating (removed since using version locking)
-		 */
-		//element.setUpdateTimeStamp(new java.util.Date());
-
-		/**
 		 * pojo type matches the configuration qname
 		 */
 		String typeClassName = CIContext.getCIContext()
@@ -263,7 +258,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		try {
 			if (element.getId() != null)
-				getSession().merge("Element", element);
+				element = (Element) getSession().merge("Element", element);
 			else
 				getSession().saveOrUpdate("Element", element);
 		} catch (HibernateException he) {
@@ -296,8 +291,6 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					new NoSuchElementException());
 
 		element.setToTimeStamp(new java.util.Date());
-		// removed since using version locking
-		//element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
 			getSession().merge("Element", element);
