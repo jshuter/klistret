@@ -3,8 +3,7 @@
 	<property name="tmp-destdir" location="C:/temp" />
 	<property name="cmdb-coredir" location="C:/workshop/klistret/CMDB Core" />
 	<property name="cmdb-webdir" location="C:/workshop/klistret/CMDB Ext Simple Web" />
-	<property name="cmdb-blueprintdir" location="C:/workshop/klistret/CMDB Blueprint" />
-	<property name="repo-dir" location="C:\Users\40042466\.ivy2\repo" />
+	<property name="repo-dir" location="C:/Users/40042466/.ivy2/repo" />
 
 	<ivy:settings file="${cmdb-coredir}/ivysettings.xml" />
 
@@ -37,12 +36,8 @@
 
 		<copy file="${tmp-destdir}/klistret.ext.simple.ear" todir="${packagedir}/bin" />
 
-		<copy file="${repo-dir}/core/klistret.core-${ivy.revision}.jar" tofile="${packagedir}/lib" />
-		<copy file="${repo-dir}/ci/klistret.ci-${ivy.revision}.jar" todir="${packagedir}/lib" />
-		<copy file="${repo-dir}/blueprint/klistret.blueprint-${ivy.revision}.jar" tofile="${packagedir}/lib" />
-
-		<unzip src="${repo-dir}/core/klistret.core-config-${ivy.revision}.zip" dest="${packagedir}/propertes"/>
-		<unzip src="${repo-dir}/blueprint/klistret.blueprint-config-${ivy.revision}.zip" dest="${packagedir}/propertes"/>
+		<unzip src="${repo-dir}/core/klistret.core-config-${ivy.revision}.zip" dest="${packagedir}/propertes" />
+		<unzip src="${repo-dir}/blueprint/klistret.blueprint-config-${ivy.revision}.zip" dest="${packagedir}/propertes" />
 
 		<copy todir="${packagedir}/example/weblogic">
 			<fileset dir="${cmdb-webdir}/build/example/weblogic">
@@ -50,6 +45,10 @@
 				<include name="*.env" />
 			</fileset>
 		</copy>
+
+		<copy file="${repo-dir}/core/klistret.core-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${repo-dir}/ci/klistret.ci-${ivy.revision}.jar" todir="${packagedir}/lib" />
+		<copy file="${repo-dir}/blueprint/klistret.blueprint-${ivy.revision}.jar" todir="${packagedir}/lib" />
 
 		<tar destfile="${tmp-destdir}/klistret.cmdb.ext-simple-${ivy.revision}.tar" basedir="${packagedir}" />
 	</target>
