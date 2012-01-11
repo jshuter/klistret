@@ -48,7 +48,7 @@
 
 		<zip destfile="${config-destdir}/klistret.blueprint-config.zip">
 			<fileset dir="${project-basedir}/configuration/runtime">
-				<include name="*.cfg.xml" />
+				<include name="Blueprint.cfg.xml" />
 				<include name="taxonomy.xml" />
 				<include name="identification.xml" />
 			</fileset>
