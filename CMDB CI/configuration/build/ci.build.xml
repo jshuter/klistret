@@ -20,7 +20,7 @@
 		<delete dir="${jars-destdir}" failonerror="false" />
 		<mkdir dir="${jars-destdir}" />
 
-		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" debug="on">
+		<javac srcdir="${project-basedir}/src" destdir="${jars-destdir}" debug="true" debuglevel="lines,vars,source">
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 
 			<classpath>
@@ -57,7 +57,7 @@
 			<schema dir="${schema-basedir}" />
 		</xjc>
 
-		<javac srcdir="${jars-destdir}" destdir="${jars-destdir}" debug="on">
+		<javac srcdir="${jars-destdir}" destdir="${jars-destdir}" debug="true" debuglevel="lines,vars,source">
 			<include name="com/klistret/cmdb/utility/xjc/DateConverter.java" />
 			<include name="com/klistret/cmdb/ci/**/*.java" />
 			<classpath>
