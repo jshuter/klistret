@@ -96,7 +96,8 @@ public class IvySoftwareDispatcher {
 
 		if ((message.getHeaders().get("function").equals("UPDATE") || message
 				.getHeaders().get("function").equals("CREATE"))
-				&& element.getType().getName().equals(softwareTypeName)) {
+				&& element.getType().getName().equals(softwareTypeName)
+				&& element.getToTimeStamp() == null) {
 			Software configuration = (Software) element.getConfiguration();
 
 			try {
