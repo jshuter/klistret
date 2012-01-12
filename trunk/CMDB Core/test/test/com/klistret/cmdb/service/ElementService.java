@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import com.klistret.cmdb.exception.ApplicationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.GenericXmlApplicationContext;
@@ -139,14 +140,19 @@ public class ElementService {
 	 */
 	@Test
 	public void updateElement() {
-		Element element = elementService.get(new Long(567035));
+		Element element = elementService.get(new Long(577336));
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
 		System.out.println("get version: "
 				+ sdf.format(element.getUpdateTimeStamp()));
 
-		element = elementService.update(element);
-		System.out.println("get version: "
-				+ sdf.format(element.getUpdateTimeStamp()));
+		try {
+			element.setUpdateTimeStamp(new Date());
+			element = elementService.update(element);
+			System.out.println("get version: "
+					+ sdf.format(element.getUpdateTimeStamp()));
+		} catch (ApplicationException e) {
+			System.out.println(e.getMessage());
+		}
 
 		assertNotNull(element);
 	}

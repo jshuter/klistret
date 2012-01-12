@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
@@ -111,8 +112,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			results = null;
 
 			return elements;
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -143,8 +144,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				return null;
 
 			return results.get(0).toString();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -171,7 +172,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			List<Element> results = find(expressions, 0, 1);
 			return results.get(0);
 		} catch (HibernateException e) {
-			throw new InfrastructureException(e.getMessage(), e.getCause());
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -191,8 +192,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			hcriteria.setProjection(Projections.rowCount());
 
 			return ((Long) hcriteria.list().get(0)).intValue();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -220,8 +221,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 			return element;
 
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -261,8 +262,10 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element = (Element) getSession().merge("Element", element);
 			else
 				getSession().saveOrUpdate("Element", element);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Save/update element [name: {}, id: {}]",
@@ -293,9 +296,11 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 		element.setToTimeStamp(new java.util.Date());
 
 		try {
-			getSession().merge("Element", element);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+			element = (Element) getSession().merge("Element", element);
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Deleted element [name:{}, id:{}]", element.getName(),

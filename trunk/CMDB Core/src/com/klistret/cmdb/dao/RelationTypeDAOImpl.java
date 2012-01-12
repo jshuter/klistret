@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,8 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 						relationType.toString());
 
 			return relationType;
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -89,8 +90,8 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 			query.add(Restrictions.isNull("toTimeStamp"));
 
 			return query.list();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -106,8 +107,10 @@ public class RelationTypeDAOImpl extends BaseImpl implements RelationTypeDAO {
 						"RelationType", relationType);
 			else
 				getSession().saveOrUpdate("RelationType", relationType);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Save/update relation type [{}]", relationType.toString());
