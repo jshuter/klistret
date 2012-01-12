@@ -13,9 +13,11 @@
  */
 package com.klistret.cmdb.ivy.aspect;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
@@ -57,6 +59,11 @@ public class IvySoftwareDispatcher {
 	private ElementService elementService;
 
 	/**
+	 * Date formatter (friendly format for date-time as XML)
+	 */
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+
+	/**
 	 * Set element service
 	 * 
 	 * @param elementService
@@ -92,209 +99,275 @@ public class IvySoftwareDispatcher {
 				&& element.getType().getName().equals(softwareTypeName)) {
 			Software configuration = (Software) element.getConfiguration();
 
-			/**
-			 * Latest phase metadata
-			 */
-			if (configuration.getPhase() == null)
-				logger.debug(
-						"Software [id: {}, organization: {}, name: {}] has no phase set",
-						new Object[] { element.getId(),
-								configuration.getOrganization(),
-								element.getName() });
-			else {
-				String tag = String.format("latest.%s",
-						configuration.getPhase());
-
-				if (configuration.getTag().contains(tag))
+			try {
+				/**
+				 * Latest phase metadata
+				 */
+				if (configuration.getPhase() == null)
 					logger.debug(
-							"Software [id: {}, organization: {}, name: {}] already has tag {}",
+							"Software [id: {}, organization: {}, name: {}, version: {}] has no phase set",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(), tag });
+									element.getName(),
+									sdf.format(element.getUpdateTimeStamp()) });
 				else {
-					int count = elementService
-							.count(Arrays.asList(new String[] { String
-									.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Phase = (\"%s\") and component:Version gt \"%s\"]",
-											element.getId(), element.getName(),
+					String tag = String.format("latest.%s",
+							configuration.getPhase());
+
+					if (configuration.getTag().contains(tag))
+						logger.debug(
+								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
+								new Object[] {
+										element.getId(),
+										configuration.getOrganization(),
+										element.getName(),
+										sdf.format(element.getUpdateTimeStamp()),
+										tag });
+					else {
+						int count = elementService
+								.count(Arrays.asList(new String[] { String
+										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Phase = (\"%s\") and component:Version gt \"%s\"]",
+												element.getId(),
+												element.getName(),
+												configuration.getOrganization(),
+												configuration.getPhase(),
+												configuration.getVersion()) }));
+						if (count > 0)
+							logger.debug(
+									"Other software have greater versions than software [id: {}, organization: {}, name: {}, version: {}] for phase {}",
+									new Object[] {
+											element.getId(),
 											configuration.getOrganization(),
+											element.getName(),
+											sdf.format(element
+													.getUpdateTimeStamp()),
+											configuration.getPhase() });
+						else {
+							List<String> expressions = Arrays
+									.asList(new String[] { String
+											.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
+													element.getName(),
+													configuration
+															.getOrganization(),
+													tag) });
+
+							int limit = elementService.count(expressions);
+							if (limit > 0) {
+								List<Element> results = elementService.find(
+										expressions, 0, limit);
+
+								for (Element other : results) {
+									other.getConfiguration().getTag()
+											.remove(tag);
+
+									logger.info(
+											"Removing tag {} from software [id: {}, version: {}]",
+											new Object[] {
+													tag,
+													other.getId(),
+													sdf.format(other
+															.getUpdateTimeStamp()) });
+									elementService.update(other);
+								}
+							}
+
+							configuration.getTag().add(tag);
+							logger.info(
+									"Adding tag {} to software [id: {}, version: {}]",
+									new Object[] {
+											tag,
+											element.getId(),
+											sdf.format(element
+													.getUpdateTimeStamp()) });
+
+							elementService.update(element);
+						}
+					}
+				}
+
+				/**
+				 * Latest availability metadata
+				 */
+				if (configuration.getAvailability() == null)
+					logger.debug(
+							"Software [id: {}, organization: {}, name: {}, version: {}] has no availability set",
+							new Object[] { element.getId(),
+									configuration.getOrganization(),
+									element.getName(),
+									sdf.format(element.getUpdateTimeStamp()) });
+				else {
+					String tag = String.format("latest.%s",
+							configuration.getAvailability());
+
+					if (configuration.getTag().contains(tag))
+						logger.debug(
+								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
+								new Object[] {
+										element.getId(),
+										configuration.getOrganization(),
+										element.getName(),
+										sdf.format(element.getUpdateTimeStamp()),
+										tag });
+					else {
+						int count = elementService
+								.count(Arrays.asList(new String[] { String
+										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Availability = (\"%s\") and component:Version gt \"%s\"]",
+												element.getId(),
+												element.getName(),
+												configuration.getOrganization(),
+												configuration.getAvailability(),
+												configuration.getVersion()) }));
+						if (count > 0)
+							logger.debug(
+									"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}, version: {}] for availability {}",
+									new Object[] {
+											element.getId(),
+											configuration.getOrganization(),
+											element.getName(),
+											sdf.format(element
+													.getUpdateTimeStamp()),
+											configuration.getAvailability() });
+						else {
+							List<String> expressions = Arrays
+									.asList(new String[] { String
+											.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
+													element.getName(),
+													configuration
+															.getOrganization(),
+													tag) });
+
+							int limit = elementService.count(expressions);
+							if (limit > 0) {
+								List<Element> results = elementService.find(
+										expressions, 0, limit);
+
+								for (Element other : results) {
+									other.getConfiguration().getTag()
+											.remove(tag);
+
+									logger.info(
+											"Removing tag {} from software [id: {}, verion: {}]",
+											new Object[] {
+													tag,
+													other.getId(),
+													sdf.format(other
+															.getUpdateTimeStamp()) });
+									elementService.update(other);
+								}
+							}
+
+							configuration.getTag().add(tag);
+							logger.info(
+									"Adding tag {} to software [id: {}, version: {}]",
+									new Object[] {
+											tag,
+											element.getId(),
+											sdf.format(element
+													.getUpdateTimeStamp()) });
+
+							elementService.update(element);
+						}
+					}
+				}
+
+				/**
+				 * Latest phase.availability metadata
+				 */
+				if (configuration.getAvailability() == null
+						|| configuration.getPhase() == null)
+					logger.debug(
+							"Software [id: {}, organization: {}, name: {}, version: {}] has no availability or phase set",
+							new Object[] { element.getId(),
+									configuration.getOrganization(),
+									element.getName(),
+									sdf.format(element.getUpdateTimeStamp()) });
+				else {
+					String tag = String.format("latest.%s.%s",
+							configuration.getPhase(),
+							configuration.getAvailability());
+
+					if (configuration.getTag().contains(tag))
+						logger.debug(
+								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
+								new Object[] {
+										element.getId(),
+										configuration.getOrganization(),
+										element.getName(),
+										sdf.format(element.getUpdateTimeStamp()),
+										tag });
+					else {
+						int count = elementService
+								.count(Arrays.asList(new String[] { String
+										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Phase = (\"%s\") and component:Availability = (\"%s\") and component:Version gt \"%s\"]",
+												element.getId(),
+												element.getName(),
+												configuration.getOrganization(),
+												configuration.getPhase(),
+												configuration.getAvailability(),
+												configuration.getVersion()) }));
+						if (count > 0)
+							logger.debug(
+									"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}, version: {}] for phase {} plus availability {}",
+									new Object[] {
+											element.getId(),
+											configuration.getOrganization(),
+											element.getName(),
 											configuration.getPhase(),
-											configuration.getVersion()) }));
-					if (count > 0)
-						logger.debug(
-								"Other software have greater versions than software [id: {}, organization: {}, name: {}] for phase {}",
-								new Object[] { element.getId(),
-										configuration.getOrganization(),
-										element.getName(),
-										configuration.getPhase() });
-					else {
-						List<String> expressions = Arrays
-								.asList(new String[] { String
-										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
-												element.getName(),
-												configuration.getOrganization(),
-												tag) });
+											sdf.format(element
+													.getUpdateTimeStamp()),
+											configuration.getAvailability() });
+						else {
+							List<String> expressions = Arrays
+									.asList(new String[] { String
+											.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
+													element.getName(),
+													configuration
+															.getOrganization(),
+													tag) });
 
-						int limit = elementService.count(expressions);
-						if (limit > 0) {
-							List<Element> results = elementService.find(
-									expressions, 0, limit);
+							int limit = elementService.count(expressions);
+							if (limit > 0) {
+								List<Element> results = elementService.find(
+										expressions, 0, limit);
 
-							for (Element other : results) {
-								other.getConfiguration().getTag().remove(tag);
+								for (Element other : results) {
+									other.getConfiguration().getTag()
+											.remove(tag);
 
-								logger.info(
-										"Removing tag {} from software [id: {}]",
-										tag, other.getId());
-								elementService.update(other);
+									logger.info(
+											"Removing tag {} from software [id: {}, version: {}]",
+											new Object[] {
+													tag,
+													other.getId(),
+													sdf.format(other
+															.getUpdateTimeStamp()) });
+									elementService.update(other);
+								}
 							}
+
+							configuration.getTag().add(tag);
+							logger.info(
+									"Adding tag {} to software [id: {}, version: {}]",
+									new Object[] {
+											tag,
+											element.getId(),
+											sdf.format(element
+													.getUpdateTimeStamp()) });
+
+							elementService.update(element);
 						}
-
-						configuration.getTag().add(tag);
-						logger.info("Added tag {} to software [id: {}]", tag,
-								element.getId());
-
-						elementService.update(element);
 					}
 				}
-			}
-
-			/**
-			 * Latest availability metadata
-			 */
-			if (configuration.getAvailability() == null)
-				logger.debug(
-						"Software [id: {}, organization: {}, name: {}] has no availability set",
-						new Object[] { element.getId(),
-								configuration.getOrganization(),
-								element.getName() });
-			else {
-				String tag = String.format("latest.%s",
-						configuration.getAvailability());
-
-				if (configuration.getTag().contains(tag))
-					logger.debug(
-							"Software [id: {}, organization: {}, name: {}] already has tag {}",
+			} catch (ApplicationException e) {
+				if (e.contains(StaleStateException.class))
+					logger.error(
+							"Another version conflicts with passed Software element [id: {}, organization: {}, name: {}, version: {}]",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(), tag });
-				else {
-					int count = elementService
-							.count(Arrays.asList(new String[] { String
-									.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Availability = (\"%s\") and component:Version gt \"%s\"]",
-											element.getId(), element.getName(),
-											configuration.getOrganization(),
-											configuration.getAvailability(),
-											configuration.getVersion()) }));
-					if (count > 0)
-						logger.debug(
-								"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}] for availability {}",
-								new Object[] { element.getId(),
-										configuration.getOrganization(),
-										element.getName(),
-										configuration.getAvailability() });
-					else {
-						List<String> expressions = Arrays
-								.asList(new String[] { String
-										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
-												element.getName(),
-												configuration.getOrganization(),
-												tag) });
-
-						int limit = elementService.count(expressions);
-						if (limit > 0) {
-							List<Element> results = elementService.find(
-									expressions, 0, limit);
-
-							for (Element other : results) {
-								other.getConfiguration().getTag().remove(tag);
-
-								logger.info(
-										"Removing tag {} from software [id: {}]",
-										tag, other.getId());
-								elementService.update(other);
-							}
-						}
-
-						configuration.getTag().add(tag);
-						logger.info("Added tag {} to software [id: {}]", tag,
-								element.getId());
-
-						elementService.update(element);
-					}
-				}
-			}
-
-			/**
-			 * Latest phase.availability metadata
-			 */
-			/**
-			 * Latest availability metadata
-			 */
-			if (configuration.getAvailability() == null
-					|| configuration.getPhase() == null)
-				logger.debug(
-						"Software [id: {}, organization: {}, name: {}] has no availability or phase set",
-						new Object[] { element.getId(),
-								configuration.getOrganization(),
-								element.getName() });
-			else {
-				String tag = String.format("latest.%s.%s",
-						configuration.getPhase(),
-						configuration.getAvailability());
-
-				if (configuration.getTag().contains(tag))
-					logger.debug(
-							"Software [id: {}, organization: {}, name: {}] already has tag {}",
-							new Object[] { element.getId(),
-									configuration.getOrganization(),
-									element.getName(), tag });
-				else {
-					int count = elementService
-							.count(Arrays.asList(new String[] { String
-									.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:id ne %d and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and component:Phase = (\"%s\") and component:Availability = (\"%s\") and component:Version gt \"%s\"]",
-											element.getId(), element.getName(),
-											configuration.getOrganization(),
-											configuration.getPhase(),
-											configuration.getAvailability(),
-											configuration.getVersion()) }));
-					if (count > 0)
-						logger.debug(
-								"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}] for phase {} plus availability {}",
-								new Object[] { element.getId(),
-										configuration.getOrganization(),
-										element.getName(),
-										configuration.getPhase(),
-										configuration.getAvailability() });
-					else {
-						List<String> expressions = Arrays
-								.asList(new String[] { String
-										.format("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; /pojo:Element[empty(pojo:toTimeStamp) and pojo:name eq \"%s\" and pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization = (\"%s\") and commons:Tag = (\"%s\")]",
-												element.getName(),
-												configuration.getOrganization(),
-												tag) });
-
-						int limit = elementService.count(expressions);
-						if (limit > 0) {
-							List<Element> results = elementService.find(
-									expressions, 0, limit);
-
-							for (Element other : results) {
-								other.getConfiguration().getTag().remove(tag);
-
-								logger.info(
-										"Removing tag {} from software [id: {}]",
-										tag, other.getId());
-								elementService.update(other);
-							}
-						}
-
-						configuration.getTag().add(tag);
-						logger.info("Added tag {} to software [id: {}]", tag,
-								element.getId());
-
-						elementService.update(element);
-					}
-				}
+									element.getName(),
+									sdf.format(element.getUpdateTimeStamp()) });
+				else
+					throw e;
 			}
 		}
 	}

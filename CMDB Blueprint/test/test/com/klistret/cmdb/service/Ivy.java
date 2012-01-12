@@ -22,10 +22,13 @@ public class Ivy {
 	@Test
 	public void update() {
 		com.klistret.cmdb.ci.pojo.Element element = elementService
-				.get(new Long(565709));
+				.get(new Long(577335));
 
 		((com.klistret.cmdb.ci.element.component.Software) element
-				.getConfiguration()).setPhase("S2");
+				.getConfiguration()).setAvailability("Feb2011R");
+		((com.klistret.cmdb.ci.element.component.Software) element
+				.getConfiguration()).setPhase("integration");
+
 		elementService.update(element);
 	}
 }
