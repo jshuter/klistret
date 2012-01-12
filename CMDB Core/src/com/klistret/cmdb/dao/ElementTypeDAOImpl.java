@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +61,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 				logger.debug("Found element type [{}]", elementType.toString());
 
 			return elementType;
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -87,8 +88,8 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 			query.add(Restrictions.isNull("toTimeStamp"));
 
 			return query.list();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -104,8 +105,10 @@ public class ElementTypeDAOImpl extends BaseImpl implements ElementTypeDAO {
 						elementType);
 			else
 				getSession().saveOrUpdate("ElementType", elementType);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Save/update element type [{}]", elementType.toString());

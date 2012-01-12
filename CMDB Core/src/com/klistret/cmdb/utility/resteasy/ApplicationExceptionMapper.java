@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,25 +43,24 @@ public class ApplicationExceptionMapper implements
 
 	@Override
 	public Response toResponse(ApplicationException exception) {
-		logger
-				.debug(
-						"Handling ApplicationException [{}] inside a custom resteasy mapper",
-						exception.getMessage());
+		logger.debug(
+				"Handling ApplicationException [{}] inside a custom resteasy mapper",
+				exception.getMessage());
 
 		ResponseBuilder rb = Response.status(Response.Status.BAD_REQUEST)
 				.entity(exception.getMessage()).type(MediaType.TEXT_PLAIN);
 
-		if (exception.contains(NoSuchElementException.class)) {
+		if (exception.contains(NoSuchElementException.class))
 			rb.status(Response.Status.NOT_FOUND);
-		}
 
-		if (exception.contains(IllegalArgumentException.class)) {
+		if (exception.contains(IllegalArgumentException.class))
 			rb.status(Response.Status.BAD_REQUEST);
-		}
 
-		if (exception.contains(RejectedExecutionException.class)) {
+		if (exception.contains(RejectedExecutionException.class))
 			rb.status(Response.Status.FORBIDDEN);
-		}
+
+		if (exception.contains(StaleStateException.class))
+			rb.status(Response.Status.CONFLICT);
 
 		return rb.build();
 	}

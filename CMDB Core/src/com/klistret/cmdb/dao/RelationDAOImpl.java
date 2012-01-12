@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
@@ -106,8 +107,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			results = null;
 
 			return relations;
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -132,8 +133,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 
 			List<Relation> results = find(expressions, 0, 1);
 			return results.get(0);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -153,8 +154,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			hcriteria.setProjection(Projections.rowCount());
 
 			return ((Long) hcriteria.list().get(0)).intValue();
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -179,8 +180,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						new NoSuchElementException());
 
 			return relation;
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 	}
 
@@ -208,8 +209,10 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				relation = (Relation) getSession().merge("Relation", relation);
 			else
 				getSession().saveOrUpdate("Relation", relation);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Save/update relation [id: {}]", relation.getId());
@@ -240,9 +243,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 		relation.setToTimeStamp(new java.util.Date());
 
 		try {
-			getSession().merge("Relation", relation);
-		} catch (HibernateException he) {
-			throw new InfrastructureException(he.getMessage(), he.getCause());
+			relation = (Relation) getSession().merge("Relation", relation);
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		logger.info("Deleted relation [id: {}]", relation.getId());
@@ -270,26 +275,32 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	public int cascade(Long id, boolean source, boolean destination) {
 		int count = 0;
 
-		if (source) {
-			int results = getSession()
-					.createQuery(
-							"update Relation r set r.toTimeStamp = current_timestamp() where r.source.id = :sourceId and r.toTimeStamp is null")
-					.setLong("sourceId", id).executeUpdate();
+		try {
+			if (source) {
+				int results = getSession()
+						.createQuery(
+								"update Relation r set r.toTimeStamp = current_timestamp() where r.source.id = :sourceId and r.toTimeStamp is null")
+						.setLong("sourceId", id).executeUpdate();
 
-			count = count + results;
-			logger.info("Deleted {}  relations with source [id: {}]", results,
-					id);
-		}
+				count = count + results;
+				logger.info("Deleted {}  relations with source [id: {}]",
+						results, id);
+			}
 
-		if (destination) {
-			int results = getSession()
-					.createQuery(
-							"update Relation r set r.toTimeStamp = current_timestamp() where r.destination.id = :destinationId and r.toTimeStamp is null")
-					.setLong("destinationId", id).executeUpdate();
+			if (destination) {
+				int results = getSession()
+						.createQuery(
+								"update Relation r set r.toTimeStamp = current_timestamp() where r.destination.id = :destinationId and r.toTimeStamp is null")
+						.setLong("destinationId", id).executeUpdate();
 
-			count = count + results;
-			logger.info("Deleted {} relations with destination [id: {}]",
-					results, id);
+				count = count + results;
+				logger.info("Deleted {} relations with destination [id: {}]",
+						results, id);
+			}
+		} catch (StaleStateException e) {
+			throw new ApplicationException(e.getMessage(), e);
+		} catch (HibernateException e) {
+			throw new InfrastructureException(e.getMessage(), e);
 		}
 
 		return count;
