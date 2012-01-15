@@ -258,7 +258,7 @@ public class IvySoftwareDispatcher {
 				if (configuration.getAvailability() == null
 						|| configuration.getPhase() == null)
 					logger.debug(
-							"Software [id: {}, organization: {}, name: {}, version: {}] has no availability or phase set",
+							"Software [id: {}, organization: {}, name: {}, version: {}] does not have both availability and phase set",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
 									element.getName(), element.getVersion() });
