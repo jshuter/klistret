@@ -297,7 +297,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 
 		try {
 			logger.debug(
-					"Setting element [id: {}, name: {}, version: {}: session: {}]",
+					"Setting element [id: {}, name: {}, version: {}, session: {}]",
 					new Object[] { element.getId(), element.getName(),
 							element.getVersion(), getSession().hashCode() });
 
@@ -315,16 +315,15 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info(
-				"Saved/updated element [id: {}, name: {}, version: {}, session: {}]",
+		logger.info("Saved/updated element [id: {}, name: {}, session: {}]",
 				new Object[] { element.getId(), element.getName(),
-						element.getVersion(), getSession().hashCode() });
+						getSession().hashCode() });
 		return element;
 	}
 
 	/**
 	 * Delete an element by setting the ToTimeStamp attribute to the current
-	 * date. 
+	 * date.
 	 */
 	public Element delete(Long id) {
 		Element element = get(id);
@@ -359,10 +358,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info(
-				"Deleted element [id: {}, name: {}, version: {}, session: {}]",
+		logger.info("Deleted element [id: {}, name: {}, session: {}]",
 				new Object[] { element.getId(), element.getName(),
-						element.getVersion(), getSession().hashCode() });
+						getSession().hashCode() });
 		return element;
 	}
 }
