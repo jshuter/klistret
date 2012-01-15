@@ -13,7 +13,6 @@
  */
 package com.klistret.cmdb.ivy.aspect;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,11 +58,6 @@ public class IvySoftwareDispatcher {
 	private ElementService elementService;
 
 	/**
-	 * Date formatter (friendly format for date-time as XML)
-	 */
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-
-	/**
 	 * Set element service
 	 * 
 	 * @param elementService
@@ -98,6 +92,11 @@ public class IvySoftwareDispatcher {
 				.getHeaders().get("function").equals("CREATE"))
 				&& element.getType().getName().equals(softwareTypeName)
 				&& element.getToTimeStamp() == null) {
+			logger.debug(
+					"Element [id: {}, name: {}, version: {}] prior to processing.",
+					new Object[] { element.getId(), element.getName(),
+							element.getVersion() });
+
 			Software configuration = (Software) element.getConfiguration();
 
 			try {
@@ -109,8 +108,7 @@ public class IvySoftwareDispatcher {
 							"Software [id: {}, organization: {}, name: {}, version: {}] has no phase set",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(),
-									sdf.format(element.getUpdateTimeStamp()) });
+									element.getName(), element.getVersion() });
 				else {
 					String tag = String.format("latest.%s",
 							configuration.getPhase());
@@ -118,12 +116,10 @@ public class IvySoftwareDispatcher {
 					if (configuration.getTag().contains(tag))
 						logger.debug(
 								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
-								new Object[] {
-										element.getId(),
+								new Object[] { element.getId(),
 										configuration.getOrganization(),
 										element.getName(),
-										sdf.format(element.getUpdateTimeStamp()),
-										tag });
+										element.getVersion(), tag });
 					else {
 						int count = elementService
 								.count(Arrays.asList(new String[] { String
@@ -136,12 +132,10 @@ public class IvySoftwareDispatcher {
 						if (count > 0)
 							logger.debug(
 									"Other software have greater versions than software [id: {}, organization: {}, name: {}, version: {}] for phase {}",
-									new Object[] {
-											element.getId(),
+									new Object[] { element.getId(),
 											configuration.getOrganization(),
 											element.getName(),
-											sdf.format(element
-													.getUpdateTimeStamp()),
+											element.getVersion(),
 											configuration.getPhase() });
 						else {
 							List<String> expressions = Arrays
@@ -162,24 +156,20 @@ public class IvySoftwareDispatcher {
 											.remove(tag);
 
 									logger.info(
-											"Removing tag {} from software [id: {}, version: {}]",
-											new Object[] {
-													tag,
-													other.getId(),
-													sdf.format(other
-															.getUpdateTimeStamp()) });
+											"Removing tag {} from software [id: {}, name: {}, version: {}]",
+											new Object[] { tag, other.getId(),
+													other.getName(),
+													other.getVersion() });
 									elementService.update(other);
 								}
 							}
 
 							configuration.getTag().add(tag);
 							logger.info(
-									"Adding tag {} to software [id: {}, version: {}]",
-									new Object[] {
-											tag,
-											element.getId(),
-											sdf.format(element
-													.getUpdateTimeStamp()) });
+									"Adding tag {} to software [id: {}, name: {}, version: {}]",
+									new Object[] { tag, element.getId(),
+											element.getName(),
+											element.getVersion() });
 
 							elementService.update(element);
 						}
@@ -194,8 +184,7 @@ public class IvySoftwareDispatcher {
 							"Software [id: {}, organization: {}, name: {}, version: {}] has no availability set",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(),
-									sdf.format(element.getUpdateTimeStamp()) });
+									element.getName(), element.getVersion() });
 				else {
 					String tag = String.format("latest.%s",
 							configuration.getAvailability());
@@ -203,12 +192,10 @@ public class IvySoftwareDispatcher {
 					if (configuration.getTag().contains(tag))
 						logger.debug(
 								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
-								new Object[] {
-										element.getId(),
+								new Object[] { element.getId(),
 										configuration.getOrganization(),
 										element.getName(),
-										sdf.format(element.getUpdateTimeStamp()),
-										tag });
+										element.getVersion(), tag });
 					else {
 						int count = elementService
 								.count(Arrays.asList(new String[] { String
@@ -221,12 +208,10 @@ public class IvySoftwareDispatcher {
 						if (count > 0)
 							logger.debug(
 									"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}, version: {}] for availability {}",
-									new Object[] {
-											element.getId(),
+									new Object[] { element.getId(),
 											configuration.getOrganization(),
 											element.getName(),
-											sdf.format(element
-													.getUpdateTimeStamp()),
+											element.getVersion(),
 											configuration.getAvailability() });
 						else {
 							List<String> expressions = Arrays
@@ -247,24 +232,20 @@ public class IvySoftwareDispatcher {
 											.remove(tag);
 
 									logger.info(
-											"Removing tag {} from software [id: {}, verion: {}]",
-											new Object[] {
-													tag,
-													other.getId(),
-													sdf.format(other
-															.getUpdateTimeStamp()) });
+											"Removing tag {} from software [id: {}, name: {}, version: {}]",
+											new Object[] { tag, other.getId(),
+													other.getName(),
+													other.getVersion() });
 									elementService.update(other);
 								}
 							}
 
 							configuration.getTag().add(tag);
 							logger.info(
-									"Adding tag {} to software [id: {}, version: {}]",
-									new Object[] {
-											tag,
-											element.getId(),
-											sdf.format(element
-													.getUpdateTimeStamp()) });
+									"Adding tag {} to software [id: {}, name: {}, version: {}]",
+									new Object[] { tag, element.getId(),
+											element.getName(),
+											element.getVersion() });
 
 							elementService.update(element);
 						}
@@ -280,8 +261,7 @@ public class IvySoftwareDispatcher {
 							"Software [id: {}, organization: {}, name: {}, version: {}] has no availability or phase set",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(),
-									sdf.format(element.getUpdateTimeStamp()) });
+									element.getName(), element.getVersion() });
 				else {
 					String tag = String.format("latest.%s.%s",
 							configuration.getPhase(),
@@ -290,12 +270,10 @@ public class IvySoftwareDispatcher {
 					if (configuration.getTag().contains(tag))
 						logger.debug(
 								"Software [id: {}, organization: {}, name: {}, version: {}] already has tag {}",
-								new Object[] {
-										element.getId(),
+								new Object[] { element.getId(),
 										configuration.getOrganization(),
 										element.getName(),
-										sdf.format(element.getUpdateTimeStamp()),
-										tag });
+										element.getVersion(), tag });
 					else {
 						int count = elementService
 								.count(Arrays.asList(new String[] { String
@@ -309,13 +287,11 @@ public class IvySoftwareDispatcher {
 						if (count > 0)
 							logger.debug(
 									"Other software elements have greater versions than this software [id: {}, organization: {}, name: {}, version: {}] for phase {} plus availability {}",
-									new Object[] {
-											element.getId(),
+									new Object[] { element.getId(),
 											configuration.getOrganization(),
 											element.getName(),
 											configuration.getPhase(),
-											sdf.format(element
-													.getUpdateTimeStamp()),
+											element.getVersion(),
 											configuration.getAvailability() });
 						else {
 							List<String> expressions = Arrays
@@ -336,24 +312,20 @@ public class IvySoftwareDispatcher {
 											.remove(tag);
 
 									logger.info(
-											"Removing tag {} from software [id: {}, version: {}]",
-											new Object[] {
-													tag,
-													other.getId(),
-													sdf.format(other
-															.getUpdateTimeStamp()) });
+											"Removing tag {} from software [id: {}, name: {}, version: {}]",
+											new Object[] { tag, other.getId(),
+													other.getName(),
+													other.getVersion() });
 									elementService.update(other);
 								}
 							}
 
 							configuration.getTag().add(tag);
 							logger.info(
-									"Adding tag {} to software [id: {}, version: {}]",
-									new Object[] {
-											tag,
-											element.getId(),
-											sdf.format(element
-													.getUpdateTimeStamp()) });
+									"Adding tag {} to software [id: {}, name: {}, version: {}]",
+									new Object[] { tag, element.getId(),
+											element.getName(),
+											element.getVersion() });
 
 							elementService.update(element);
 						}
@@ -365,10 +337,11 @@ public class IvySoftwareDispatcher {
 							"Another version conflicts with passed Software element [id: {}, organization: {}, name: {}, version: {}]",
 							new Object[] { element.getId(),
 									configuration.getOrganization(),
-									element.getName(),
-									sdf.format(element.getUpdateTimeStamp()) });
-				else
-					throw e;
+									element.getName(), element.getVersion() });
+
+				logger.error("Ivy dispatcher failed: {}", e.getMessage());
+			} catch (Exception e) {
+				logger.error("Ivy dispatcher failed: {}", e.getMessage());
 			}
 		}
 	}

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This file is part of Klistret. Klistret is free software: you can redistribute 
-        it and/or modify it under the terms of the GNU General Public License as 
-        published by the Free Software Foundation, either version 3 of the License, 
-        or (at your option) any later version. Klistret is distributed in the hope 
-        that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
-        warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-        GNU General Public License for more details. You should have received a copy 
-        of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. Klistret is distributed in the hope 
+	that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with Klistret. If not, see <http://www.gnu.org/licenses/> -->
 <!DOCTYPE hibernate-mapping PUBLIC
                 "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
                 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
@@ -14,54 +14,58 @@
 
 <hibernate-mapping package="com.klistret.cmdb.ci.pojo">
 
-        <class name="Relation" table="RELATION">
+	<class name="Relation" table="RELATION">
 
-                <id name="id" type="long">
-                        <column name="RELATIONID" sql-type="INTEGER" />
-                        <generator class="identity"></generator>
-                </id>
+		<id name="id" type="long">
+			<column name="RELATIONID" sql-type="INTEGER" />
+			<generator class="identity"></generator>
+		</id>
 
-                <many-to-one name="type" class="com.klistret.cmdb.ci.pojo.RelationType"
-                        lazy="false" foreign-key="FK_TYPE_REL" index="RELATION_FK RELATION_SK">
-                        <column name="RELATIONTYPEID" sql-type="INTEGER" not-null="true" />
-                </many-to-one>
+		<version name="version" type="long">
+			<column name="VERSION" not-null="true" />
+		</version>
 
-                <many-to-one lazy="false" name="source"
-                        class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_SOURCE"
-                        index="SOURCE_REL_FK">
-                        <column name="SOURCEID" sql-type="INTEGER" not-null="true" />
-                </many-to-one>
+		<many-to-one name="type" class="com.klistret.cmdb.ci.pojo.RelationType"
+			lazy="false" foreign-key="FK_TYPE_REL" index="RELATION_FK RELATION_SK">
+			<column name="RELATIONTYPEID" sql-type="INTEGER" not-null="true" />
+		</many-to-one>
 
-                <many-to-one lazy="false" name="destination"
-                        class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_DEST"
-                        index="DEST_REL_FK">
-                        <column name="DESTINATIONID" sql-type="INTEGER" not-null="true" />
-                </many-to-one>
+		<many-to-one lazy="false" name="source"
+			class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_SOURCE"
+			index="SOURCE_REL_FK">
+			<column name="SOURCEID" sql-type="INTEGER" not-null="true" />
+		</many-to-one>
 
-                <property name="fromTimeStamp" type="timestamp">
-                        <column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<many-to-one lazy="false" name="destination"
+			class="com.klistret.cmdb.ci.pojo.Element" foreign-key="FK_REL_DEST"
+			index="DEST_REL_FK">
+			<column name="DESTINATIONID" sql-type="INTEGER" not-null="true" />
+		</many-to-one>
 
-                <property name="toTimeStamp" type="timestamp">
-                        <column name="TOTIMESTAMP" />
-                </property>
+		<property name="fromTimeStamp" type="timestamp">
+			<column name="FROMTIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
 
-                <property name="createId">
-                        <column name="CREATEID" length="10" />
-                </property>
+		<property name="toTimeStamp" type="timestamp">
+			<column name="TOTIMESTAMP" />
+		</property>
 
-                <property name="createTimeStamp" type="timestamp">
-                        <column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<property name="createId">
+			<column name="CREATEID" length="10" />
+		</property>
 
-                <property name="updateTimeStamp" type="timestamp">
-                        <column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
-                </property>
+		<property name="createTimeStamp" type="timestamp">
+			<column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
 
-                <property name="configuration">
-                        <column name="CONFIGURATION" not-null="true" sql-type="XML" />
-                        <type name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
-                </property>
-        </class>
+		<property name="updateTimeStamp" type="timestamp">
+			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
+
+		<property name="configuration">
+			<column name="CONFIGURATION" not-null="true" sql-type="XML" />
+			<type name="com.klistret.cmdb.utility.hibernate.JAXBUserType" />
+		</property>
+	</class>
 
 </hibernate-mapping>
