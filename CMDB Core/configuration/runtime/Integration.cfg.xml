@@ -51,20 +51,38 @@
 	<!-- Note: order must be less than that of the Spring TX manager -->
 	<aop:config>
 		<aop:aspect ref="elementIntegration" order="200">
-			<aop:pointcut id="elementPointcut"
-				expression="execution(* com.klistret.cmdb.service.ElementService.*(..))" />
+			<aop:pointcut id="createElementPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.create(..))" />
+			<aop:pointcut id="updateElementPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.update(..))" />
+			<aop:pointcut id="deleteElementPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.delete(..))" />
+			<aop:pointcut id="readElementPointcut"
+				expression="execution(* com.klistret.cmdb.service.ElementService.read(..))" />
 
-			<aop:around method="transmit" pointcut-ref="elementPointcut" />
+			<aop:around method="transmit" pointcut-ref="createElementPointcut" />
+			<aop:around method="transmit" pointcut-ref="updateElementPointcut" />
+			<aop:around method="transmit" pointcut-ref="deleteElementPointcut" />
+			<aop:around method="transmit" pointcut-ref="readElementPointcut" />
 		</aop:aspect>
 	</aop:config>
 
 
 	<aop:config>
 		<aop:aspect ref="relationIntegration" order="200">
-			<aop:pointcut id="relationPointcut"
-				expression="execution(* com.klistret.cmdb.service.RelationService.*(..))" />
+			<aop:pointcut id="createRelationPointcut"
+				expression="execution(* com.klistret.cmdb.service.RelationService.create(..))" />
+			<aop:pointcut id="updateRelationPointcut"
+				expression="execution(* com.klistret.cmdb.service.RelationService.update(..))" />
+			<aop:pointcut id="deleteRelationPointcut"
+				expression="execution(* com.klistret.cmdb.service.RelationService.delete(..))" />
+			<aop:pointcut id="readRelationPointcut"
+				expression="execution(* com.klistret.cmdb.service.RelationService.read(..))" />
 
-			<aop:around method="transmit" pointcut-ref="relationPointcut" />
+			<aop:around method="transmit" pointcut-ref="createRelationPointcut" />
+			<aop:around method="transmit" pointcut-ref="updateRelationPointcut" />
+			<aop:around method="transmit" pointcut-ref="deleteRelationPointcut" />
+			<aop:around method="transmit" pointcut-ref="readRelationPointcut" />
 		</aop:aspect>
 	</aop:config>
 </beans>

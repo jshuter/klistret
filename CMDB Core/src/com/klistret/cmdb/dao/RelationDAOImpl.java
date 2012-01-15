@@ -102,7 +102,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				relation.setCreateTimeStamp((Date) row[7]);
 				relation.setUpdateTimeStamp((Date) row[8]);
 				relation.setVersion((Long) row[9]);
-				relation.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[9]);
+				relation.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[10]);
 
 				relations.add(relation);
 			}
