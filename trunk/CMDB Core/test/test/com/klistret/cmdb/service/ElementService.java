@@ -143,7 +143,7 @@ public class ElementService {
 	/**
 	 * Create element then delete
 	 */
-	@Test
+
 	public void createElement() {
 		elementService.create(dummyElement);
 		assertNotNull(dummyElement);
@@ -152,14 +152,15 @@ public class ElementService {
 	/**
 	 * Find elements
 	 */
-
+	@Test
 	public void findElement() {
 		List<Element> response = elementService
-				.find(Arrays
+				.find((Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[\"0069_A06\" gt component:Version]" }),
-						0, 10);
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/context}Organization']",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"com.klistret\"]" })),
+
+				0, 10);
 
 		assertNotNull(response);
 		System.out.println(response.size());
@@ -185,8 +186,8 @@ public class ElementService {
 		Integer response = elementService
 				.count(Arrays
 						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")]" }));
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/content}Organization']",
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"com.klistret\"]" }));
 
 		System.out.println(String.format("Count [%s]", response));
 		assertNotNull(response);

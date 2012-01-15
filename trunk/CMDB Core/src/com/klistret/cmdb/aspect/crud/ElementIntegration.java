@@ -15,6 +15,7 @@ package com.klistret.cmdb.aspect.crud;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
+import org.hibernate.StaleStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
@@ -87,13 +88,11 @@ public class ElementIntegration {
 
 			return element;
 		} catch (HibernateOptimisticLockingFailureException e) {
-			Signature signature = pjp.getSignature();
-			logger.error(
-					"Stale in declaration:{}, name: {}, long: {} message: {}",
-					new Object[] { signature.getDeclaringTypeName(),
-							signature.getName(), pjp.toLongString(),
-							e.getMessage() });
-			throw new ApplicationException("Stale entity captured.");
+			throw new ApplicationException("Stale element.",
+					new StaleStateException(e.getMessage()));
+		} catch (Exception e) {
+			logger.error("Unknown exception: {}", e.getMessage());
+			throw e;
 		}
 	}
 }

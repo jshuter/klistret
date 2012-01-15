@@ -106,7 +106,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
 				element.setVersion((Long) row[8]);
-				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
+				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[9]);
 
 				elements.add(element);
 			}
