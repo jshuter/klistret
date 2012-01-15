@@ -246,13 +246,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				relation = (Relation) getSession().merge("Relation", relation);
 			else
 				getSession().saveOrUpdate("Relation", relation);
-
-			getSession().flush();
 		} catch (StaleStateException e) {
 			throw new ApplicationException(
 					String.format(
-							"Set relation [id: %s] is stale which means newer version exists (Hibernate).",
-							relation.getId()));
+							"Set relation [id: %s] is stale which means newer version exists.",
+							relation.getId()), e);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -288,12 +286,11 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					new Object[] { relation.getId(), relation.getVersion() });
 
 			relation = (Relation) getSession().merge("Relation", relation);
-			getSession().flush();
 		} catch (StaleStateException e) {
 			throw new ApplicationException(
 					String.format(
-							"Deletion stale relation [id: %s] which means newer version exists (Hibernate).",
-							relation.getId()));
+							"Deletion stale relation [id: %s] which means newer version exists.",
+							relation.getId()), e);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -348,7 +345,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			}
 		} catch (StaleStateException e) {
 			throw new ApplicationException(
-					"Cascade deletion of stale entities which means newer version exists (Hibernate).");
+					"Cascade deletion of stale entities which means newer version exists.",
+					e);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
