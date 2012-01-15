@@ -40,12 +40,13 @@ public class CascadeRelations {
 
 	public void receive(Message<Element> message) {
 		if (message.getHeaders().get("function").equals("DELETE")) {
-			int count = relationService.cascade(message.getPayload().getId());
+			Element element = message.getPayload();
 
-			logger
-					.debug(
-							"Cascaded delete of element [id: {}] to source/destination relations [count: {}]",
-							message.getPayload().getId(), count);
+			int count = relationService.cascade(element.getId());
+
+			logger.debug(
+					"Cascaded delete of element [id: {}, version: {}] to source/destination relations [count: {}]",
+					new Object[] { element.getId(), element.getVersion(), count });
 		}
 	}
 }

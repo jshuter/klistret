@@ -38,15 +38,12 @@
 				<prop key="hibernate.show_sql">
 					true
 				</prop>
-				<prop key="hibernate.connection.isolation">
-					1
-				</prop>
 				<prop key="hibernate.transaction.flush_before_completion">
 					true
-					</prop>
+				</prop>
 				<prop key="hibernate.connection.release_mode">
 					auto
-					</prop>
+				</prop>
 				<prop key="hibernate.cache.use_second_level_cache">
 					true
 				</prop>

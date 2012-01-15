@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
-import com.klistret.cmdb.ci.element.context.Environment;
+import com.klistret.cmdb.ci.element.component.Software;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.ci.pojo.Relation;
@@ -87,39 +87,22 @@ public class ElementService {
 				.getBean(com.klistret.cmdb.service.RelationTypeService.class);
 
 		ElementType elementType = elementTypeService
-				.get("{http://www.klistret.com/cmdb/ci/element/context}Environment");
+				.get("{http://www.klistret.com/cmdb/ci/element/component}Software");
 
 		dummyElement = new Element();
-		dummyElement.setName("Dummy");
+		dummyElement.setName("core");
 		dummyElement.setType(elementType);
 		dummyElement.setFromTimeStamp(new java.util.Date());
 		dummyElement.setCreateTimeStamp(new java.util.Date());
 		dummyElement.setUpdateTimeStamp(new java.util.Date());
 
-		Environment environment = new Environment();
-		environment.setName("Dummy");
-		environment.setWatermark("Testing");
+		Software configuration = new Software();
+		configuration.setName("core");
 
-		com.klistret.cmdb.ci.commons.Property property1 = new com.klistret.cmdb.ci.commons.Property();
-		property1.setName("example");
-		property1.setValue("of a property");
+		configuration.setOrganization("com.klistret");
+		configuration.setVersion("0.1");
 
-		com.klistret.cmdb.ci.commons.Property property2 = new com.klistret.cmdb.ci.commons.Property();
-		property2.setName("another test");
-		property2.setValue("where a property is created");
-
-		com.klistret.cmdb.ci.commons.Property[] properties = new com.klistret.cmdb.ci.commons.Property[] {
-				property1, property2 };
-		environment.setProperty(Arrays.asList(properties));
-
-		environment.setTag(Arrays.asList(new String[] { "my litte", "ät" }));
-
-		com.klistret.cmdb.ci.commons.Ownership ownership = new com.klistret.cmdb.ci.commons.Ownership();
-		com.klistret.cmdb.ci.commons.Contact contact = new com.klistret.cmdb.ci.commons.Contact();
-		ownership.setContact(contact);
-		environment.setOwnership(ownership);
-
-		dummyElement.setConfiguration(environment);
+		dummyElement.setConfiguration(configuration);
 	}
 
 	/**
@@ -129,7 +112,7 @@ public class ElementService {
 	 */
 
 	public void getElement() throws JAXBException {
-		Element element = elementService.get(new Long(300349));
+		Element element = elementService.get(new Long(577336));
 
 		System.out.println(element.getId());
 		assertNotNull(element);
@@ -138,7 +121,7 @@ public class ElementService {
 	/**
 	 * Update element
 	 */
-	@Test
+
 	public void updateElement() {
 		Element element = elementService.get(new Long(577336));
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
@@ -160,11 +143,9 @@ public class ElementService {
 	/**
 	 * Create element then delete
 	 */
-
+	@Test
 	public void createElement() {
 		elementService.create(dummyElement);
-		elementService.delete(dummyElement.getId());
-
 		assertNotNull(dummyElement);
 	}
 

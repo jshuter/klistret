@@ -20,8 +20,8 @@
 			<generator class="identity"></generator>
 		</id>
 
-		<version name="updateTimeStamp" type="timestamp">
-			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
+		<version name="version" type="long">
+			<column name="VERSION" not-null="true" />
 		</version>
 
 		<many-to-one name="type" class="com.klistret.cmdb.ci.pojo.ElementType"
@@ -47,6 +47,10 @@
 
 		<property name="createTimeStamp" type="timestamp">
 			<column name="CREATETIMESTAMP" not-null="true" default="current timestamp" />
+		</property>
+
+		<property name="updateTimeStamp" type="timestamp">
+			<column name="UPDATETIMESTAMP" not-null="true" default="current timestamp" />
 		</property>
 
 		<property name="configuration">

@@ -59,8 +59,12 @@ public class ApplicationExceptionMapper implements
 		if (exception.contains(RejectedExecutionException.class))
 			rb.status(Response.Status.FORBIDDEN);
 
-		if (exception.contains(StaleStateException.class))
-			rb.status(Response.Status.CONFLICT);
+		if (exception.contains(StaleStateException.class)) {
+			rb = Response
+					.status(Response.Status.CONFLICT)
+					.entity("Entity is stale which means newer version exists.")
+					.type(MediaType.TEXT_PLAIN);
+		}
 
 		return rb.build();
 	}

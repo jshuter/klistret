@@ -13,19 +13,23 @@
  */
 package com.klistret.cmdb.aspect.crud;
 
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 import com.klistret.cmdb.ci.pojo.Relation;
+import com.klistret.cmdb.exception.ApplicationException;
 
 /**
  * Publishes messages upon CRUD function calls (using AOP). The payload is the
- * relation object and the header is populated with a function attribute denoting
- * the CRUD type. Currently, reads are not handled prior to checking out the
- * performance impacts of using Spring integration to do EDA.
+ * relation object and the header is populated with a function attribute
+ * denoting the CRUD type. Currently, reads are not handled prior to checking
+ * out the performance impacts of using Spring integration to do EDA.
  * 
  * @author Matthew Young
  * 
@@ -36,6 +40,10 @@ public class RelationIntegration {
 			.getLogger(RelationIntegration.class);
 
 	private MessageChannel channel;
+	
+	private enum SignatureMethod {
+		CREATE, UPDATE, DELETE, READ
+	}
 
 	public void setChannel(MessageChannel channel) {
 		this.channel = channel;
@@ -45,41 +53,47 @@ public class RelationIntegration {
 		return this.channel;
 	}
 
-	public void delete(Long id, Relation relation) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Delete on relation [id: {}]",
-						relation.getId());
-		Message<Relation> message = MessageBuilder.withPayload(relation)
-				.setHeader("function", "DELETE").build();
-		channel.send(message);
-	}
+	public Object transmit(ProceedingJoinPoint pjp) throws Throwable {
+		try {
+			Relation relation = (Relation) pjp.proceed();
 
-	public void create(Relation relation) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Create on relation [id: {}]",
-						relation.getId());
-		Message<Relation> message = MessageBuilder.withPayload(relation)
-				.setHeader("function", "CREATE").build();
-		channel.send(message);
-	}
+			Signature signature = pjp.getSignature();
+			String name = signature.getName().toUpperCase();
 
-	public void update(Relation relation) {
-		logger
-				.debug(
-						"Generating a message with CRUD function Update on relation [id: {}]",
-						relation.getId());
-		Message<Relation> message = MessageBuilder.withPayload(relation)
-				.setHeader("function", "UPDATE").build();
-		channel.send(message);
-	}
+			if (name.equals("GET"))
+				name = "READ";
+			try {
+				SignatureMethod method = SignatureMethod.valueOf(name);
 
-	public void read(Long id, Relation relation) {
-		logger
-				.debug(
-						"Message for CRUD function Get on relation [id: {}] not supported",
-						relation.getId());
-	}
+				switch (method) {
+				case CREATE:
+				case DELETE:
+				case UPDATE:
+				case READ:
+					logger.debug(
+							"Generating a message with CRUD function {} on relation [id: {}, version: {}]",
+							new Object[] { name, relation.getId(),
+									relation.getVersion() });
 
+					Message<Relation> message = MessageBuilder
+							.withPayload(relation).setHeader("function", name)
+							.build();
+					channel.send(message);
+					break;
+				}
+			} catch (IllegalArgumentException e) {
+				logger.debug("Method {} is not trasmitted", name);
+			}
+
+			return relation;
+		} catch (HibernateOptimisticLockingFailureException e) {
+			Signature signature = pjp.getSignature();
+			logger.error(
+					"Stale in declaration:{}, name: {}, long: {} message: {}",
+					new Object[] { signature.getDeclaringTypeName(),
+							signature.getName(), pjp.toLongString(),
+							e.getMessage() });
+			throw new ApplicationException("Stale entity captured.");
+		}
+	}
 }
