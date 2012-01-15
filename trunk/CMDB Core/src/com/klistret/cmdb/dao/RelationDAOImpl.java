@@ -255,8 +255,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Saved/updated relation [id: {}, version: {}]",
-				new Object[] { relation.getId(), relation.getVersion() });
+		logger.info("Saved/updated relation [id: {}]",
+				new Object[] { relation.getId() });
 
 		return relation;
 	}
@@ -295,8 +295,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Deleted relation [id: {}, version: {}]", new Object[] {
-				relation.getId(), relation.getVersion() });
+		logger.info("Deleted relation [id: {}]",
+				new Object[] { relation.getId() });
 		return relation;
 	}
 
