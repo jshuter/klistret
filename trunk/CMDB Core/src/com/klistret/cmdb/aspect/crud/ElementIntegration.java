@@ -13,13 +13,17 @@
  */
 package com.klistret.cmdb.aspect.crud;
 
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 import com.klistret.cmdb.ci.pojo.Element;
+import com.klistret.cmdb.exception.ApplicationException;
 
 /**
  * Publishes messages upon CRUD function calls (using AOP). The payload is the
@@ -37,6 +41,10 @@ public class ElementIntegration {
 
 	private MessageChannel channel;
 
+	private enum SignatureMethod {
+		CREATE, UPDATE, DELETE, READ
+	}
+
 	public void setChannel(MessageChannel channel) {
 		this.channel = channel;
 	}
@@ -45,40 +53,47 @@ public class ElementIntegration {
 		return this.channel;
 	}
 
-	public void delete(Long id, Element element) {
-		logger.debug(
-				"Generating a message with CRUD function Delete on element [id: {}]",
-				element.getId());
-		Message<Element> message = MessageBuilder.withPayload(element)
-				.setHeader("function", "DELETE").build();
-		channel.send(message);
-	}
+	public Object transmit(ProceedingJoinPoint pjp) throws Throwable {
+		try {
+			Element element = (Element) pjp.proceed();
 
-	public void create(Element element) {
-		logger.debug(
-				"Generating a message with CRUD function Create on element [id: {}]",
-				element.getId());
-		Message<Element> message = MessageBuilder.withPayload(element)
-				.setHeader("function", "CREATE").build();
-		channel.send(message);
-	}
+			Signature signature = pjp.getSignature();
+			String name = signature.getName().toUpperCase();
 
-	public void update(Element element) {
-		logger.debug(
-				"Generating a message with CRUD function Update on element [id: {}]",
-				element.getId());
-		Message<Element> message = MessageBuilder.withPayload(element)
-				.setHeader("function", "UPDATE").build();
-		channel.send(message);
-	}
+			if (name.equals("GET"))
+				name = "READ";
+			try {
+				SignatureMethod method = SignatureMethod.valueOf(name);
 
-	public void read(Long id, Element element) {
-		logger.debug(
-				"Generating a message with CRUD function Read on element [id: {}]",
-				element.getId());
-		Message<Element> message = MessageBuilder.withPayload(element)
-				.setHeader("function", "READ").build();
-		channel.send(message);
-	}
+				switch (method) {
+				case CREATE:
+				case DELETE:
+				case UPDATE:
+				case READ:
+					logger.debug(
+							"Generating a message with CRUD function {} on element [id: {}, version: {}]",
+							new Object[] { name, element.getId(),
+									element.getVersion() });
 
+					Message<Element> message = MessageBuilder
+							.withPayload(element).setHeader("function", name)
+							.build();
+					channel.send(message);
+					break;
+				}
+			} catch (IllegalArgumentException e) {
+				logger.debug("Method {} is not trasmitted", name);
+			}
+
+			return element;
+		} catch (HibernateOptimisticLockingFailureException e) {
+			Signature signature = pjp.getSignature();
+			logger.error(
+					"Stale in declaration:{}, name: {}, long: {} message: {}",
+					new Object[] { signature.getDeclaringTypeName(),
+							signature.getName(), pjp.toLongString(),
+							e.getMessage() });
+			throw new ApplicationException("Stale entity captured.");
+		}
+	}
 }

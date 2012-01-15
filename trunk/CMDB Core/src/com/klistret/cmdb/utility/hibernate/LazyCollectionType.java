@@ -50,7 +50,7 @@ public class LazyCollectionType implements UserCollectionType {
 	 */
 	@Override
 	public Iterator<?> getElementsIterator(Object collection) {
-		return null;
+		return ((List<?>) collection).iterator();
 	}
 
 	/**

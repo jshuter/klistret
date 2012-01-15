@@ -44,6 +44,7 @@ public class BaseImpl {
 			throw new IllegalStateException(
 					"Session Factory has not been set on DAO before usage");
 		}
+		
 		return this.sessionFactory.getCurrentSession();
 	}
 

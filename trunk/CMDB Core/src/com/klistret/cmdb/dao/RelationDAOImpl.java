@@ -28,6 +28,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.Relation;
@@ -75,6 +76,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					.add(Projections.property(alias + ".createId"))
 					.add(Projections.property(alias + ".createTimeStamp"))
 					.add(Projections.property(alias + ".updateTimeStamp"))
+					.add(Projections.property(alias + ".version"))
 					.add(Projections.property(alias + ".configuration")));
 
 			criteria.setFirstResult(start);
@@ -99,6 +101,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				relation.setCreateId((String) row[6]);
 				relation.setCreateTimeStamp((Date) row[7]);
 				relation.setUpdateTimeStamp((Date) row[8]);
+				relation.setVersion((Long) row[9]);
 				relation.setConfiguration((com.klistret.cmdb.ci.commons.Relation) row[9]);
 
 				relations.add(relation);
@@ -107,6 +110,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			results = null;
 
 			return relations;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Relation(s) found are stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -132,7 +138,14 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						"Expressions criteria was not unique: %d", count));
 
 			List<Relation> results = find(expressions, 0, 1);
-			return results.get(0);
+			Relation relation = results.get(0);
+
+			logger.debug("Returning unique relation [id: {},  version: {}]",
+					new Object[] { relation.getId(), relation.getVersion() });
+			return relation;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Unique relation stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -154,6 +167,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 			hcriteria.setProjection(Projections.rowCount());
 
 			return ((Long) hcriteria.list().get(0)).intValue();
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Relation(s) counted are stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -179,7 +195,20 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						"Relation [id: %s] not found", id),
 						new NoSuchElementException());
 
+			logger.debug("Returning element by id [id: {},  version: {}]",
+					new Object[] { relation.getId(), relation.getVersion() });
+
 			return relation;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					String.format(
+							"Got relation [id: %s] is stale which means newer version exists (Hibernate).",
+							id));
+		} catch (HibernateOptimisticLockingFailureException e) {
+			throw new ApplicationException(
+					String.format(
+							"Got relation [id: %s] is stale which means newer version exists (Spring).",
+							id));
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -204,18 +233,32 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 							typeClassName, relation.getConfiguration()
 									.getClass().getName()));
 
+		/**
+		 * Change update date time
+		 */
+		relation.setUpdateTimeStamp(new java.util.Date());
+
 		try {
+			logger.debug("Setting relation [id: {}, version: {}]",
+					new Object[] { relation.getId(), relation.getVersion() });
+
 			if (relation.getId() != null)
 				relation = (Relation) getSession().merge("Relation", relation);
 			else
 				getSession().saveOrUpdate("Relation", relation);
+
+			getSession().flush();
 		} catch (StaleStateException e) {
-			throw new ApplicationException(e.getMessage(), e);
+			throw new ApplicationException(
+					String.format(
+							"Set relation [id: %s] is stale which means newer version exists (Hibernate).",
+							relation.getId()));
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Save/update relation [id: {}]", relation.getId());
+		logger.info("Saved/updated relation [id: {}, version: {}]",
+				new Object[] { relation.getId(), relation.getVersion() });
 
 		return relation;
 	}
@@ -225,10 +268,7 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 	 * date
 	 */
 	public Relation delete(Long id) {
-		Criteria criteria = getSession().createCriteria(Relation.class);
-		criteria.add(Restrictions.idEq(id));
-
-		Relation relation = (Relation) criteria.uniqueResult();
+		Relation relation = get(id);
 
 		if (relation == null)
 			throw new ApplicationException(String.format(
@@ -241,16 +281,25 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 					new NoSuchElementException());
 
 		relation.setToTimeStamp(new java.util.Date());
+		relation.setUpdateTimeStamp(new java.util.Date());
 
 		try {
+			logger.debug("Deleting relation [id: {}, version: {}]",
+					new Object[] { relation.getId(), relation.getVersion() });
+
 			relation = (Relation) getSession().merge("Relation", relation);
+			getSession().flush();
 		} catch (StaleStateException e) {
-			throw new ApplicationException(e.getMessage(), e);
+			throw new ApplicationException(
+					String.format(
+							"Deletion stale relation [id: %s] which means newer version exists (Hibernate).",
+							relation.getId()));
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Deleted relation [id: {}]", relation.getId());
+		logger.info("Deleted relation [id: {}, version: {}]", new Object[] {
+				relation.getId(), relation.getVersion() });
 		return relation;
 	}
 
@@ -298,7 +347,8 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 						results, id);
 			}
 		} catch (StaleStateException e) {
-			throw new ApplicationException(e.getMessage(), e);
+			throw new ApplicationException(
+					"Cascade deletion of stale entities which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}

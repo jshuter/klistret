@@ -60,8 +60,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	public List<Element> find(List<String> expressions, int start, int limit) {
 		try {
 			logger.debug(
-					"Finding elements by expression from start position [{}] with limit [{}]",
-					start, limit);
+					"Finding elements by expression from start position [{}] with limit [{}] for session [{}]",
+					new Object[] { start, limit, getSession().hashCode() });
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -79,6 +79,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					.add(Projections.property("createId"))
 					.add(Projections.property("createTimeStamp"))
 					.add(Projections.property("updateTimeStamp"))
+					.add(Projections.property("version"))
 					.add(Projections.property("configuration")));
 
 			criteria.addOrder(Order.asc("name"));
@@ -104,6 +105,7 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				element.setCreateId((String) row[5]);
 				element.setCreateTimeStamp((Date) row[6]);
 				element.setUpdateTimeStamp((Date) row[7]);
+				element.setVersion((Long) row[8]);
 				element.setConfiguration((com.klistret.cmdb.ci.commons.Element) row[8]);
 
 				elements.add(element);
@@ -112,6 +114,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			results = null;
 
 			return elements;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Element(s) found are stale which means newer version exists.");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -123,7 +128,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public String aggregate(String projection, List<String> expressions) {
 		try {
-			logger.debug("Aggregating elements by expression");
+			logger.debug("Aggregating elements by expression [session: {}]",
+					getSession().hashCode());
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -144,6 +150,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				return null;
 
 			return results.get(0).toString();
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Element(s) aggregated are stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -155,7 +164,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public Element unique(List<String> expressions) {
 		try {
-			logger.debug("Query unique over XPath expressions");
+			logger.debug("Query unique over XPath expressions (session: {})",
+					getSession().hashCode());
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -170,7 +180,16 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						"Expressions criteria was not unique: %d", count));
 
 			List<Element> results = find(expressions, 0, 1);
-			return results.get(0);
+			Element element = results.get(0);
+
+			logger.debug(
+					"Returning unique element [id: {}, name: {}, version: {}, session: {}]",
+					new Object[] { element.getId(), element.getName(),
+							element.getVersion(), getSession().hashCode() });
+			return element;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Unique element stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -181,7 +200,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public Integer count(List<String> expressions) {
 		try {
-			logger.debug("Query count of XPath expressions");
+			logger.debug("Query count of XPath expressions [session: {}]",
+					getSession().hashCode());
 
 			if (expressions == null)
 				throw new ApplicationException("Expressions parameter is null",
@@ -192,6 +212,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 			hcriteria.setProjection(Projections.rowCount());
 
 			return ((Long) hcriteria.list().get(0)).intValue();
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					"Element(s) counted are stale which means newer version exists (Hibernate).");
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -207,7 +230,8 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 	 */
 	public Element get(Long id) {
 		try {
-			logger.debug("Getting element [id: {}] by id ", id);
+			logger.debug("Getting element [id: {}] by id [session: {}]", id,
+					getSession().hashCode());
 
 			Criteria criteria = getSession().createCriteria(Element.class);
 			criteria.add(Restrictions.idEq(id));
@@ -219,8 +243,17 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 						"Element [id: %s] not found", id),
 						new NoSuchElementException());
 
-			return element;
+			logger.debug(
+					"Returning element by id [id: {}, name: {}, version: {}, session: {}]",
+					new Object[] { element.getId(), element.getName(),
+							element.getVersion(), getSession().hashCode() });
 
+			return element;
+		} catch (StaleStateException e) {
+			throw new ApplicationException(
+					String.format(
+							"Got element [id: %d] is stale which means newer version exists (Hibernate).",
+							id));
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
@@ -257,31 +290,44 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 							typeClassName, element.getConfiguration()
 									.getClass().getName()));
 
+		/**
+		 * Change update date time
+		 */
+		element.setUpdateTimeStamp(new java.util.Date());
+
 		try {
+			logger.debug(
+					"Setting element [id: {}, name: {}, version: {}: session: {}]",
+					new Object[] { element.getId(), element.getName(),
+							element.getVersion(), getSession().hashCode() });
+
 			if (element.getId() != null)
 				element = (Element) getSession().merge("Element", element);
 			else
 				getSession().saveOrUpdate("Element", element);
 		} catch (StaleStateException e) {
-			throw new ApplicationException(e.getMessage(), e);
+			throw new ApplicationException(
+					String.format(
+							"Set element [id: %s, name: %s, version: %s] is stale which means newer version exists (Hibernate).",
+							element.getId(), element.getName(),
+							element.getVersion()), e);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Save/update element [name: {}, id: {}]",
-				element.getName(), element.getId());
+		logger.info(
+				"Saved/updated element [id: {}, name: {}, version: {}, session: {}]",
+				new Object[] { element.getId(), element.getName(),
+						element.getVersion(), getSession().hashCode() });
 		return element;
 	}
 
 	/**
 	 * Delete an element by setting the ToTimeStamp attribute to the current
-	 * date
+	 * date. 
 	 */
 	public Element delete(Long id) {
-		Criteria criteria = getSession().createCriteria(Element.class);
-		criteria.add(Restrictions.idEq(id));
-
-		Element element = (Element) criteria.uniqueResult();
+		Element element = get(id);
 
 		if (element == null)
 			throw new ApplicationException(String.format(
@@ -294,17 +340,29 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 					new NoSuchElementException());
 
 		element.setToTimeStamp(new java.util.Date());
+		element.setUpdateTimeStamp(new java.util.Date());
 
 		try {
+			logger.debug(
+					"Deleting element [id: {}, name: {}, version: {}, session: {}]",
+					new Object[] { element.getId(), element.getName(),
+							element.getVersion(), getSession().hashCode() });
+
 			element = (Element) getSession().merge("Element", element);
 		} catch (StaleStateException e) {
-			throw new ApplicationException(e.getMessage(), e);
+			throw new ApplicationException(
+					String.format(
+							"Deleted element [id: %s, name: %s, version: %s] is stale which means newer version exists (Hibernate).",
+							element.getId(), element.getName(),
+							element.getVersion()), e);
 		} catch (HibernateException e) {
 			throw new InfrastructureException(e.getMessage(), e);
 		}
 
-		logger.info("Deleted element [name:{}, id:{}]", element.getName(),
-				element.getId());
+		logger.info(
+				"Deleted element [id: {}, name: {}, version: {}, session: {}]",
+				new Object[] { element.getId(), element.getName(),
+						element.getVersion(), getSession().hashCode() });
 		return element;
 	}
 }
