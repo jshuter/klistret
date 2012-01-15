@@ -58,7 +58,7 @@
 			<xs:documentation>Creation ID</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:string">
-			<xs:length value="10"/>
+			<xs:length value="10" />
 		</xs:restriction>
 	</xs:simpleType>
 
@@ -78,6 +78,15 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:dateTime" />
+	</xs:simpleType>
+
+	<xs:simpleType name="version">
+		<xs:annotation>
+			<xs:documentation>
+				Optimistic locking version number
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:long" />
 	</xs:simpleType>
 
 
@@ -130,6 +139,8 @@
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp" type="updateTimeStamp"
 				maxOccurs="1" minOccurs="1" />
+			<xs:element name="version" type="version" maxOccurs="1"
+				minOccurs="1" />
 			<xs:element name="configuration" type="commons:Element"
 				maxOccurs="1" minOccurs="1" />
 			<xs:element name="sourceRelations" type="Relation"
@@ -191,6 +202,8 @@
 			<xs:element name="source" type="Element" maxOccurs="1"
 				minOccurs="1" />
 			<xs:element name="destination" type="Element" maxOccurs="1"
+				minOccurs="1" />
+			<xs:element name="version" type="version" maxOccurs="1"
 				minOccurs="1" />
 			<xs:element name="configuration" type="commons:Relation"
 				maxOccurs="1" minOccurs="1" />
@@ -285,19 +298,19 @@
 		</xs:annotation>
 
 		<xs:sequence>
-			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1"/>
+			<xs:element name="id" type="id" maxOccurs="1" minOccurs="1" />
 			<xs:element name="name" type="name" maxOccurs="1"
-				minOccurs="1"/>
+				minOccurs="1" />
 			<xs:element name="fromTimeStamp" type="fromTimeStamp"
-				maxOccurs="1" minOccurs="1"/>
+				maxOccurs="1" minOccurs="1" />
 			<xs:element name="toTimeStamp" type="toTimeStamp"
-				maxOccurs="1" minOccurs="0"/>
+				maxOccurs="1" minOccurs="0" />
 			<xs:element name="createId" type="createId" maxOccurs="1"
-				minOccurs="0"/>
+				minOccurs="0" />
 			<xs:element name="createTimeStamp" type="createTimeStamp"
-				maxOccurs="1" minOccurs="1"/>
+				maxOccurs="1" minOccurs="1" />
 			<xs:element name="updateTimeStamp" type="updateTimeStamp"
-				maxOccurs="1" minOccurs="1"/>
+				maxOccurs="1" minOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
 
