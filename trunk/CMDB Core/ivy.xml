@@ -17,7 +17,7 @@
 	</info>
 	<configurations>
 		<conf name="compile" visibility="public" description="Compiling" />
-		<conf name="test" visibility="private" extends="compile"
+		<conf name="test" visibility="public" extends="compile"
 			description="Testing" />
 		<conf name="runtime" visibility="public" extends="compile"
 			description="Running" />
