@@ -13,19 +13,14 @@
  */
 package test.com.klistret.cmdb.service;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.io.StringReader;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
@@ -38,7 +33,7 @@ import org.jboss.resteasy.mock.MockHttpResponse;
 import org.jboss.resteasy.plugins.spring.SpringBeanProcessor;
 import org.jboss.resteasy.plugins.spring.SpringResourceFactory;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.GenericXmlApplicationContext;
 
@@ -48,9 +43,6 @@ import org.jboss.resteasy.util.HttpResponseCodes;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 import com.klistret.cmdb.utility.resteasy.ApplicationExceptionMapper;
-import com.klistret.cmdb.utility.resteasy.AccessControlInterceptor;
-import com.klistret.cmdb.utility.resteasy.InfrastructureExceptionMapper;
-import com.klistret.cmdb.utility.resteasy.IntegerMessageBodyWriter;
 
 /**
  * Element services tested through the RestEasy mock servlet
@@ -60,28 +52,26 @@ import com.klistret.cmdb.utility.resteasy.IntegerMessageBodyWriter;
  */
 public class RestEasyService {
 
-	/**
-	 * Mock dispatcher
-	 */
-	private Dispatcher dispatcher;
+	private static Dispatcher dispatcher;
+
+	private static GenericXmlApplicationContext ctx;
+
+	private static final String elementId = "701120";
+
+	private static final String organization = "com.test";
+
+	private static final String version = "0.1";
+
+	private static final String name = "demo";
+
+	private static final String url = "http://vsgtmklistret.sfa.se:50003/CMDB";
 
 	/**
-	 * Spring application context
+	 * Without a Before static initialize then the setup is run for every test
+	 * case which leads to multiple registrations of MBeans.
 	 */
-	private GenericXmlApplicationContext ctx;
-
-	/**
-	 * Element Service
-	 */
-	protected com.klistret.cmdb.service.ElementService es;
-
-	/**
-	 * Sets up the RestEasy Mock framework
-	 * 
-	 * @throws Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
+	@BeforeClass
+	public static void runBeforeClass() {
 		// Embedded server
 		dispatcher = MockDispatcherFactory.createDispatcher();
 
@@ -95,195 +85,145 @@ public class RestEasyService {
 		ctx.refresh();
 		ctx.addBeanFactoryPostProcessor(processor);
 
-		/**
-		 * Element service
-		 */
-		es = ctx.getBean(com.klistret.cmdb.service.ElementService.class);
-
-		// Add service to the dispatcher
+		/** Add services to the dispatcher */
 		SpringResourceFactory elementService = new SpringResourceFactory(
 				"elementService", ctx,
 				com.klistret.cmdb.service.ElementService.class);
-		SpringResourceFactory relationService = new SpringResourceFactory(
-				"relationService", ctx,
-				com.klistret.cmdb.service.RelationService.class);
-		SpringResourceFactory elementTypeService = new SpringResourceFactory(
-				"elementTypeService", ctx,
-				com.klistret.cmdb.service.ElementTypeService.class);
-		SpringResourceFactory relationTypeService = new SpringResourceFactory(
-				"relationTypeService", ctx,
-				com.klistret.cmdb.service.RelationTypeService.class);
-		dispatcher.getRegistry().addResourceFactory(elementService);
-		dispatcher.getRegistry().addResourceFactory(relationService);
-		dispatcher.getRegistry().addResourceFactory(elementTypeService);
-		dispatcher.getRegistry().addResourceFactory(relationTypeService);
 
-		// Necessary providers
+		dispatcher.getRegistry().addResourceFactory(elementService);
+
+		/** Add providers */
 		ResteasyProviderFactory providerFactory = dispatcher
 				.getProviderFactory();
 		providerFactory.registerProvider(ApplicationExceptionMapper.class);
-		providerFactory.registerProvider(InfrastructureExceptionMapper.class);
-		providerFactory.registerProvider(AccessControlInterceptor.class);
-		providerFactory.registerProvider(IntegerMessageBodyWriter.class);
-
-		// Language mapper
-		Map<String, String> lm = new HashMap<String, String>();
-		lm.put("ISO-8859-1", "UTF-8");
-		dispatcher.setLanguageMappings(lm);
 	}
 
 	/**
-	 * Get an element by id
-	 * 
-	 * @throws URISyntaxException
-	 * @throws JAXBException
-	 * @throws UnsupportedEncodingException
+	 * Get element
 	 */
-
-	public void getElement() throws URISyntaxException, JAXBException,
+	@Test
+	public void get() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/567035")
+				.get("/resteasy/element/" + elementId)
 				.accept(Arrays
 						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
 
 		MockHttpResponse response = new MockHttpResponse();
-
 		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
 	/**
-	 * Delete an element with invalid id
-	 * 
-	 * @throws URISyntaxException
-	 * @throws JAXBException
-	 * @throws UnsupportedEncodingException
+	 * Delete element (expects 404 requiring the ApplicationExceptionMapper)
 	 */
-
-	public void deleteElementExpect404() throws URISyntaxException,
-			JAXBException, UnsupportedEncodingException {
+	@Test
+	public void delete404() throws URISyntaxException, JAXBException,
+			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest.delete("/resteasy/element/0");
 
 		MockHttpResponse response = new MockHttpResponse();
-
 		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_NOT_FOUND,
 				response.getStatus());
 	}
 
 	/**
-	 * Get a known element then resend as PUT
-	 * 
-	 * @throws URISyntaxException
-	 * @throws JAXBException
-	 * @throws UnsupportedEncodingException
+	 * Put (get an element then update)
 	 */
-	
-	public void putElement() throws URISyntaxException, JAXBException,
+	@Test
+	public void put() throws URISyntaxException, JAXBException,
 			UnsupportedEncodingException {
-		MockHttpRequest getRequest = MockHttpRequest
-				.get("/resteasy/element/567035")
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/" + elementId)
 				.accept(Arrays
 						.asList(new MediaType[] { MediaType.APPLICATION_JSON_TYPE }));
-		MockHttpResponse getResponse = new MockHttpResponse();
-		dispatcher.invoke(getRequest, getResponse);
 
-		MockHttpRequest putRequest = MockHttpRequest
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
+
+		request = MockHttpRequest
 				.put("/resteasy/element")
 				.accept(Arrays
 						.asList(new MediaType[] { MediaType.APPLICATION_JSON_TYPE }));
-		MockHttpResponse putResponse = new MockHttpResponse();
 
-		String body = getResponse.getContentAsString();
-		body = body.replaceAll("WEBDOCS", "WEBDOCS2");
-
-		putRequest.contentType(MediaType.APPLICATION_JSON);
-		putRequest.content(body.getBytes("UTF-8"));
-
-		dispatcher.invoke(putRequest, putResponse);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]",
-				putResponse.getStatus(), putResponse.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, putResponse.getStatus());
-	}
-
-	/**
-	 * Get a known element then resend as POST which is expected to fail
-	 * 
-	 * @throws URISyntaxException
-	 * @throws JAXBException
-	 * @throws UnsupportedEncodingException
-	 */
-
-	public void createElementExpect403() throws URISyntaxException,
-			JAXBException, UnsupportedEncodingException {
-		MockHttpRequest getRequest = MockHttpRequest
-				.get("/resteasy/element/78941")
-				.accept(Arrays
-						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
-		MockHttpResponse getResponse = new MockHttpResponse();
-		dispatcher.invoke(getRequest, getResponse);
-
-		MockHttpRequest postRequest = MockHttpRequest.post("/resteasy/element");
-		MockHttpResponse postResponse = new MockHttpResponse();
-
-		String requestBodyAsString = getResponse.getContentAsString();
-
-		postRequest.contentType(MediaType.APPLICATION_XML);
-		postRequest.content(requestBodyAsString.getBytes("UTF-8"));
-
-		dispatcher.invoke(postRequest, postResponse);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]",
-				postResponse.getStatus(), postResponse.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_FORBIDDEN,
-				postResponse.getStatus());
-	}
-
-	/**
-	 * Valid query after software elements
-	 * 
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
-	 */
-
-	public void findElement() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element?start=0&limit=100&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace process=\"http://www.klistret.com/cmdb/ci/element/process\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[process:State = (\"Planned\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
+		request.contentType(MediaType.APPLICATION_JSON);
+		request.content(response.getContentAsString().getBytes("UTF-8"));
 		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
+	/**
+	 * Post (expects 403)
+	 */
+	@Test
+	public void create403() throws URISyntaxException, JAXBException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/" + elementId)
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
+
+		request = MockHttpRequest.post("/resteasy/element");
+
+		request.contentType(MediaType.APPLICATION_XML);
+		request.content(response.getContentAsString().getBytes("UTF-8"));
+		dispatcher.invoke(request, response);
+
+		Assert.assertEquals(HttpResponseCodes.SC_FORBIDDEN,
+				response.getStatus());
+	}
+
+	/**
+	 * Find (software)
+	 */
+	@Test
+	public void find() throws URISyntaxException, UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element?start=0&limit=10&expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder.encode(
+								String.format(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+										organization, version), "UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
+
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
+	}
+
+	/**
+	 * Find (404 due to an known XPath syntax error)
+	 */
+	@Test
+	public void find404() throws URISyntaxException,
+			UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element?start=0&limit=10&expressions="
+						+ URLEncoder
+								.encode("eclare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+										"UTF-8"));
+
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
+
+		Assert.assertEquals(HttpResponseCodes.SC_BAD_REQUEST,
+				response.getStatus());
+	}
+
+	/**
+	 * Aggregate (software version)
+	 */
+	@Test
 	public void aggregate() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
@@ -293,322 +233,91 @@ public class RestEasyService {
 										"UTF-8")
 						+ "&expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
 										"UTF-8")
 						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068\")]",
-										"UTF-8"));
+						+ URLEncoder.encode(
+								String.format(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and commons:Name ge \"%s\"]",
+										organization, name), "UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
-
 		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
 	/**
-	 * Valid query after software elements
-	 * 
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
+	 * Unique
 	 */
-
-	public void uniqueElement() throws URISyntaxException,
+	@Test
+	public void unique() throws URISyntaxException,
 			UnsupportedEncodingException {
 		MockHttpRequest request = MockHttpRequest
 				.get("/resteasy/element/unique?expressions="
 						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"inf\")]",
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
 										"UTF-8")
 						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = (\"Mar2008R\")]",
-										"UTF-8"));
+						+ URLEncoder.encode(
+								String.format(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"%s\"]/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+										name, organization, version), "UTF-8"));
 
 		MockHttpResponse response = new MockHttpResponse();
-
 		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
 
 		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
 
 	/**
-	 * Count elements
-	 * 
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
+	 * Count
 	 */
-
-	public void countElement() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/count?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,\"inf\")]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace xsi=\"http://www.w3.org/2001/XMLSchema-instance\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Availability = (\"Mar2008R\", \"Jun2008R\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-	}
-
-	public void countElement2() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/count?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[pojo:name = (\"KUI\")]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = (\"Produktion\",\"Uranus\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-	}
-
-	public void countElement3() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element/count?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:type[pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace change=\"http://www.klistret.com/cmdb/ci/element/process/change\"; /pojo:Element/pojo:configuration/change:Environment[commons:Name = (\"Test\")]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace process=\"http://www.klistret.com/cmdb/ci/element/process\"; declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element/pojo:configuration[process:State = (\"Planned\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-	}
-
-	/**
-	 * Find elements expected to return nothing due to a misspelling of an
-	 * element name
-	 * 
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
-	 */
-
-	public void findElementExpect200() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Modul = (\"KUI\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-	}
-
-	/**
-	 * Find elements expected to fail (400) due to bad comparison operator
-	 * 
-	 * @throws URISyntaxException
-	 * @throws UnsupportedEncodingException
-	 */
-
-	public void findElementExpect400() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/element?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace sw=\"http://www.klistret.com/cmdb/ci/element/component/software\"; /pojo:Element/pojo:configuration[sw:Module == (\"KUI\")]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_BAD_REQUEST,
-				response.getStatus());
-	}
-
-	public void findRelation() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation/unique?expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)]/pojo:source[pojo:id eq 448055]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"]",
-										"UTF-8")
-						+ "&expressions="
-						+ URLEncoder
-								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation/pojo:destination[pojo:id eq 468925][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-										"UTF-8"));
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-	}
-
-	public void getRelation() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest request = MockHttpRequest
-				.get("/resteasy/relation/737397");
-
-		MockHttpResponse response = new MockHttpResponse();
-
-		dispatcher.invoke(request, response);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]", response.getStatus(),
-				response.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
-	}
-
-	public void putElement2() throws URISyntaxException,
-			UnsupportedEncodingException {
-		MockHttpRequest putRequest = MockHttpRequest.put("/resteasy/element");
-		MockHttpResponse putResponse = new MockHttpResponse();
-
-		String requestBodyAsString = "{\"Element\":{\"@xmlns\":{\"$\":\"http://www.klistret.com/cmdb/ci/pojo\",\"ns10\":\"http://www.klistret.com/cmdb/ci/element\",\"ns11\":\"http://www.klistret.com/cmdb/ci/element/system\",\"ns12\":\"http://www.klistret.com/cmdb/ci/element/system/computerSystem\",\"ns13\":\"http://www.klistret.com/cmdb/ci/relation\",\"ns2\":\"http://www.klistret.com/cmdb/ci/commons\",\"ns3\":\"http://www.klistret.com/cmdb/ci/element/context\",\"ns4\":\"http://www.klistret.com/cmdb/ci/element/context/lifecycle\",\"ns5\":\"http://www.klistret.com/cmdb/ci/element/process\",\"ns6\":\"http://www.klistret.com/cmdb/ci/element/process/change\",\"ns7\":\"http://www.klistret.com/cmdb/ci/element/service\",\"ns8\":\"http://www.klistret.com/cmdb/ci/element/component\",\"ns9\":\"http://www.klistret.com/cmdb/ci/element/component/software\"},\"createTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-10-12T10:29:29+02:00\"},\"id\":{\"$\":\"414385\"},\"name\":{\"$\":\"INF WLSSERVER\"},\"type\":{\"createTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"fromTimeStamp\":{\"$\":\"2011-09-22T10:48:41.469+02:00\"},\"id\":{\"$\":\"87\"},\"name\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/process/change}SoftwareInstallation\"},\"updateTimeStamp\":{\"$\":\"2011-09-22T10:48:41.639+02:00\"}},\"updateTimeStamp\":{\"$\":\"2011-10-13T10:00:09.099+02:00\"},\"configuration\":{\"@xmlns\":{\"xsi\":\"http://www.w3.org/2001/XMLSchema-instance\"},\"@xsi:type\":\"ns6:SoftwareInstallation\",\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:Tag\":[{\"$\":\"Script\"}],\"ns5:State\":\"Completed\",\"ns6:Environment\":{\"ns2:Id\":{\"$\":\"303330\"},\"ns2:Name\":{\"$\":\"Test\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/context}Environment\"}},\"ns6:Software\":{\"ns2:Id\":{\"$\":\"321889\"},\"ns2:Name\":{\"$\":\"INF WLSSERVER\"},\"ns2:QName\":{\"$\":\"{http://www.klistret.com/cmdb/ci/element/component}Software\"}},\"ns6:Type\":{\"$\":\"WLSSERVER\"},\"ns6:Label\":{\"$\":\"INF_0068_A01_UTSKRIFT_WLSSERVER.110412.tar\"},\"ns6:Version\":{\"$\":\"0068_A01\"}}}}";
-
-		putRequest.contentType(MediaType.APPLICATION_JSON);
-		putRequest.content(requestBodyAsString.getBytes("UTF-8"));
-
-		dispatcher.invoke(putRequest, putResponse);
-		System.out.println(String.format(
-				"Response code [%s] with payload [%s]",
-				putResponse.getStatus(), putResponse.getContentAsString()));
-
-		Assert.assertEquals(HttpResponseCodes.SC_OK, putResponse.getStatus());
-	}
-
-	
-	public void putWithClient() throws Exception {
-		String url = "http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/element";
-
-		ClientRequest request = new ClientRequest(url + "/567035");
-		request.accept("application/xml");
-		ClientResponse<String> response = request.get(String.class);
-
-		if (response.getStatus() == 200) {
-			Unmarshaller unmarshaller = CIContext.getCIContext()
-					.getJAXBContext().createUnmarshaller();
-			StreamSource source = new StreamSource(new StringReader(
-					response.getEntity()));
-
-			Element element = (Element) unmarshaller.unmarshal(source);
-			element.getConfiguration().getTag().add("hello");
-
-			Assert.assertNotNull(element);
-
-			MockHttpRequest putRequest = MockHttpRequest
-					.put("/resteasy/element")
-					.accept(Arrays
-							.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
-			MockHttpResponse putResponse = new MockHttpResponse();
-
-			StringWriter stringWriter = new StringWriter();
-			Marshaller m = CIContext.getCIContext().getJAXBContext()
-					.createMarshaller();
-			m.marshal(element, stringWriter);
-
-			String body = stringWriter.toString();
-
-			putRequest.contentType(MediaType.APPLICATION_XML);
-			putRequest.content(body.getBytes("UTF-8"));
-
-			dispatcher.invoke(putRequest, putResponse);
-			System.out.println(String.format(
-					"Response code [%s] with payload [%s]",
-					putResponse.getStatus(), putResponse.getContentAsString()));
-
-			Assert.assertEquals(HttpResponseCodes.SC_OK,
-					putResponse.getStatus());
-		} else
-			Assert.fail();
-	}
-
 	@Test
-	public void anotherClient() throws Exception {
-		Element element = es.get(new Long(567035));
+	public void count() throws URISyntaxException, UnsupportedEncodingException {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/count?expressions="
+						+ URLEncoder
+								.encode("declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+										"UTF-8")
+						+ "&expressions="
+						+ URLEncoder.encode(
+								String.format(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and commons:Name ge \"%s\"]",
+										organization, name), "UTF-8"));
 
-		ClientRequest request = new ClientRequest(
-				"http://vsgtmklistret.sfa.se:50003/CMDB/resteasy/element");
-		request.accept("application/xml");
-		request.body(MediaType.APPLICATION_XML, element);
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
 
-		ClientResponse<String> response = request.put(String.class);
-
-		if (response.getStatus() != 200)
-			Assert.fail();
+		Assert.assertEquals(HttpResponseCodes.SC_OK, response.getStatus());
 	}
-	
-	
-	public void dummy() {
-		Locale locale = Locale.getDefault();
-		System.out.println(locale.toString());
-		
-		System.out.println(System.getProperty("user.timezone"));
+
+
+	public void client() throws Exception {
+		MockHttpRequest request = MockHttpRequest
+				.get("/resteasy/element/" + elementId)
+				.accept(Arrays
+						.asList(new MediaType[] { MediaType.APPLICATION_XML_TYPE }));
+
+		MockHttpResponse response = new MockHttpResponse();
+		dispatcher.invoke(request, response);
+
+		Element element = null;
+		if (response.getStatus() == 200) {
+			StreamSource source = new StreamSource(new StringReader(
+					response.getContentAsString()));
+
+			Unmarshaller um = CIContext.getCIContext().getJAXBContext()
+					.createUnmarshaller();
+			element = (Element) um.unmarshal(source);
+		}
+
+		ClientRequest crequest = new ClientRequest(url + "/resteasy/element");
+		crequest.accept("application/xml");
+		crequest.body(MediaType.APPLICATION_XML, element);
+
+		ClientResponse<String> cresponse = crequest.put(String.class);
+
+		Assert.assertEquals(200, cresponse.getStatus());
 	}
 }

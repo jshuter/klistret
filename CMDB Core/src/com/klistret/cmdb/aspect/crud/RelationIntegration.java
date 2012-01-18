@@ -60,6 +60,7 @@ public class RelationIntegration {
 
 			Signature signature = pjp.getSignature();
 			String name = signature.getName().toUpperCase();
+			Object[] args = pjp.getArgs();
 
 			if (name.equals("GET"))
 				name = "READ";
@@ -71,14 +72,24 @@ public class RelationIntegration {
 				case DELETE:
 				case UPDATE:
 				case READ:
+					Relation precedent = null;
+
+					for (Object arg : args)
+						if (arg instanceof Relation)
+							precedent = (Relation) arg;
+
 					logger.debug(
 							"Generating a message with CRUD function {} on relation [id: {}, version: {}]",
 							new Object[] { name, relation.getId(),
 									relation.getVersion() });
 
 					Message<Relation> message = MessageBuilder
-							.withPayload(relation).setHeader("function", name)
-							.build();
+							.withPayload(relation)
+							.setHeader("function", name)
+							.setHeader(
+									"precedent",
+									precedent == null ? null : precedent
+											.getVersion()).build();
 					channel.send(message);
 					break;
 				}
