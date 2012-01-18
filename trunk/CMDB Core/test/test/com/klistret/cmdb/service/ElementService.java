@@ -15,25 +15,20 @@
 package test.com.klistret.cmdb.service;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
-import com.klistret.cmdb.exception.ApplicationException;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.support.GenericXmlApplicationContext;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ActiveProfiles;
 
-import com.klistret.cmdb.ci.element.component.Software;
 import com.klistret.cmdb.ci.pojo.Element;
-import com.klistret.cmdb.ci.pojo.ElementType;
-import com.klistret.cmdb.ci.pojo.Relation;
-import com.klistret.cmdb.ci.pojo.RelationType;
-import com.klistret.cmdb.ci.relation.Composition;
 
 /**
  * Element services are tested directly
@@ -41,259 +36,184 @@ import com.klistret.cmdb.ci.relation.Composition;
  * @author Matthew Young
  * 
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:Spring.cfg.xml" })
+@ActiveProfiles("development")
 public class ElementService {
 
-	private Element dummyElement;
-
-	/**
-	 * Element Service
-	 */
+	@Autowired
 	protected com.klistret.cmdb.service.ElementService elementService;
 
-	/**
-	 * Element Type Services
-	 */
+	@Autowired
 	protected com.klistret.cmdb.service.ElementTypeService elementTypeService;
 
-	/**
-	 * Relation Service
-	 */
+	@Autowired
 	protected com.klistret.cmdb.service.RelationService relationService;
 
-	/**
-	 * Relation Type Services
-	 */
+	@Autowired
 	protected com.klistret.cmdb.service.RelationTypeService relationTypeService;
 
+	private static final String softwareType = "{http://www.klistret.com/cmdb/ci/element/component}Software";
+
+	private static final String organization = "com.test";
+
+	private static final String version = "0.1";
+
+	private static final String name = "demo";
+
+	private Long createId = new Long(701120);
+
 	/**
-	 * 
-	 * @throws Exception
+	 * Create a software element
 	 */
-	@Before
-	public void setUp() throws Exception {
-		GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-		ctx.getEnvironment().setActiveProfiles("development");
-		ctx.load("classpath:Spring.cfg.xml");
-		ctx.refresh();
+	@Test
+	public void createElement() {
+		com.klistret.cmdb.ci.pojo.ElementType type = elementTypeService
+				.get(softwareType);
 
-		elementService = ctx
-				.getBean(com.klistret.cmdb.service.ElementService.class);
-		relationService = ctx
-				.getBean(com.klistret.cmdb.service.RelationService.class);
+		Element element = new Element();
+		element.setName(name);
+		element.setType(type);
+		element.setFromTimeStamp(new Date());
+		element.setCreateTimeStamp(new Date());
 
-		elementTypeService = ctx
-				.getBean(com.klistret.cmdb.service.ElementTypeService.class);
-		relationTypeService = ctx
-				.getBean(com.klistret.cmdb.service.RelationTypeService.class);
+		com.klistret.cmdb.ci.element.component.Software configuration = new com.klistret.cmdb.ci.element.component.Software();
+		configuration.setName(name);
+		configuration.setOrganization(organization);
+		configuration.setVersion(version);
+		configuration.getTag().add("eclipse");
 
-		ElementType elementType = elementTypeService
-				.get("{http://www.klistret.com/cmdb/ci/element/component}Software");
+		element.setConfiguration(configuration);
 
-		dummyElement = new Element();
-		dummyElement.setName("core");
-		dummyElement.setType(elementType);
-		dummyElement.setFromTimeStamp(new java.util.Date());
-		dummyElement.setCreateTimeStamp(new java.util.Date());
-		dummyElement.setUpdateTimeStamp(new java.util.Date());
+		elementService.create(element);
+		createId = element.getId();
 
-		Software configuration = new Software();
-		configuration.setName("core");
-
-		configuration.setOrganization("com.klistret");
-		configuration.setVersion("0.1");
-
-		dummyElement.setConfiguration(configuration);
+		assertNotNull(element.getId());
 	}
 
 	/**
 	 * Get element
 	 * 
-	 * @throws JAXBException
 	 */
-
-	public void getElement() throws JAXBException {
-		Element element = elementService.get(new Long(577336));
-
-		System.out.println(element.getId());
+	@Test
+	public void get() {
+		Element element = elementService.get(createId);
 		assertNotNull(element);
+	}
+
+	/**
+	 * Expected failure
+	 */
+	@Test(expected = com.klistret.cmdb.exception.ApplicationException.class)
+	public void failGet() {
+		Element element = elementService.get(new Long(0));
+		assertNull(element);
 	}
 
 	/**
 	 * Update element
 	 */
-
-	public void updateElement() {
-		Element element = elementService.get(new Long(577336));
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
-		System.out.println("get version: "
-				+ sdf.format(element.getUpdateTimeStamp()));
-
-		try {
-			element.setUpdateTimeStamp(new Date());
-			element = elementService.update(element);
-			System.out.println("get version: "
-					+ sdf.format(element.getUpdateTimeStamp()));
-		} catch (ApplicationException e) {
-			System.out.println(e.getMessage());
-		}
-
+	@Test
+	public void update() {
+		Element element = elementService.get(createId);
+		elementService.update(element);
 		assertNotNull(element);
 	}
 
 	/**
-	 * Create element then delete
-	 */
-
-	public void createElement() {
-		elementService.create(dummyElement);
-		assertNotNull(dummyElement);
-	}
-
-	/**
-	 * Find elements
+	 * Find (software)
 	 */
 	@Test
-	public void findElement() {
+	public void find() {
 		List<Element> response = elementService
-				.find((Arrays
-						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/context}Organization']",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"com.klistret\"]" })),
+				.find((Arrays.asList(new String[] {
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+						String.format(
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+								organization, version) })),
 
 				0, 10);
 
 		assertNotNull(response);
-		System.out.println(response.size());
 	}
 
-	public void maxElement() {
+	/**
+	 * Max software version
+	 */
+	@Test
+	public void max() {
 		String response = elementService
 				.aggregate(
 						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; max(/pojo:Element/pojo:configuration/component:Version)",
 						Arrays.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\" or pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Publication\"]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"INF\"]/pojo:configuration[matches(component:Version,\"0068\")]" }));
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+								String.format(
+										"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+										organization, version) }));
 
 		assertNotNull(response);
-		System.out.println(response);
 	}
 
 	/**
-	 * Count elements
+	 * Count software elements
 	 */
-
-	public void countElement() {
+	@Test
+	public void count() {
 		Integer response = elementService
-				.count(Arrays
-						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/content}Organization']",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"com.klistret\"]" }));
+				.count(Arrays.asList(new String[] {
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+						String.format(
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+								organization, version) }));
 
-		System.out.println(String.format("Count [%s]", response));
 		assertNotNull(response);
 	}
 
 	/**
-	 * Unique elements
+	 * Unique software element
 	 */
-
-	public void uniqueElement() {
+	@Test(expected = com.klistret.cmdb.exception.ApplicationException.class)
+	public void unique() {
 		Element element = elementService
-				.unique(Arrays
-						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/system}Application']",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:configuration[element:Environment = (\"Ettan\",\"tm639\")][commons:Name eq \"A37\"]" }));
-		System.out.println(String.format("Element [name: %s, id: %s]",
-				element.getName(), element.getId()));
-
+				.unique(Arrays.asList(new String[] {
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+						String.format(
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element[pojo:name eq \"%s\"]/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+								name, organization, version) }));
 		assertNotNull(element);
 	}
 
 	/**
-	 * Get relation
+	 * Delete created element
 	 */
-
-	public void getRelation() {
-		Relation relation = relationService.get(new Long(1));
-		assertNotNull(relation);
+	@Test(expected = com.klistret.cmdb.exception.ApplicationException.class)
+	public void delete() {
+		Element element = elementService.delete(createId);
+		assertNotNull(element);
 	}
 
 	/**
-	 * Find relations
+	 * Multiple deletes
 	 */
-
-	public void findRelation() {
-		List<Relation> response = relationService
-				.find(Arrays
-						.asList(new String[] {
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation[empty(pojo:toTimeStamp) and pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]/pojo:source[pojo:name eq \"KUI\" and pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = (\"Test\")]",
-								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace commons=\"http://www.klistret.com/cmdb/ci/commons\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Relation/pojo:destination[pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[commons:Name eq \"KUI\" and component:Organization = (\"Försäkringskassan\")]" }),
-						0, 25);
-
-		assertNotNull(response);
-	}
-
-	public void findElement2() {
-		List<Element> response = elementService
-				.find(Arrays
-						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element[pojo:name eq \"KUI\"][empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = \"Produktion\"]" }),
-						0, 25);
-
-		assertNotNull(response);
-	}
-
-	public void findSoftware() {
+	@Test
+	public void deletes() {
 		Integer count = elementService
-				.count(Arrays
-						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Element/pojo:destinationRelations[empty(pojo:toTimeStamp)]/pojo:source[empty(pojo:toTimeStamp) and pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/element/system}Application\"]/pojo:configuration[element:Environment = (\"Produktion\")]" }));
+				.count(Arrays.asList(new String[] {
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+						String.format(
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+								organization, version) }));
 
-		assertNotNull(count);
-	}
+		List<Element> results = elementService
+				.find((Arrays.asList(new String[] {
+						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']",
+						String.format(
+								"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Element/pojo:configuration[component:Organization = (\"%s\") and component:Version ge \"%s\"]",
+								organization, version) })),
 
-	public void countRelation() {
-		List<String> expressions = Arrays
-				.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Dependency\"]/pojo:source[pojo:id eq "
-						+ new Long(9) + "]" });
-		Integer count = relationService.count(expressions);
+				0, count);
 
-		assertNotNull(count);
-	}
-
-	public void mistake() {
-		List<String> expressions = Arrays
-				.asList(new String[] {
-						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Relation[empty(pojo:toTimeStamp)][pojo:type/pojo:name eq \"{http://www.klistret.com/cmdb/ci/relation}Composition\"]",
-						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace element=\"http://www.klistret.com/cmdb/ci/element\"; /pojo:Relation/pojo:source[empty(pojo:toTimeStamp)][pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/system}Application\"][pojo:name eq \"INF\"]/pojo:configuration[element:Environment = (\"Test\")]",
-						"declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; declare namespace component=\"http://www.klistret.com/cmdb/ci/element/component\"; /pojo:Relation/pojo:destination[empty(pojo:toTimeStamp)][pojo:type/pojo:name = \"{http://www.klistret.com/cmdb/ci/element/component}Software\"]/pojo:configuration[component:Organization eq \"Försäkringskassan\" and component:Type eq \"Version\"]" });
-
-		Integer count = relationService.count(expressions);
-		System.out.println("Count: " + count);
-		assertNotNull(count);
-	}
-
-	public void createRelation() {
-		Element application = elementService.get(new Long(412221));
-
-		Element software = elementService.get(new Long(412016));
-
-		RelationType type = relationTypeService
-				.get("{http://www.klistret.com/cmdb/ci/relation}Composition");
-
-		Relation relation = new Relation();
-		relation.setType(type);
-		relation.setFromTimeStamp(new Date());
-		relation.setToTimeStamp(null);
-		relation.setUpdateTimeStamp(new Date());
-		relation.setCreateTimeStamp(new Date());
-
-		relation.setSource(application);
-		relation.setDestination(software);
-
-		Composition configuration = new Composition();
-		configuration.setName(software.getName());
-
-		relation.setConfiguration(configuration);
-
-		relationService.create(relation);
+		for (Element element : results)
+			elementService.delete(element.getId());
 	}
 }

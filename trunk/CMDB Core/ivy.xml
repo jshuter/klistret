@@ -38,27 +38,29 @@
 	<dependencies>
 		<!-- Spring core (3): core, commons-loggning, aspectj-weaver -->
 		<dependency org="org.springframework" name="org.springframework.core"
-			rev="3.1.0.M1" conf="compile->compile;runtime->aspectj" />
+			rev="3.1.0.M2" conf="compile->compile;runtime->aspectj" />
 
 		<!-- Spring context (6): context, aopalliance, asm. aop, beans, expression -->
 		<dependency org="org.springframework" name="org.springframework.context"
-			rev="3.1.0.M1" conf="compile->compile" />
+			rev="3.1.0.M2" conf="compile->compile" />
 
 		<!-- Spring orm (3): orm, jdbc, transaction -->
 		<dependency org="org.springframework" name="org.springframework.orm"
-			rev="3.1.0.M1" conf="compile->compile" />
+			rev="3.1.0.M2" conf="compile->compile" />
 
 		<!-- Spring web (1): web -->
 		<dependency org="org.springframework" name="org.springframework.web"
-			rev="3.1.0.M1" conf="runtime->compile" />
+			rev="3.1.0.M2" conf="runtime->compile" />
 
 		<!-- Spring test (1): test -->
 		<dependency org="org.springframework" name="org.springframework.test"
-			rev="3.1.0.M1" conf="test->compile" />
+			rev="3.1.0.M2" conf="test->compile" />
 
-		<!-- Spring integration (1): core (otherwise there are forced dependencies 
-			on a specific version of Spring Core) -->
+		<!-- Spring integration (2): core (otherwise there are forced dependencies 
+			on a specific version of Spring Core), jmx -->
 		<dependency org="org.springframework.integration" name="spring-integration-core"
+			rev="2.0.3.RELEASE" conf="compile->master" />
+		<dependency org="org.springframework.integration" name="spring-integration-jmx"
 			rev="2.0.3.RELEASE" conf="compile->master" />
 
 		<!-- Hibernate core (7): hibernate-core, antlr, commons-collections, dom4j, 

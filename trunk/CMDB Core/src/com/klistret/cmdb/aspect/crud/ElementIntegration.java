@@ -60,6 +60,7 @@ public class ElementIntegration {
 
 			Signature signature = pjp.getSignature();
 			String name = signature.getName().toUpperCase();
+			Object[] args = pjp.getArgs();
 
 			if (name.equals("GET"))
 				name = "READ";
@@ -71,14 +72,24 @@ public class ElementIntegration {
 				case DELETE:
 				case UPDATE:
 				case READ:
+					Element precedent = null;
+
+					for (Object arg : args)
+						if (arg instanceof Element)
+							precedent = (Element) arg;
+
 					logger.debug(
 							"Generating a message with CRUD function {} on element [id: {}, version: {}]",
 							new Object[] { name, element.getId(),
 									element.getVersion() });
 
 					Message<Element> message = MessageBuilder
-							.withPayload(element).setHeader("function", name)
-							.build();
+							.withPayload(element)
+							.setHeader("function", name)
+							.setHeader(
+									"precedent",
+									precedent == null ? null : precedent
+											.getVersion()).build();
 					channel.send(message);
 					break;
 				}
