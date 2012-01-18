@@ -84,10 +84,10 @@ public class Ivy {
 	@Test
 	public void update2() {
 		com.klistret.cmdb.ci.pojo.Element element = elementService
-				.get(new Long(577405));
+				.get(new Long(701074));
 		
 		((com.klistret.cmdb.ci.element.component.Software) element
-				.getConfiguration()).setPhase("maintanace");
+				.getConfiguration()).setPhase("sandbox");
 
 		elementService.update(element);
 	}
