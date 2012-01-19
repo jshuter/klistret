@@ -1,4 +1,7 @@
+#summary Overview
 #labels Phase-Design
+#sidebar TableOfContents
+
 The page is an overview of the major components inside Klistret.
 
 == Overview ==
