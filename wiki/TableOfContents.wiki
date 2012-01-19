@@ -3,11 +3,23 @@
  * Introduction
    * [Overview Overview]
    * [Core Core]
- * Configuration items
+     * [QueryingCI Querying with XPath]
+   * Clients
+     * [PerlClient Perl]
+     * [IvyPlugin Ivy]
+ * [CI Configuration items]
+   * Commons
+     * [BaseCI Base]
+     * [PojoCI Pojo wrapper]
+     * [ElementCI Element]
+     * [RelationCI Relation]
    * Service
    * System
      * [ApplicationCI Application]
    * Component
+     * [SoftwareCI Software]
+     * [PublicationCI Publication]
+   * Context
    * Process
  * Administrative
    * [WeblogicConfiguration Weblogic configuration]
