@@ -1,11 +1,12 @@
 #summary The preferred sidebar
 
-* Getting Started
+* Introduction
   * [Overview Overview]
   * [Core Core]
 * Configuration items
   * Service
   * System
+    * [ApplicationCI Application]
   * Component
   * Process
 * Administrative
