@@ -1,4 +1,7 @@
+#summary Links to supported specifications.
 #labels Phase-Deploy,Weblogic
+#sidebar TableOfContents
+
 The configuration of Klistret on Weblogic (10+) is described below and the majority is applicable to other containers like Websphere or JBoss.
 
 = Introduction =
