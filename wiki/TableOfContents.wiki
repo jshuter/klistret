@@ -1,13 +1,13 @@
 #summary The preferred sidebar
 
-* Introduction
-  * [Overview Overview]
-  * [Core Core]
-* Configuration items
-  * Service
-  * System
-    * [ApplicationCI Application]
-  * Component
-  * Process
-* Administrative
-  * [WeblogicConfiguration Weblogic configuration]
+ * Introduction
+   * [Overview Overview]
+   * [Core Core]
+ * Configuration items
+   * Service
+   * System
+     * [ApplicationCI Application]
+   * Component
+   * Process
+ * Administrative
+   * [WeblogicConfiguration Weblogic configuration]
