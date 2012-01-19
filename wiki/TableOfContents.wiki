@@ -1,0 +1,6 @@
+#summary The preferred sidebar
+
+* Getting Started
+  * [Overview Overview]
+* Administrative
+  * [WeblogicConfiguration Weblogic configuration]
