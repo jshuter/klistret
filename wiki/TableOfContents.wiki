@@ -2,5 +2,11 @@
 
 * Getting Started
   * [Overview Overview]
+  * [Core Core]
+* Configuration items
+  * Service
+  * System
+  * Component
+  * Process
 * Administrative
   * [WeblogicConfiguration Weblogic configuration]
