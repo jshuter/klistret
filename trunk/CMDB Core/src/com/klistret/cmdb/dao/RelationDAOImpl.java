@@ -35,6 +35,7 @@ import com.klistret.cmdb.ci.pojo.Relation;
 import com.klistret.cmdb.ci.pojo.RelationType;
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.exception.NonUniqueObjectException;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
 import com.klistret.cmdb.utility.jaxb.CIContext;
 
@@ -134,8 +135,9 @@ public class RelationDAOImpl extends BaseImpl implements RelationDAO {
 				return null;
 
 			if (count > 1)
-				throw new ApplicationException(String.format(
-						"Expressions criteria was not unique: %d", count));
+				throw new NonUniqueObjectException(String.format(
+						"Expressions criteria was not unique: %d", count),
+						expressions);
 
 			List<Relation> results = find(expressions, 0, 1);
 			Relation relation = results.get(0);
