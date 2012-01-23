@@ -34,6 +34,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.klistret.cmdb.exception.ApplicationException;
 import com.klistret.cmdb.exception.InfrastructureException;
+import com.klistret.cmdb.exception.NonUniqueObjectException;
 import com.klistret.cmdb.ci.pojo.Element;
 import com.klistret.cmdb.ci.pojo.ElementType;
 import com.klistret.cmdb.utility.hibernate.XPathCriteria;
@@ -176,8 +177,9 @@ public class ElementDAOImpl extends BaseImpl implements ElementDAO {
 				return null;
 
 			if (count > 1)
-				throw new ApplicationException(String.format(
-						"Expressions criteria was not unique: %d", count));
+				throw new NonUniqueObjectException(String.format(
+						"Expressions criteria was not unique: %d", count),
+						expressions);
 
 			List<Element> results = find(expressions, 0, 1);
 			Element element = results.get(0);
