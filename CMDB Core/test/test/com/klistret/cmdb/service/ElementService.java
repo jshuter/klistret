@@ -16,6 +16,7 @@ package test.com.klistret.cmdb.service;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -86,7 +87,6 @@ public class ElementService {
 		element.setConfiguration(configuration);
 
 		elementService.create(element);
-		createId = element.getId();
 
 		assertNotNull(element.getId());
 	}
@@ -135,6 +135,25 @@ public class ElementService {
 				0, 10);
 
 		assertNotNull(response);
+	}
+
+	/**
+	 * Use like wildcards
+	 */
+	@Test
+	public void like() {
+		List<Element> response = elementService
+				.find((Arrays
+						.asList(new String[] { "declare namespace pojo=\"http://www.klistret.com/cmdb/ci/pojo\"; /pojo:Element[matches(pojo:name,'ASS%') and empty(pojo:toTimeStamp)]/pojo:type[pojo:name eq '{http://www.klistret.com/cmdb/ci/element/component}Software']" })),
+
+				0, 10);
+
+		boolean starting = true;
+		for (Element element : response)
+			if (!element.getName().startsWith("ASS"))
+				starting = false;
+
+		assertTrue(starting);
 	}
 
 	/**
