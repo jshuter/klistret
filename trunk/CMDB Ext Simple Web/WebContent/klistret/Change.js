@@ -189,7 +189,7 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 										tpl : new Ext.XTemplate(
 												'<tpl for="."><div class="version-item">',
 												'<h3><span>{Created:date("M j, Y")}<br /></span>{Version}</h3>',
-												'{Label}', '</div></tpl>'),
+												'<tpl if="Label!=null "><p>Label: {Label}</p></tpl>', '</div></tpl>'),
 										mode : 'remote',
 										queryParam : 'expressions',
 										forceSelection : true,
@@ -282,10 +282,13 @@ CMDB.SoftwareInstallation.GeneralForm = Ext
 																			.get('Element'),
 																	'type/name/$')
 												};
-												element['Element']['configuration'][change
-														+ ':Label'] = {
-													'$' : record.get('Label')
-												};
+												if (record.get('Label')) {
+													element['Element']['configuration'][change
+															+ ':Label'] = {
+														'$' : record
+																.get('Label')
+													};
+												}
 												element['Element']['configuration'][change
 														+ ':Version'] = {
 													'$' : record.get('Version')

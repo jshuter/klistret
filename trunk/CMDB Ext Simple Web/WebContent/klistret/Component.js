@@ -1165,7 +1165,7 @@ CMDB.Publication.GeneralForm = Ext
 														.getPrefix(element,
 																'http://www.klistret.com/cmdb/ci/element/component');
 												element['Element']['configuration'][prefix
-														+ ':PublicationType'] = {
+														+ ':Type'] = {
 													'$' : this.getValue()
 												};
 											} else {
