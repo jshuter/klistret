@@ -1075,7 +1075,7 @@ public class XPathCriteria {
 
 				logger.debug("Value: {}", literal.getValue().getText());
 				return Restrictions.ilike(propertyName, literal.getValue()
-						.getText(), MatchMode.ANYWHERE);
+						.getText(), MatchMode.EXACT);
 			case Exists:
 				if (((ComparisonExpr) predicate).getOperands().size() != 1)
 					throw new ApplicationException(String.format(
