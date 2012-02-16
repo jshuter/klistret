@@ -1066,7 +1066,13 @@ public class XPathCriteria {
 				}
 
 				logger.debug("Values: {}", literal.getValues());
-				return Restrictions.in(propertyName, literal.getValues());
+
+				Object[] javaValues = new Object[literal.getValues().length];
+				for (int index = 0; index < literal.getValues().length; index++)
+					javaValues[index] = ((com.klistret.cmdb.utility.saxon.Value) literal
+							.getValues()[index]).getJavaValue();
+
+				return Restrictions.in(propertyName, javaValues);
 			case Matches:
 				if (((ComparisonExpr) predicate).getOperands().size() != 2)
 					throw new ApplicationException(String.format(
